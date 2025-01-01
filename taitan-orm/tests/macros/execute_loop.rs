@@ -2,12 +2,12 @@ use crate::entities::user3::{
     UserEntity, UserMutation, UserPrimary, UserSelectedEntity, UserSelection,
 };
 use taitan_orm::traits::Selection;
-use taitan_orm::{ReaderApi, SqlExecutor, SqlGenericExecutor, TemplateApi, WriterApi, DB};
+use taitan_orm::{Executor, SqlGenericExecutor, WriterApi};
 use taitan_orm_trait::SelectedEntity;
 
 async fn test_insert_user<EX>(db: &mut EX, user: &UserEntity) -> taitan_orm::Result<()>
 where
-    EX: WriterApi + ReaderApi + TemplateApi,
+    EX: Executor,
     UserSelectedEntity: SelectedEntity<<EX as SqlGenericExecutor>::DB>,
 {
     let success = db.insert(user).await?;
@@ -34,7 +34,7 @@ async fn test_update_user<EX>(
     user_primary: &UserPrimary,
 ) -> taitan_orm::Result<()>
 where
-    EX: WriterApi + ReaderApi + TemplateApi,
+    EX: Executor,
     UserSelectedEntity: SelectedEntity<<EX as SqlGenericExecutor>::DB>,
 {
     let success = db.update(user_mutation, user_primary).await?;
@@ -57,7 +57,7 @@ where
 
 async fn test_upsert_user<EX>(db: &mut EX, user: &UserEntity) -> taitan_orm::Result<()>
 where
-    EX: WriterApi + ReaderApi + TemplateApi,
+    EX: Executor,
     UserSelectedEntity: SelectedEntity<<EX as SqlGenericExecutor>::DB>,
 {
     let success = db.upsert(user).await?;

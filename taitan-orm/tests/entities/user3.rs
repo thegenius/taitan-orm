@@ -885,7 +885,7 @@ impl taitan_orm::traits::Selection for UserSelection {
         }
     }
 }
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UserSelectedEntity {
     pub id: taitan_orm::Optional<i64>,
     pub request_id: taitan_orm::Optional<Uuid>,
