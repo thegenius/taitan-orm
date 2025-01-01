@@ -24,7 +24,7 @@ pub struct UserUpdateTemplate {
 
 #[derive(TemplateRecord, Debug)]
 #[sql = "select `id`, `name`, `age` FROM `user` where `id` >= #{id}"]
-#[count_sql = "select count(*) as count FROM `user` where `id` >= #{id}"]
+#[count_sql = "select count(*) FROM `user` where `id` >= #{id}"]
 pub struct UserSelectTemplate {
     id: i32,
 
