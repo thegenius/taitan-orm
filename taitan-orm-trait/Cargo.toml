@@ -3,6 +3,9 @@ name = "taitan-orm-trait"
 edition = "2021"
 version.workspace = true
 rust-version.workspace = true
+license-file = "LICENSE"
+description = "ORM based on sqlx"
+homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
 sqlx = {workspace = true}
