@@ -3,10 +3,11 @@
 
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
--  **Transactional** : run transaction as normal.
--  **Template** : Write your own sql like mybatis.
--  **Asynchronous** : Based on SQLx, taitan-orm is fully async.
+-  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
+-  **Template** : Write Your Own Sql Like Mybatis.
+-  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Multi-Database** : MySql + Postgres + Sqlite for now.
+
 
 # Quick Start
 ```toml
