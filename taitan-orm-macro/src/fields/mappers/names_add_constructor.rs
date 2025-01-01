@@ -119,7 +119,7 @@ pub trait NamesAddConstructor {
         let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
         quote_spanned! { span=>
-            if self.#field_name.is_null() {
+            if self.#field_name.is_selected() {
                 fields.push(#field_name_string.to_string());
             }
         }

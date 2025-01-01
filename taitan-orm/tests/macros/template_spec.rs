@@ -1,8 +1,8 @@
 use sqlx::sqlx_macros;
 use std::borrow::Cow;
 use taitan_orm::Schema;
-use taitan_orm_macro::TemplateRecord;
-use taitan_orm_trait::TemplateRecord;
+use taitan_orm::TemplateRecord;
+use taitan_orm::traits::TemplateRecord;
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 use taitan_orm_trait::pagination::Pagination;

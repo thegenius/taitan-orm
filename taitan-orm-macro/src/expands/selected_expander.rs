@@ -89,12 +89,6 @@ fn generate_selected_and_impl(
                     #selected_row_construct
                 }
 
-             fn from_row_bits(bits: &bit_vec::BitVec, row: <sqlx::#db_ident as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
-                where
-                    Self: Sized {
-                    #selected_bits_row_construct
-                }
-
             fn select_from_row(selection: &Self, row: <sqlx::#db_ident as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
                 where
                     Self: Sized {

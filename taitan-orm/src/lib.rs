@@ -39,6 +39,7 @@ pub use api::reader::ReaderApi;
 pub use api::writer::WriterApi;
 pub use api::template::TemplateApi;
 pub use db::DB;
+pub use taitan_orm_macro::TemplateRecord;
 
 pub mod page {
     pub use taitan_orm_trait::pagination::Pagination;

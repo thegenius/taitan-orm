@@ -1,18 +1,3 @@
-<h1 align="center"> Great Art Stretches Taste. </h1> 
-
-
-# Features
--  **Ergonomics** : Ergonomics API design and Error design.
--  **Transactional** : run transaction as normal.
--  **Template** : Write your own sql like mybatis.
--  **Asynchronous** : Based on SQLx, taitan-orm is fully async.
--  **Multi-Database** : MySql + Postgres + Sqlite for now.
-
-# Quick Start
-```toml
-taitan-orm = { version = "0.1.0" }
-```
-```rust 
 use std::borrow::Cow;
 use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
@@ -81,22 +66,3 @@ async fn main() -> taitan_orm::Result<()> {
     println!("crud success!");
     Ok(())
 }
-```
-* you can run the crud example in examples/crud directory.
-
-# ROADMAP
-- **0.1 API** :white_check_mark:
-- **0.2 Correctness**: code coverage and mocking :pushpin:
-- **0.3 Performance**: benchmark and optimize :pushpin:
-- **0.4 Documentation**: doc the usage and implementation
-- **1.0 Stable**: stabilize the api, macro and error :pushpin:
-
-# Examples
-1. examples/crud: basic crud api example
-2. examples/transaction: show the transaction api
-3. examples/template: show the template api
-
-
-
-# LICENSE
-Apache License

@@ -26,9 +26,5 @@ pub struct UserEntity {
 
 #[sqlx_macros::test]
 pub async fn entity_macro_spec() -> taitan_orm::Result<()> {
-
-
-
-
     Ok(())
 }

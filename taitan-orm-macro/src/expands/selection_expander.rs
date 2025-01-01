@@ -21,6 +21,10 @@ pub fn generate_selection_struct_and_impl(
     let struct_ident = Ident::new(&struct_name, Span::call_site());
     let struct_stream = FieldsParser::from_named(fields).of_bool(&struct_name);
 
+    // fn get_selected_bits(&self) -> bit_vec::BitVec {
+    //     #bool_names_bits
+    // }
+
     let output = quote! {
 
         #struct_stream
@@ -29,10 +33,6 @@ pub fn generate_selection_struct_and_impl(
 
             fn get_table_name(&self) -> &'static str {
                 #table_name
-            }
-
-            fn get_selected_bits(&self) -> bit_vec::BitVec {
-                #bool_names_bits
             }
 
             fn get_selected_fields(&self) -> Vec<String> {

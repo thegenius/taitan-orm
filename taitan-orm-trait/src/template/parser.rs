@@ -137,15 +137,23 @@ pub fn parse_segment<'a, E: ParseError<&'a str>>(
         preceded(multispace0, tag("*")),
         preceded(multispace0, tag(",")),
         preceded(multispace0, tag(";")),
-        preceded(multispace0, tag("=")),
         preceded(multispace0, tag("?")),
-        preceded(multispace0, tag("<")),
-        preceded(multispace0, tag(">")),
         preceded(multispace0, tag("%")),
         preceded(multispace0, tag("(")),
         preceded(multispace0, tag(")")),
     ))(input)?;
     return Ok((remaining, TemplateValue::Segment(parsed.to_string())));
+}
+
+pub fn parse_operator<'a, E: ParseError<&'a str>>(
+    input: &'a str,
+) -> IResult<&'a str, TemplateValue, E> {
+    let (remaining, parsed) = alt((
+        preceded(multispace0, tag("=")),
+        preceded(multispace0, tag("<")),
+        preceded(multispace0, tag(">")),
+    ))(input)?;
+    return Ok((remaining, TemplateValue::Operator(parsed.to_string())));
 }
 
 /*
@@ -159,7 +167,7 @@ pub fn parse_variable(input: &str) -> IResult<&str, &str> {
 */
 
 pub fn parse_template_value(input: &str) -> IResult<&str, TemplateValue> {
-    alt((parse_dollar_variable, parse_hash_variable, parse_string, parse_segment))(input)
+    alt((parse_dollar_variable, parse_hash_variable, parse_string, parse_segment, parse_operator))(input)
 }
 pub fn parse_template_sql(input: &str) -> IResult<&str, Vec<TemplateValue>> {
     let mut values: Vec<TemplateValue> = Vec::new();
@@ -211,6 +219,29 @@ mod test {
     }
 
     #[test]
+    pub fn test_template_2() {
+        let (remaining, parsed) =
+            parse_template_sql("UPDATE `user` SET name = #{name} WHERE `id` = #{id}").unwrap();
+        let parsed_sql = ParsedTemplateSql::new(parsed);
+
+        assert_eq!(parsed_sql.sql, "UPDATE `user` SET name = ? WHERE `id` = ?");
+        let variables = vec!["name".to_string(), "id".to_string()];
+        assert_eq!(parsed_sql.variables, variables);
+    }
+
+
+    #[test]
+    pub fn test_template_3() {
+        let (remaining, parsed) =
+            parse_template_sql("select `id`, `name`, `age` FROM `user` where `id` >= #{id}").unwrap();
+        let parsed_sql = ParsedTemplateSql::new(parsed);
+
+        assert_eq!(parsed_sql.sql, "select `id` , `name` , `age` FROM `user` where `id` >= ?");
+        let variables = vec!["id".to_string()];
+        assert_eq!(parsed_sql.variables, variables);
+    }
+
+    #[test]
     pub fn test_template() {
         let (remaining, parsed) =
             parse_template_sql("SELECT * `test` user #{v1. v2. v3} where id = 23").unwrap();
@@ -222,7 +253,7 @@ mod test {
             TemplateValue::HashVariable("v1.v2.v3".to_string()),
             TemplateValue::Segment("where".to_string()),
             TemplateValue::Segment("id".to_string()),
-            TemplateValue::Segment("=".to_string()),
+            TemplateValue::Operator("=".to_string()),
             TemplateValue::Segment("23".to_string()),
         ];
         assert_eq!(parsed, result_vec);

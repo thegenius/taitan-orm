@@ -1,4 +1,4 @@
-use bit_vec::BitVec;
+
 use sqlx::{Error, Sqlite};
 use taitan_orm_trait::FieldName;
 use time::PrimitiveDateTime;
@@ -558,15 +558,15 @@ impl taitan_orm::traits::Selection for UserSelection {
         return fields;
     }
 
-    fn get_selected_bits(&self) -> BitVec {
-        let mut fields = bit_vec::BitVec::new();
-        fields.push(self.id);
-        fields.push(self.request_id);
-        fields.push(self.name);
-        fields.push(self.age);
-        fields.push(self.birthday);
-        fields
-    }
+    // fn get_selected_bits(&self) -> BitVec {
+    //     let mut fields = bit_vec::BitVec::new();
+    //     fields.push(self.id);
+    //     fields.push(self.request_id);
+    //     fields.push(self.name);
+    //     fields.push(self.age);
+    //     fields.push(self.birthday);
+    //     fields
+    // }
     fn full_fields() -> Self
     where
         Self: Sized,
@@ -622,33 +622,33 @@ impl taitan_orm::traits::SelectedEntity<sqlx::Sqlite> for UserSelectedEntity {
         Ok(selected)
     }
 
-    fn from_row_bits(bits: &bit_vec::BitVec, row: <sqlx::Sqlite as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if bits.get(0).unwrap_or(false) {
-            selected.id = sqlx::Row::try_get(&row, i).ok();
-            i += 1;
-        };
-        if bits.get(1).unwrap_or(false) {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok();
-            i += 1;
-        };
-        if bits.get(2).unwrap_or(false)  {
-            selected.age = sqlx::Row::try_get(&row, i).ok();
-            i += 1;
-        };
-        if bits.get(3).unwrap_or(false)  {
-            selected.name = sqlx::Row::try_get(&row, i).ok();
-            i += 1;
-        };
-        if bits.get(4).unwrap_or(false)  {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok();
-            i += 1;
-        };
-        Ok(selected)
-    }
+    // fn from_row_bits(bits: &bit_vec::BitVec, row: <sqlx::Sqlite as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
+    // where
+    //     Self: Sized {
+    //     let mut selected = Self::default();
+    //     let mut i = 0;
+    //     if bits.get(0).unwrap_or(false) {
+    //         selected.id = sqlx::Row::try_get(&row, i).ok();
+    //         i += 1;
+    //     };
+    //     if bits.get(1).unwrap_or(false) {
+    //         selected.request_id = sqlx::Row::try_get(&row, i).ok();
+    //         i += 1;
+    //     };
+    //     if bits.get(2).unwrap_or(false)  {
+    //         selected.age = sqlx::Row::try_get(&row, i).ok();
+    //         i += 1;
+    //     };
+    //     if bits.get(3).unwrap_or(false)  {
+    //         selected.name = sqlx::Row::try_get(&row, i).ok();
+    //         i += 1;
+    //     };
+    //     if bits.get(4).unwrap_or(false)  {
+    //         selected.birthday = sqlx::Row::try_get(&row, i).ok();
+    //         i += 1;
+    //     };
+    //     Ok(selected)
+    // }
 
     fn from_row_full(row: <sqlx::Sqlite as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
     where

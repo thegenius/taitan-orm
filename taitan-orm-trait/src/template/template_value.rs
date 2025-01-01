@@ -7,6 +7,7 @@ pub enum TemplateValue {
     BackQuoteString(String),
     Star(String),
     Segment(String),
+    Operator(String),
     HashVariable(String),
     DollarVariable(String),
 }
@@ -22,6 +23,7 @@ impl InnerString for TemplateValue {
             Self::BackQuoteString(s) | Self::Star(s) => s.clone(),
             Self::HashVariable(v) | Self::DollarVariable(v) => v.clone(),
             Self::Segment(s) => s.clone(),
+            Self::Operator(s) => s.clone(),
         }
     }
 }
@@ -36,6 +38,7 @@ impl Display for TemplateValue {
             | TemplateValue::Segment(v)
             | TemplateValue::HashVariable(v) => v.to_string(),
             | TemplateValue::DollarVariable(v) => v.to_string(),
+            | TemplateValue::Operator(v) => v.to_string(),
         };
         write!(f, "{}", str)
     }

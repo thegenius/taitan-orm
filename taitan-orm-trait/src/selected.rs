@@ -11,12 +11,12 @@ pub trait SelectedEntity<DB: Database>: Debug + Default {
     where
         Self: Sized;
 
-    fn from_row_bits(bits: &bit_vec::BitVec, row: DB::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        todo!()
-    }
+    // fn from_row_bits(bits: &bit_vec::BitVec, row: DB::Row) -> Result<Self, sqlx::Error>
+    // where
+    //     Self: Sized,
+    // {
+    //     todo!()
+    // }
 
     fn select_from_row(selection: &Self, row: DB::Row) -> Result<Self, sqlx::Error>
     where

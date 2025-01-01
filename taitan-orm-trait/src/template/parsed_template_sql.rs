@@ -24,7 +24,32 @@ impl ParsedTemplateSql {
         !self.dollar_signs.is_empty()
     }
 
-    pub fn new(values: Vec<TemplateValue>) -> Self {
+    fn merge_segments(values: Vec<TemplateValue>) -> Vec<TemplateValue> {
+        let mut merged_values: Vec<TemplateValue> = Vec::new();
+
+        let mut i = 0;
+        while i < values.len() {
+            let value = values.get(i).unwrap();
+            if let TemplateValue::Operator(segment) = value {
+                if i + 1 < values.len() {
+                    let next = values.get(i + 1).unwrap();
+                    if let TemplateValue::Operator(next) = next {
+                        let merged_segment = TemplateValue::Operator(format!("{}{}", segment, next));
+                        merged_values.push(merged_segment);
+                        i += 2;
+                        continue;
+                    }
+                }
+            }
+            merged_values.push(value.clone());
+            i += 1;
+        }
+        merged_values
+    }
+    pub fn new(mut values: Vec<TemplateValue>) -> Self {
+
+        let values = Self::merge_segments(values);
+
         let has_question_mark: bool = values
             .iter()
             .any(|e| &TemplateValue::Segment("?".to_string()) == e);

@@ -54,6 +54,7 @@ use taitan_orm::SqlExecutor;
 use time::macros::datetime;
 
 use crate::entities::user::*;
+use crate::setup::{get_test_mutex, setup_logger};
 
 async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::Result<()> {
     let pool = db.get_pool()?;
@@ -262,6 +263,10 @@ select all where id = 2
 */
 #[sqlx_macros::test]
 pub async fn sql_executor_spec() -> taitan_orm::Result<()> {
+    let test_mutex = get_test_mutex();
+    let test_lock = test_mutex.lock();
+    setup_logger();
+
     let config = SqliteLocalConfig {
         work_dir: "./workspace".into(),
         db_file: "test.db".into(),

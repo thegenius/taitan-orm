@@ -8,9 +8,14 @@ use uuid::Uuid;
 
 // use entities::user::*;
 use taitan_orm_trait::{CmpOperator, Entity, Location, LocationExpr, Optional, Selection, Unique, UpdateCommand};
+use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
 pub async fn sql_commander_spec() -> taitan_orm::Result<()> {
+    let test_mutex = get_test_mutex();
+    let test_lock = test_mutex.lock();
+    setup_logger();
+
     let config = SqliteLocalConfig {
         work_dir: "./workspace".into(),
         db_file: "test.db".into(),

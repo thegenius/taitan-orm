@@ -1,4 +1,3 @@
-use bit_vec::BitVec;
 use sqlx::mysql::MySqlRow;
 use sqlx::postgres::PgRow;
 use sqlx::sqlite::SqliteRow;
@@ -14,10 +13,6 @@ impl Selection for EmptySelection {
     }
 
     fn get_selected_fields(&self) -> Vec<String> {
-        todo!()
-    }
-
-    fn get_selected_bits(&self) -> BitVec {
         todo!()
     }
 

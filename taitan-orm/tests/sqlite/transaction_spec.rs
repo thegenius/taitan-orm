@@ -7,9 +7,14 @@ use uuid::Uuid;
 
 use crate::entities::user::*;
 use taitan_orm_trait::{Optional, Selection};
+use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
 pub async fn transaction_spec() -> taitan_orm::Result<()> {
+    let test_mutex = get_test_mutex();
+    let test_lock = test_mutex.lock();
+    setup_logger();
+
     let config = SqliteLocalConfig {
         work_dir: "./workspace".into(),
         db_file: "test.db".into(),
