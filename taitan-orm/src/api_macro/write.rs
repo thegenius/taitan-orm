@@ -1,4 +1,3 @@
-use taitan_orm_trait::{Location, Mutation, Unique};
 
 #[macro_export]
 macro_rules! insert_fn {

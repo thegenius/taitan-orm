@@ -1,7 +1,7 @@
-use sqlx::{MySql, MySqlConnection, MySqlPool, PgConnection, PgPool, Postgres, Sqlite};
-use crate::database::sqlite::{SqliteDatabase, SqliteReadCommander, SqliteWriteCommander};
-use crate::sql_generator::{MySqlGenerator, PostgresGenerator};
-use crate::{executor_impl, CountResult, DefaultSqlGenerator, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use sqlx::{PgPool, Postgres};
+use crate::database::sqlite::SqliteReadCommander;
+use crate::sql_generator::PostgresGenerator;
+use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {

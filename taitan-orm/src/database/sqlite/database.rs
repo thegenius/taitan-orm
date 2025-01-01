@@ -5,7 +5,7 @@ use crate::sql_generator_container::SqlGeneratorContainer;
 use crate::{executor_impl, CountResult, SqlExecutor, SqlGenericExecutor, TaitanOrmError};
 use path_absolutize::Absolutize;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
-use sqlx::{Sqlite, SqliteConnection, SqlitePool};
+use sqlx::{Sqlite, SqlitePool};
 use std::fs;
 use std::path::Path;
 use crate::database::sqlite::commanders::template::SqliteTemplateCommander;

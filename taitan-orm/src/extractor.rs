@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use sqlx::Database;
 
 use taitan_orm_trait::{Entity, Location, Mutation, TemplateRecord, Unique};

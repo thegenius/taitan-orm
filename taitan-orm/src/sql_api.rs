@@ -1,8 +1,6 @@
 use crate::result::Result;
-use crate::{SqlExecutor, SqlGenerator};
 // use sqlx::{Connection, Database};
 use sqlx::Database;
-use std::fmt::Debug;
 use taitan_orm_trait::paged_list::PagedList;
 use taitan_orm_trait::pagination::Pagination;
 use taitan_orm_trait::{

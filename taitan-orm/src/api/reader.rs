@@ -1,6 +1,6 @@
 use crate::extractor::Extractor;
 use crate::Result;
-use crate::{CountResult, SqlExecutor, SqlGenerator, SqlGeneratorContainer};
+use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
 use taitan_orm_trait::{Location, Mutation, OrderBy, SelectedEntity, Selection, Unique};
 
 impl<T> ReaderApi for T where T: SqlExecutor + SqlGeneratorContainer + Extractor {}

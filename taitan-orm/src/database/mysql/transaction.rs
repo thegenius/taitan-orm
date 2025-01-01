@@ -1,4 +1,4 @@
-use sqlx::{MySql, MySqlConnection};
+use sqlx::MySql;
 use crate::{transaction_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 use crate::sql_generator::MySqlGenerator;
 

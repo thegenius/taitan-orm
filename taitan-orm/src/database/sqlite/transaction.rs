@@ -3,7 +3,7 @@ use crate::database::sqlite::commanders::read::SqliteReadCommander;
 use crate::database::sqlite::{SqliteWriteCommander};
 use crate::sql_generator::DefaultSqlGenerator;
 use crate::sql_generator_container::SqlGeneratorContainer;
-use sqlx::{Sqlite, SqliteConnection};
+use sqlx::Sqlite;
 use crate::database::sqlite::commanders::template::SqliteTemplateCommander;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use crate::{transaction_impl, CountResult};

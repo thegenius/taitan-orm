@@ -1,4 +1,4 @@
-use sqlx::{PgConnection, Postgres};
+use sqlx::Postgres;
 use crate::{transaction_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 use crate::sql_generator::{PostgresGenerator};
 

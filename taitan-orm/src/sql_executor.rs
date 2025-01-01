@@ -1,10 +1,7 @@
-use std::ops::DerefMut;
 use crate::result::Result;
-use sqlx::{Connection, Database, Executor, IntoArguments};
-use sqlx::pool::PoolConnection;
+use sqlx::Database;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use taitan_orm_trait::SelectedEntity;
-use crate::TaitanOrmError::NotImplement;
 
 /**
 现在sqlx::Executor的实现还是太过简陋，导致无法把不同数据库和事务的连接抽象成一个独立的实体

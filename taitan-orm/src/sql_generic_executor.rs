@@ -1,7 +1,7 @@
 use crate::result::Result;
 use crate::TaitanOrmError;
 use sqlx::query::Query;
-use sqlx::{Database, Decode, Executor, IntoArguments, Row, Type};
+use sqlx::{Database, Executor, IntoArguments};
 use std::marker::PhantomData;
 use taitan_orm_trait::SelectedEntity;
 

@@ -1,8 +1,6 @@
 use crate::extractor::Extractor;
-use crate::{Result, SqlExecutor, SqlGenerator, SqlGeneratorContainer};
-use taitan_orm_trait::{Entity, Location, Mutation, Unique};
+use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
 use tracing::debug;
-use crate::api::writer::WriterApi;
 
 impl<T> TemplateApi for T where T: SqlExecutor + SqlGeneratorContainer + Extractor {}
 

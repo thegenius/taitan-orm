@@ -1,7 +1,7 @@
-use sqlx::{MySql, MySqlConnection, MySqlPool, Sqlite};
-use crate::database::sqlite::{SqliteDatabase, SqliteReadCommander, SqliteWriteCommander};
+use sqlx::{MySql, MySqlPool};
+use crate::database::sqlite::SqliteReadCommander;
 use crate::sql_generator::MySqlGenerator;
-use crate::{executor_impl, CountResult, DefaultSqlGenerator, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {
