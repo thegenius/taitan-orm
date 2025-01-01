@@ -1,17 +1,13 @@
-
-
-use crate::{count_all_fn, count_fn, devour_fn, devour_paged_fn, exists_fn, search_fn, search_paged_fn, select_fn};
-use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
-use crate::{CountResult, Result};
-
-
-use taitan_orm_trait::{
-    Entity, Location, Mutation, OrderBy, SelectedEntity, Selection, TemplateRecord, Unique,
+use crate::{
+    count_all_fn, count_fn, devour_fn, devour_paged_fn, exists_fn, search_fn, search_paged_fn,
+    select_fn,
 };
+use crate::{CountResult, Result};
+use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
 
+use taitan_orm_trait::{Location, Mutation, OrderBy, SelectedEntity, Selection, Unique};
 
 pub trait SqliteReadCommander: SqlExecutor<DB = sqlx::Sqlite> + SqlGeneratorContainer {
-
     // async fn exists<M: Mutation>(&mut self, unique: &dyn Unique<Mutation = M>) -> Result<bool> {
     //     debug!(target: "taitan_orm", command = "exists", unique = ?unique);
     //     let sql = self.get_generator().get_exists_sql(unique);
@@ -23,7 +19,6 @@ pub trait SqliteReadCommander: SqlExecutor<DB = sqlx::Sqlite> + SqlGeneratorCont
     // }
     exists_fn!(SqliteArguments, Unique::gen_unique_arguments_sqlite);
 
-
     // async fn count(&mut self, location: &dyn Location) -> Result<u64> {
     //     debug!(target: "taitan_orm", command = "count", location = ?location);
     //     let args = location.gen_location_arguments_sqlite()?;
@@ -34,7 +29,6 @@ pub trait SqliteReadCommander: SqlExecutor<DB = sqlx::Sqlite> + SqlGeneratorCont
     //     Ok(record_count.count)
     // }
     count_fn!(SqliteArguments, Location::gen_location_arguments_sqlite);
-
 
     // async fn count_all(&mut self, table_name: &str) -> Result<u64> {
     //     debug!(target: "taitan_orm", command = "count", table_name = ?table_name);
@@ -168,5 +162,4 @@ pub trait SqliteReadCommander: SqlExecutor<DB = sqlx::Sqlite> + SqlGeneratorCont
     //     Ok(result)
     // }
     devour_paged_fn!(crate::page::Pagination::gen_page_arguments_sqlite);
-
 }

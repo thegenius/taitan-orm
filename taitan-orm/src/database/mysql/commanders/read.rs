@@ -5,7 +5,7 @@ use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
 
 
 use taitan_orm_trait::{
-    Entity, Location, Mutation, OrderBy, SelectedEntity, Selection, TemplateRecord, Unique,
+     Location, Mutation, OrderBy, SelectedEntity, Selection, Unique,
 };
 use crate::{CountResult, Result};
 
