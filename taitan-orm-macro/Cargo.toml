@@ -18,4 +18,5 @@ proc-macro2 = "1.0"
 case = "1.0"
 darling = "0.20.10"
 
-taitan-orm-trait = { path = "../taitan-orm-trait" }
+#taitan-orm-trait = { path = "../taitan-orm-trait" }
+taitan-orm-trait = { version = "0.1.0" }
