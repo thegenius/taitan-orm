@@ -1,0 +1,1 @@
+# Great Art Stretches Taste, It Doesn’t Follow Tastes.
