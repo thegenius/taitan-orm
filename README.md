@@ -1,4 +1,5 @@
-<h1 align="center"> Great Art Stretches Taste. </h1> 
+<h1 align="center"> Great Art Stretches Taste. </h1>  
+
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
 [![Version](https://img.shields.io/badge/crates-0.1.0-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/lines-14k-yellow)](https://crates.io/crates/taitan-orm)
