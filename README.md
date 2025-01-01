@@ -1,6 +1,6 @@
 <h1 align="center"> Great Art Stretches Taste. </h1> 
 
-
+[![Version](https://img.shields.io/badge/crates-0.1.0-green)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
