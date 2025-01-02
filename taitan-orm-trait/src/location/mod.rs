@@ -8,4 +8,4 @@ pub use cmp_operator::CmpOperator;
 pub use located_query::LocatedQuery;
 pub use location::Location;
 pub use location_expr::LocationExpr;
-pub use location_expr::LocationTrait;
+// pub use location_expr::LocationTrait;

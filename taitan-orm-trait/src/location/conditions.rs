@@ -1,27 +1,47 @@
-use std::str::Chars;
+use crate::error::NotValidConditionError;
 use crate::location::location_expr::LogicalOperator;
-use crate::{LocationExpr, LocationTrait};
+use crate::LocationExpr;
+use sqlx::mysql::MySqlArguments;
+use sqlx::postgres::PgArguments;
+use sqlx::sqlite::SqliteArguments;
+use sqlx::Arguments;
+use std::str::Chars;
 
-pub trait LocationExprTrait {
+pub trait Condition {
     fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String;
+    fn add_to_sqlite_arguments<'a>(
+        &'a self,
+        args: &'a mut SqliteArguments<'a>,
+    ) -> Result<(), sqlx::error::BoxDynError>;
+    fn add_to_mysql_arguments(
+        &self,
+        args: &mut MySqlArguments,
+    ) -> Result<(), sqlx::error::BoxDynError>;
+    fn add_to_postgres_arguments(
+        &self,
+        args: &mut PgArguments,
+    ) -> Result<(), sqlx::error::BoxDynError>;
 }
 
-
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Conditions<T>
 where
-    T: LocationExprTrait,
+    T: Condition,
 {
-    Operator {
+    Group {
         op: LogicalOperator,
         children: Vec<Conditions<T>>,
     },
-    Leaf(T),
+    Element(T),
 }
 
 #[inline(always)]
-pub fn wrap_where_seg<T>(name: &str, location_expr: &LocationExpr<T>, wrap_char: char, place_holder: char) -> String {
+pub fn wrap_where_seg<T>(
+    name: &str,
+    location_expr: &LocationExpr<T>,
+    wrap_char: char,
+    place_holder: char,
+) -> String {
     let mut sql = String::new();
     sql.push(wrap_char);
     sql.push_str(name);
@@ -30,186 +50,218 @@ pub fn wrap_where_seg<T>(name: &str, location_expr: &LocationExpr<T>, wrap_char:
     sql.push(place_holder);
     sql
 }
+
+fn process_element<'a, T>(
+    location_expr: &'a T,
+    args: &'a mut SqliteArguments<'a>,
+) -> Result<(), sqlx::error::BoxDynError> where T: Condition {
+    location_expr.add_to_sqlite_arguments(args)?;
+    Ok(())
+}
 impl<T> Conditions<T>
 where
-    T: LocationExprTrait,
+    T: Condition,
 {
     pub fn group(op: LogicalOperator, children: Vec<Conditions<T>>) -> Self {
-        Conditions::Operator { op, children }
+        Conditions::Group { op, children }
     }
 
     pub fn element(location: T) -> Self {
-        Conditions::Leaf(location)
+        Conditions::Element(location)
     }
-    pub fn to_sql(&self, wrap_char: char, place_holder: char) -> String {
-        match self {
-            Conditions::Operator { op, children } => {
-                let mut sql_parts = Vec::new();
-                for child in children {
-                    sql_parts.push(format!("({})", child.to_sql(wrap_char, place_holder)));
-                }
 
-                match op {
-                    LogicalOperator::And => sql_parts.join(" AND "),
-                    LogicalOperator::Or => sql_parts.join(" OR "),
-                    LogicalOperator::Not => {
-                        if sql_parts.len() != 1 {
-                            panic!("NOT operator must have exactly one child");
-                        }
-                        format!("NOT {}", sql_parts[0])
-                    }
-                }
-            }
-            Conditions::Leaf(location_expr) => location_expr
-                .get_where_clause(wrap_char, place_holder)
-                .to_string(),
+    pub fn is_operator(&self, operator: &LogicalOperator) -> bool {
+        match self {
+            Conditions::Group { op, .. } => op == operator,
+            _ => false,
         }
     }
+
+    // recursive version
+    // pub fn to_sql(&self, wrap_char: char, place_holder: char) -> String {
+    //     match self {
+    //         Conditions::Operator { op, children } => {
+    //             let mut sql_parts = Vec::new();
+    //             for child in children {
+    //                 sql_parts.push(format!("({})", child.to_sql(wrap_char, place_holder)));
+    //             }
+    //
+    //             match op {
+    //                 LogicalOperator::And => sql_parts.join(" AND "),
+    //                 LogicalOperator::Or => sql_parts.join(" OR "),
+    //                 LogicalOperator::Not => {
+    //                     if sql_parts.len() != 1 {
+    //                         panic!("NOT operator must have exactly one child");
+    //                     }
+    //                     format!("NOT {}", sql_parts[0])
+    //                 }
+    //             }
+    //         }
+    //         Conditions::Leaf(location_expr) => location_expr
+    //             .get_where_clause(wrap_char, place_holder)
+    //             .to_string(),
+    //     }
+    // }
+
+    pub fn to_sql(
+        &self,
+        wrap_char: char,
+        place_holder: char,
+    ) -> Result<String, NotValidConditionError> {
+        let mut stack: Vec<(&Conditions<T>, Option<&Conditions<T>>, bool)> =
+            vec![(self, None, false)]; // (node, parent children_processed)
+        let mut sql_parts = Vec::new(); // 用于收集生成的SQL片段
+                                        // let mut operators_stack = Vec::new(); // 用于追踪操作符以处理优先级
+
+        while let Some((node, parent, children_processed)) = stack.pop() {
+            match node {
+                Conditions::Group { op, children } => {
+                    if !children_processed {
+                        // 如果后续弹出到我自己了，那么说明我的所有子节点已经处理完成
+                        stack.push((node, parent, true));
+
+                        match op {
+                            LogicalOperator::Not => {
+                                if children.len() != 1 {
+                                    return Err(NotValidConditionError(
+                                        "A not condition must have exactly one element".to_string(),
+                                    ));
+                                }
+                                stack.push((children.first().unwrap(), Some(node), false));
+                            }
+                            _ => {
+                                if children.len() <= 1 {
+                                    return Err(NotValidConditionError(
+                                        "A and/or condition must have more than one elements"
+                                            .to_string(),
+                                    ));
+                                }
+                                // 然后将所有子节点按逆序压入栈中
+                                for child in children.iter().rev() {
+                                    stack.push((child, Some(node), false));
+                                }
+                            }
+                        }
+                    } else {
+                        // 进入到这里说明我是一个group节点，且孩子节点都处理完成了
+                        // 收集当前操作符的所有子表达式
+                        let mut sub_expressions = Vec::new();
+                        while let Some(part) = sql_parts.pop() {
+                            sub_expressions.push(part);
+                            if sub_expressions.len() == children.len() {
+                                break;
+                            }
+                        }
+                        sub_expressions.reverse();
+
+                        // 根据操作符类型决定是否添加括号
+                        // let should_wrap = matches!(op, LogicalOperator::Or)
+                        //     || operators_stack.last().map_or(false, |parent_op: &&LogicalOperator| **parent_op == LogicalOperator::And);
+
+                        let joined_sql: String = match op {
+                            LogicalOperator::And => {
+                                let parent_is_not = parent.map_or(false, |parent| {
+                                    parent.is_operator(&LogicalOperator::Not)
+                                });
+                                // 父节点是不是not的时候不需要加()
+                                if !parent_is_not {
+                                    sub_expressions.join(" AND ")
+                                } else {
+                                    // 父节点是not的时候需要加()才能保证正确
+                                    // 例如 NOT (a AND b)
+                                    format!("({})", sub_expressions.join(" AND "))
+                                }
+                            }
+                            LogicalOperator::Or => {
+                                // Or 操作符通常需要打括号来保证正确性
+                                // 已经是最外层或者父节点是or的时候不需要加()
+                                let parent_is_or = parent.map_or(true, |parent| {
+                                    parent.is_operator(&LogicalOperator::Or)
+                                });
+                                if parent_is_or {
+                                    sub_expressions.join(" OR ")
+                                } else {
+                                    // 父节点不是or的时候不需要加()才能保证正确
+                                    // 例如 NOT (a OR b)
+                                    // 例如 (a OR b) AND (c OR d)
+                                    format!("({})", sub_expressions.join(" OR "))
+                                }
+                            }
+                            LogicalOperator::Not => {
+                                let parent_is_not = parent.map_or(false, |parent| {
+                                    parent.is_operator(&LogicalOperator::Not)
+                                });
+                                if parent_is_not {
+                                    return Err(NotValidConditionError(
+                                        "nest not is not allowed".to_string(),
+                                    ));
+                                } else {
+                                    format!("NOT {}", sub_expressions.first().unwrap())
+                                }
+                            }
+                        };
+
+                        sql_parts.push(joined_sql);
+                    }
+                }
+                Conditions::Element(location_expr) => {
+                    // 对于叶子节点，直接生成SQL片段并追加到输出字符串中。
+                    sql_parts.push(location_expr.get_where_clause(wrap_char, place_holder));
+                }
+            }
+        }
+
+        Ok(sql_parts.join(""))
+    }
+
+
+    pub fn get_sqlite_args(
+        &self
+    ) -> Result<SqliteArguments, sqlx::error::BoxDynError> {
+        let mut stack: Vec<(&Conditions<T>, bool)> =
+            vec![(self, false)];
+        let mut elements: Vec<&T> = Vec::new();
+        while let Some((node, children_processed)) = stack.pop() {
+            match node {
+                Conditions::Group { op, children } => {
+                    if !children_processed {
+                        // 如果后续弹出到我自己了，那么说明我的所有子节点已经处理完成
+                        stack.push((node, true));
+                        for child in children.iter().rev() {
+                            stack.push((child, false));
+                        }
+                    }
+                }
+                Conditions::Element(location_expr) => {
+                    elements.push(location_expr);
+                }
+            }
+        }
+
+        let mut args = SqliteArguments::default();
+        for i in 0..elements.len() {
+            let element = elements[i];
+            element.add_to_sqlite_arguments(&mut args.clone())?;
+        }
+        Ok(args)
+    }
 }
-//
-// struct Parser<'a> {
-//     chars: Chars<'a>,
-//     current: Option<char>,
-// }
-//
-// impl<'a> Parser<'a> {
-//     pub fn new(sql: &'a str) -> Self {
-//         let mut parser = Parser {
-//             chars: sql.chars(),
-//             current: None,
-//         };
-//         parser.advance();
-//         parser
-//     }
-//
-//     fn advance(&mut self) {
-//         self.current = self.chars.next();
-//     }
-//
-//     fn parse_expression(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         self.parse_or()
-//     }
-//
-//     fn parse_or(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         let mut nodes = vec![self.parse_and()?];
-//
-//         while self.eat_whitespace().is_some() && self.eat_keyword("OR").is_some() {
-//             nodes.push(self.parse_and()?);
-//         }
-//
-//         Ok(Conditions::group(LogicalOperator::Or, nodes))
-//     }
-//
-//     fn parse_and(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         let mut nodes = vec![self.parse_not()?];
-//
-//         while self.eat_whitespace().is_some() && self.eat_keyword("AND").is_some() {
-//             nodes.push(self.parse_not()?);
-//         }
-//
-//         Ok(Conditions::group(LogicalOperator::And, nodes))
-//     }
-//
-//     fn parse_not(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         if self.eat_whitespace().is_some() && self.eat_keyword("NOT").is_some() {
-//             return Ok(Conditions::group(LogicalOperator::Not, vec![self.parse_primary()?]));
-//         }
-//
-//         self.parse_primary()
-//     }
-//
-//     fn parse_primary(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         if self.eat_whitespace().is_some() && self.eat('(').is_some() {
-//             let expr = self.parse_expression()?;
-//             if self.eat_whitespace().is_some() && self.eat(')').is_some() {
-//                 return Ok(expr);
-//             } else {
-//                 return Err("Expected ')'");
-//             }
-//         }
-//
-//         self.parse_leaf()
-//     }
-//
-//     fn parse_leaf(&mut self) -> Result<Conditions<&'a str>, &'static str> {
-//         // 这里简化处理，假设条件表达式是 "field = value"
-//         let start = self.current_position();
-//         while self.current.is_some() && !self.current.unwrap().is_whitespace() {
-//             self.advance();
-//         }
-//         let end = self.current_position();
-//         let slice = &self.slice(start, end);
-//
-//         if slice.contains('=') {
-//             Ok(Conditions::element(LocationExpr(slice)))
-//         } else {
-//             Err("Invalid leaf expression")
-//         }
-//     }
-//
-//     fn eat_whitespace(&mut self) -> Option<char> {
-//         while let Some(c) = self.current {
-//             if c.is_whitespace() {
-//                 self.advance();
-//             } else {
-//                 break;
-//             }
-//         }
-//         self.current
-//     }
-//
-//     fn eat_keyword(&mut self, keyword: &str) -> Option<()> {
-//         let start = self.current_position();
-//         for c in keyword.chars() {
-//             if self.current == Some(c) {
-//                 self.advance();
-//             } else {
-//                 self.rewind_to(start);
-//                 return None;
-//             }
-//         }
-//         Some(())
-//     }
-//
-//     fn eat(&mut self, expected: char) -> Option<()> {
-//         if self.current == Some(expected) {
-//             self.advance();
-//             Some(())
-//         } else {
-//             None
-//         }
-//     }
-//
-//     fn current_position(&self) -> usize {
-//         self.chars.as_str().len() - self.chars.as_str().chars().count()
-//     }
-//
-//     fn slice(&self, start: usize, end: usize) -> &'a str {
-//         &self.chars.as_str()[start..end]
-//     }
-//
-//     fn rewind_to(&mut self, position: usize) {
-//         let remaining = self.chars.as_str()[position..].chars();
-//         self.chars = remaining;
-//         self.advance();
-//     }
-// }
-
-
-
 
 #[cfg(test)]
 mod test {
-
-    use crate::location::location_expr::{ LogicalOperator};
-    use crate::{CmpOperator, LocationExpr, LocationTrait, Optional};
+    use crate::location::conditions::test::UserLocationExpr::*;
+    use crate::location::conditions::{wrap_where_seg, Condition, Conditions};
+    use crate::location::location_expr::LogicalOperator;
+    use crate::{CmpOperator, LocationExpr, Optional};
+    use sqlx::mysql::MySqlArguments;
+    use sqlx::postgres::PgArguments;
+    use sqlx::sqlite::{SqliteArguments, SqliteTypeInfo};
     use sqlx::types::Uuid;
+    use sqlx::{Arguments, Encode, Sqlite, Type};
     use time::macros::format_description;
     use time::PrimitiveDateTime;
-    use crate::location::conditions::{wrap_where_seg, Conditions, LocationExprTrait};
-    use crate::location::conditions::test::UserLocationExpr::*;
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub enum UserLocationExpr {
         RequestId(LocationExpr<Uuid>),
         Name(LocationExpr<String>),
@@ -217,29 +269,64 @@ mod test {
         Birthday(LocationExpr<PrimitiveDateTime>),
     }
 
-
-    impl LocationExprTrait for UserLocationExpr {
+    impl Condition for UserLocationExpr {
         fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
             match self {
                 RequestId(request_id) => {
                     wrap_where_seg("request_id", request_id, wrap_char, place_holder)
-                },
-                Name(name) => {
-                    wrap_where_seg("name", name, wrap_char, place_holder)
                 }
-                Age(age) => {
-                    wrap_where_seg("age", age, wrap_char, place_holder)
-                }
-                Birthday(birthday) => {
-                    wrap_where_seg("birthday", birthday, wrap_char, place_holder)
-                }
+                Name(name) => wrap_where_seg("name", name, wrap_char, place_holder),
+                Age(age) => wrap_where_seg("age", age, wrap_char, place_holder),
+                Birthday(birthday) => wrap_where_seg("birthday", birthday, wrap_char, place_holder),
             }
+        }
+
+        fn add_to_sqlite_arguments<'a>(
+            &'a self,
+            args: &'a mut SqliteArguments<'a>,
+        ) -> Result<(), sqlx::error::BoxDynError> {
+            match self {
+                RequestId(request_id) => args.add(&request_id.val)?,
+                Name(name) => args.add(&name.val)?,
+                Age(age) => args.add(&age.val)?,
+                Birthday(birthday) => args.add(&birthday.val)?,
+            }
+            Ok(())
+        }
+
+        fn add_to_mysql_arguments(
+            &self,
+            args: &mut MySqlArguments,
+        ) -> Result<(), sqlx::error::BoxDynError> {
+            match self {
+                RequestId(request_id) => args.add(&request_id.val)?,
+                Name(name) => args.add(&name.val)?,
+                Age(age) => args.add(&age.val)?,
+                Birthday(birthday) => args.add(&birthday.val)?,
+            }
+            Ok(())
+        }
+
+        fn add_to_postgres_arguments(
+            &self,
+            args: &mut PgArguments,
+        ) -> Result<(), sqlx::error::BoxDynError> {
+            match self {
+                RequestId(request_id) => args.add(&request_id.val)?,
+                Name(name) => args.add(&name.val)?,
+                Age(age) => args.add(&age.val)?,
+                Birthday(birthday) => args.add(&birthday.val)?,
+            }
+            Ok(())
         }
     }
 
     #[test]
-    fn location_expr_spec() {
-        let name = Conditions::element(Name(LocationExpr::new(CmpOperator::Eq, "Alice".to_string())));
+    fn conditions_expr_spec() {
+        let name = Conditions::element(Name(LocationExpr::new(
+            CmpOperator::Eq,
+            "Alice".to_string(),
+        )));
         let age = Conditions::element(Age(LocationExpr::new(CmpOperator::Eq, 30)));
         let format = format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
         let birthday = Conditions::element(Birthday(LocationExpr::new(
@@ -247,16 +334,15 @@ mod test {
             PrimitiveDateTime::parse("2020-01-02 03:04:05", format).unwrap(),
         )));
 
-        // 创建 AND 节点
-        let and_node = Conditions::group(LogicalOperator::And, vec![name, age]);
-
-        // 创建 OR 节点
+        let and_node = Conditions::group(LogicalOperator::And, vec![name.clone(), age]);
         let or_node = Conditions::group(LogicalOperator::Or, vec![and_node, birthday]);
+        let conditions = Conditions::group(LogicalOperator::And, vec![or_node, name]);
 
-        // 生成 SQL 表达式
-        let sql_expression = or_node.to_sql('`', '?');
+        let sql_expression = conditions.to_sql('`', '?').unwrap();
 
-        // 打印 SQL 表达式
-        assert_eq!("", sql_expression);
+        assert_eq!(
+            "(`name`=? AND `age`=? OR `birthday`=?) AND `name`=?",
+            sql_expression
+        );
     }
 }

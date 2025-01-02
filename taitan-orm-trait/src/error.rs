@@ -15,3 +15,14 @@ impl std::fmt::Display for NotValidOrderByError {
         write!(f, "order by fields: {} is not valid", self.0)
     }
 }
+
+#[derive(Debug)]
+pub struct NotValidConditionError(pub String);
+impl std::error::Error for NotValidConditionError {}
+impl std::fmt::Display for NotValidConditionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "condition: {} is not valid", self.0)
+    }
+}
+
+

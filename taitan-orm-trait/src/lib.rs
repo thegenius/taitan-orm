@@ -37,7 +37,7 @@ pub use join::FromClause;
 pub use location::CmpOperator;
 pub use location::Location;
 pub use location::LocationExpr;
-pub use location::LocationTrait;
+// pub use location::LocationTrait;
 pub use order_by::validate_order_by;
 pub use order_by::OrderBy;
 
