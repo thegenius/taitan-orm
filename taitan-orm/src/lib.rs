@@ -46,6 +46,8 @@ pub use api::template_mut::TemplateMutApi;
 
 pub use taitan_orm_macro::TemplateRecord;
 pub use db::Executor;
+pub use taitan_orm_trait::CmpOperator;
+pub use taitan_orm_trait::LocationExpr;
 
 pub mod page {
     pub use taitan_orm_trait::pagination::Pagination;

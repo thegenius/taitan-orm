@@ -441,6 +441,7 @@ pub struct UserLocation {
     // money: LocationExpr<BigDecimal>,
     // ipv4addr: LocationExpr<Ipv4Addr>,
     // ipv6addr: LocationExpr<Ipv6Addr>,
+
 }
 
 impl UserLocation {

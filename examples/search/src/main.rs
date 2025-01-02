@@ -71,6 +71,6 @@ async fn main() -> taitan_orm::Result<()> {
     assert_eq!(entities.len(), 2);
 
 
-    println!("crud success!");
+    println!("search success!");
     Ok(())
 }

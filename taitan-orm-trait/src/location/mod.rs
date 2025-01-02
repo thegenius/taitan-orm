@@ -2,6 +2,7 @@ mod cmp_operator;
 mod located_query;
 mod location;
 mod location_expr;
+mod conditions;
 
 pub use cmp_operator::CmpOperator;
 pub use located_query::LocatedQuery;

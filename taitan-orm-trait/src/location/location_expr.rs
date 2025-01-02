@@ -1,10 +1,19 @@
+use std::str::Chars;
 use crate::CmpOperator;
+use log::warn;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct LocationExpr<T> {
     pub val: T,
     pub cmp: CmpOperator,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub enum LogicalOperator {
+    And,
+    Or,
+    Not,
 }
 
 pub trait LocationTrait {
@@ -21,3 +30,4 @@ impl<T> LocationExpr<T> {
         Self { cmp, val }
     }
 }
+
