@@ -10,6 +10,7 @@ pub fn generate_selected_struct_and_impl(
     ident: &Ident,
     attrs: &Vec<Attribute>,
     fields: &FieldsNamed,
+    should_serde: bool,
 ) -> TokenStream {
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);
     let selected_name = format!("{}SelectedEntity", table_name.to_camel());
@@ -19,7 +20,7 @@ pub fn generate_selected_struct_and_impl(
     let selection_ident = Ident::new(&selection_name, Span::call_site());
 
     let parser = FieldsParser::from_named(fields);
-    let struct_stream = parser.of_option(&selected_name);
+    let struct_stream = parser.of_option(&selected_name, should_serde);
     let sqlite_ident = Ident::new("Sqlite", Span::call_site());
     let mysql_ident = Ident::new("MySql", Span::call_site());
     let postgres_ident = Ident::new("Postgres", Span::call_site());

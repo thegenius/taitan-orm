@@ -11,6 +11,7 @@ pub fn generate_mutation_struct_and_impl(
     ident: &Ident,
     attrs: &Vec<Attribute>,
     fields: &FieldsNamed,
+    should_serde: bool,
 ) -> TokenStream {
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);
     let fields_vec = FieldsParser::from_named(fields).filter_not_annotated_fields("primary_key");
@@ -30,7 +31,7 @@ pub fn generate_mutation_struct_and_impl(
     let struct_ident = Ident::new(&mutation_struct_name, Span::call_site());
     let primary_struct_ident = Ident::new(&primary_struct_name, Span::call_site());
     let location_struct_ident = Ident::new(&location_struct_name, Span::call_site());
-    let struct_stream = FieldsParser::from_vec(&fields_vec).of_option(&mutation_struct_name);
+    let struct_stream = FieldsParser::from_vec(&fields_vec).of_option(&mutation_struct_name, should_serde);
 
     let output = quote! {
 

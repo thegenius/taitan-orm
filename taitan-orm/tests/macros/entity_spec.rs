@@ -9,6 +9,8 @@ use taitan_orm_trait::Optional;
 #[table_name = "user"]
 #[unique_key = "age"]
 #[unique_key = "name, birthday"]
+#[serde_struct = "primary"]
+#[serde_struct = "unique"]
 pub struct UserEntity {
     #[primary_key]
     #[auto_increment]

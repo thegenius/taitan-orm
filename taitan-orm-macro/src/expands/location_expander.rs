@@ -12,6 +12,7 @@ pub fn generate_location_struct_and_impl(
     ident: &Ident,
     attrs: &Vec<Attribute>,
     fields: &FieldsNamed,
+    should_serde: bool,
 ) -> TokenStream {
 
     let parser = FieldsParser::from_named(fields);
@@ -25,7 +26,7 @@ pub fn generate_location_struct_and_impl(
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);
     let struct_name =  format!("{}Location", table_name.to_camel());
     let struct_ident = Ident::new(&struct_name, Span::call_site());
-    let struct_stream = FieldsParser::from_named(fields).of_location(&struct_name);
+    let struct_stream = FieldsParser::from_named(fields).of_location(&struct_name, should_serde);
 
     let output = quote! {
 

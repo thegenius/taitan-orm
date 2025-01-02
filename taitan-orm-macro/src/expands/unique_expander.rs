@@ -12,6 +12,7 @@ fn generate_struct_and_impl(
     struct_name: &str,
     fields: &Vec<Field>,
     mutation_fields: &Vec<Field>,
+    should_serde: bool,
 ) -> TokenStream {
     let unique_field_names = FieldsParser::from_vec(fields).get_unique_field_names();
     let unique_arguments_sqlite = FieldsParser::from_vec(fields).gen_unique_arguments_sqlite();
@@ -26,11 +27,25 @@ fn generate_struct_and_impl(
     let mutation_ident = format_ident!("{}Mutation", table_name.to_camel());
     let fields_tokens = FieldsParser::from_vec(fields).get_not_option_fields();
 
-    let output = quote! {
-        #[derive(Debug, Clone)]
-        pub struct #struct_ident {
-            #fields_tokens
+    let struct_stream = if should_serde {
+        quote! {
+            #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+            pub struct #struct_ident {
+                #fields_tokens
+            }
         }
+    } else {
+        quote! {
+            #[derive(Debug, Clone)]
+            pub struct #struct_ident {
+                #fields_tokens
+            }
+        }
+    };
+
+
+    let output = quote! {
+        #struct_stream
 
         impl taitan_orm::traits::Unique for #struct_ident {
 
@@ -86,13 +101,14 @@ pub fn generate_unique_structs_and_impls(
     ident: &Ident,
     attrs: &Vec<Attribute>,
     fields: &FieldsNamed,
+    should_serde: bool,
 ) -> TokenStream {
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);
     let fields_vec = FieldsParser::from_named(fields).filter_annotated_fields("primary_key");
     let mutation_fields_vec = FieldsParser::from_named(fields).filter_not_annotated_fields("primary_key");
     let primary_struct_name = format!("{}Primary", table_name.to_camel());
     let mut all_unique_stream =
-        generate_struct_and_impl(&table_name, &primary_struct_name, &fields_vec, &mutation_fields_vec);
+        generate_struct_and_impl(&table_name, &primary_struct_name, &fields_vec, &mutation_fields_vec, should_serde);
 
 
 
@@ -107,7 +123,7 @@ pub fn generate_unique_structs_and_impls(
         });
         unique_struct_name.push_str("Unique");
         let unique_stream =
-            generate_struct_and_impl(&table_name, &unique_struct_name, &unique_fields, &mutation_fields_vec);
+            generate_struct_and_impl(&table_name, &unique_struct_name, &unique_fields, &mutation_fields_vec, should_serde);
         all_unique_stream.extend(unique_stream);
     });
 

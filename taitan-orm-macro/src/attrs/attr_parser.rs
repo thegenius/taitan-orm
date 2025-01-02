@@ -23,6 +23,8 @@ pub trait AttrParser {
     fn extract_template_count_sql(attrs: &Vec<Attribute>) -> Option<String>;
 
     fn extract_unique_key(attrs: &Vec<Attribute>) -> Vec<Vec<String>>;
+
+    fn extract_serde_names(attrs: &Vec<Attribute>) -> Vec<&'static str>;
 }
 
 pub struct DefaultAttrParser {}
@@ -149,6 +151,31 @@ impl AttrParser for DefaultAttrParser {
         return result;
     }
 
+    fn extract_serde_names(attrs: &Vec<Attribute>) -> Vec<&'static str> {
+        let mut results: Vec<&'static str> = Vec::new();
+        for attr in attrs {
+            let val_opt = <DefaultAttrParser as AttrParser>::extract_val_from_attr(attr, "serde_struct");
+            if let Some(val) = val_opt {
+                if val.eq("primary") {
+                    results.push("primary");
+                }
+                if val.eq("unique") {
+                    results.push("unique");
+                }
+                if val.eq("location") {
+                    results.push("location");
+                }
+                if val.eq("mutation") {
+                    results.push("mutation");
+                }
+                if val.eq("selected") {
+                    results.push("selected");
+                }
+            }
+        }
+        results
+    }
+
     fn check_has_attr(attrs: &Vec<Attribute>, name: &str) -> bool {
         for attr in attrs {
             let is_attr = <DefaultAttrParser as AttrParser>::check_is_attr(attr, name);
@@ -182,4 +209,5 @@ impl AttrParser for DefaultAttrParser {
             .collect();
         return result;
     }
+
 }

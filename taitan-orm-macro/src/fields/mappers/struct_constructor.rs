@@ -15,25 +15,43 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
         }
     }
 
-    fn of_option(&self, struct_name: &str) -> TokenStream {
+    fn of_option(&self, struct_name: &str, should_serde: bool) -> TokenStream {
         let struct_ident = Ident::new(&struct_name, Span::call_site());
         let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_option_field);
-        quote! {
-            #[derive(Default, Debug, Clone)]
-            pub struct #struct_ident {
-                #(#fields_tokens,)*
+        if should_serde {
+            quote! {
+                #[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        } else {
+            quote! {
+                #[derive(Default, Debug, Clone)]
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
             }
         }
     }
 
     // field_name: Option<LocationExpr<T>>
-    fn of_location(&self, struct_name: &str) -> TokenStream {
+    fn of_location(&self, struct_name: &str, should_serde: bool) -> TokenStream {
         let struct_ident = Ident::new(&struct_name, Span::call_site());
         let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_location_field);
-        quote! {
+        if should_serde {
+            quote! {
+                #[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        } else {
+            quote! {
             #[derive(Default, Debug, Clone)]
-            pub struct #struct_ident {
-                #(#fields_tokens,)*
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
             }
         }
     }
