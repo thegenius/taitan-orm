@@ -1,7 +1,8 @@
 // use crate::entities::user::{UserPrimary, UserSelection};
 use crate::entities::user::*;
 use sqlx::sqlx_macros;
-use taitan_orm::database::sqlite::{SqliteWriteCommander, SqliteReadCommander,  SqliteDatabase, SqliteLocalConfig};
+use taitan_orm::database::sqlite::{ SqliteDatabase, SqliteLocalConfig};
+use taitan_orm::{ WriterApi, ReaderApi};
 use taitan_orm::SqlExecutor;
 use time::macros::datetime;
 use uuid::Uuid;
@@ -82,7 +83,7 @@ async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::R
     let success = db.insert(user).await?;
     assert!(success);
 
-    let mut selection = UserSelection::full_fields();
+    let mut selection = UserSelected::full_fields();
     let primary = UserPrimary { id: user.id };
     let entity_opt: Option<UserSelected> = db.select(&selection, &primary).await?;
     assert!(entity_opt.is_some());
@@ -103,7 +104,7 @@ async fn test_update_user(
     let success = db.update(user_mutation, user_primary).await?;
     assert!(success);
 
-    let selection = UserSelection::full_fields();
+    let selection = UserSelected::full_fields();
     let primary = UserPrimary {
         id: user_primary.id,
     };
@@ -122,7 +123,7 @@ async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::R
     let success = db.upsert(user).await?;
     assert!(success);
 
-    let selection = UserSelection::full_fields();
+    let selection = UserSelected::full_fields();
     let user_primary: UserPrimary = UserPrimary { id: user.id };
     let entity_opt: Option<UserSelected> = db.select(&selection, &user_primary).await?;
 
@@ -143,14 +144,14 @@ async fn test_delete_user(
     assert!(success);
 
     let entity_opt: Option<UserSelected> = db
-        .select(&UserSelection::full_fields(), user_primary)
+        .select(&UserSelected::full_fields(), user_primary)
         .await?;
     assert!(entity_opt.is_none());
     Ok(())
 }
 
 async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_orm::Result<()> {
-    let selection = UserSelection::full_fields();
+    let selection = UserSelected::full_fields();
     let order_by = UserOrderBy::build(["id", "name", "age", "birthday"])?;
     let entity_vec: Vec<UserSelected> = db.devour(&selection, &Some(&order_by), &None).await?;
 
@@ -165,7 +166,7 @@ async fn test_select_location(
 ) -> taitan_orm::Result<()> {
     let order_by = UserOrderBy::build(["id", "name", "age", "birthday"])?;
     let entities: Vec<UserSelected> = db
-        .search(&UserSelection::full_fields(), user_location, &Some(&order_by), &None)
+        .search(&UserSelected::full_fields(), user_location, &Some(&order_by), &None)
         .await?;
     assert_eq!(entities.len(), expect_cnt);
     Ok(())

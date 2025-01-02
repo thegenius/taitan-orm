@@ -8,12 +8,8 @@ pub struct PostgresDatabase {
     pool: PgPool,
 }
 impl PostgresDatabase {
-    pub fn get_pool(&mut self) -> crate::Result<&PgPool> {
+    pub fn get_pool(&self) -> crate::Result<&PgPool> {
         Ok(&self.pool)
-    }
-
-    async fn get_connection(&mut self) -> crate::Result<sqlx::pool::PoolConnection<Postgres>> {
-        Ok(self.get_pool()?.acquire().await?)
     }
 }
 impl SqlGenericExecutor for PostgresDatabase {

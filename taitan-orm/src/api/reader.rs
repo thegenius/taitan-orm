@@ -6,7 +6,7 @@ use taitan_orm_trait::{Location, Mutation, OrderBy, SelectedEntity, Selection, U
 impl<T> ReaderApi for T where T: SqlExecutor + SqlGeneratorContainer + Extractor {}
 
 pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
-    async fn exists<M: Mutation>(&mut self, unique: &dyn Unique<Mutation = M>) -> Result<bool> {
+    async fn exists<M: Mutation>(&self, unique: &dyn Unique<Mutation = M>) -> Result<bool> {
         tracing::debug!(target: "taitan_orm", command = "exists", unique = ?unique);
         let sql = self.get_generator().get_exists_sql(unique);
         tracing::debug!(target: "taitan_orm", command = "exists", sql = sql);
@@ -16,7 +16,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(result)
     }
 
-    async fn count(&mut self, location: &dyn Location) -> Result<u64> {
+    async fn count(&self, location: &dyn Location) -> Result<u64> {
         tracing::debug!(target: "taitan_orm", command = "count", location = ?location);
         let args = Self::extract_location_arguments(location)?;
         let count_sql = self.get_generator().get_count_sql(location);
@@ -26,7 +26,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(record_count)
     }
 
-    async fn count_all(&mut self, table_name: &str) -> Result<u64> {
+    async fn count_all(&self, table_name: &str) -> Result<u64> {
         tracing::debug!(target: "taitan_orm", command = "count", table_name = ?table_name);
         let count_sql = self.get_generator().get_count_table_sql(table_name);
         tracing::debug!(target: "taitan_orm", command = "count", sql = count_sql);
@@ -36,7 +36,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn __select<SE, M>(
-        &mut self,
+        &self,
         selection: &SE::Selection,
         unique: &dyn Unique<Mutation = M>,
     ) -> Result<Option<SE>>
@@ -54,7 +54,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn select<SE, M>(
-        &mut self,
+        &self,
         selection: &SE,
         unique: &dyn Unique<Mutation = M>,
     ) -> Result<Option<SE>>
@@ -72,7 +72,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn __search<SE>(
-        &mut self,
+        &self,
         selection: &SE::Selection,
         location: &dyn Location,
         order_by: &Option<&dyn OrderBy>,
@@ -93,7 +93,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn search<SE>(
-        &mut self,
+        &self,
         selection: &SE,
         location: &dyn Location,
         order_by: &Option<&dyn OrderBy>,
@@ -114,7 +114,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn __search_paged<SE>(
-        &mut self,
+        &self,
         selection: &SE::Selection,
         location: &dyn Location,
         order_by: &dyn OrderBy,
@@ -144,7 +144,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn search_paged<SE>(
-        &mut self,
+        &self,
         selection: &SE,
         location: &dyn Location,
         order_by: &dyn OrderBy,
@@ -174,7 +174,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn __devour<SE>(
-        &mut self,
+        &self,
         selection: &SE::Selection,
         order_by: &Option<&dyn OrderBy>,
         page: &Option<&crate::page::Pagination>,
@@ -203,7 +203,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn devour<SE>(
-        &mut self,
+        &self,
         selection: &SE,
         order_by: &Option<&dyn OrderBy>,
         page: &Option<&crate::page::Pagination>,
@@ -232,7 +232,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn __devour_paged<SE>(
-        &mut self,
+        &self,
         selection: &SE::Selection,
         order_by: &dyn OrderBy,
         page: &crate::page::Pagination,
@@ -262,7 +262,7 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn devour_paged<SE>(
-        &mut self,
+        &self,
         selection: &SE,
         order_by: &dyn OrderBy,
         page: &crate::page::Pagination,

@@ -6,7 +6,7 @@ impl<T> TemplateApi for T where T: SqlExecutor + SqlGeneratorContainer + Extract
 
 pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn execute_by_template(
-        &mut self,
+        &self,
         template: &dyn crate::traits::TemplateRecord,
     ) -> crate::Result<u64> {
         debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
@@ -20,7 +20,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn fetch_one_by_template<SE>(
-        &mut self,
+        &self,
         template: &dyn crate::traits::TemplateRecord,
     ) -> crate::Result<SE>
     where
@@ -37,7 +37,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn fetch_option_by_template<SE>(
-        &mut self,
+        &self,
         template: &dyn crate::traits::TemplateRecord,
     ) -> crate::Result<Option<SE>>
     where
@@ -54,7 +54,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn fetch_all_by_template<SE>(
-        &mut self,
+        &self,
         template: &dyn crate::traits::TemplateRecord,
     ) -> crate::Result<Vec<SE>>
     where
@@ -71,7 +71,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     }
 
     async fn fetch_paged_by_template<SE>(
-        &mut self,
+        &self,
         template: &dyn crate::traits::TemplateRecord,
     ) -> crate::Result<crate::page::PagedList<Self::DB, SE>>
     where

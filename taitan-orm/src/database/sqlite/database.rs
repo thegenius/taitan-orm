@@ -1,5 +1,5 @@
-use crate::database::sqlite::commanders::read::SqliteReadCommander;
-use crate::database::sqlite::{SqliteLocalConfig, SqliteTransaction, SqliteWriteCommander};
+
+use crate::database::sqlite::{SqliteLocalConfig, SqliteTransaction};
 use crate::sql_generator::DefaultSqlGenerator;
 use crate::sql_generator_container::SqlGeneratorContainer;
 use crate::{executor_impl, CountResult, SqlExecutor, SqlGenericExecutor, TaitanOrmError};
@@ -8,7 +8,7 @@ use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
 use sqlx::{Sqlite, SqlitePool};
 use std::fs;
 use std::path::Path;
-use crate::database::sqlite::commanders::template::SqliteTemplateCommander;
+// use crate::database::sqlite::commanders::template::SqliteTemplateCommander;
 
 #[derive(Debug, Clone)]
 pub struct SqliteDatabase {
@@ -59,9 +59,6 @@ impl SqliteDatabase {
         Ok(&self.sqlite_pool)
     }
 
-    async fn get_connection(&self) -> crate::Result<sqlx::pool::PoolConnection<Sqlite>> {
-        Ok(self.get_pool()?.acquire().await?)
-    }
 }
 
 impl SqlGenericExecutor for SqliteDatabase {
@@ -84,8 +81,8 @@ impl SqlGeneratorContainer for SqliteDatabase {
     }
 }
 
-impl SqliteWriteCommander for SqliteDatabase {}
-
-impl SqliteReadCommander for SqliteDatabase {}
-
-impl SqliteTemplateCommander for SqliteDatabase {}
+// impl SqliteWriteCommander for SqliteDatabase {}
+//
+// impl SqliteReadCommander for SqliteDatabase {}
+//
+// impl SqliteTemplateCommander for SqliteDatabase {}

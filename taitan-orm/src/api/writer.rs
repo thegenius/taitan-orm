@@ -6,7 +6,7 @@ use tracing::debug;
 impl<T> WriterApi for T where T: SqlExecutor + SqlGeneratorContainer + Extractor {}
 
 pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
-    async fn insert(&mut self, entity: &dyn Entity) -> Result<bool> {
+    async fn insert(&self, entity: &dyn Entity) -> Result<bool> {
         debug!(target: "taitan_orm", command = "insert", entity = ?entity);
         let sql = self.get_generator().get_insert_sql(entity);
         debug!(target: "taitan_orm", command = "insert", sql = sql);
@@ -15,7 +15,7 @@ pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         debug!(target: "taitan_orm", command = "insert", result = ?result);
         Ok(result > 0)
     }
-    async fn upsert(&mut self, entity: &dyn Entity) -> Result<bool> {
+    async fn upsert(&self, entity: &dyn Entity) -> Result<bool> {
         debug!(target: "taitan_orm", command = "upsert", entity = ?entity);
         let sql = self.get_generator().get_upsert_sql(entity);
         debug!(target: "taitan_orm", command = "upsert", sql = sql);
@@ -25,7 +25,7 @@ pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(result > 0)
     }
     async fn update<M: Mutation>(
-        &mut self,
+        &self,
         mutation: &M,
         unique: &dyn Unique<Mutation = M>,
     ) -> Result<bool> {
@@ -37,7 +37,7 @@ pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         debug!(target: "taitan_orm", command = "update", result = ?result);
         Ok(result > 0)
     }
-    async fn change<M: Mutation>(&mut self, mutation: &M, location: &M::Location) -> Result<u64> {
+    async fn change<M: Mutation>(&self, mutation: &M, location: &M::Location) -> Result<u64> {
         debug!(target: "taitan_orm", command = "change", mutation = ?mutation, location = ?location);
         let sql = self.get_generator().get_change_sql(mutation, location);
         debug!(target: "taitan_orm", command = "change", sql = sql);
@@ -46,7 +46,7 @@ pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         debug!(target: "taitan_orm", command = "change", result = ?result);
         Ok(result)
     }
-    async fn delete<M: Mutation>(&mut self, unique: &dyn Unique<Mutation = M>) -> Result<bool> {
+    async fn delete<M: Mutation>(&self, unique: &dyn Unique<Mutation = M>) -> Result<bool> {
         debug!(target: "taitan_orm", command = "delete", primary = ?unique);
         let sql = self.get_generator().get_delete_sql(unique);
         debug!(target: "taitan_orm", command = "delete", sql = sql);
@@ -55,7 +55,7 @@ pub trait WriterApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         debug!(target: "taitan_orm", command = "delete", result = ?result);
         Ok(result > 0)
     }
-    async fn purify(&mut self, location: &dyn Location) -> Result<u64> {
+    async fn purify(&self, location: &dyn Location) -> Result<u64> {
         debug!(target: "taitan_orm", command = "purify", location = ?location);
         let sql = self.get_generator().get_purify_sql(location);
         debug!(target: "taitan_orm", command = "purify", sql = sql);
