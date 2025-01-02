@@ -1,0 +1,12 @@
+[package]
+name = "search"
+edition = "2021"
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+taitan-orm = { path = "../../taitan-orm" }
+sqlx = { workspace = true }
+tokio = { version = "1.35.1", features = ["full"] }
+tracing = {workspace = true}
+tracing-subscriber = {workspace = true}
