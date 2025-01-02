@@ -2,7 +2,7 @@ use sqlx::types::time::PrimitiveDateTime;
 use std::borrow::Cow;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 use taitan_orm::traits::Selection;
-use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use taitan_orm::{Optional, ReaderMutApi, ReaderApi, Schema, SqlExecutor, WriterMutApi};
 use time::macros::datetime;
 
 #[derive(Schema, Clone, Debug)]
