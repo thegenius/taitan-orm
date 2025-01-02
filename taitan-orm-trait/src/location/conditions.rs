@@ -9,10 +9,12 @@ use std::str::Chars;
 
 pub trait Condition {
     fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String;
-    fn add_to_sqlite_arguments<'a>(
+    fn add_to_sqlite_arguments<'a, 'b>(
         &'a self,
-        args: &'a mut SqliteArguments<'a>,
-    ) -> Result<(), sqlx::error::BoxDynError>;
+        args: &'b mut SqliteArguments<'b>,
+    ) -> Result<(), sqlx::error::BoxDynError>
+    where
+        'a: 'b;
     fn add_to_mysql_arguments(
         &self,
         args: &mut MySqlArguments,
@@ -54,7 +56,10 @@ pub fn wrap_where_seg<T>(
 fn process_element<'a, T>(
     location_expr: &'a T,
     args: &'a mut SqliteArguments<'a>,
-) -> Result<(), sqlx::error::BoxDynError> where T: Condition {
+) -> Result<(), sqlx::error::BoxDynError>
+where
+    T: Condition,
+{
     location_expr.add_to_sqlite_arguments(args)?;
     Ok(())
 }
@@ -214,12 +219,8 @@ where
         Ok(sql_parts.join(""))
     }
 
-
-    pub fn get_sqlite_args(
-        &self
-    ) -> Result<SqliteArguments, sqlx::error::BoxDynError> {
-        let mut stack: Vec<(&Conditions<T>, bool)> =
-            vec![(self, false)];
+    pub fn get_mysql_args(&self) -> Result<MySqlArguments, sqlx::error::BoxDynError> {
+        let mut stack: Vec<(&Conditions<T>, bool)> = vec![(self, false)];
         let mut elements: Vec<&T> = Vec::new();
         while let Some((node, children_processed)) = stack.pop() {
             match node {
@@ -238,13 +239,39 @@ where
             }
         }
 
-        let mut args = SqliteArguments::default();
-        for i in 0..elements.len() {
-            let element = elements[i];
-            element.add_to_sqlite_arguments(&mut args.clone())?;
+        let mut args = MySqlArguments::default();
+        for element in elements {
+            element.add_to_mysql_arguments(&mut args)?;
         }
         Ok(args)
     }
+
+    // pub fn get_sqlite_args<'a, 'b>(&'a self, args: &'b mut SqliteArguments<'b>) -> Result<(), sqlx::error::BoxDynError> where 'a: 'b {
+    //     let mut stack: Vec<(&Conditions<T>, bool)> = vec![(self, false)];
+    //     let mut elements: Vec<T> = Vec::new();
+    //     while let Some((node, children_processed)) = stack.pop() {
+    //         match node {
+    //             Conditions::Group { op, children } => {
+    //                 if !children_processed {
+    //                     // 如果后续弹出到我自己了，那么说明我的所有子节点已经处理完成
+    //                     stack.push((node, true));
+    //                     for child in children.iter().rev() {
+    //                         stack.push((child, false));
+    //                     }
+    //                 }
+    //             }
+    //             Conditions::Element(location_expr) => {
+    //                 elements.push(location_expr.clone());
+    //             }
+    //         }
+    //     }
+    //
+    //     // let mut args = SqliteArguments::default();
+    //     for element in elements {
+    //         element.add_to_sqlite_arguments(args)?;
+    //     }
+    //     Ok(())
+    // }
 }
 
 #[cfg(test)]
@@ -281,10 +308,13 @@ mod test {
             }
         }
 
-        fn add_to_sqlite_arguments<'a>(
+        fn add_to_sqlite_arguments<'a, 'b>(
             &'a self,
-            args: &'a mut SqliteArguments<'a>,
-        ) -> Result<(), sqlx::error::BoxDynError> {
+            args: &mut SqliteArguments<'b>,
+        ) -> Result<(), sqlx::error::BoxDynError>
+        where
+            'a: 'b,
+        {
             match self {
                 RequestId(request_id) => args.add(&request_id.val)?,
                 Name(name) => args.add(&name.val)?,
