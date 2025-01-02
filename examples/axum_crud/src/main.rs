@@ -44,7 +44,7 @@ async fn main() {
         "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
     ).await.unwrap();
 
-    // 1. insert entity
+    // prepare one user for select
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
