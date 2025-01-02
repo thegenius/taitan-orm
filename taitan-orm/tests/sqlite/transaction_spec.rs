@@ -1,12 +1,17 @@
 use sqlx::sqlx_macros;
 use taitan_orm::database::sqlite::{
-    SqliteWriteCommander, SqliteReadCommander,  SqliteDatabase, SqliteLocalConfig,
+      SqliteDatabase, SqliteLocalConfig,
 };
+use taitan_orm::ReaderMutApi;
+use taitan_orm::WriterMutApi;
+use taitan_orm::ReaderApi;
+use taitan_orm::WriterApi;
 use time::macros::datetime;
 use uuid::Uuid;
 
 use crate::entities::user::*;
 use taitan_orm_trait::{Optional, Selection};
+use crate::entities::user::prepare_user_table;
 use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
@@ -82,7 +87,7 @@ async fn test_insert_user(
     let result = insert_user_transactional(db, user1, user2).await;
     assert!(result.is_ok());
 
-    let selection = UserSelection::full_fields();
+    let selection = UserSelected::full_fields();
     let primary = UserPrimary { id: user1.id };
     let entity_opt: Option<UserSelected> = db.select(&selection, &primary).await?;
     assert!(entity_opt.is_some());
@@ -102,7 +107,7 @@ async fn test_rollback(
     let result = insert_user_transactional(db, user1, user2).await;
     assert!(result.is_err());
 
-    let selection = UserSelection::full_fields();
+    let selection = UserSelected::full_fields();
     let primary = UserPrimary { id: user1.id };
     let entity_opt: Option<UserSelected> = db.select(&selection, &primary).await?;
     assert!(entity_opt.is_none());

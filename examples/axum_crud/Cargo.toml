@@ -1,0 +1,13 @@
+[package]
+name = "axum_crud"
+edition = "2021"
+version.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+taitan-orm = {path = "../../taitan-orm"}
+axum = "0.8.0-alpha.1"
+tokio = {version = "1.42.0", features = ["full"]}
+sqlx = {version = "0.8.2", features = ["runtime-tokio", "mysql", "sqlite", "postgres", "bigdecimal", "time", "uuid"]}
+tracing = {workspace = true}
+tracing-subscriber = {workspace = true}

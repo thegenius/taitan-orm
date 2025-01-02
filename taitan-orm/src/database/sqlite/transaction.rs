@@ -1,10 +1,8 @@
 
-use crate::database::sqlite::commanders::read::SqliteReadCommander;
-use crate::database::sqlite::{SqliteWriteCommander};
+
 use crate::sql_generator::DefaultSqlGenerator;
 use crate::sql_generator_container::SqlGeneratorContainer;
 use sqlx::Sqlite;
-use crate::database::sqlite::commanders::template::SqliteTemplateCommander;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use crate::{transaction_impl, CountResult};
 
@@ -42,22 +40,22 @@ impl<'t> SqlGenericExecutor for SqliteTransaction<'t> {
     }
 }
 
-impl<'t> crate::SqlExecutor for SqliteTransaction<'t> {
+impl<'t> crate::SqlExecutorMut for SqliteTransaction<'t> {
     transaction_impl!(SqliteConnection);
 }
 impl<'a> SqlGeneratorContainer for SqliteTransaction<'a> {
     type G = DefaultSqlGenerator;
 
-    fn get_generator(&mut self) -> &Self::G {
+    fn get_generator(&self) -> &Self::G {
         &self.sql_generator
     }
 }
 
-impl<'a> SqliteWriteCommander for SqliteTransaction<'a> {}
-
-impl<'a> SqliteReadCommander for SqliteTransaction<'a> {}
-
-impl<'a> SqliteTemplateCommander for SqliteTransaction<'a> {}
+// impl<'a> SqliteWriteCommander for SqliteTransaction<'a> {}
+//
+// impl<'a> SqliteReadCommander for SqliteTransaction<'a> {}
+//
+// impl<'a> SqliteTemplateCommander for SqliteTransaction<'a> {}
 
 
 

@@ -1,5 +1,5 @@
 use sqlx::Postgres;
-use crate::{transaction_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{transaction_impl, CountResult, SqlExecutor, SqlExecutorMut, SqlGeneratorContainer, SqlGenericExecutor};
 use crate::sql_generator::{PostgresGenerator};
 
 #[derive(Debug)]
@@ -36,13 +36,13 @@ impl<'t> SqlGenericExecutor for PostgresTransaction<'t> {
     }
 }
 
-impl<'t> SqlExecutor for PostgresTransaction<'t> {
+impl<'t> SqlExecutorMut for PostgresTransaction<'t> {
     transaction_impl!(PgConnection);
 }
 impl<'a> SqlGeneratorContainer for PostgresTransaction<'a> {
     type G = PostgresGenerator;
 
-    fn get_generator(&mut self) -> &Self::G {
+    fn get_generator(&self) -> &Self::G {
         &self.generator
     }
 }

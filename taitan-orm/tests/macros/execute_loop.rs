@@ -2,7 +2,7 @@ use crate::entities::user3::{
     UserEntity, UserMutation, UserPrimary, UserSelectedEntity, UserSelection,
 };
 use taitan_orm::traits::Selection;
-use taitan_orm::{Executor, SqlGenericExecutor, WriterApi};
+use taitan_orm::{Executor, SqlGenericExecutor,};
 use taitan_orm_trait::SelectedEntity;
 
 async fn test_insert_user<EX>(db: &mut EX, user: &UserEntity) -> taitan_orm::Result<()>

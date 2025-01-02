@@ -29,7 +29,7 @@ impl SqlGenericExecutor for PostgresDatabase {
 impl SqlGeneratorContainer for PostgresDatabase {
     type G = PostgresGenerator;
 
-    fn get_generator(&mut self) -> &Self::G {
+    fn get_generator(&self) -> &Self::G {
         &self.generator
     }
 }

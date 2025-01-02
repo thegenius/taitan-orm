@@ -48,18 +48,18 @@ impl SqliteDatabase {
         Ok(database)
     }
 
-    pub async fn transaction<'a>(&'a mut self) -> crate::Result<SqliteTransaction<'a>> {
+    pub async fn transaction<'a>(&'a self) -> crate::Result<SqliteTransaction<'a>> {
         let trx = self.get_pool()?.begin().await?;
         let generator = self.get_generator();
         let transaction = SqliteTransaction::new(trx, generator);
         Ok(transaction)
     }
 
-    pub fn get_pool(&mut self) -> crate::Result<&SqlitePool> {
+    pub fn get_pool(&self) -> crate::Result<&SqlitePool> {
         Ok(&self.sqlite_pool)
     }
 
-    async fn get_connection(&mut self) -> crate::Result<sqlx::pool::PoolConnection<Sqlite>> {
+    async fn get_connection(&self) -> crate::Result<sqlx::pool::PoolConnection<Sqlite>> {
         Ok(self.get_pool()?.acquire().await?)
     }
 }
@@ -79,7 +79,7 @@ impl SqlExecutor for SqliteDatabase {
 impl SqlGeneratorContainer for SqliteDatabase {
     type G = DefaultSqlGenerator;
 
-    fn get_generator(&mut self) -> &Self::G {
+    fn get_generator(&self) -> &Self::G {
         &self.sql_generator
     }
 }

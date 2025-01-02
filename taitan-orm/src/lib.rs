@@ -10,6 +10,7 @@ mod sql_api;
 mod db;
 mod dto;
 mod sql_executor;
+mod sql_executor_mut;
 mod sql_generator;
 pub mod sql_generator_container;
 
@@ -19,7 +20,7 @@ mod sql_generic_executor;
 mod extractor;
 mod api;
 
-
+pub use extractor::Extractor;
 pub use taitan_orm_trait::Optional;
 
 // pub use db::DB;
@@ -28,6 +29,7 @@ pub use error::TaitanOrmError;
 pub use result::Result;
 pub use sql_api::SqlApi;
 pub use sql_executor::SqlExecutor;
+pub use sql_executor_mut::SqlExecutorMut;
 pub use sql_generic_executor::SqlGenericExecutor;
 pub use sql_generator_container::SqlGeneratorContainer;
 pub use sql_generator::DefaultSqlGenerator;
@@ -36,8 +38,12 @@ pub use sql_generator::SqlGenerator;
 pub use taitan_orm_macro::Schema;
 pub use taitan_orm_trait::FieldName;
 pub use api::reader::ReaderApi;
+pub use api::reader_mut::ReaderMutApi;
 pub use api::writer::WriterApi;
+pub use api::writer_mut::WriterMutApi;
 pub use api::template::TemplateApi;
+pub use api::template_mut::TemplateMutApi;
+
 pub use taitan_orm_macro::TemplateRecord;
 pub use db::Executor;
 

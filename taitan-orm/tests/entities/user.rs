@@ -171,6 +171,45 @@ pub struct UserSelected {
     // ipv6addr: Option<Ipv6Addr>,
 }
 
+impl Selection for UserSelected {
+    fn get_table_name(&self) -> &'static str {
+        "user"
+    }
+    fn get_selected_fields(&self) -> Vec<String> {
+        let mut fields = Vec::new();
+        if self.id.is_selected() {
+            fields.push("id".to_string());
+        };
+        if self.request_id.is_selected() {
+            fields.push("request_id".to_string());
+        };
+        if self.age.is_selected() {
+            fields.push("age".to_string());
+        };
+        if self.name.is_selected() {
+            fields.push("name".to_string());
+        };
+        if self.birthday.is_selected() {
+            fields.push("birthday".to_string());
+        };
+        return fields;
+    }
+
+    fn full_fields() -> Self
+    where
+        Self: Sized,
+    {
+        Self {
+            id: taitan_orm::Optional::Selected,
+            request_id: taitan_orm::Optional::Selected,
+            age: taitan_orm::Optional::Selected,
+            name: taitan_orm::Optional::Selected,
+            birthday: taitan_orm::Optional::Selected,
+        }
+    }
+}
+
+
 impl SelectedEntityNew for UserSelected {
     type Selection = UserSelection;
 
@@ -210,6 +249,34 @@ impl SelectedEntityNew for UserSelected {
 impl SelectedEntity<Sqlite> for UserSelected {
     type Selection = UserSelection;
 
+    fn select_from_row(selection: &Self, row: <Sqlite as Database>::Row) -> Result<Self, sqlx::Error>
+    where
+        Self: Sized,
+    {
+        let mut selected = Self::default();
+        let mut i = 0;
+        if selection.id.is_selected() {
+            selected.id = sqlx::Row::try_get(&row, i).ok().into();
+            i += 1;
+        };
+        if selection.request_id.is_selected() {
+            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
+            i += 1;
+        };
+        if selection.age.is_selected() {
+            selected.age = sqlx::Row::try_get(&row, i).ok().into();
+            i += 1;
+        };
+        if selection.name.is_selected() {
+            selected.name = sqlx::Row::try_get(&row, i).ok().into();
+            i += 1;
+        };
+        if selection.birthday.is_selected() {
+            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
+            i += 1;
+        };
+        Ok(selected)
+    }
     fn from_row(
         selection: &Self::Selection,
         row: <Sqlite as Database>::Row,

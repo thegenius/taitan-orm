@@ -1,5 +1,5 @@
 use sqlx::MySql;
-use crate::{transaction_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{transaction_impl, CountResult,  SqlExecutorMut, SqlGeneratorContainer, SqlGenericExecutor};
 use crate::sql_generator::MySqlGenerator;
 
 #[derive(Debug)]
@@ -36,13 +36,13 @@ impl<'t> SqlGenericExecutor for MySqlTransaction<'t> {
     }
 }
 
-impl<'t> SqlExecutor for MySqlTransaction<'t> {
+impl<'t> SqlExecutorMut for MySqlTransaction<'t> {
     transaction_impl!(MySqlConnection);
 }
 impl<'a> SqlGeneratorContainer for MySqlTransaction<'a> {
     type G = MySqlGenerator;
 
-    fn get_generator(&mut self) -> &Self::G {
+    fn get_generator(&self) -> &Self::G {
         &self.generator
     }
 }
