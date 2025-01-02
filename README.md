@@ -8,8 +8,6 @@
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
 -  **Template** : Write Your Own Sql Like Mybatis.
 -  **Asynchronous** : Fully Async Based on Sqlx.
--  **Multi-Database** : MySql + Postgres + Sqlite for now.
-
 
 # Quick Start
 ```toml
@@ -86,6 +84,11 @@ async fn main() -> taitan_orm::Result<()> {
 }
 ```
 * you can run the crud example in examples/crud directory.
+
+# Supported Database
+ MySql 
+ Postgres 
+ Sqlite
 
 # ROADMAP
 - **0.1 API** :white_check_mark:
