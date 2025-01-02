@@ -1,5 +1,5 @@
 use sqlx::Postgres;
-use crate::{transaction_impl, CountResult, SqlExecutor, SqlExecutorMut, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{transaction_impl, CountResult, SqlExecutorMut, SqlGeneratorContainer, SqlGenericExecutor};
 use crate::sql_generator::{PostgresGenerator};
 
 #[derive(Debug)]
