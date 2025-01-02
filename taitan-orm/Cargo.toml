@@ -10,8 +10,8 @@ homepage = "https://github.com/thegenius/taitan-orm"
 [dependencies]
 #taitan-orm-trait = { path = "../taitan-orm-trait" }
 #taitan-orm-macro = { path = "../taitan-orm-macro" }
-taitan-orm-trait = { version = "0.1.1" }
-taitan-orm-macro = { version = "0.1.1" }
+taitan-orm-trait = { version = "0.1.2" }
+taitan-orm-macro = { version = "0.1.2" }
 sqlx = {workspace = true}
 serde = {workspace = true}
 time = {workspace = true}
