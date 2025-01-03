@@ -1,7 +1,7 @@
 <h1 align="center"> Great Art Stretches Taste. </h1>  
 
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
-[![Version](https://img.shields.io/badge/crates-0.1.1-green)](https://crates.io/crates/taitan-orm)
+[![Version](https://img.shields.io/badge/crates-0.1.3-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/lines-14k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
@@ -72,7 +72,13 @@ async fn main() -> taitan_orm::Result<()> {
     let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
     assert!(entity.is_some());
 
-    // 4. delete
+    // 4. search
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocationExpr::id(">=", 1)?;
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 1);
+
+    // 5. delete
     let result = db.delete(&primary).await?;
     assert_eq!(result, true);
 

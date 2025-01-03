@@ -56,7 +56,13 @@ async fn main() -> taitan_orm::Result<()> {
     let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
     assert!(entity.is_some());
 
-    // 4. delete
+    // 4. search
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocationExpr::id(">=", 1)?;
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 1);
+
+    // 5. delete
     let result = db.delete(&primary).await?;
     assert_eq!(result, true);
 
