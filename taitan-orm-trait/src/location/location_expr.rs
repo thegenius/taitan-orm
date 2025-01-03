@@ -1,7 +1,8 @@
-use std::str::Chars;
+use crate::error::NotValidCmpError;
 use crate::CmpOperator;
 use log::warn;
 use serde::{Deserialize, Serialize};
+use std::str::Chars;
 
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct LocationExpr<T> {
@@ -21,8 +22,12 @@ impl<T> LocationExpr<T> {
         Self { cmp, val }
     }
 
+    pub fn from(cmp: &str, val: T) -> Result<Self, NotValidCmpError> {
+        let cmp = CmpOperator::from_str(cmp)?;
+        Ok(Self { cmp, val })
+    }
+
     pub fn get_cmp_sql(&self) -> &str {
         self.cmp.get_sql()
     }
 }
-

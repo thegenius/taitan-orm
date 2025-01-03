@@ -7,7 +7,7 @@ use std::borrow::Cow;
 use std::error::Error;
 use taitan_orm::database::sqlite::SqliteDatabase;
 use taitan_orm::SqlExecutor;
-use taitan_orm_trait::{validate_order_by, Entity, FieldName, Location, LocationExpr, LocationTrait, Mutation, Optional, OrderBy, SelectedEntity, SelectedEntityNew, Selection, Unique, UpdateCommand};
+use taitan_orm_trait::{validate_order_by, Entity, FieldName, Location, LocationExpr, Mutation, Optional, OrderBy, SelectedEntity, SelectedEntityNew, Selection, Unique, UpdateCommand};
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 
@@ -452,7 +452,7 @@ impl UserLocation {
         wrap_char: char,
         place_holder: char,
         field_name: &str,
-        loc: &dyn LocationTrait,
+        loc: &LocationExpr<T>,
     ) {
         sql.push(wrap_char);
         sql.push_str(field_name);

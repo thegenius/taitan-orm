@@ -1,6 +1,5 @@
-
 use sqlx::{Error, Sqlite};
-use taitan_orm_trait::FieldName;
+use taitan_orm_trait::{FieldName, LocationMode};
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 
@@ -269,6 +268,7 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserLocation {
+    mode: taitan_orm::LocationMode,
     id: Option<taitan_orm::traits::LocationExpr<i64>>,
     request_id: Option<taitan_orm::traits::LocationExpr<Uuid>>,
     age: Option<taitan_orm::traits::LocationExpr<i32>>,
@@ -296,12 +296,14 @@ impl taitan_orm::traits::Location for UserLocation {
     }
     fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
         let mut sql = String::default();
+        let connectives = self.mode.as_connective();
         if let Some(id) = &self.id {
             sql.push(wrap_char);
             sql.push_str("id");
             sql.push(wrap_char);
             sql.push_str(id.cmp.get_sql());
             sql.push(place_holder);
+            sql.push_str(connectives);
         }
         if let Some(request_id) = &self.request_id {
             sql.push(wrap_char);
@@ -309,6 +311,7 @@ impl taitan_orm::traits::Location for UserLocation {
             sql.push(wrap_char);
             sql.push_str(request_id.cmp.get_sql());
             sql.push(place_holder);
+            sql.push_str(connectives);
         }
         if let Some(age) = &self.age {
             sql.push(wrap_char);
@@ -316,6 +319,7 @@ impl taitan_orm::traits::Location for UserLocation {
             sql.push(wrap_char);
             sql.push_str(age.cmp.get_sql());
             sql.push(place_holder);
+            sql.push_str(connectives);
         }
         if let Some(name) = &self.name {
             sql.push(wrap_char);
@@ -323,6 +327,7 @@ impl taitan_orm::traits::Location for UserLocation {
             sql.push(wrap_char);
             sql.push_str(name.cmp.get_sql());
             sql.push(place_holder);
+            sql.push_str(connectives);
         }
         if let Some(birthday) = &self.birthday {
             sql.push(wrap_char);
@@ -330,8 +335,11 @@ impl taitan_orm::traits::Location for UserLocation {
             sql.push(wrap_char);
             sql.push_str(birthday.cmp.get_sql());
             sql.push(place_holder);
+            sql.push_str(connectives);
         }
-        return sql;
+        sql.strip_suffix(connectives)
+            .unwrap_or(sql.as_str())
+            .to_string()
     }
     fn gen_location_arguments_sqlite(
         &self,

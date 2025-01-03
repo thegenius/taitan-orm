@@ -182,7 +182,7 @@ impl taitan_orm::traits::Entity for UserEntity {
         Ok(args)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde :: Deserialize, serde :: Serialize)]
 pub struct UserPrimary {
     pub id: i64,
 }
@@ -276,7 +276,7 @@ impl taitan_orm::traits::Unique for UserPrimary {
         Ok(args)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde :: Deserialize, serde :: Serialize)]
 pub struct UserAgeUnique {
     pub age: i32,
 }
@@ -370,7 +370,7 @@ impl taitan_orm::traits::Unique for UserAgeUnique {
         Ok(args)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde :: Deserialize, serde :: Serialize)]
 pub struct UserNameBirthdayUnique {
     pub name: String,
     pub birthday: PrimitiveDateTime,
@@ -473,6 +473,7 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserLocation {
+    mode: taitan_orm::LocationMode,
     pub id: taitan_orm::Optional<taitan_orm::traits::LocationExpr<i64>>,
     pub request_id: taitan_orm::Optional<taitan_orm::traits::LocationExpr<Uuid>>,
     pub age: taitan_orm::Optional<taitan_orm::traits::LocationExpr<i32>>,
@@ -534,6 +535,7 @@ impl taitan_orm::traits::Location for UserLocation {
     }
     fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
         let mut sql = String::default();
+        let connectives = self.mode.as_connective();
         match &self.id {
             Optional::Some(id) => {
                 sql.push(wrap_char);
@@ -541,6 +543,7 @@ impl taitan_orm::traits::Location for UserLocation {
                 sql.push(wrap_char);
                 sql.push_str(id.cmp.get_sql());
                 sql.push(place_holder);
+                sql.push_str(connectives);
             }
             Optional::Null => {
                 sql.push(wrap_char);
@@ -557,6 +560,7 @@ impl taitan_orm::traits::Location for UserLocation {
                 sql.push(wrap_char);
                 sql.push_str(request_id.cmp.get_sql());
                 sql.push(place_holder);
+                sql.push_str(connectives);
             }
             Optional::Null => {
                 sql.push(wrap_char);
@@ -573,6 +577,7 @@ impl taitan_orm::traits::Location for UserLocation {
                 sql.push(wrap_char);
                 sql.push_str(age.cmp.get_sql());
                 sql.push(place_holder);
+                sql.push_str(connectives);
             }
             Optional::Null => {
                 sql.push(wrap_char);
@@ -589,6 +594,7 @@ impl taitan_orm::traits::Location for UserLocation {
                 sql.push(wrap_char);
                 sql.push_str(name.cmp.get_sql());
                 sql.push(place_holder);
+                sql.push_str(connectives);
             }
             Optional::Null => {
                 sql.push(wrap_char);
@@ -605,6 +611,7 @@ impl taitan_orm::traits::Location for UserLocation {
                 sql.push(wrap_char);
                 sql.push_str(birthday.cmp.get_sql());
                 sql.push(place_holder);
+                sql.push_str(connectives);
             }
             Optional::Null => {
                 sql.push(wrap_char);
@@ -614,7 +621,10 @@ impl taitan_orm::traits::Location for UserLocation {
             }
             _ => {}
         }
-        return sql;
+        return sql
+            .strip_suffix(connectives)
+            .unwrap_or(sql.as_str())
+            .to_string();
     }
     fn gen_location_arguments_sqlite(
         &self,
@@ -844,15 +854,6 @@ impl taitan_orm::traits::Selection for UserSelection {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    // fn get_selected_bits(&self) -> bit_vec::BitVec {
-    //     let mut bits = bit_vec::BitVec::new();
-    //     bits.push(self.id);
-    //     bits.push(self.request_id);
-    //     bits.push(self.age);
-    //     bits.push(self.name);
-    //     bits.push(self.birthday);
-    //     return bits;
-    // }
     fn get_selected_fields(&self) -> Vec<String> {
         let mut fields = Vec::new();
         if self.id {
@@ -885,7 +886,7 @@ impl taitan_orm::traits::Selection for UserSelection {
         }
     }
 }
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[derive(Default, Debug, Clone)]
 pub struct UserSelectedEntity {
     pub id: taitan_orm::Optional<i64>,
     pub request_id: taitan_orm::Optional<Uuid>,
@@ -926,37 +927,6 @@ impl taitan_orm::traits::SelectedEntity<sqlx::Sqlite> for UserSelectedEntity {
         };
         Ok(selected)
     }
-    // fn from_row_bits(
-    //     bits: &bit_vec::BitVec,
-    //     row: <sqlx::Sqlite as sqlx::Database>::Row,
-    // ) -> Result<Self, sqlx::Error>
-    // where
-    //     Self: Sized,
-    // {
-    //     let mut selected = Self::default();
-    //     let mut i = 0;
-    //     if bits.get(0usize).unwrap_or(false) {
-    //         selected.id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(1usize).unwrap_or(false) {
-    //         selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(2usize).unwrap_or(false) {
-    //         selected.age = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(3usize).unwrap_or(false) {
-    //         selected.name = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(4usize).unwrap_or(false) {
-    //         selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     Ok(selected)
-    // }
     fn select_from_row(
         selection: &Self,
         row: <sqlx::Sqlite as sqlx::Database>::Row,
@@ -1040,37 +1010,6 @@ impl taitan_orm::traits::SelectedEntity<sqlx::MySql> for UserSelectedEntity {
         };
         Ok(selected)
     }
-    // fn from_row_bits(
-    //     bits: &bit_vec::BitVec,
-    //     row: <sqlx::MySql as sqlx::Database>::Row,
-    // ) -> Result<Self, sqlx::Error>
-    // where
-    //     Self: Sized,
-    // {
-    //     let mut selected = Self::default();
-    //     let mut i = 0;
-    //     if bits.get(0usize).unwrap_or(false) {
-    //         selected.id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(1usize).unwrap_or(false) {
-    //         selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(2usize).unwrap_or(false) {
-    //         selected.age = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(3usize).unwrap_or(false) {
-    //         selected.name = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(4usize).unwrap_or(false) {
-    //         selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     Ok(selected)
-    // }
     fn select_from_row(
         selection: &Self,
         row: <sqlx::MySql as sqlx::Database>::Row,
@@ -1154,37 +1093,6 @@ impl taitan_orm::traits::SelectedEntity<sqlx::Postgres> for UserSelectedEntity {
         };
         Ok(selected)
     }
-    // fn from_row_bits(
-    //     bits: &bit_vec::BitVec,
-    //     row: <sqlx::Postgres as sqlx::Database>::Row,
-    // ) -> Result<Self, sqlx::Error>
-    // where
-    //     Self: Sized,
-    // {
-    //     let mut selected = Self::default();
-    //     let mut i = 0;
-    //     if bits.get(0usize).unwrap_or(false) {
-    //         selected.id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(1usize).unwrap_or(false) {
-    //         selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(2usize).unwrap_or(false) {
-    //         selected.age = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(3usize).unwrap_or(false) {
-    //         selected.name = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     if bits.get(4usize).unwrap_or(false) {
-    //         selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-    //         i += 1;
-    //     };
-    //     Ok(selected)
-    // }
     fn select_from_row(
         selection: &Self,
         row: <sqlx::Postgres as sqlx::Database>::Row,
@@ -1241,19 +1149,19 @@ impl taitan_orm::traits::Selection for UserSelectedEntity {
     }
     fn get_selected_fields(&self) -> Vec<String> {
         let mut fields = Vec::new();
-        if self.id.is_null() {
+        if self.id.is_selected() {
             fields.push("id".to_string());
         };
-        if self.request_id.is_null() {
+        if self.request_id.is_selected() {
             fields.push("r_id".to_string());
         };
-        if self.age.is_null() {
+        if self.age.is_selected() {
             fields.push("age".to_string());
         };
-        if self.name.is_null() {
+        if self.name.is_selected() {
             fields.push("name".to_string());
         };
-        if self.birthday.is_null() {
+        if self.birthday.is_selected() {
             fields.push("birthday".to_string());
         };
         return fields;

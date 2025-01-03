@@ -22,6 +22,8 @@ pub use optional::Optional;
 
 pub use error::NotImplementError;
 pub use error::NotValidOrderByError;
+pub use error::NotValidCmpError;
+pub use error::NotValidConditionError;
 
 pub use entity::Entity;
 
@@ -56,3 +58,4 @@ pub use template::TemplateValue;
 pub use write_command::WriteCommand;
 pub use page::paged_list::build_paged_list;
 pub use field::FieldName;
+pub use location::LocationMode;

@@ -11,6 +11,19 @@ pub enum TaitanOrmError {
     #[error(transparent)]
     BoxDynError(#[from] Box<dyn std::error::Error + 'static + Send + Sync>),
 
+    #[error(transparent)]
+    NotValidCmpErr(#[from] taitan_orm_trait::NotValidCmpError),
+
+    #[error(transparent)]
+    NotValidConditionError(#[from] taitan_orm_trait::NotValidConditionError),
+
+    #[error(transparent)]
+    NotValidOrderByError(#[from] taitan_orm_trait::NotValidOrderByError),
+
+    #[error(transparent)]
+    NotImplementTrait(#[from] taitan_orm_trait::NotImplementError),
+
+
     // #[error(transparent)]
     // BoxDynNoStaticError(#[from] Box<dyn std::error::Error + Send + Sync>),
 
@@ -37,4 +50,6 @@ pub enum TaitanOrmError {
 
     #[error("dynamic request parse error: {0}")]
     DynamicRequestParseError(String),
+
+
 }

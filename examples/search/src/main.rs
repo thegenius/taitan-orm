@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use taitan_orm::{LocationMode, Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 use taitan_orm::traits::{LocationExpr, Selection};
 use taitan_orm::CmpOperator;
@@ -69,6 +69,17 @@ async fn main() -> taitan_orm::Result<()> {
     };
     let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
     assert_eq!(entities.len(), 2);
+
+    // 5. search
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocation {
+        mode: LocationMode::Or,
+        id: Optional::Some(LocationExpr::from(">", 3)?),
+        age: Optional::Some(LocationExpr::from("<=", 23)?),
+        ..Default::default()
+    };
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 1);
 
 
     println!("search success!");

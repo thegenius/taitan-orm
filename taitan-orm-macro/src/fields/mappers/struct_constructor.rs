@@ -43,6 +43,7 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
             quote! {
                 #[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
                 pub struct #struct_ident {
+                    mode: taitan_orm::LocationMode,
                     #(#fields_tokens,)*
                 }
             }
@@ -50,6 +51,7 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
             quote! {
             #[derive(Default, Debug, Clone)]
                 pub struct #struct_ident {
+                    mode: taitan_orm::LocationMode,
                     #(#fields_tokens,)*
                 }
             }

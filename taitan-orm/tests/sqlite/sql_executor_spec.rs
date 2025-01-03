@@ -38,7 +38,7 @@
 //! | `uuid::fmt::Simple`                   | CHAR(32), VARCHAR, TEXT                              |
 
 use std::marker::PhantomData;
-use taitan_orm_trait::{CmpOperator, LocationExpr, LocationTrait, Optional, Selection};
+use taitan_orm_trait::{CmpOperator, LocationExpr, Optional, Selection};
 use taitan_orm_trait::{Entity, Location, Mutation, SelectedEntity, Unique, UpdateCommand};
 use taitan_orm::SqlGenericExecutor;
 

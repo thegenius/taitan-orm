@@ -346,8 +346,12 @@ impl FieldsParser {
         );
         quote! {
             let mut sql = String::default();
+            let connectives = self.mode.as_connective();
             #(#where_clause_members )*
-            return sql;
+
+            return sql.strip_suffix(connectives)
+            .unwrap_or(sql.as_str())
+            .to_string();
         }
     }
 

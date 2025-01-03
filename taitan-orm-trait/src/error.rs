@@ -25,4 +25,13 @@ impl std::fmt::Display for NotValidConditionError {
     }
 }
 
+#[derive(Debug)]
+pub struct NotValidCmpError(pub String);
+impl std::error::Error for crate::error::NotValidCmpError {}
+impl std::fmt::Display for crate::error::NotValidCmpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "condition: {} is not valid", self.0)
+    }
+}
+
 
