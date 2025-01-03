@@ -95,7 +95,7 @@ At present, the documentation for this newly-born project is limited. You can re
 | transaction | basic transaction example   |
 | search      | multi search features       |
 | axum_crud   | integrate with axum         |
-
+ 
 # Supported Database
  MySql 
  Postgres 
@@ -107,11 +107,6 @@ At present, the documentation for this newly-born project is limited. You can re
 - **0.3 Performance**: benchmark and optimize :pushpin:
 - **0.4 Documentation**: doc the usage and implementation
 - **1.0 Stable**: stabilize the api, macro and error :pushpin:
-
-# Examples
-1. examples/crud: basic crud api example
-2. examples/transaction: show the transaction api
-3. examples/template: show the template api
 
 
 
