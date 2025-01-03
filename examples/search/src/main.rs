@@ -81,6 +81,8 @@ async fn main() -> taitan_orm::Result<()> {
     let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
     assert_eq!(entities.len(), 1);
 
+    // for more complicate search, suggest to use template, which can be more maintainable
+
 
     println!("search success!");
     Ok(())
