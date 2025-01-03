@@ -85,6 +85,17 @@ async fn main() -> taitan_orm::Result<()> {
 ```
 * you can run the crud example in examples/crud directory.
 
+# Examples
+At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
+
+| example     | descption                   |
+|-------------|-----------------------------|
+| crud        | basic crud example          |
+| template    | template with paged example |
+| transaction | basic transaction example   |
+| search      | multi search features       |
+| axum_crud   | integrate with axum         |
+
 # Supported Database
  MySql 
  Postgres 
