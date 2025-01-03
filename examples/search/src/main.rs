@@ -54,7 +54,13 @@ async fn main() -> taitan_orm::Result<()> {
 
     //  simple search with one condition
     let selection = UserSelectedEntity::full_fields();
-    let location = UserLocationExpr::Id(LocationExpr::from(">=", 1)?);
+    let location = UserLocationExpr::id(">=", 1)?;
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 2);
+
+    //  simple search with one condition but without construct error
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocationExpr::Id(LocationExpr::new(CmpOperator::GreaterOrEq, 1));
     let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
     assert_eq!(entities.len(), 2);
 

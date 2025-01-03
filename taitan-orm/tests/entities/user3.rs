@@ -1,5 +1,5 @@
 use sqlx::{Error, Sqlite};
-use taitan_orm_trait::Optional;
+use taitan_orm_trait::{CmpOperator, NotValidCmpError, Optional};
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 
@@ -697,6 +697,32 @@ pub enum UserLocationExpr {
     Age(taitan_orm::traits::LocationExpr<i32>),
     Name(taitan_orm::traits::LocationExpr<String>),
     Birthday(taitan_orm::traits::LocationExpr<PrimitiveDateTime>),
+}
+impl UserLocationExpr {
+    pub fn id(cmp: &str, val: i64) -> Result<Self, taitan_orm::NotValidCmpError> {
+        Ok(Self::Id(taitan_orm::traits::LocationExpr::from(cmp, val)?))
+    }
+    pub fn request_id(cmp: &str, val: Uuid) -> Result<Self, taitan_orm::NotValidCmpError> {
+        Ok(Self::RequestId(taitan_orm::traits::LocationExpr::from(
+            cmp, val,
+        )?))
+    }
+    pub fn age(cmp: &str, val: i32) -> Result<Self, taitan_orm::NotValidCmpError> {
+        Ok(Self::Age(taitan_orm::traits::LocationExpr::from(cmp, val)?))
+    }
+    pub fn name(cmp: &str, val: String) -> Result<Self, taitan_orm::NotValidCmpError> {
+        Ok(Self::Name(taitan_orm::traits::LocationExpr::from(
+            cmp, val,
+        )?))
+    }
+    pub fn birthday(
+        cmp: &str,
+        val: PrimitiveDateTime,
+    ) -> Result<Self, taitan_orm::NotValidCmpError> {
+        Ok(Self::Birthday(taitan_orm::traits::LocationExpr::from(
+            cmp, val,
+        )?))
+    }
 }
 impl taitan_orm::traits::Location for UserLocationExpr {
     fn get_table_name(&self) -> &'static str {

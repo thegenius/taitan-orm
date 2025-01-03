@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::error::NotValidCmpError;
 
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum CmpOperator {
     #[serde(alias = "<>")]
     Ne,

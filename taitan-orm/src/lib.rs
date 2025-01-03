@@ -44,6 +44,7 @@ pub use api::writer_mut::WriterMutApi;
 pub use api::template::TemplateApi;
 pub use api::template_mut::TemplateMutApi;
 pub use taitan_orm_trait::LocationMode;
+pub use taitan_orm_trait::NotValidCmpError;
 
 pub use taitan_orm_macro::TemplateRecord;
 pub use db::Executor;
