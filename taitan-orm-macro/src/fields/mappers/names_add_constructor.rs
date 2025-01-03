@@ -1,6 +1,7 @@
+use case::CaseExt;
 use crate::types::{DefaultTypeChecker, TypeChecker};
 use proc_macro2::TokenStream;
-use quote::quote_spanned;
+use quote::{format_ident, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{Field, LitStr};
 use crate::attrs::{AttrParser, DefaultAttrParser};
@@ -63,11 +64,6 @@ pub trait NamesAddConstructor {
         let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
 
-        // quote_spanned! { span=>
-        //     if self.#field_name.not_none() {
-        //         fields.push(#field_name_string.to_string());
-        //     }
-        // }
         quote_spanned! { span=>
             match &self.#field_name {
                 taitan_orm::Optional::Some(#field_name) => {
@@ -78,6 +74,18 @@ pub trait NamesAddConstructor {
                 }
                 _ => {}
             };
+        }
+    }
+
+    fn of_enum(field: Field) -> TokenStream {
+        let field_alias = DefaultAttrParser::extract_field_db_ident(&field);
+        let span = field.span();
+        let field_name = field.ident.unwrap().to_string();
+        let enum_ident = format_ident!("{}", field_name.to_camel());
+        let field_name_string = LitStr::new(&field_alias.to_string(), span);
+
+        quote_spanned! { span=>
+            Self::#enum_ident(_) => fields.push(taitan_orm::FieldName::from_str(#field_name_string, false)),
         }
     }
 

@@ -58,6 +58,26 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
         }
     }
 
+    fn of_location_expr(&self, struct_name: &str, should_serde: bool) -> TokenStream {
+        let struct_ident = Ident::new(&struct_name, Span::call_site());
+        let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_location_expr_enum_field);
+        if should_serde {
+            quote! {
+                #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+                pub enum #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        } else {
+            quote! {
+            #[derive(Debug, Clone)]
+                pub enum #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        }
+    }
+
     // field_name: bool
     fn of_bool(&self, struct_name: &str) -> TokenStream {
         let struct_ident = Ident::new(&struct_name, Span::call_site());

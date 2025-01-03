@@ -355,6 +355,20 @@ impl FieldsParser {
         }
     }
 
+    pub fn get_enum_where_clause(&self) -> TokenStream {
+        let where_clause_members = <DefaultFieldMapper as FieldMapper>::map_field_vec(
+            &self.fields,
+            &<DefaultFieldMapper as FieldMapper>::map_to_enum_where_field,
+        );
+        quote! {
+            let mut sql = String::default();
+            match self {
+                #(#where_clause_members )*
+            }
+            return sql;
+        }
+    }
+
     pub fn get_unique_index_check(&self, unique_indexes: &Vec<Vec<String>>) -> TokenStream {
         if unique_indexes.is_empty() {
             quote!(fields.len() == 0)

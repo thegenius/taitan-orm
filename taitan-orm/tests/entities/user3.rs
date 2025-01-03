@@ -690,6 +690,140 @@ impl taitan_orm::traits::Location for UserLocation {
         Ok(args)
     }
 }
+#[derive(Debug, Clone)]
+pub enum UserLocationExpr {
+    Id(taitan_orm::traits::LocationExpr<i64>),
+    RequestId(taitan_orm::traits::LocationExpr<Uuid>),
+    Age(taitan_orm::traits::LocationExpr<i32>),
+    Name(taitan_orm::traits::LocationExpr<String>),
+    Birthday(taitan_orm::traits::LocationExpr<PrimitiveDateTime>),
+}
+impl taitan_orm::traits::Location for UserLocationExpr {
+    fn get_table_name(&self) -> &'static str {
+        "user"
+    }
+    fn get_location_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+        let mut fields = Vec::new();
+        match self {
+            Self::Id(_) => fields.push(taitan_orm::FieldName::from_str("id", false)),
+            Self::RequestId(_) => fields.push(taitan_orm::FieldName::from_str("r_id", false)),
+            Self::Age(_) => fields.push(taitan_orm::FieldName::from_str("age", false)),
+            Self::Name(_) => fields.push(taitan_orm::FieldName::from_str("name", false)),
+            Self::Birthday(_) => fields.push(taitan_orm::FieldName::from_str("birthday", false)),
+        }
+        return fields;
+    }
+    fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+        let mut sql = String::default();
+        match self {
+            Self::Id(id) => {
+                sql.push(wrap_char);
+                sql.push_str("id");
+                sql.push(wrap_char);
+                sql.push_str(id.cmp.get_sql());
+                sql.push(place_holder);
+            }
+            Self::RequestId(request_id) => {
+                sql.push(wrap_char);
+                sql.push_str("request_id");
+                sql.push(wrap_char);
+                sql.push_str(request_id.cmp.get_sql());
+                sql.push(place_holder);
+            }
+            Self::Age(age) => {
+                sql.push(wrap_char);
+                sql.push_str("age");
+                sql.push(wrap_char);
+                sql.push_str(age.cmp.get_sql());
+                sql.push(place_holder);
+            }
+            Self::Name(name) => {
+                sql.push(wrap_char);
+                sql.push_str("name");
+                sql.push(wrap_char);
+                sql.push_str(name.cmp.get_sql());
+                sql.push(place_holder);
+            }
+            Self::Birthday(birthday) => {
+                sql.push(wrap_char);
+                sql.push_str("birthday");
+                sql.push(wrap_char);
+                sql.push_str(birthday.cmp.get_sql());
+                sql.push(place_holder);
+            }
+        }
+        return sql;
+    }
+    fn gen_location_arguments_sqlite(
+        &self,
+    ) -> Result<sqlx::sqlite::SqliteArguments<'_>, sqlx::error::BoxDynError> {
+        let mut args = sqlx::sqlite::SqliteArguments::default();
+        match self {
+            Self::Id(id) => {
+                sqlx::Arguments::add(&mut args, &id.val)?;
+            }
+            Self::RequestId(request_id) => {
+                sqlx::Arguments::add(&mut args, &request_id.val)?;
+            }
+            Self::Age(age) => {
+                sqlx::Arguments::add(&mut args, &age.val)?;
+            }
+            Self::Name(name) => {
+                sqlx::Arguments::add(&mut args, &name.val)?;
+            }
+            Self::Birthday(birthday) => {
+                sqlx::Arguments::add(&mut args, &birthday.val)?;
+            }
+        }
+        Ok(args)
+    }
+    fn gen_location_arguments_mysql(
+        &self,
+    ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
+        let mut args = sqlx::mysql::MySqlArguments::default();
+        match self {
+            Self::Id(id) => {
+                sqlx::Arguments::add(&mut args, &id.val)?;
+            }
+            Self::RequestId(request_id) => {
+                sqlx::Arguments::add(&mut args, &request_id.val)?;
+            }
+            Self::Age(age) => {
+                sqlx::Arguments::add(&mut args, &age.val)?;
+            }
+            Self::Name(name) => {
+                sqlx::Arguments::add(&mut args, &name.val)?;
+            }
+            Self::Birthday(birthday) => {
+                sqlx::Arguments::add(&mut args, &birthday.val)?;
+            }
+        }
+        Ok(args)
+    }
+    fn gen_location_arguments_postgres(
+        &self,
+    ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
+        let mut args = sqlx::postgres::PgArguments::default();
+        match self {
+            Self::Id(id) => {
+                sqlx::Arguments::add(&mut args, &id.val)?;
+            }
+            Self::RequestId(request_id) => {
+                sqlx::Arguments::add(&mut args, &request_id.val)?;
+            }
+            Self::Age(age) => {
+                sqlx::Arguments::add(&mut args, &age.val)?;
+            }
+            Self::Name(name) => {
+                sqlx::Arguments::add(&mut args, &name.val)?;
+            }
+            Self::Birthday(birthday) => {
+                sqlx::Arguments::add(&mut args, &birthday.val)?;
+            }
+        }
+        Ok(args)
+    }
+}
 #[derive(Default, Debug, Clone)]
 pub struct UserMutation {
     pub request_id: taitan_orm::Optional<Uuid>,

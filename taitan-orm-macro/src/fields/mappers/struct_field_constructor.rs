@@ -1,6 +1,7 @@
+use case::CaseExt;
 use proc_macro2::TokenStream;
 use syn::Field;
-use quote::quote;
+use quote::{format_ident, quote};
 use crate::types::{DefaultTypeChecker, DefaultTypeExtractor, TypeChecker, TypeExtractor};
 
 pub trait StructFieldConstructor {
@@ -52,6 +53,24 @@ pub trait StructFieldConstructor {
         } else {
             quote! {
                 pub #field_ident: taitan_orm::Optional<taitan_orm::traits::LocationExpr<#field_ty>>
+            }
+        }
+    }
+
+    fn get_location_expr_enum_field(field: Field) -> TokenStream {
+        let field_ident = field.ident;
+        let field_ident_name = &field_ident.unwrap().to_string();
+        let enum_field_ident = format_ident!("{}", field_ident_name.to_camel());
+
+        let field_ty = field.ty;
+        if DefaultTypeChecker::type_is_option(&field_ty) {
+            let inner_type = DefaultTypeExtractor::get_option_inner_type(&field_ty).unwrap();
+            quote! {
+                #enum_field_ident(taitan_orm::traits::LocationExpr<#inner_type>)
+            }
+        } else {
+            quote! {
+                #enum_field_ident(taitan_orm::traits::LocationExpr<#field_ty>)
             }
         }
     }

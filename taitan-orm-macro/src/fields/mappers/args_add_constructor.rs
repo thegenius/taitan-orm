@@ -1,6 +1,7 @@
+use case::CaseExt;
 use crate::types::{DefaultTypeChecker, TypeChecker};
 use proc_macro2::{Ident, Span, TokenStream};
-use quote::quote_spanned;
+use quote::{format_ident, quote_spanned};
 use syn::{Field};
 
 /**
@@ -78,6 +79,18 @@ pub trait ArgsAddConstructor {
         let span = field_name.span();
         quote_spanned! { span =>
             if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
+                sqlx::Arguments::add(&mut args, &#field_name.val)?;
+            }
+        }
+    }
+
+    fn of_location_enum(field: Field) -> TokenStream {
+        let field_name = field.ident.unwrap();
+        let enum_name = field_name.to_string().to_camel();
+        let enum_ident = format_ident!("{}", enum_name);
+        let span = field_name.span();
+        quote_spanned! { span =>
+            Self::#enum_ident(#field_name) => {
                 sqlx::Arguments::add(&mut args, &#field_name.val)?;
             }
         }

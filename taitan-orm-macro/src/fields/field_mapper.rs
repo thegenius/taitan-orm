@@ -1,7 +1,8 @@
+use case::CaseExt;
 use proc_macro2::TokenStream;
 use syn::{Field, FieldsNamed};
 
-use quote::quote_spanned;
+use quote::{format_ident, quote_spanned};
 
 use syn::LitStr;
 
@@ -163,6 +164,23 @@ pub trait FieldMapper {
                     sql.push_str(" IS NULL ");
                 }
                 _=>{}
+            }
+        }
+    }
+
+    fn map_to_enum_where_field(field: Field) -> TokenStream {
+        let field_name = field.ident.unwrap();
+        let enum_name = field_name.to_string().to_camel();
+        let enum_ident = format_ident!("{}", enum_name);
+        let span = field_name.span();
+        let field_name_lit = LitStr::new(&field_name.to_string(), span);
+        quote_spanned! { span =>
+            Self::#enum_ident(#field_name) => {
+                sql.push(wrap_char);
+                sql.push_str(#field_name_lit);
+                sql.push(wrap_char);
+                sql.push_str(#field_name.cmp.get_sql());
+                sql.push(place_holder);
             }
         }
     }

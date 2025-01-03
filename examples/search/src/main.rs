@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::panic::Location;
 use taitan_orm::{LocationMode, Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 use taitan_orm::traits::{LocationExpr, Selection};
@@ -34,7 +35,7 @@ async fn main() -> taitan_orm::Result<()> {
         "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
     ).await?;
 
-    // 1. insert entity
+    // insert entity
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
@@ -51,26 +52,25 @@ async fn main() -> taitan_orm::Result<()> {
     let result = db.insert(&entity).await?;
     assert_eq!(result, true);
 
+    //  simple search with one condition
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocationExpr::Id(LocationExpr::from(">=", 1)?);
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 2);
 
-    // 3. search
+
+    // search with multi-condition
     let selection = UserSelectedEntity::full_fields();
     let location = UserLocation {
+        id: Optional::Some(LocationExpr::new(CmpOperator::Eq, 2)),
         name: Optional::Some(LocationExpr::new(CmpOperator::Eq, "Bob".to_string())),
         ..Default::default()
     };
     let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
     assert_eq!(entities.len(), 1);
 
-    // 4. search
-    let selection = UserSelectedEntity::full_fields();
-    let location = UserLocation {
-        age: Optional::Some(LocationExpr::new(CmpOperator::GreaterOrEq, 23)),
-        ..Default::default()
-    };
-    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
-    assert_eq!(entities.len(), 2);
 
-    // 5. search
+    // search with multi-condition connect with OR
     let selection = UserSelectedEntity::full_fields();
     let location = UserLocation {
         mode: LocationMode::Or,

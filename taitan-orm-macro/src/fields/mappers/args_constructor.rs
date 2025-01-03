@@ -41,6 +41,17 @@ pub trait ArgsConstructorSqlite: FieldsContainer + ArgsAddConstructor {
         }
     }
 
+    fn of_location_enum_args_sqlite(&self) -> TokenStream {
+        let args_add_clause = self.map_field_vec(&<Self as ArgsAddConstructor>::of_location_enum);
+        quote! {
+            let mut args = sqlx::sqlite::SqliteArguments::default();
+            match self {
+                #(#args_add_clause)*
+            }
+            Ok(args)
+        }
+    }
+
     fn of_unique_update_args_sqlite(&self, mutation_fields: &Vec<Field>) -> TokenStream {
         let unique_add_clause = self.map_field_vec(&<Self as ArgsAddConstructor>::of_not_option);
         let mutation_add_clause =
@@ -115,6 +126,17 @@ pub trait ArgsConstructorMySql: FieldsContainer + ArgsAddConstructor {
         quote! {
             let mut args = sqlx::mysql::MySqlArguments::default();
             #(#args_add_clause)*
+            Ok(args)
+        }
+    }
+
+    fn of_location_enum_args_mysql(&self) -> TokenStream {
+        let args_add_clause = self.map_field_vec(&<Self as ArgsAddConstructor>::of_location_enum);
+        quote! {
+            let mut args = sqlx::mysql::MySqlArguments::default();
+            match self {
+                #(#args_add_clause)*
+            }
             Ok(args)
         }
     }
@@ -195,6 +217,17 @@ pub trait ArgsConstructorPostgres: FieldsContainer + ArgsAddConstructor {
         quote! {
             let mut args = sqlx::postgres::PgArguments::default();
             #(#args_add_clause)*
+            Ok(args)
+        }
+    }
+
+    fn of_location_enum_args_postgres(&self) -> TokenStream {
+        let args_add_clause = self.map_field_vec(&<Self as ArgsAddConstructor>::of_location_enum);
+        quote! {
+            let mut args = sqlx::postgres::PgArguments::default();
+            match self {
+                #(#args_add_clause)*
+            }
             Ok(args)
         }
     }
