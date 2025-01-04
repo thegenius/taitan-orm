@@ -50,7 +50,7 @@ async fn main() -> taitan_orm::Result<()> {
     //     .connect()
     //     .await?;
     // // parse options from a string
-    // let opts: PgConnectOptions = "mysql://root:password@localhost/db".parse()?;
+    // let mut opts: PgConnectOptions = "postgres:// localhost/ mydb".parse()?;
     // let mut db: PostgresDatabase = PostgresDatabase::build(opts).await?;
 
 
