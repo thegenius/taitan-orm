@@ -10,7 +10,7 @@
 
 # Quick Start
 ```toml
-taitan-orm = { version = "0.1.0" }
+taitan-orm = { version = "0.1.4" }
 ```
 ```rust 
 use std::borrow::Cow;
