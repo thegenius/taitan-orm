@@ -1,9 +1,7 @@
-use std::borrow::Cow;
 use sqlx::{MySql, MySqlPool};
-use sqlx::mysql::{MySqlConnectOptions, MySqlPoolOptions};
+use sqlx::mysql::MySqlConnectOptions;
 use crate::sql_generator::MySqlGenerator;
-use crate::{executor_impl, CountResult, DefaultSqlGenerator, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
-use crate::database::sqlite::SqliteDatabase;
+use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {

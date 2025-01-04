@@ -1,7 +1,6 @@
-use sqlx::{MySqlPool, PgPool, Postgres};
-use sqlx::mysql::MySqlConnectOptions;
+use sqlx::{PgPool, Postgres};
 use sqlx::postgres::PgConnectOptions;
-use crate::sql_generator::{MySqlGenerator, PostgresGenerator};
+use crate::sql_generator::PostgresGenerator;
 use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
