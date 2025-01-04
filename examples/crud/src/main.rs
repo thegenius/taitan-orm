@@ -1,5 +1,9 @@
 use std::borrow::Cow;
+use sqlx::mysql::MySqlConnectOptions;
+use sqlx::postgres::PgConnectOptions;
 use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use taitan_orm::database::mysql::MySqlDatabase;
+use taitan_orm::database::postgres::PostgresDatabase;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 use taitan_orm::traits::Selection;
 
@@ -21,11 +25,43 @@ async fn main() -> taitan_orm::Result<()> {
         .init();
 
     // 0. prepare sqlite database
+
+    // // For MySql
+    // // manually build ConnectOptions
+    // let conn = MySqlConnectOptions::new()
+    //     .host("localhost")
+    //     .username("root")
+    //     .password("password")
+    //     .database("db")
+    //     .connect().await?;
+    //
+    // // parse options from a string
+    // let opts: MySqlConnectOptions = "mysql://root:password@localhost/db".parse()?;
+    // let mut db: MySqlDatabase = MySqlDatabase::build(opts).await?;
+
+    // // For Postgres
+    // Manually-constructed options
+    // let conn = PgConnectOptions::new()
+    //     .host("secret-host")
+    //     .port(2525)
+    //     .username("secret-user")
+    //     .password("secret-password")
+    //     .ssl_mode(PgSslMode::Require)
+    //     .connect()
+    //     .await?;
+    // // parse options from a string
+    // let opts: PgConnectOptions = "mysql://root:password@localhost/db".parse()?;
+    // let mut db: PostgresDatabase = PostgresDatabase::build(opts).await?;
+
+
     let config = SqliteLocalConfig {
         work_dir: Cow::from("./workspace"),
         db_file: Cow::from("test.db"),
     };
     let mut db: SqliteDatabase = SqliteDatabase::build(config).await?;
+
+
+
     db.execute_plain(
         "DROP TABLE IF EXISTS `user`"
     ).await?;
