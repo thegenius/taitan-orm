@@ -1,16 +1,17 @@
-<h1 align="center"> Great Art Stretches Taste. </h1> 
+<h1 align="center"> Great Art Stretches Taste. </h1>  
 
-
+![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
+[![Version](https://img.shields.io/badge/crates-0.1.5-green)](https://crates.io/crates/taitan-orm)
+[![Version](https://img.shields.io/badge/lines-16k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
--  **Transactional** : run transaction as normal.
--  **Template** : Write your own sql like mybatis.
--  **Asynchronous** : Based on SQLx, taitan-orm is fully async.
--  **Multi-Database** : MySql + Postgres + Sqlite for now.
+-  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
+-  **Template** : Write Your Own Sql Like Mybatis.
+-  **Asynchronous** : Fully Async Based on Sqlx.
 
 # Quick Start
 ```toml
-taitan-orm = { version = "0.1.4" }
+taitan-orm = { version = "0.1.5" }
 ```
 ```rust 
 use std::borrow::Cow;
@@ -71,7 +72,13 @@ async fn main() -> taitan_orm::Result<()> {
     let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
     assert!(entity.is_some());
 
-    // 4. delete
+    // 4. search
+    let selection = UserSelectedEntity::full_fields();
+    let location = UserLocationExpr::id(">=", 1)?;
+    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    assert_eq!(entities.len(), 1);
+
+    // 5. delete
     let result = db.delete(&primary).await?;
     assert_eq!(result, true);
 
@@ -84,17 +91,28 @@ async fn main() -> taitan_orm::Result<()> {
 ```
 * you can run the crud example in examples/crud directory.
 
+# Examples
+At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
+
+| example     | descption                   |
+|-------------|-----------------------------|
+| crud        | basic crud example          |
+| template    | template with paged example |
+| transaction | basic transaction example   |
+| search      | multi search features       |
+| axum_crud   | integrate with axum         |
+
+# Supported Database
+MySql
+Postgres
+Sqlite
+
 # ROADMAP
 - **0.1 API** :white_check_mark:
 - **0.2 Correctness**: code coverage and mocking :pushpin:
 - **0.3 Performance**: benchmark and optimize :pushpin:
 - **0.4 Documentation**: doc the usage and implementation
 - **1.0 Stable**: stabilize the api, macro and error :pushpin:
-
-# Examples
-1. examples/crud: basic crud api example
-2. examples/transaction: show the transaction api
-3. examples/template: show the template api
 
 
 
