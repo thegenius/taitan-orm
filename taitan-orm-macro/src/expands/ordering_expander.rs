@@ -1,9 +1,9 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::{FieldsContainer, FieldsFilter, FieldsParser, NamesConstructor};
+use crate::fields::{FieldsContainer, FieldsFilter, FieldsParser};
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
-use syn::{Attribute, Field, FieldsNamed, LitStr};
+use syn::{Attribute, FieldsNamed, LitStr};
 
 fn generate_struct_and_impl(struct_name: &str, all_fields: &Vec<String>, fields: &Vec<Vec<String>>) -> TokenStream {
     let struct_ident = Ident::new(&struct_name, Span::call_site());

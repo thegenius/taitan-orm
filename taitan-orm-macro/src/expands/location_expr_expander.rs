@@ -1,15 +1,13 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::LocationParser;
 use crate::fields::StructConstructor;
 use crate::fields::{
-    ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite, FieldsContainer,
-    FieldsFilter, FieldsParser, NamesAddConstructor, NamesConstructor, UniqueParser,
+    ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite, FieldsContainer, FieldsParser, NamesConstructor,
 };
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
-use quote::{format_ident, quote, quote_spanned};
+use quote::{format_ident, quote};
 use syn::spanned::Spanned;
-use syn::{Attribute, Field, FieldsNamed, LitStr};
+use syn::{Attribute, Field, FieldsNamed};
 use crate::types::{DefaultTypeChecker, DefaultTypeExtractor, TypeChecker, TypeExtractor};
 
 pub fn generate_location_expr_enum_and_impl(

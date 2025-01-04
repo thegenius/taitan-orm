@@ -2,7 +2,6 @@ use crate::fields::mappers::{ArgsConstructorMySql, ArgsConstructorPostgres, Args
 use crate::fields::table_name_parser::TableNameParser;
 use crate::fields::{FieldsContainer};
 use proc_macro2::TokenStream;
-use std::fmt::Debug;
 use syn::Field;
 
 // 1. Unique中不包含option的field

@@ -1,7 +1,6 @@
 use crate::fields::mappers::{ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite, NamesAddConstructor, NamesConstructor};
 use crate::fields::FieldsContainer;
 use proc_macro2::TokenStream;
-use std::fmt::Debug;
 use syn::Field;
 
 pub trait MutationParser:

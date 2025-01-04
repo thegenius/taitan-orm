@@ -1,4 +1,4 @@
-use crate::fields::{FieldsContainer, FieldsFilter, FieldsParser};
+use crate::fields::{FieldsFilter, FieldsParser};
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};

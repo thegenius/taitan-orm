@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use proc_macro2::TokenStream;
 
 use crate::fields::FieldsContainer;

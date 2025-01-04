@@ -1,8 +1,5 @@
 use proc_macro2::Ident;
-use syn::{parenthesized, Attribute, Expr, Field, Lit, LitStr, Meta, MetaNameValue, Path, Token};
-use syn::meta::ParseNestedMeta;
-use syn::parse::ParseStream;
-use darling::ast::NestedMeta;
+use syn::{Attribute, Expr, Field, Lit, Meta, Path};
 use quote::format_ident;
 
 pub trait AttrParser {

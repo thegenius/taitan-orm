@@ -4,7 +4,6 @@ use crate::fields::FieldsParser;
 use crate::fields::{DefaultFieldMapper, FieldMapType, FieldMapper, FieldsContainer, FieldsFilter};
 use proc_macro2::{TokenStream};
 use quote::quote;
-use crate::fields::fields_mapper::FieldsMapper;
 use crate::fields::mappers::{ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite, NamesConstructor};
 
 /**

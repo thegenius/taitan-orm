@@ -3,7 +3,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{Attribute, FieldsNamed};
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::{FieldsFilter, FieldsParser, UniqueParser};
+use crate::fields::FieldsParser;
 use crate::fields::StructConstructor;
 use crate::fields::LocationParser;
 

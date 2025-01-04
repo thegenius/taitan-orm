@@ -1,8 +1,7 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::fields::{EntityParser, TableNameParser};
 use crate::fields::FieldsFilter;
-use crate::fields::{DefaultFieldMapper, FieldMapper};
-use crate::fields::{FieldMapType, FieldsParser};
+use crate::fields::FieldsParser;
 use crate::types::{DefaultTypeChecker, TypeChecker};
 use crate::types::{DefaultTypeExtractor, TypeExtractor};
 use proc_macro2::Ident;

@@ -3,7 +3,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{Attribute, FieldsNamed};
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::{FieldsContainer, FieldsFilter, FieldsParser, NamesConstructor, StructConstructor, UniqueParser};
+use crate::fields::{FieldsContainer, FieldsFilter, FieldsParser, NamesConstructor, StructConstructor};
 use crate::fields::{ArgsConstructorPostgres, ArgsConstructorMySql, ArgsConstructorSqlite};
 
 

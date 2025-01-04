@@ -15,7 +15,6 @@ pub use entity_parser::EntityParser;
 pub use fields_filter::FieldsFilter;
 pub use table_name_parser::TableNameParser;
 pub use unique_parser::UniqueParser;
-pub use fields_mapper::FieldsMapper;
 
 pub use field_mapper::DefaultFieldMapper;
 pub use field_mapper::FieldMapType;

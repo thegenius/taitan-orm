@@ -1,6 +1,6 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::fields::{
-    FieldsParser, NamesConstructor, RowConstructor, RowGetConstructor, StructConstructor,
+    FieldsParser, NamesConstructor, RowConstructor, StructConstructor,
 };
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};

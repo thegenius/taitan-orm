@@ -1,5 +1,3 @@
-use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::fields_filter::FieldsFilter;
 use crate::fields::mappers::{
     ArgsAddConstructor, ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite,
     NamesAddConstructor, NamesConstructor, RowConstructor, RowGetConstructor, StructConstructor,
@@ -12,7 +10,6 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::Field;
 use syn::FieldsNamed;
-use taitan_orm_trait::NotImplementError;
 
 pub struct FieldsParser {
     fields: Vec<Field>,

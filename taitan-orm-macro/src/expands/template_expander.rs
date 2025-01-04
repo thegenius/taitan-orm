@@ -1,7 +1,7 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::fields::{FieldsFilter, FieldsParser};
-use crate::util::{build_impl_trait_token, copy_to_template_struct, create_path_from_str};
-use proc_macro2::{Ident, Span, TokenStream};
+use crate::util::{build_impl_trait_token, copy_to_template_struct};
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{Attribute, Data, FieldsNamed, Generics};
 use taitan_orm_trait::ParsedTemplateSql;

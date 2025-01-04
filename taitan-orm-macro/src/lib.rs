@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+#![forbid(unsafe_code)]
 use crate::schema::impl_schema_macro;
 use proc_macro::TokenStream;
 use crate::template::impl_template_macro;

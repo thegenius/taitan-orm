@@ -1,7 +1,7 @@
 
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, Data, Fields, Field, Type, GenericParam, Generics, Lifetime};
+use syn::{Field, Type, GenericParam, Generics, Lifetime};
 
 use syn::visit::Visit;
 use crate::util::create_path_from_str;

@@ -1,11 +1,11 @@
 use proc_macro2::Ident;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{parse_macro_input, Data, DeriveInput, Fields, GenericParam, Generics, Lifetime};
+use syn::{Data, Fields, Generics, Lifetime};
 use crate::util::extract_generic_lifetimes;
 
 pub fn copy_to_template_struct(struct_ident: &Ident, data: &Data, generics: &Generics, sql: &str, struct_suffix: &str) -> TokenStream {
-    let mut lifetimes: Vec<Lifetime> = extract_generic_lifetimes(generics);
+    let lifetimes: Vec<Lifetime> = extract_generic_lifetimes(generics);
     let struct_name = struct_ident;
     let template_struct_ident = format_ident!("{}{}", struct_name, struct_suffix);
 

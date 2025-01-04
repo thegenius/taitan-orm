@@ -4,7 +4,7 @@ use quote::quote;
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::fields::{DefaultFieldMapper, FieldMapType, FieldMapper};
 use crate::types::{DefaultTypeChecker, TypeChecker};
-use syn::{parse_str, token::{self, Comma}, Attribute, Data, DataEnum, DataStruct, DataUnion, Error, Field, Fields, FieldsNamed, LitStr, Path, Result, Variant};
+use syn::{parse_str, token::{self}, Data, DataEnum, DataStruct, DataUnion, Error, Field, Fields, FieldsNamed, Path, Result};
 
 
 pub fn create_path_from_str(path_str: &str) -> Path {
