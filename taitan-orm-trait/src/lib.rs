@@ -1,4 +1,5 @@
 #![allow(unused_imports, unused_mut, unused_variables)]
+#![allow(dead_code)]
 mod entity;
 mod error;
 mod join;
