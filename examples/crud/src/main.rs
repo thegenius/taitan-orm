@@ -24,7 +24,7 @@ async fn main() -> taitan_orm::Result<()> {
         .with_max_level(tracing::Level::TRACE)
         .init();
 
-    // 0. prepare sqlite database
+
 
     // // For MySql
     // // manually build ConnectOptions
@@ -53,7 +53,7 @@ async fn main() -> taitan_orm::Result<()> {
     // let mut opts: PgConnectOptions = "postgres:// localhost/ mydb".parse()?;
     // let mut db: PostgresDatabase = PostgresDatabase::build(opts).await?;
 
-
+    // 0. prepare sqlite database
     let config = SqliteLocalConfig {
         work_dir: Cow::from("./workspace"),
         db_file: Cow::from("test.db"),
