@@ -92,7 +92,7 @@ pub trait NamesAddConstructor {
     fn of_not_option(field: Field) -> TokenStream {
         let field_alias = DefaultAttrParser::extract_field_db_ident(&field);
         let span = field.span();
-        let field_name = field.ident.unwrap();
+        // let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
         quote_spanned! { span=>
             fields.push(#field_name_string.to_string());
@@ -134,10 +134,10 @@ pub trait NamesAddConstructor {
     }
 
     fn of_bool_bit(field: Field) -> TokenStream {
-        let field_alias = DefaultAttrParser::extract_field_db_ident(&field);
+        // let field_alias = DefaultAttrParser::extract_field_db_ident(&field);
         let span = field.span();
         let field_name = field.ident.unwrap();
-        let field_name_string = LitStr::new(&field_alias.to_string(), span);
+        // let field_name_string = LitStr::new(&field_alias.to_string(), span);
         quote_spanned! { span=>
             bits.push(self.#field_name);
         }

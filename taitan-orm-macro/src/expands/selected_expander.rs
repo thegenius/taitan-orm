@@ -76,7 +76,7 @@ fn generate_selected_and_impl(
     let parser = FieldsParser::from_named(fields);
 
     let selected_row_construct = parser.gen_selected_row();
-    let selected_bits_row_construct = parser.gen_selected_bits_row();
+    // let selected_bits_row_construct = parser.gen_selected_bits_row();
     let selected_self_row_construct = parser.gen_selected_self_row();
     let full_row_construct = parser.gen_full_row();
 

@@ -6,7 +6,7 @@ use crate::fields::{
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
-use syn::spanned::Spanned;
+// use syn::spanned::Spanned;
 use syn::{Attribute, Field, FieldsNamed};
 use crate::types::{DefaultTypeChecker, DefaultTypeExtractor, TypeChecker, TypeExtractor};
 

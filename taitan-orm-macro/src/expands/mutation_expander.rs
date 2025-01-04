@@ -26,10 +26,10 @@ pub fn generate_mutation_struct_and_impl(
     let change_args_postgres = FieldsParser::from_vec(&fields_vec).of_change_args_postgres(location_fields_vec);
 
     let mutation_struct_name =  format!("{}Mutation", table_name.to_camel());
-    let primary_struct_name =  format!("{}Primary", table_name.to_camel());
+    // let primary_struct_name =  format!("{}Primary", table_name.to_camel());
     let location_struct_name =  format!("{}Location", table_name.to_camel());
     let struct_ident = Ident::new(&mutation_struct_name, Span::call_site());
-    let primary_struct_ident = Ident::new(&primary_struct_name, Span::call_site());
+    // let primary_struct_ident = Ident::new(&primary_struct_name, Span::call_site());
     let location_struct_ident = Ident::new(&location_struct_name, Span::call_site());
     let struct_stream = FieldsParser::from_vec(&fields_vec).of_option(&mutation_struct_name, should_serde);
 

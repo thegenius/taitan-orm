@@ -13,7 +13,7 @@ pub fn generate_selection_struct_and_impl(
     let parser = FieldsParser::from_named(fields);
 
     let bool_names_vec = parser.of_bool_names_vec();
-    let bool_names_bits = parser.of_bool_bits_vec();
+    // let bool_names_bits = parser.of_bool_bits_vec();
     let full_fields_stream = parser.of_bool_true();
 
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);

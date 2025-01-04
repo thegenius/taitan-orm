@@ -52,8 +52,8 @@ impl EntityParser for FieldsParser {
         if auto_field_opt.is_none() {
             quote! { false }
         } else {
-            let auto_field = auto_field_opt.unwrap();
-            let auto_field_name = auto_field.ident.unwrap();
+            // let auto_field = auto_field_opt.unwrap();
+            // let auto_field_name = auto_field.ident.unwrap();
             // quote! {
             //     self.#auto_field_name = value;
             //     true

@@ -23,7 +23,6 @@ pub use parser::FieldsContainer;
 pub use parser::FieldsParser;
 
 pub use mappers::RowConstructor;
-pub use mappers::RowGetConstructor;
 
 pub use mappers::NamesConstructor;
 pub use mappers::NamesAddConstructor;
