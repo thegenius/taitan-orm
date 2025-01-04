@@ -1,6 +1,9 @@
+use std::borrow::Cow;
 use sqlx::{MySql, MySqlPool};
+use sqlx::mysql::{MySqlConnectOptions, MySqlPoolOptions};
 use crate::sql_generator::MySqlGenerator;
-use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{executor_impl, CountResult, DefaultSqlGenerator, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::database::sqlite::SqliteDatabase;
 
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {
@@ -8,6 +11,17 @@ pub struct MySqlDatabase {
     pool: MySqlPool,
 }
 impl MySqlDatabase {
+
+    pub async fn build(config: MySqlConnectOptions)-> crate::Result<MySqlDatabase> {
+        let pool = MySqlPool::connect_with(config).await?;
+        let generator = MySqlGenerator::new();
+        let database = MySqlDatabase {
+            generator,
+            pool,
+        };
+        Ok(database)
+    }
+
     pub fn get_pool(&self) -> crate::Result<&MySqlPool> {
         Ok(&self.pool)
     }
