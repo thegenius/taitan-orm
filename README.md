@@ -118,7 +118,7 @@ At present, the documentation for this newly-born project is limited. You can re
 **🖊️Starting from version 0.3, I will focus my efforts on documentation.**
 
 - **0.4 Performance**: benchmark and optimize  📎   
-**🖊🚀 The ultimate speed originates from maximizing compile-time processing. But we need to exhibit this.**
+**🚀The ultimate speed originates from maximizing compile-time processing. But we need to exhibit this.**
 
 - **1.0 Stable**: stabilize the api, macro and error  📎
 
