@@ -10,9 +10,7 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 
 # Quick Start
-```toml
-taitan-orm = { version = "0.1.6" }
-```
+
 ```rust 
 use std::borrow::Cow;
 use taitan_orm::prelude::*;
