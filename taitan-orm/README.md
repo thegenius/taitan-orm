@@ -11,13 +11,12 @@
 
 # Quick Start
 ```toml
-taitan-orm = { version = "0.1.5" }
+taitan-orm = { version = "0.1.6" }
 ```
 ```rust 
 use std::borrow::Cow;
-use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use taitan_orm::prelude::*;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::traits::Selection;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
