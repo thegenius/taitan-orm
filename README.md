@@ -109,9 +109,14 @@ At present, the documentation for this newly-born project is limited. You can re
 
 # ROADMAP
 - **0.1 API** 🔧  
-**⚠️API may change, so just have a taste!**
+**⚠️API may change, so just have a taste!**  
+What is being polished?
+- 1. write api: to support postgres insert returning syntax
+- 2. search api: support index and more
+- 3. template api: support %{if } syntax and more
 
-- **0.2 Correctness**: code coverage and mocking  📎  
+
+- **0.2 Correctness**: specification and code coverage and fuzz  📎  
 **🙏Help is wanted, maybe a long-running mysql instance and a postgres instance**
 
 - **0.3 Documentation**: doc the usage and implementation  📎  
