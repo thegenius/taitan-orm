@@ -8,6 +8,7 @@
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
 -  **Template** : Write Your Own Sql Like Mybatis.
 -  **Asynchronous** : Fully Async Based on Sqlx.
+-  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
 # Quick Start
 ```toml
@@ -102,16 +103,24 @@ At present, the documentation for this newly-born project is limited. You can re
 | axum_crud   | integrate with axum         |
  
 # Supported Database
- MySql 
- Postgres 
- Sqlite
+ MySql  
+ Postgres   
+ Sqlite  
 
 # ROADMAP
-- **0.1 API** :white_check_mark:
-- **0.2 Correctness**: code coverage and mocking :pushpin:
-- **0.3 Performance**: benchmark and optimize :pushpin:
-- **0.4 Documentation**: doc the usage and implementation
-- **1.0 Stable**: stabilize the api, macro and error :pushpin:
+- **0.1 API** 🔧  
+**⚠️API may change, so just have a taste!**
+
+- **0.2 Correctness**: code coverage and mocking  📎  
+**🙏Help is wanted, maybe a long-running mysql instance and a postgres instance**
+
+- **0.3 Documentation**: doc the usage and implementation  📎  
+**🖊️Starting from version 0.3, I will focus my efforts on documentation.**
+
+- **0.4 Performance**: benchmark and optimize  📎   
+**🖊🚀 The ultimate speed originates from maximizing compile-time processing. But we need to exhibit this.**
+
+- **1.0 Stable**: stabilize the api, macro and error  📎
 
 
 

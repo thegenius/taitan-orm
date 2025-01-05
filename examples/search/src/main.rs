@@ -62,7 +62,8 @@ async fn main() -> taitan_orm::result::Result<()> {
     assert_eq!(entities.len(), 2);
 
 
-    // search with multi-condition
+    // search with multi-conditions
+    // conditions connect with AND
     let selection = UserSelectedEntity::full_fields();
     let location = UserLocation {
         id: Optional::Some(LocationExpr::new(CmpOperator::Eq, 2)),
@@ -73,7 +74,7 @@ async fn main() -> taitan_orm::result::Result<()> {
     assert_eq!(entities.len(), 1);
 
 
-    // search with multi-condition connect with OR
+    // search with multi-conditions connect with OR
     let selection = UserSelectedEntity::full_fields();
     let location = UserLocation {
         mode: LocationMode::Or,

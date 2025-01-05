@@ -1,7 +1,6 @@
 <h1 align="center"> Great Art Stretches Taste. </h1>  
 
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
-[![Version](https://img.shields.io/badge/crates-0.1.6-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-16k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
@@ -100,16 +99,16 @@ At present, the documentation for this newly-born project is limited. You can re
 | axum_crud   | integrate with axum         |
 
 # Supported Database
-MySql
-Postgres
-Sqlite
+MySql  
+Postgres  
+Sqlite  
 
 # ROADMAP
-- **0.1 API** :white_check_mark:
-- **0.2 Correctness**: code coverage and mocking :pushpin:
-- **0.3 Performance**: benchmark and optimize :pushpin:
+- **0.1 API** 
+- **0.2 Correctness**: code coverage and mocking 
+- **0.3 Performance**: benchmark and optimize. 
 - **0.4 Documentation**: doc the usage and implementation
-- **1.0 Stable**: stabilize the api, macro and error :pushpin:
+- **1.0 Stable**: stabilize the api, macro and error 
 
 
 
