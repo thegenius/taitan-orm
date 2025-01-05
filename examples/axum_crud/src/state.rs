@@ -1,8 +1,7 @@
 use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::Executor;
-use taitan_orm::{ReaderApi, SqlExecutor, SqlGenericExecutor, TemplateApi, WriterApi};
+
 pub struct AppState {
     executor: SqliteDatabase,
 }
@@ -11,7 +10,7 @@ impl AppState {
     pub fn new(db: SqliteDatabase) -> Self {
         AppState { executor: db }
     }
-    pub async fn build_sqlite<'a, T: Into<Cow<'a, str>>>(dir: T, file: T) -> taitan_orm::Result<Self> {
+    pub async fn build_sqlite<'a, T: Into<Cow<'a, str>>>(dir: T, file: T) -> taitan_orm::result::Result<Self> {
         let config = SqliteLocalConfig {
             work_dir: dir.into(),
             db_file: file.into(),

@@ -268,7 +268,7 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserLocation {
-    mode: taitan_orm::LocationMode,
+    mode: taitan_orm::traits::LocationMode,
     id: Option<taitan_orm::traits::LocationExpr<i64>>,
     request_id: Option<taitan_orm::traits::LocationExpr<Uuid>>,
     age: Option<taitan_orm::traits::LocationExpr<i32>>,

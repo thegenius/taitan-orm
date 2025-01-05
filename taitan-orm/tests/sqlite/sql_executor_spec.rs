@@ -40,7 +40,7 @@
 use std::marker::PhantomData;
 use taitan_orm_trait::{CmpOperator, LocationExpr, Optional, Selection};
 use taitan_orm_trait::{Entity, Location, Mutation, SelectedEntity, Unique, UpdateCommand};
-use taitan_orm::SqlGenericExecutor;
+use taitan_orm::prelude::SqlGenericExecutor;
 
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqliteArguments;
@@ -50,13 +50,13 @@ use sqlx::{sqlx_macros, Database};
 use sqlx::Arguments;
 use sqlx::Row;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::SqlExecutor;
+use taitan_orm::prelude::SqlExecutor;
 use time::macros::datetime;
 
 use crate::entities::user::*;
 use crate::setup::{get_test_mutex, setup_logger};
 
-async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::Result<()> {
+async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
 
@@ -97,7 +97,7 @@ async fn test_update_user(
     db: &mut SqliteDatabase,
     user_mutation: &UserMutation,
     user_primary: &UserPrimary,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
     let update_command = UserPrimaryMutationPair(user_mutation, user_primary);
@@ -133,7 +133,7 @@ async fn test_update_user(
     Ok(())
 }
 
-async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::Result<()> {
+async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
     let args: SqliteArguments = user.gen_upsert_arguments_sqlite().unwrap();
@@ -170,7 +170,7 @@ ON CONFLICT (`id`) DO UPDATE SET
 async fn test_delete_user(
     db: &mut SqliteDatabase,
     user_primary: &UserPrimary,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
     let args: SqliteArguments = user_primary.gen_unique_arguments_sqlite().unwrap();
@@ -200,7 +200,7 @@ async fn test_delete_user(
     Ok(())
 }
 
-async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_orm::Result<()> {
+async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
 
@@ -226,7 +226,7 @@ async fn test_select_location(
     db: &mut SqliteDatabase,
     user_location: &UserLocation,
     expect_cnt: usize,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let pool = db.get_pool()?;
     let mut conn = pool.acquire().await?;
     let loc_args: SqliteArguments = user_location.gen_location_arguments_sqlite().unwrap();
@@ -262,7 +262,7 @@ select all where id = 1
 select all where id = 2
 */
 #[sqlx_macros::test]
-pub async fn sql_executor_spec() -> taitan_orm::Result<()> {
+pub async fn sql_executor_spec() -> taitan_orm::result::Result<()> {
     let test_mutex = get_test_mutex();
     let test_lock = test_mutex.lock();
     setup_logger();

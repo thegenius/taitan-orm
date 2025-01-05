@@ -1,6 +1,7 @@
 use crate::extractor::Extractor;
-use crate::Result;
-use crate::{SqlExecutorMut, SqlGenerator,  SqlGeneratorContainer};
+use crate::result::Result;
+use crate::prelude::{SqlExecutorMut,  SqlGeneratorContainer};
+use crate::sql_generator::SqlGenerator;
 use taitan_orm_trait::{Location, Mutation, OrderBy, SelectedEntity, Selection, Unique};
 
 impl<T> ReaderMutApi for T where T: SqlExecutorMut + SqlGeneratorContainer + Extractor {}

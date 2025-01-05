@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! execute_by_template_fn {
     ($gen_args_fn:path) => {
-        async fn execute_by_template(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::Result<usize> {
+        async fn execute_by_template(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::result::Result<usize> {
             tracing::debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
             let sql = template.get_sql(None);
             let sql = self.get_generator().post_process(sql);
@@ -18,7 +18,7 @@ macro_rules! execute_by_template_fn {
 #[macro_export]
 macro_rules! fetch_one_by_template_fn {
     ($gen_args_fn:path) => {
-        async fn fetch_one_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::Result<SE>
+        async fn fetch_one_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::result::Result<SE>
         where
             SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -37,7 +37,7 @@ macro_rules! fetch_one_by_template_fn {
 #[macro_export]
 macro_rules! fetch_option_by_template_fn {
     ($gen_args_fn:path) => {
-        async fn fetch_option_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::Result<Option<SE>>
+        async fn fetch_option_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::result::Result<Option<SE>>
         where
             SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -57,7 +57,7 @@ macro_rules! fetch_option_by_template_fn {
 #[macro_export]
 macro_rules! fetch_all_by_template_fn {
     ($gen_args_fn:path) => {
-        async fn fetch_all_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::Result<Vec<SE>>
+        async fn fetch_all_by_template<SE>(&mut self, template: &dyn crate::traits::TemplateRecord) -> crate::result::Result<Vec<SE>>
         where
             SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -80,7 +80,7 @@ macro_rules! fetch_paged_by_template_fn {
         async fn fetch_paged_by_template<SE>(
             &mut self,
             template: &dyn crate::traits::TemplateRecord,
-        ) -> crate::Result<crate::page::PagedList<Self::DB, SE>>
+        ) -> crate::result::Result<crate::page::PagedList<Self::DB, SE>>
         where
             SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
         {

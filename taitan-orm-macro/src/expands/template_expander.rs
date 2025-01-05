@@ -138,14 +138,14 @@ pub fn generate_template_struct_and_impl(
 fn gen_get_pagination_fn_stream(limit_field_name: &Option<&String>)-> TokenStream {
     match limit_field_name {
         None=> quote! {
-            fn get_pagination(&self) -> Option<&taitan_orm::traits::Pagination> {
+            fn get_pagination(&self) -> Option<&taitan_orm::page::Pagination> {
                 None
             }
         },
         Some(limit_field_name) => {
             let limit_ident = format_ident!("{}", limit_field_name);
             quote! {
-                fn get_pagination(&self) -> Option<&taitan_orm::traits::Pagination> {
+                fn get_pagination(&self) -> Option<&taitan_orm::page::Pagination> {
                     Some(&self.#limit_ident)
                 }
             }
@@ -246,7 +246,7 @@ fn gen_fn_get_sql(
     let template_struct_name = format_ident!("{}Template", ident);
     if parsed_template_sql.dollar_signs.is_empty() {
         let fn_stream = quote! {
-            fn get_sql(&self, page: Option<&taitan_orm::traits::Pagination>) -> String {
+            fn get_sql(&self, page: Option<&taitan_orm::page::Pagination>) -> String {
                     if let Some(page) = page {
                         let offset = page.page_size * page.page_num;
                         let count = page.page_size;
@@ -264,7 +264,7 @@ fn gen_fn_get_sql(
         let template_struct_stream =
             copy_to_template_struct(ident, data, generics, &marked_sql, "Template");
         let fn_stream = quote! {
-            fn get_sql(&self, page: Option<&taitan_orm::traits::Pagination>) -> String {
+            fn get_sql(&self, page: Option<&taitan_orm::page::Pagination>) -> String {
                     let template = #template_struct_name::from(self);
                     let marked_sql_result = rinja::Template::render(&template);
                     if marked_sql_result.is_err() {

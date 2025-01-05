@@ -1,5 +1,5 @@
 use crate::extractor::Extractor;
-use crate::{
+use crate::prelude::{
     ReaderApi, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor, TemplateApi, WriterApi,
 };
 

@@ -6,7 +6,7 @@ use sqlx::{Database, Sqlite};
 use std::borrow::Cow;
 use std::error::Error;
 use taitan_orm::database::sqlite::SqliteDatabase;
-use taitan_orm::SqlExecutor;
+use taitan_orm::prelude::SqlExecutor;
 use taitan_orm_trait::{validate_order_by, Entity, FieldName, Location, LocationExpr, Mutation, Optional, OrderBy, SelectedEntity, SelectedEntityNew, Selection, Unique, UpdateCommand};
 use time::PrimitiveDateTime;
 use uuid::Uuid;
@@ -20,7 +20,7 @@ pub struct User {
     pub birthday: Optional<PrimitiveDateTime>,
 }
 
-pub async fn prepare_user_table(db: &mut SqliteDatabase) -> taitan_orm::Result<()> {
+pub async fn prepare_user_table(db: &mut SqliteDatabase) -> taitan_orm::result::Result<()> {
     let _result = db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
     let _ = db
         .execute_plain(
@@ -200,11 +200,11 @@ impl Selection for UserSelected {
         Self: Sized,
     {
         Self {
-            id: taitan_orm::Optional::Selected,
-            request_id: taitan_orm::Optional::Selected,
-            age: taitan_orm::Optional::Selected,
-            name: taitan_orm::Optional::Selected,
-            birthday: taitan_orm::Optional::Selected,
+            id: taitan_orm::result::Optional::Selected,
+            request_id: taitan_orm::result::Optional::Selected,
+            age: taitan_orm::result::Optional::Selected,
+            name: taitan_orm::result::Optional::Selected,
+            birthday: taitan_orm::result::Optional::Selected,
         }
     }
 }
@@ -368,10 +368,10 @@ impl Selection for UserSelection {
 
 #[derive(Debug)]
 pub struct UserMutation {
-    pub request_id: taitan_orm::Optional<Uuid>,
-    pub name: taitan_orm::Optional<String>,
-    pub age: taitan_orm::Optional<i32>,
-    pub birthday: taitan_orm::Optional<PrimitiveDateTime>,
+    pub request_id: taitan_orm::result::Optional<Uuid>,
+    pub name: taitan_orm::result::Optional<String>,
+    pub age: taitan_orm::result::Optional<i32>,
+    pub birthday: taitan_orm::result::Optional<PrimitiveDateTime>,
     // money: Option<BigDecimal>,
     // ipv4addr: Option<Ipv4Addr>,
     // ipv6addr: Option<Ipv6Addr>,

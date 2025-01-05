@@ -46,13 +46,13 @@ pub fn generate_location_expr_enum_and_impl(
         if DefaultTypeChecker::type_is_option(&field_ty) {
             let inner_type = DefaultTypeExtractor::get_option_inner_type(&field_ty).unwrap();
             quote! {
-                pub fn #field_ident(cmp: &str, val: #inner_type) -> Result<Self, taitan_orm::NotValidCmpError> {
+                pub fn #field_ident(cmp: &str, val: #inner_type) -> Result<Self, taitan_orm::error::TaitanOrmError> {
                     Ok(Self::#enum_field_ident(taitan_orm::traits::LocationExpr::from(cmp, val)?))
                 }
             }
         } else {
             quote! {
-                pub fn #field_ident(cmp: &str, val: #field_ty) -> Result<Self, taitan_orm::NotValidCmpError> {
+                pub fn #field_ident(cmp: &str, val: #field_ty) -> Result<Self, taitan_orm::error::TaitanOrmError> {
                     Ok(Self::#enum_field_ident(taitan_orm::traits::LocationExpr::from(cmp, val)?))
                 }
             }
@@ -74,7 +74,7 @@ pub fn generate_location_expr_enum_and_impl(
                 #table_name
             }
 
-            fn get_location_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+            fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
                 #location_fields_name
             }
 

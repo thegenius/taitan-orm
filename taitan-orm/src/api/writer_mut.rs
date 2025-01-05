@@ -1,6 +1,8 @@
 use crate::extractor::Extractor;
-use crate::{Result, SqlExecutorMut, SqlGenerator, SqlGeneratorContainer};
+use crate::prelude::{SqlExecutorMut, SqlGeneratorContainer};
+use crate::result::Result;
 use taitan_orm_trait::{Entity, Location, Mutation, Unique};
+use crate::sql_generator::SqlGenerator;
 use tracing::debug;
 
 impl<T> WriterMutApi for T where T: SqlExecutorMut + SqlGeneratorContainer + Extractor {}

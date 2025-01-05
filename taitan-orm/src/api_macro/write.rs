@@ -70,7 +70,7 @@ macro_rules! change_fn {
 #[macro_export]
 macro_rules! delete_fn {
     ($args_type:ty, $gen_args_fn:path) => {
-       async fn delete<M: Mutation>(&mut self, unique: &dyn Unique<Mutation = M>) -> crate::Result<bool> {
+       async fn delete<M: Mutation>(&mut self, unique: &dyn Unique<Mutation = M>) -> crate::result::Result<bool> {
            tracing::debug!(target: "taitan_orm", command = "delete", primary = ?unique);
            let sql = self.get_generator().get_delete_sql(unique);
            tracing::debug!(target: "taitan_orm", command = "delete", sql = sql);
@@ -85,7 +85,7 @@ macro_rules! delete_fn {
 #[macro_export]
 macro_rules! purify_fn {
     ($args_type:ty, $gen_args_fn:path) => {
-        async fn purify(&mut self, location: &dyn Location) -> crate::Result<u64> {
+        async fn purify(&mut self, location: &dyn Location) -> crate::result::Result<u64> {
             tracing::debug!(target: "taitan_orm", command = "purify", location = ?location);
             let sql = self.get_generator().get_purify_sql(location);
             tracing::debug!(target: "taitan_orm", command = "purify", sql = sql);

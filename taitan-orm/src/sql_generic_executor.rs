@@ -1,5 +1,5 @@
 use crate::result::Result;
-use crate::TaitanOrmError;
+use crate::error::TaitanOrmError;
 use sqlx::query::Query;
 use sqlx::{Database, Executor, IntoArguments};
 use std::marker::PhantomData;

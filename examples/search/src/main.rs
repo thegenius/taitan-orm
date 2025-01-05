@@ -1,9 +1,6 @@
 use std::borrow::Cow;
-use std::panic::Location;
-use taitan_orm::{LocationMode, Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use taitan_orm::prelude::*;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::traits::{LocationExpr, Selection};
-use taitan_orm::CmpOperator;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
@@ -16,7 +13,7 @@ pub struct User {
 
 
 #[tokio::main]
-async fn main() -> taitan_orm::Result<()> {
+async fn main() -> taitan_orm::result::Result<()> {
 
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)

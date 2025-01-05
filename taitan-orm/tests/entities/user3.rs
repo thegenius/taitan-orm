@@ -19,49 +19,49 @@ impl taitan_orm::traits::Entity for UserEntity {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_insert_fields(&self) -> Vec<taitan_orm::FieldName> {
+    fn get_insert_fields(&self) -> Vec<taitan_orm::prelude::FieldName> {
         let mut fields = Vec::new();
-        fields.push(taitan_orm::FieldName::from_str("r_id", false));
+        fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
         match &self.age {
-            taitan_orm::Optional::Some(age) => {
-                fields.push(taitan_orm::FieldName::from_str("age", false));
+            taitan_orm::result::Optional::Some(age) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("age", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
             }
             _ => {}
         };
-        fields.push(taitan_orm::FieldName::from_str("name", false));
+        fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
         match &self.birthday {
-            taitan_orm::Optional::Some(birthday) => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", false));
+            taitan_orm::result::Optional::Some(birthday) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
             }
             _ => {}
         };
         return fields;
     }
-    fn get_upsert_set_fields(&self) -> Vec<taitan_orm::FieldName> {
+    fn get_upsert_set_fields(&self) -> Vec<taitan_orm::prelude::FieldName> {
         let mut fields = Vec::new();
-        fields.push(taitan_orm::FieldName::from_str("r_id", false));
+        fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
         match &self.age {
-            taitan_orm::Optional::Some(age) => {
-                fields.push(taitan_orm::FieldName::from_str("age", false));
+            taitan_orm::result::Optional::Some(age) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("age", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
             }
             _ => {}
         };
-        fields.push(taitan_orm::FieldName::from_str("name", false));
+        fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
         match &self.birthday {
-            taitan_orm::Optional::Some(birthday) => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", false));
+            taitan_orm::result::Optional::Some(birthday) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
             }
             _ => {}
         };
@@ -78,11 +78,11 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::sqlite::SqliteArguments<'_>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -92,19 +92,19 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::sqlite::SqliteArguments<'_>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -114,11 +114,11 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -128,19 +128,19 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -150,11 +150,11 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -164,19 +164,19 @@ impl taitan_orm::traits::Entity for UserEntity {
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.request_id)?;
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         Ok(args)
@@ -199,16 +199,16 @@ impl taitan_orm::traits::Unique for UserPrimary {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::sqlite::SqliteArguments<'a>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.id)?;
@@ -219,16 +219,16 @@ impl taitan_orm::traits::Unique for UserPrimary {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.id)?;
@@ -239,16 +239,16 @@ impl taitan_orm::traits::Unique for UserPrimary {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.id)?;
@@ -293,16 +293,16 @@ impl taitan_orm::traits::Unique for UserAgeUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::sqlite::SqliteArguments<'a>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.age)?;
@@ -313,16 +313,16 @@ impl taitan_orm::traits::Unique for UserAgeUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.age)?;
@@ -333,16 +333,16 @@ impl taitan_orm::traits::Unique for UserAgeUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.age)?;
@@ -388,16 +388,16 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::sqlite::SqliteArguments<'a>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
@@ -409,16 +409,16 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
@@ -430,16 +430,16 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
         mutation: &'a Self::Mutation,
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &mutation.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &mutation.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &mutation.age {
+        if let taitan_orm::result::Optional::Some(age) = &mutation.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &mutation.name {
+        if let taitan_orm::result::Optional::Some(name) = &mutation.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &mutation.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &mutation.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
         sqlx::Arguments::add(&mut args, &self.name)?;
@@ -473,61 +473,61 @@ impl taitan_orm::traits::Unique for UserNameBirthdayUnique {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserLocation {
-    mode: taitan_orm::LocationMode,
-    pub id: taitan_orm::Optional<taitan_orm::traits::LocationExpr<i64>>,
-    pub request_id: taitan_orm::Optional<taitan_orm::traits::LocationExpr<Uuid>>,
-    pub age: taitan_orm::Optional<taitan_orm::traits::LocationExpr<i32>>,
-    pub name: taitan_orm::Optional<taitan_orm::traits::LocationExpr<String>>,
-    pub birthday: taitan_orm::Optional<taitan_orm::traits::LocationExpr<PrimitiveDateTime>>,
+    mode: taitan_orm::prelude::LocationMode,
+    pub id: taitan_orm::result::Optional<taitan_orm::traits::LocationExpr<i64>>,
+    pub request_id: taitan_orm::result::Optional<taitan_orm::traits::LocationExpr<Uuid>>,
+    pub age: taitan_orm::result::Optional<taitan_orm::traits::LocationExpr<i32>>,
+    pub name: taitan_orm::result::Optional<taitan_orm::traits::LocationExpr<String>>,
+    pub birthday: taitan_orm::result::Optional<taitan_orm::traits::LocationExpr<PrimitiveDateTime>>,
 }
 impl taitan_orm::traits::Location for UserLocation {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_location_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+    fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
         let mut fields = Vec::new();
         match &self.id {
-            taitan_orm::Optional::Some(id) => {
-                fields.push(taitan_orm::FieldName::from_str("id", false));
+            taitan_orm::result::Optional::Some(id) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("id", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("id", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("id", true));
             }
             _ => {}
         };
         match &self.request_id {
-            taitan_orm::Optional::Some(request_id) => {
-                fields.push(taitan_orm::FieldName::from_str("r_id", false));
+            taitan_orm::result::Optional::Some(request_id) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("r_id", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", true));
             }
             _ => {}
         };
         match &self.age {
-            taitan_orm::Optional::Some(age) => {
-                fields.push(taitan_orm::FieldName::from_str("age", false));
+            taitan_orm::result::Optional::Some(age) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("age", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
             }
             _ => {}
         };
         match &self.name {
-            taitan_orm::Optional::Some(name) => {
-                fields.push(taitan_orm::FieldName::from_str("name", false));
+            taitan_orm::result::Optional::Some(name) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("name", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("name", true));
             }
             _ => {}
         };
         match &self.birthday {
-            taitan_orm::Optional::Some(birthday) => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", false));
+            taitan_orm::result::Optional::Some(birthday) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
             }
             _ => {}
         };
@@ -630,19 +630,19 @@ impl taitan_orm::traits::Location for UserLocation {
         &self,
     ) -> Result<sqlx::sqlite::SqliteArguments<'_>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
-        if let taitan_orm::Optional::Some(id) = &self.id {
+        if let taitan_orm::result::Optional::Some(id) = &self.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -651,19 +651,19 @@ impl taitan_orm::traits::Location for UserLocation {
         &self,
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
-        if let taitan_orm::Optional::Some(id) = &self.id {
+        if let taitan_orm::result::Optional::Some(id) = &self.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -672,19 +672,19 @@ impl taitan_orm::traits::Location for UserLocation {
         &self,
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
-        if let taitan_orm::Optional::Some(id) = &self.id {
+        if let taitan_orm::result::Optional::Some(id) = &self.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -699,18 +699,18 @@ pub enum UserLocationExpr {
     Birthday(taitan_orm::traits::LocationExpr<PrimitiveDateTime>),
 }
 impl UserLocationExpr {
-    pub fn id(cmp: &str, val: i64) -> Result<Self, taitan_orm::NotValidCmpError> {
+    pub fn id(cmp: &str, val: i64) -> Result<Self, taitan_orm::error::TaitanOrmError> {
         Ok(Self::Id(taitan_orm::traits::LocationExpr::from(cmp, val)?))
     }
-    pub fn request_id(cmp: &str, val: Uuid) -> Result<Self, taitan_orm::NotValidCmpError> {
+    pub fn request_id(cmp: &str, val: Uuid) -> Result<Self, taitan_orm::error::TaitanOrmError> {
         Ok(Self::RequestId(taitan_orm::traits::LocationExpr::from(
             cmp, val,
         )?))
     }
-    pub fn age(cmp: &str, val: i32) -> Result<Self, taitan_orm::NotValidCmpError> {
+    pub fn age(cmp: &str, val: i32) -> Result<Self, taitan_orm::error::TaitanOrmError> {
         Ok(Self::Age(taitan_orm::traits::LocationExpr::from(cmp, val)?))
     }
-    pub fn name(cmp: &str, val: String) -> Result<Self, taitan_orm::NotValidCmpError> {
+    pub fn name(cmp: &str, val: String) -> Result<Self, taitan_orm::error::TaitanOrmError> {
         Ok(Self::Name(taitan_orm::traits::LocationExpr::from(
             cmp, val,
         )?))
@@ -718,7 +718,7 @@ impl UserLocationExpr {
     pub fn birthday(
         cmp: &str,
         val: PrimitiveDateTime,
-    ) -> Result<Self, taitan_orm::NotValidCmpError> {
+    ) -> Result<Self, taitan_orm::error::TaitanOrmError> {
         Ok(Self::Birthday(taitan_orm::traits::LocationExpr::from(
             cmp, val,
         )?))
@@ -728,14 +728,18 @@ impl taitan_orm::traits::Location for UserLocationExpr {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_location_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+    fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
         let mut fields = Vec::new();
         match self {
-            Self::Id(_) => fields.push(taitan_orm::FieldName::from_str("id", false)),
-            Self::RequestId(_) => fields.push(taitan_orm::FieldName::from_str("r_id", false)),
-            Self::Age(_) => fields.push(taitan_orm::FieldName::from_str("age", false)),
-            Self::Name(_) => fields.push(taitan_orm::FieldName::from_str("name", false)),
-            Self::Birthday(_) => fields.push(taitan_orm::FieldName::from_str("birthday", false)),
+            Self::Id(_) => fields.push(taitan_orm::prelude::FieldName::from_str("id", false)),
+            Self::RequestId(_) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false))
+            }
+            Self::Age(_) => fields.push(taitan_orm::prelude::FieldName::from_str("age", false)),
+            Self::Name(_) => fields.push(taitan_orm::prelude::FieldName::from_str("name", false)),
+            Self::Birthday(_) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false))
+            }
         }
         return fields;
     }
@@ -852,48 +856,48 @@ impl taitan_orm::traits::Location for UserLocationExpr {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserMutation {
-    pub request_id: taitan_orm::Optional<Uuid>,
-    pub age: taitan_orm::Optional<i32>,
-    pub name: taitan_orm::Optional<String>,
-    pub birthday: taitan_orm::Optional<PrimitiveDateTime>,
+    pub request_id: taitan_orm::result::Optional<Uuid>,
+    pub age: taitan_orm::result::Optional<i32>,
+    pub name: taitan_orm::result::Optional<String>,
+    pub birthday: taitan_orm::result::Optional<PrimitiveDateTime>,
 }
 impl taitan_orm::traits::Mutation for UserMutation {
     type Location = UserLocation;
-    fn get_mutation_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+    fn get_mutation_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
         let mut fields = Vec::new();
         match &self.request_id {
-            taitan_orm::Optional::Some(request_id) => {
-                fields.push(taitan_orm::FieldName::from_str("r_id", false));
+            taitan_orm::result::Optional::Some(request_id) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("r_id", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", true));
             }
             _ => {}
         };
         match &self.age {
-            taitan_orm::Optional::Some(age) => {
-                fields.push(taitan_orm::FieldName::from_str("age", false));
+            taitan_orm::result::Optional::Some(age) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("age", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
             }
             _ => {}
         };
         match &self.name {
-            taitan_orm::Optional::Some(name) => {
-                fields.push(taitan_orm::FieldName::from_str("name", false));
+            taitan_orm::result::Optional::Some(name) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("name", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("name", true));
             }
             _ => {}
         };
         match &self.birthday {
-            taitan_orm::Optional::Some(birthday) => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", false));
+            taitan_orm::result::Optional::Some(birthday) => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
             }
-            taitan_orm::Optional::Null => {
-                fields.push(taitan_orm::FieldName::from_str("birthday", true));
+            taitan_orm::result::Optional::Null => {
+                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
             }
             _ => {}
         };
@@ -904,31 +908,31 @@ impl taitan_orm::traits::Mutation for UserMutation {
         location: &'a Self::Location,
     ) -> Result<sqlx::sqlite::SqliteArguments<'a>, sqlx::error::BoxDynError> {
         let mut args = sqlx::sqlite::SqliteArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
-        if let taitan_orm::Optional::Some(id) = &location.id {
+        if let taitan_orm::result::Optional::Some(id) = &location.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &location.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &location.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &location.age {
+        if let taitan_orm::result::Optional::Some(age) = &location.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &location.name {
+        if let taitan_orm::result::Optional::Some(name) = &location.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &location.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &location.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -938,31 +942,31 @@ impl taitan_orm::traits::Mutation for UserMutation {
         location: &'a Self::Location,
     ) -> Result<sqlx::mysql::MySqlArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::mysql::MySqlArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
-        if let taitan_orm::Optional::Some(id) = &location.id {
+        if let taitan_orm::result::Optional::Some(id) = &location.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &location.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &location.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &location.age {
+        if let taitan_orm::result::Optional::Some(age) = &location.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &location.name {
+        if let taitan_orm::result::Optional::Some(name) = &location.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &location.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &location.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -972,31 +976,31 @@ impl taitan_orm::traits::Mutation for UserMutation {
         location: &'a Self::Location,
     ) -> Result<sqlx::postgres::PgArguments, sqlx::error::BoxDynError> {
         let mut args = sqlx::postgres::PgArguments::default();
-        if let taitan_orm::Optional::Some(request_id) = &self.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &self.request_id {
             sqlx::Arguments::add(&mut args, request_id)?;
         }
-        if let taitan_orm::Optional::Some(age) = &self.age {
+        if let taitan_orm::result::Optional::Some(age) = &self.age {
             sqlx::Arguments::add(&mut args, age)?;
         }
-        if let taitan_orm::Optional::Some(name) = &self.name {
+        if let taitan_orm::result::Optional::Some(name) = &self.name {
             sqlx::Arguments::add(&mut args, name)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &self.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &self.birthday {
             sqlx::Arguments::add(&mut args, birthday)?;
         }
-        if let taitan_orm::Optional::Some(id) = &location.id {
+        if let taitan_orm::result::Optional::Some(id) = &location.id {
             sqlx::Arguments::add(&mut args, &id.val)?;
         }
-        if let taitan_orm::Optional::Some(request_id) = &location.request_id {
+        if let taitan_orm::result::Optional::Some(request_id) = &location.request_id {
             sqlx::Arguments::add(&mut args, &request_id.val)?;
         }
-        if let taitan_orm::Optional::Some(age) = &location.age {
+        if let taitan_orm::result::Optional::Some(age) = &location.age {
             sqlx::Arguments::add(&mut args, &age.val)?;
         }
-        if let taitan_orm::Optional::Some(name) = &location.name {
+        if let taitan_orm::result::Optional::Some(name) = &location.name {
             sqlx::Arguments::add(&mut args, &name.val)?;
         }
-        if let taitan_orm::Optional::Some(birthday) = &location.birthday {
+        if let taitan_orm::result::Optional::Some(birthday) = &location.birthday {
             sqlx::Arguments::add(&mut args, &birthday.val)?;
         }
         Ok(args)
@@ -1048,11 +1052,11 @@ impl taitan_orm::traits::Selection for UserSelection {
 }
 #[derive(Default, Debug, Clone)]
 pub struct UserSelectedEntity {
-    pub id: taitan_orm::Optional<i64>,
-    pub request_id: taitan_orm::Optional<Uuid>,
-    pub age: taitan_orm::Optional<i32>,
-    pub name: taitan_orm::Optional<String>,
-    pub birthday: taitan_orm::Optional<PrimitiveDateTime>,
+    pub id: taitan_orm::result::Optional<i64>,
+    pub request_id: taitan_orm::result::Optional<Uuid>,
+    pub age: taitan_orm::result::Optional<i32>,
+    pub name: taitan_orm::result::Optional<String>,
+    pub birthday: taitan_orm::result::Optional<PrimitiveDateTime>,
 }
 impl taitan_orm::traits::SelectedEntity<sqlx::Sqlite> for UserSelectedEntity {
     type Selection = UserSelection;
@@ -1331,11 +1335,11 @@ impl taitan_orm::traits::Selection for UserSelectedEntity {
         Self: Sized,
     {
         Self {
-            id: taitan_orm::Optional::Selected,
-            request_id: taitan_orm::Optional::Selected,
-            age: taitan_orm::Optional::Selected,
-            name: taitan_orm::Optional::Selected,
-            birthday: taitan_orm::Optional::Selected,
+            id: taitan_orm::result::Optional::Selected,
+            request_id: taitan_orm::result::Optional::Selected,
+            age: taitan_orm::result::Optional::Selected,
+            name: taitan_orm::result::Optional::Selected,
+            birthday: taitan_orm::result::Optional::Selected,
         }
     }
 }

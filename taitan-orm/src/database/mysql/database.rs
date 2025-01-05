@@ -1,7 +1,11 @@
 use sqlx::{MySql, MySqlPool};
 use sqlx::mysql::MySqlConnectOptions;
 use crate::sql_generator::MySqlGenerator;
-use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{executor_impl};
+use crate::result::CountResult;
+use crate::prelude::SqlExecutor;
+use crate::prelude::SqlGenericExecutor;
+use crate::prelude::SqlGeneratorContainer;
 
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {
@@ -10,7 +14,7 @@ pub struct MySqlDatabase {
 }
 impl MySqlDatabase {
 
-    pub async fn build(config: MySqlConnectOptions)-> crate::Result<MySqlDatabase> {
+    pub async fn build(config: MySqlConnectOptions)-> crate::result::Result<MySqlDatabase> {
         let pool = MySqlPool::connect_with(config).await?;
         let generator = MySqlGenerator::new();
         let database = MySqlDatabase {
@@ -20,7 +24,7 @@ impl MySqlDatabase {
         Ok(database)
     }
 
-    pub fn get_pool(&self) -> crate::Result<&MySqlPool> {
+    pub fn get_pool(&self) -> crate::result::Result<&MySqlPool> {
         Ok(&self.pool)
     }
 }

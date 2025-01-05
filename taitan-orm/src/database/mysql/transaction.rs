@@ -1,6 +1,8 @@
 use sqlx::MySql;
-use crate::{transaction_impl, CountResult,  SqlExecutorMut, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{transaction_impl};
 use crate::sql_generator::MySqlGenerator;
+use crate::result::CountResult;
+use crate::prelude::{SqlExecutorMut, SqlGenericExecutor, SqlGeneratorContainer};
 
 #[derive(Debug)]
 pub struct MySqlTransaction<'a> {
@@ -17,12 +19,12 @@ impl<'a> MySqlTransaction<'a> {
     }
 
     #[inline]
-    pub async fn commit(self) -> crate::Result<()> {
+    pub async fn commit(self) -> crate::result::Result<()> {
         Ok(self.transaction.commit().await?)
     }
 
     #[inline]
-    pub async fn rollback(self) -> crate::Result<()> {
+    pub async fn rollback(self) -> crate::result::Result<()> {
         Ok(self.transaction.rollback().await?)
     }
 }

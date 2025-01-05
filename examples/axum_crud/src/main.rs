@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ops::DerefMut;
 use std::sync::Arc;
-use taitan_orm::traits::Selection;
-use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use tracing::info;
+use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table_name = "user"]
@@ -58,11 +58,12 @@ async fn main() {
         .route("/user", get(query_user_by_id))
         .route("/user", post(create_user))
         .route("/user", patch(update_user))
-        .route("/user/:id", delete(delete_user))
+        .route("/user/{id}", delete(delete_user))
         .with_state(shared_state.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
         .unwrap();
+    info!("Server listening on 127.0.0.1:3000");
     axum::serve(listener, app).await.unwrap();
 }
 

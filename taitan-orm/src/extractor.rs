@@ -2,8 +2,8 @@ use sqlx::Database;
 
 use taitan_orm_trait::{Entity, Location, Mutation, TemplateRecord, Unique};
 use taitan_orm_trait::pagination::Pagination;
-use crate::SqlGenericExecutor;
-use crate::Result;
+use crate::prelude::SqlGenericExecutor;
+use crate::result::Result;
 
 pub trait Extractor: SqlGenericExecutor {
     fn extract_pagination_arguments(page: &Pagination)-> Result<<Self::DB as Database>::Arguments<'_>>;

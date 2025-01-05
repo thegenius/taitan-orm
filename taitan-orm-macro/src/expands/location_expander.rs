@@ -38,7 +38,7 @@ pub fn generate_location_struct_and_impl(
                 #table_name
             }
 
-            fn get_location_fields_name(&self) -> Vec<taitan_orm::FieldName> {
+            fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
                 #location_fields_name
             }
 

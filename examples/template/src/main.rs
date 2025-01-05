@@ -1,10 +1,7 @@
 use std::borrow::Cow;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::page::{PagedList, Pagination};
-use taitan_orm::traits::Selection;
-use taitan_orm::{
-    Optional, ReaderApi, Schema, SqlExecutor, TemplateApi, TemplateRecord, WriterApi,
-};
+
+use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
@@ -33,7 +30,7 @@ pub struct UserSelectTemplate {
 }
 
 #[tokio::main]
-async fn main() -> taitan_orm::Result<()> {
+async fn main() -> taitan_orm::result::Result<()> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();

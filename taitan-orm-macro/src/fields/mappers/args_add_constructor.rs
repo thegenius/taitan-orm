@@ -22,7 +22,7 @@ pub trait ArgsAddConstructor {
         let field_type = field.ty;
         if DefaultTypeChecker::type_is_option(&field_type) {
             quote_spanned! { span =>
-                if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
+                if let taitan_orm::result::Optional::Some(#field_name) = &self.#field_name {
                     sqlx::Arguments::add(&mut args, #field_name)?;
                 }
             }
@@ -56,7 +56,7 @@ pub trait ArgsAddConstructor {
         let field_name = field.ident.unwrap();
         let span = field_name.span();
         quote_spanned! { span =>
-            if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
+            if let taitan_orm::result::Optional::Some(#field_name) = &self.#field_name {
                 sqlx::Arguments::add(&mut args, #field_name)?;
             }
         }
@@ -67,7 +67,7 @@ pub trait ArgsAddConstructor {
         let span = field_name.span();
         let param_ident = Ident::new(&param_name, Span::call_site());
         quote_spanned! { span =>
-            if let taitan_orm::Optional::Some(#field_name) = &#param_ident.#field_name {
+            if let taitan_orm::result::Optional::Some(#field_name) = &#param_ident.#field_name {
                 sqlx::Arguments::add(&mut args, #field_name)?;
             }
         }
@@ -78,7 +78,7 @@ pub trait ArgsAddConstructor {
         let field_name = field.ident.unwrap();
         let span = field_name.span();
         quote_spanned! { span =>
-            if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
+            if let taitan_orm::result::Optional::Some(#field_name) = &self.#field_name {
                 sqlx::Arguments::add(&mut args, &#field_name.val)?;
             }
         }
@@ -101,7 +101,7 @@ pub trait ArgsAddConstructor {
         let span = field_name.span();
         let location_ident = Ident::new(&location_name, Span::call_site());
         quote_spanned! { span =>
-            if let taitan_orm::Optional::Some(#field_name) = &#location_ident.#field_name {
+            if let taitan_orm::result::Optional::Some(#field_name) = &#location_ident.#field_name {
                 sqlx::Arguments::add(&mut args, &#field_name.val)?;
             }
         }

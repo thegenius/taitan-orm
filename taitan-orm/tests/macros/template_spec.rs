@@ -1,11 +1,9 @@
 use sqlx::sqlx_macros;
 use std::borrow::Cow;
-use taitan_orm::Schema;
-use taitan_orm::TemplateRecord;
-use taitan_orm::traits::TemplateRecord;
+use taitan_orm::prelude::*;
 use time::PrimitiveDateTime;
 use uuid::Uuid;
-use taitan_orm_trait::pagination::Pagination;
+// use taitan_orm_trait::pagination::Pagination;
 #[derive(TemplateRecord, Clone, Debug)]
 #[sql = "select * from ${name}"]
 pub struct TestTemplate1<'a> {
@@ -46,7 +44,7 @@ pub struct TestTemplate5<'a> {
 
 
 #[sqlx_macros::test]
-pub async fn template_macro_spec() -> taitan_orm::Result<()> {
+pub async fn template_macro_spec() -> taitan_orm::result::Result<()> {
     let template = TestTemplate1 {
         name: Cow::Borrowed("wang"),
     };

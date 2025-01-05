@@ -42,18 +42,18 @@ pub trait NamesAddConstructor {
         if DefaultTypeChecker::type_is_option(field_type) {
             quote_spanned! { span=>
                 match &self.#field_name {
-                    taitan_orm::Optional::Some(#field_name) => {
-                        fields.push(taitan_orm::FieldName::from_str(#field_name_string, false));
+                    taitan_orm::result::Optional::Some(#field_name) => {
+                        fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, false));
                     }
-                    taitan_orm::Optional::Null => {
-                        fields.push(taitan_orm::FieldName::from_str(#field_name_string, true));
+                    taitan_orm::result::Optional::Null => {
+                        fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, true));
                     }
                     _ => {}
                 };
             }
         } else {
             quote_spanned! { span=>
-                fields.push(taitan_orm::FieldName::from_str(#field_name_string, false));
+                fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, false));
             }
         }
     }
@@ -66,11 +66,11 @@ pub trait NamesAddConstructor {
 
         quote_spanned! { span=>
             match &self.#field_name {
-                taitan_orm::Optional::Some(#field_name) => {
-                    fields.push(taitan_orm::FieldName::from_str(#field_name_string, false));
+                taitan_orm::result::Optional::Some(#field_name) => {
+                    fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, false));
                 }
-                taitan_orm::Optional::Null => {
-                    fields.push(taitan_orm::FieldName::from_str(#field_name_string, true));
+                taitan_orm::result::Optional::Null => {
+                    fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, true));
                 }
                 _ => {}
             };
@@ -85,7 +85,7 @@ pub trait NamesAddConstructor {
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
 
         quote_spanned! { span=>
-            Self::#enum_ident(_) => fields.push(taitan_orm::FieldName::from_str(#field_name_string, false)),
+            Self::#enum_ident(_) => fields.push(taitan_orm::prelude::FieldName::from_str(#field_name_string, false)),
         }
     }
 
@@ -104,7 +104,7 @@ pub trait NamesAddConstructor {
         let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_name.to_string(), span);
         quote_spanned! { span=>
-            if let taitan_orm::Optional::Some(true) = self.#field_name {
+            if let taitan_orm::result::Optional::Some(true) = self.#field_name {
                 fields.push(#field_name_string.to_string());
             }
         }
@@ -149,7 +149,7 @@ pub trait NamesAddConstructor {
         let span = field_name.span();
         let field_name_lit = LitStr::new(&field_alias.to_string(), span);
         quote_spanned! { span =>
-            if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
+            if let taitan_orm::result::Optional::Some(#field_name) = &self.#field_name {
                 sql.push(wrap_char);
                 sql.push_str(#field_name_lit);
                 sql.push(wrap_char);

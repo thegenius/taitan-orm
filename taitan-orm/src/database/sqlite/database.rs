@@ -2,13 +2,17 @@
 use crate::database::sqlite::{SqliteLocalConfig, SqliteTransaction};
 use crate::sql_generator::DefaultSqlGenerator;
 use crate::sql_generator_container::SqlGeneratorContainer;
-use crate::{executor_impl, CountResult, SqlExecutor, SqlGenericExecutor, TaitanOrmError};
+use crate::{executor_impl};
 use path_absolutize::Absolutize;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
 use sqlx::{Sqlite, SqlitePool};
 use std::fs;
 use std::path::Path;
 // use crate::database::sqlite::commanders::template::SqliteTemplateCommander;
+// pub use crate::result::Result;
+pub use crate::error::TaitanOrmError;
+pub use crate::result::CountResult;
+pub use crate::prelude::{SqlExecutor, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
 pub struct SqliteDatabase {
@@ -17,7 +21,7 @@ pub struct SqliteDatabase {
 }
 
 impl SqliteDatabase {
-    async fn init_local(workspace_dir: &str, db_file: &str) -> crate::Result<SqlitePool> {
+    async fn init_local(workspace_dir: &str, db_file: &str) -> crate::result::Result<SqlitePool> {
         let workspace = Path::new(workspace_dir);
         let workspace_absolute = workspace
             .absolutize()
@@ -38,7 +42,7 @@ impl SqliteDatabase {
         Ok(sqlite_pool)
     }
 
-    pub async fn build(config: SqliteLocalConfig<'_>) -> crate::Result<SqliteDatabase> {
+    pub async fn build(config: SqliteLocalConfig<'_>) -> crate::result::Result<SqliteDatabase> {
         let pool = SqliteDatabase::init_local(&config.work_dir, &config.db_file).await?;
         let generator = DefaultSqlGenerator::new();
         let database = SqliteDatabase {
@@ -48,14 +52,14 @@ impl SqliteDatabase {
         Ok(database)
     }
 
-    pub async fn transaction<'a>(&'a self) -> crate::Result<SqliteTransaction<'a>> {
+    pub async fn transaction<'a>(&'a self) -> crate::result::Result<SqliteTransaction<'a>> {
         let trx = self.get_pool()?.begin().await?;
         let generator = self.get_generator();
         let transaction = SqliteTransaction::new(trx, generator);
         Ok(transaction)
     }
 
-    pub fn get_pool(&self) -> crate::Result<&SqlitePool> {
+    pub fn get_pool(&self) -> crate::result::Result<&SqlitePool> {
         Ok(&self.sqlite_pool)
     }
 

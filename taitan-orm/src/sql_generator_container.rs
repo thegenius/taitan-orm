@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use crate::{SqlGenerator};
+use crate::sql_generator::{SqlGenerator};
 
 pub trait SqlGeneratorContainer {
     type G: SqlGenerator + Sync + Debug;

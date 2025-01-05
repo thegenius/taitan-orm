@@ -2,8 +2,7 @@
 use crate::entities::user::*;
 use sqlx::sqlx_macros;
 use taitan_orm::database::sqlite::{ SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::{ WriterApi, ReaderApi};
-use taitan_orm::SqlExecutor;
+use taitan_orm::prelude:: { WriterApi, ReaderApi, SqlExecutor};
 use time::macros::datetime;
 use uuid::Uuid;
 
@@ -12,7 +11,7 @@ use taitan_orm_trait::{CmpOperator, Entity, Location, LocationExpr, Optional, Se
 use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
-pub async fn sql_commander_spec() -> taitan_orm::Result<()> {
+pub async fn sql_commander_spec() -> taitan_orm::result::Result<()> {
     let test_mutex = get_test_mutex();
     let test_lock = test_mutex.lock();
     setup_logger();
@@ -79,7 +78,7 @@ pub async fn sql_commander_spec() -> taitan_orm::Result<()> {
     Ok(())
 }
 
-async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::Result<()> {
+async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::result::Result<()> {
     let success = db.insert(user).await?;
     assert!(success);
 
@@ -100,7 +99,7 @@ async fn test_update_user(
     db: &mut SqliteDatabase,
     user_mutation: &UserMutation,
     user_primary: &UserPrimary,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let success = db.update(user_mutation, user_primary).await?;
     assert!(success);
 
@@ -119,7 +118,7 @@ async fn test_update_user(
     Ok(())
 }
 
-async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::Result<()> {
+async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::result::Result<()> {
     let success = db.upsert(user).await?;
     assert!(success);
 
@@ -139,7 +138,7 @@ async fn test_upsert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::R
 async fn test_delete_user(
     db: &mut SqliteDatabase,
     user_primary: &UserPrimary,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let success = db.delete(user_primary).await?;
     assert!(success);
 
@@ -150,7 +149,7 @@ async fn test_delete_user(
     Ok(())
 }
 
-async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_orm::Result<()> {
+async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_orm::result::Result<()> {
     let selection = UserSelected::full_fields();
     let order_by = UserOrderBy::build(["id", "name", "age", "birthday"])?;
     let entity_vec: Vec<UserSelected> = db.devour(&selection, &Some(&order_by), &None).await?;
@@ -163,7 +162,7 @@ async fn test_select_location(
     db: &mut SqliteDatabase,
     user_location: &UserLocation,
     expect_cnt: usize,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let order_by = UserOrderBy::build(["id", "name", "age", "birthday"])?;
     let entities: Vec<UserSelected> = db
         .search(&UserSelected::full_fields(), user_location, &Some(&order_by), &None)

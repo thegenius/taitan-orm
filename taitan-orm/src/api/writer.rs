@@ -1,5 +1,7 @@
 use crate::extractor::Extractor;
-use crate::{Result, SqlExecutor, SqlGenerator, SqlGeneratorContainer};
+use crate::result::Result;
+use crate::prelude::{SqlExecutor, SqlGeneratorContainer};
+use crate::sql_generator::SqlGenerator;
 use taitan_orm_trait::{Entity, Location, Mutation, Unique};
 use tracing::debug;
 

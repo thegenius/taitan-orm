@@ -1,11 +1,14 @@
-use std::borrow::Cow;
 use sqlx::mysql::MySqlConnectOptions;
 use sqlx::postgres::PgConnectOptions;
-use taitan_orm::{Optional, ReaderApi, Schema, SqlExecutor, WriterApi};
+use std::borrow::Cow;
+
 use taitan_orm::database::mysql::MySqlDatabase;
 use taitan_orm::database::postgres::PostgresDatabase;
-use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::traits::Selection;
+
+use taitan_orm::database::sqlite::SqliteDatabase;
+use taitan_orm::database::sqlite::SqliteLocalConfig;
+
+use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
@@ -16,15 +19,11 @@ pub struct User {
     age: Optional<i32>,
 }
 
-
 #[tokio::main]
-async fn main() -> taitan_orm::Result<()> {
-
+async fn main() -> taitan_orm::result::Result<()> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();
-
-
 
     // // For MySql
     // // manually build ConnectOptions
@@ -60,14 +59,11 @@ async fn main() -> taitan_orm::Result<()> {
     };
     let mut db: SqliteDatabase = SqliteDatabase::build(config).await?;
 
-
-
-    db.execute_plain(
-        "DROP TABLE IF EXISTS `user`"
-    ).await?;
+    db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
     db.execute_plain(
         "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
-    ).await?;
+    )
+    .await?;
 
     // 1. insert entity
     let entity = User {

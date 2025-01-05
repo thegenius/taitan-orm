@@ -2,7 +2,7 @@
 use sqlx::sqlx_macros;
 use time::PrimitiveDateTime;
 use uuid::Uuid;
-use taitan_orm::Schema;
+use taitan_orm::prelude::Schema;
 use taitan_orm_trait::Optional;
 
 #[derive(Schema, Clone, Debug)]
@@ -27,6 +27,6 @@ pub struct UserEntity {
 }
 
 #[sqlx_macros::test]
-pub async fn entity_macro_spec() -> taitan_orm::Result<()> {
+pub async fn entity_macro_spec() -> taitan_orm::result::Result<()> {
     Ok(())
 }

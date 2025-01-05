@@ -64,9 +64,9 @@ pub trait SqlExecutorMut: SqlGenericExecutor {
         &'a mut self,
         stmt: &'s str,
         args: <Self::DB as sqlx::Database>::Arguments<'a>,
-    ) -> crate::Result<u64> where 'a: 's;
+    ) -> crate::result::Result<u64> where 'a: 's;
 
-    async fn fetch_count_plain<'a>(&'a mut self, stmt: &'a str) -> crate::Result<u64>;
+    async fn fetch_count_plain<'a>(&'a mut self, stmt: &'a str) -> crate::result::Result<u64>;
 
 
     // fetch_option      (stmt, selection, args) -> Result<Option<SE>>

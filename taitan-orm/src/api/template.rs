@@ -1,5 +1,6 @@
 use crate::extractor::Extractor;
-use crate::{SqlExecutor, SqlGenerator, SqlGeneratorContainer};
+use crate::prelude::{SqlExecutor, SqlGeneratorContainer};
+use crate::sql_generator::SqlGenerator;
 use tracing::debug;
 
 impl<T> TemplateApi for T where T: SqlExecutor + SqlGeneratorContainer + Extractor {}
@@ -8,7 +9,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn execute_by_template(
         &self,
         template: &dyn crate::traits::TemplateRecord,
-    ) -> crate::Result<u64> {
+    ) -> crate::result::Result<u64> {
         debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
         let sql = template.get_sql(None);
         let sql = self.get_generator().post_process(sql);
@@ -22,7 +23,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn fetch_one_by_template<SE>(
         &self,
         template: &dyn crate::traits::TemplateRecord,
-    ) -> crate::Result<SE>
+    ) -> crate::result::Result<SE>
     where
         SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
     {
@@ -39,7 +40,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn fetch_option_by_template<SE>(
         &self,
         template: &dyn crate::traits::TemplateRecord,
-    ) -> crate::Result<Option<SE>>
+    ) -> crate::result::Result<Option<SE>>
     where
         SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
     {
@@ -56,7 +57,7 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn fetch_all_by_template<SE>(
         &self,
         template: &dyn crate::traits::TemplateRecord,
-    ) -> crate::Result<Vec<SE>>
+    ) -> crate::result::Result<Vec<SE>>
     where
         SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
     {
@@ -73,19 +74,19 @@ pub trait TemplateApi: SqlExecutor + SqlGeneratorContainer + Extractor {
     async fn fetch_paged_by_template<SE>(
         &self,
         template: &dyn crate::traits::TemplateRecord,
-    ) -> crate::Result<crate::page::PagedList<Self::DB, SE>>
+    ) -> crate::result::Result<crate::page::PagedList<Self::DB, SE>>
     where
         SE: crate::traits::SelectedEntity<Self::DB> + Send + Unpin,
     {
         debug!(target: "taitan_orm", command = "search_paged_by_template", template = ?template);
         let count_sql = template
             .get_count_sql()
-            .ok_or(crate::TaitanOrmError::TemplatePagedNotHasCountSql)?;
+            .ok_or(crate::error::TaitanOrmError::TemplatePagedNotHasCountSql)?;
         let count_sql = self.get_generator().post_process(count_sql);
         debug!(target: "taitan_orm", command = "search_paged_by_template", count_sql = count_sql);
         let page = template
             .get_pagination()
-            .ok_or(crate::TaitanOrmError::TemplatePageFieldNotFound)?;
+            .ok_or(crate::error::TaitanOrmError::TemplatePageFieldNotFound)?;
 
         let count_args = Self::extract_template_count_arguments(template)?;
         let record_count: u64 = self.fetch_count(&count_sql, count_args).await?;

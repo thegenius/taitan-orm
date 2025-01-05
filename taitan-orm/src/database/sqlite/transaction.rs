@@ -4,7 +4,9 @@ use crate::sql_generator::DefaultSqlGenerator;
 use crate::sql_generator_container::SqlGeneratorContainer;
 use sqlx::Sqlite;
 use crate::sql_generic_executor::SqlGenericExecutor;
-use crate::{transaction_impl, CountResult};
+use crate::{transaction_impl};
+use crate::result::CountResult;
+
 
 #[derive(Debug)]
 pub struct SqliteTransaction<'a> {
@@ -21,12 +23,12 @@ impl<'a> SqliteTransaction<'a> {
     }
 
     #[inline]
-    pub async fn commit(self) -> crate::Result<()> {
+    pub async fn commit(self) -> crate::result::Result<()> {
         Ok(self.transaction.commit().await?)
     }
 
     #[inline]
-    pub async fn rollback(self) -> crate::Result<()> {
+    pub async fn rollback(self) -> crate::result::Result<()> {
         Ok(self.transaction.rollback().await?)
     }
 }
@@ -40,7 +42,7 @@ impl<'t> SqlGenericExecutor for SqliteTransaction<'t> {
     }
 }
 
-impl<'t> crate::SqlExecutorMut for SqliteTransaction<'t> {
+impl<'t> crate::prelude::SqlExecutorMut for SqliteTransaction<'t> {
     transaction_impl!(SqliteConnection);
 }
 impl<'a> SqlGeneratorContainer for SqliteTransaction<'a> {

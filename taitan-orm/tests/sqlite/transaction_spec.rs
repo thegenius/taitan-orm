@@ -2,10 +2,10 @@ use sqlx::sqlx_macros;
 use taitan_orm::database::sqlite::{
       SqliteDatabase, SqliteLocalConfig,
 };
-use taitan_orm::ReaderMutApi;
-use taitan_orm::WriterMutApi;
-use taitan_orm::ReaderApi;
-use taitan_orm::WriterApi;
+use taitan_orm::prelude:: ReaderMutApi;
+use taitan_orm::prelude::WriterMutApi;
+use taitan_orm::prelude::ReaderApi;
+use taitan_orm::prelude::WriterApi;
 use time::macros::datetime;
 use uuid::Uuid;
 
@@ -15,7 +15,7 @@ use crate::entities::user::prepare_user_table;
 use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
-pub async fn transaction_spec() -> taitan_orm::Result<()> {
+pub async fn transaction_spec() -> taitan_orm::result::Result<()> {
     let test_mutex = get_test_mutex();
     let test_lock = test_mutex.lock();
     setup_logger();
@@ -65,7 +65,7 @@ async fn insert_user_transactional(
     db: &mut SqliteDatabase,
     user1: &User,
     user2: &User,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let mut trx = db.transaction().await?;
     if let Err(err) = trx.insert(user1).await {
         trx.rollback().await?;
@@ -83,7 +83,7 @@ async fn test_insert_user(
     db: &mut SqliteDatabase,
     user1: &User,
     user2: &User,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let result = insert_user_transactional(db, user1, user2).await;
     assert!(result.is_ok());
 
@@ -103,7 +103,7 @@ async fn test_rollback(
     db: &mut SqliteDatabase,
     user1: &User,
     user2: &User,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let result = insert_user_transactional(db, user1, user2).await;
     assert!(result.is_err());
 

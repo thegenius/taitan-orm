@@ -6,12 +6,12 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<u64> {
+        ) -> crate::result::Result<u64> {
             let ex = self.get_pool()?;
             Self::generic_execute(ex, stmt, args).await
         }
 
-        async fn execute_plain<'a>(&'a self, stmt: &'a str) -> crate::Result<u64> {
+        async fn execute_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64> {
             let args: std::marker::PhantomData<<Self::DB as sqlx::Database>::Arguments<'a>> =
                 std::marker::PhantomData::default();
             let ex = self.get_pool()?;
@@ -22,13 +22,13 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'s str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<u64> where 'a: 's{
+        ) -> crate::result::Result<u64> where 'a: 's{
             let ex = self.get_pool()?;
             let result = Self::generic_count(ex, stmt, args).await?;
             Ok(result.count)
         }
 
-        async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> crate::Result<u64> {
+        async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64> {
             let args: std::marker::PhantomData<<Self::DB as sqlx::Database>::Arguments<'a>> =
                 std::marker::PhantomData::default();
             let ex = self.get_pool()?;
@@ -41,12 +41,12 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<bool> {
+        ) -> crate::result::Result<bool> {
             let ex = self.get_pool()?;
             Self::generic_exists(ex, stmt, args).await
         }
 
-        async fn fetch_exists_plain<'a, A>(&'a self, stmt: &'a str) -> crate::Result<bool> {
+        async fn fetch_exists_plain<'a, A>(&'a self, stmt: &'a str) -> crate::result::Result<bool> {
             let ex = self.get_pool()?;
             let args: std::marker::PhantomData<<Self::DB as sqlx::Database>::Arguments<'a>> =
                 std::marker::PhantomData::default();
@@ -58,7 +58,7 @@ macro_rules! executor_impl {
             stmt: &'a str,
             selection: &'a SE::Selection,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -71,7 +71,7 @@ macro_rules! executor_impl {
             stmt: &'a str,
             selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -83,7 +83,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             selection: &'a SE::Selection,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -97,7 +97,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             selection: &'a SE,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -112,7 +112,7 @@ macro_rules! executor_impl {
             stmt: &'a str,
             selection: &'a SE::Selection,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Vec<SE>>
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -125,7 +125,7 @@ macro_rules! executor_impl {
             stmt: &'a str,
             selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Vec<SE>>
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -137,7 +137,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             selection: &'a SE::Selection,
-        ) -> crate::Result<Vec<SE>>
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -151,7 +151,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             selection: &'a SE,
-        ) -> crate::Result<Vec<SE>>
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -165,7 +165,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<SE>
+        ) -> crate::result::Result<SE>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -173,7 +173,7 @@ macro_rules! executor_impl {
             Self::generic_fetch_one_full(ex, stmt, args).await
         }
 
-        async fn fetch_one_full_plain<'a, SE>(&'a self, stmt: &'a str) -> crate::Result<SE>
+        async fn fetch_one_full_plain<'a, SE>(&'a self, stmt: &'a str) -> crate::result::Result<SE>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -187,7 +187,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -198,7 +198,7 @@ macro_rules! executor_impl {
         async fn fetch_option_full_plain<'a, SE>(
             &'a self,
             stmt: &'a str,
-        ) -> crate::Result<Option<SE>>
+        ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -212,7 +212,7 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'a str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::Result<Vec<SE>>
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -220,7 +220,7 @@ macro_rules! executor_impl {
             Self::generic_fetch_all_full(ex, stmt, args).await
         }
 
-        async fn fetch_all_full_plain<'a, SE>(&'a self, stmt: &'a str) -> crate::Result<Vec<SE>>
+        async fn fetch_all_full_plain<'a, SE>(&'a self, stmt: &'a str) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -248,7 +248,7 @@ macro_rules! execute_fn {
 #[macro_export]
 macro_rules! execute_plain_fn {
     () => {
-        async fn execute_plain<'a>(&'a self, stmt: &'a str) -> crate::Result<u64> {
+        async fn execute_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64> {
             let args: std::marker::PhantomData<SqliteArguments> =
                 std::marker::PhantomData::default();
             let ex = self.get_pool()?;

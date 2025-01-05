@@ -1,8 +1,7 @@
 use sqlx::types::time::PrimitiveDateTime;
 use std::borrow::Cow;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::traits::Selection;
-use taitan_orm::{Optional, ReaderMutApi, ReaderApi, Schema, SqlExecutor, WriterMutApi};
+use taitan_orm::prelude::*;
 use time::macros::datetime;
 
 #[derive(Schema, Clone, Debug)]
@@ -19,7 +18,7 @@ async fn trx_insert_user(
     db: &mut SqliteDatabase,
     user1: &User,
     user2: &User,
-) -> taitan_orm::Result<()> {
+) -> taitan_orm::result::Result<()> {
     let mut trx = db.transaction().await?;
     trx.insert(user1).await?;
     trx.insert(user2).await?;
@@ -28,7 +27,7 @@ async fn trx_insert_user(
 }
 
 #[tokio::main]
-async fn main() -> taitan_orm::Result<()> {
+async fn main() -> taitan_orm::result::Result<()> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();

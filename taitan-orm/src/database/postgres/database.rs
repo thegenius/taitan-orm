@@ -1,7 +1,9 @@
 use sqlx::{PgPool, Postgres};
 use sqlx::postgres::PgConnectOptions;
 use crate::sql_generator::PostgresGenerator;
-use crate::{executor_impl, CountResult, SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use crate::{executor_impl};
+use crate::result::CountResult;
+use crate::prelude::{SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
 
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {
@@ -9,7 +11,7 @@ pub struct PostgresDatabase {
     pool: PgPool,
 }
 impl PostgresDatabase {
-    pub async fn build(config: PgConnectOptions)-> crate::Result<PostgresDatabase> {
+    pub async fn build(config: PgConnectOptions)-> crate::result::Result<PostgresDatabase> {
         let pool = PgPool::connect_with(config).await?;
         let generator = PostgresGenerator::new();
         let database = PostgresDatabase {
@@ -18,7 +20,7 @@ impl PostgresDatabase {
         };
         Ok(database)
     }
-    pub fn get_pool(&self) -> crate::Result<&PgPool> {
+    pub fn get_pool(&self) -> crate::result::Result<&PgPool> {
         Ok(&self.pool)
     }
 }
