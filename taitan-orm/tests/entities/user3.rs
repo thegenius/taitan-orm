@@ -1051,7 +1051,7 @@ impl taitan_orm::traits::Selection for UserSelection {
         }
     }
 }
-#[derive(taitan_orm :: prelude :: Selected, Default, Debug, Clone)]
+#[derive(taitan_orm::prelude::Selected, Default, Debug, Clone)]
 #[table_name = "user"]
 pub struct UserSelectedEntity {
     pub id: taitan_orm::result::Optional<i64>,
@@ -1060,6 +1060,30 @@ pub struct UserSelectedEntity {
     pub name: taitan_orm::result::Optional<String>,
     pub birthday: taitan_orm::result::Optional<PrimitiveDateTime>,
 }
+
+//
+// impl taitan_orm::traits::Selection for UserSelectedEntity {
+//     fn get_table_name(&self) -> &'static str {
+//         "user"
+//     }
+//     fn get_selected_fields(&self) -> Vec<String> {
+//         let mut fields = Vec::new();
+//         fields.push("id".to_string());
+//         fields.push("request_id".to_string());
+//         fields.push("age".to_string());
+//         fields.push("name".to_string());
+//         fields.push("birthday".to_string());
+//         return fields;
+//     }
+//     fn full_fields() -> Self
+//     where
+//         Self: Sized + Default,
+//     {
+//         Self {
+//             ..Default::default()
+//         }
+//     }
+// }
 
 #[derive(Debug, Default)]
 pub struct UserOrdering<'a> {

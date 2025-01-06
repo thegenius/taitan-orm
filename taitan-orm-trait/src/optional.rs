@@ -1,10 +1,15 @@
 use serde::{Deserialize, Serialize};
 
+
+
+//           | arguments | selection             | selected    |
+//   None    |  ignore   | ignore                |  ignore     |
+//   Null    |  null     | need read             |  read value |
+//   Some(T) | set value | not read, set value   |  set value  |
 #[derive(Clone, Copy, Eq, PartialEq, Debug, Hash, Serialize, Deserialize)]
 pub enum Optional<T> {
-    None,    // 不传递到数据库层
-    Null,    // 传递到数据库，值为null
-    Selected,
+    None,    // 作为入参时表示不传递到数据库层，作为selection时表示
+    Null,    // 传递到数据库，值为null，作为selection时表示直接设置为null
     Some(T), // 传递到数据库，值为具体值
 }
 
@@ -78,13 +83,13 @@ impl<T> Optional<T> {
 
     pub fn not_selected(&self) -> bool {
         match self {
-            Optional::Selected => false,
+            Optional::Null => false,
             _ => true,
         }
     }
     pub fn is_selected(&self) -> bool {
         match self {
-            Optional::Selected => true,
+            Optional::Null => true,
             _ => false,
         }
     }

@@ -6,25 +6,22 @@ use std::fmt::Debug;
 use time::PrimitiveDateTime;
 
 pub trait SelectedEntity<DB: Database>: Debug + Default + Selection {
-    // type Selection: Selection;
 
-    // fn from_row(selection: &Self::Selection, row: DB::Row) -> Result<Self, sqlx::Error>
-    // where
-    //     Self: Sized;
-
-    fn select_from_row(selection: &Self, row: DB::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        todo!()
-    }
-
-    fn from_row_full(row: DB::Row) -> Result<Self, sqlx::Error>
+    fn from_row(selection: &Self, row: DB::Row) -> Result<Self, sqlx::Error>
     where
         Self: Sized,
     {
         Err(sqlx::Error::Decode(
-            NotImplementError("".to_string()).into(),
+            NotImplementError("SelectedEntity::from_row".to_string()).into(),
+        ))
+    }
+
+    fn from_row_full(row: DB::Row) -> Result<Self, sqlx::Error>
+    where
+        Self: Sized + Default,
+    {
+        Err(sqlx::Error::Decode(
+            NotImplementError("SelectedEntity::from_row_full".to_string()).into(),
         ))
     }
 }

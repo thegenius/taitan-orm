@@ -49,7 +49,8 @@ impl TypeChecker for DefaultTypeChecker {
                 "std::option::Option::",
                 "core::option::Option::",
                 "Optional::",
-                "taitan_orm::Optional::"
+                "taitan_orm::prelude::Optional::",
+                "taitan_orm::result::Optional::"
             ],
         )
     }

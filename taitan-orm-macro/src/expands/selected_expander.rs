@@ -72,14 +72,14 @@ fn generate_selected_trait_impl(
     db_ident: &Ident,
 ) -> TokenStream {
     let parser = FieldsParser::from_named(fields);
-    let selected_row_construct = parser.gen_selected_row();
+    // let selected_row_construct = parser.gen_selected_row();
     let selected_self_row_construct = parser.gen_selected_self_row();
     let full_row_construct = parser.gen_full_row();
 
     let output = quote! {
         impl taitan_orm::traits::SelectedEntity<sqlx::#db_ident> for #selected_ident {
 
-            fn select_from_row(selection: &Self, row: <sqlx::#db_ident as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
+            fn from_row(selection: &Self, row: <sqlx::#db_ident as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
                 where
                     Self: Sized {
                     #selected_self_row_construct

@@ -201,11 +201,11 @@ impl Selection for UserSelected {
         Self: Sized,
     {
         Self {
-            id: taitan_orm::result::Optional::Selected,
-            request_id: taitan_orm::result::Optional::Selected,
-            age: taitan_orm::result::Optional::Selected,
-            name: taitan_orm::result::Optional::Selected,
-            birthday: taitan_orm::result::Optional::Selected,
+            id: taitan_orm::result::Optional::Null,
+            request_id: taitan_orm::result::Optional::Null,
+            age: taitan_orm::result::Optional::Null,
+            name: taitan_orm::result::Optional::Null,
+            birthday: taitan_orm::result::Optional::Null,
         }
     }
 }
@@ -250,7 +250,7 @@ impl Selection for UserSelected {
 impl SelectedEntity<Sqlite> for UserSelected {
 
 
-    fn select_from_row(selection: &Self, row: <Sqlite as Database>::Row) -> Result<Self, sqlx::Error>
+    fn from_row(selection: &Self, row: <Sqlite as Database>::Row) -> Result<Self, sqlx::Error>
     where
         Self: Sized,
     {

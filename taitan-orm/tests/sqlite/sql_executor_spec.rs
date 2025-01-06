@@ -69,10 +69,10 @@ async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::r
     assert_eq!(result, 1);
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
@@ -117,10 +117,10 @@ async fn test_update_user(
     assert_eq!(result, 1);
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
@@ -152,10 +152,10 @@ ON CONFLICT (`id`) DO UPDATE SET
     assert_eq!(result, 1);
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
@@ -190,10 +190,10 @@ async fn test_delete_user(
     assert_eq!(result, 1);
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
@@ -218,10 +218,10 @@ async fn test_select_all(db: &mut SqliteDatabase, expect_cnt: usize) -> taitan_o
     let mut conn = pool.acquire().await?;
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
@@ -247,10 +247,10 @@ async fn test_select_location(
     let loc_args: SqliteArguments = user_location.gen_location_arguments_sqlite().unwrap();
 
     let selection = UserSelected {
-        request_id: taitan_orm::result::Optional::Selected,
-        name: taitan_orm::result::Optional::Selected,
-        age: taitan_orm::result::Optional::Selected,
-        birthday: taitan_orm::result::Optional::Selected,
+        request_id: taitan_orm::result::Optional::Null,
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Null,
+        birthday: taitan_orm::result::Optional::Null,
         ..Default::default()
     };
 
