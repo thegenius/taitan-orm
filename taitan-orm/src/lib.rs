@@ -29,6 +29,7 @@ pub mod result;
 pub mod prelude {
     pub use taitan_orm_macro::Schema;
     pub use taitan_orm_macro::TemplateRecord;
+    pub use taitan_orm_macro::Selected;
     // pub use crate::db::Executor;
 
     pub use crate::result::Optional;

@@ -45,7 +45,7 @@ pub trait SqlApi {
 
     async fn select<DB: Database, SE, M>(
         &mut self,
-        selection: &SE::Selection,
+        selection: &SE,
         unique: &dyn Unique<Mutation = M>,
     ) -> Result<Option<SE>>
     where
@@ -54,7 +54,7 @@ pub trait SqlApi {
 
     async fn search<DB: Database, SE>(
         &mut self,
-        selection: &SE::Selection,
+        selection: &SE,
         location: &dyn Location,
         order_by: &dyn OrderBy,
     ) -> Result<Vec<SE>>
@@ -63,7 +63,7 @@ pub trait SqlApi {
 
     async fn search_paged<DB: Database, SE>(
         &mut self,
-        selection: &SE::Selection,
+        selection: &SE,
         location: &dyn Location,
         order_by: &dyn OrderBy,
         page: &Pagination,
@@ -76,7 +76,7 @@ pub trait SqlApi {
     */
     async fn devour<DB: Database, SE>(
         &mut self,
-        selection: &SE::Selection,
+        selection: &SE,
         order_by: &dyn OrderBy,
     ) -> Result<Vec<SE>>
     where
@@ -84,7 +84,7 @@ pub trait SqlApi {
 
     async fn devour_paged<DB: Database, SE>(
         &mut self,
-        selection: &SE::Selection,
+        selection: &SE,
         order_by: &dyn OrderBy,
         page: &Pagination,
     ) -> Result<PagedList<DB, SE>>

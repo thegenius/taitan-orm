@@ -14,6 +14,7 @@ pub struct UserEntity {
 
     pub birthday: Optional<PrimitiveDateTime>,
 }
+
 impl taitan_orm::traits::Entity for UserEntity {
     fn get_table_name(&self) -> &'static str {
         "user"
@@ -1049,7 +1050,8 @@ impl taitan_orm::traits::Selection for UserSelection {
         }
     }
 }
-#[derive(Default, Debug, Clone)]
+#[derive(taitan_orm::prelude::Selected, Default, Debug, Clone)]
+#[table_name = "user"]
 pub struct UserSelectedEntity {
     pub id: taitan_orm::result::Optional<i64>,
     pub request_id: taitan_orm::result::Optional<Uuid>,
@@ -1057,291 +1059,31 @@ pub struct UserSelectedEntity {
     pub name: taitan_orm::result::Optional<String>,
     pub birthday: taitan_orm::result::Optional<PrimitiveDateTime>,
 }
-impl taitan_orm::traits::SelectedEntity<sqlx::Sqlite> for UserSelectedEntity {
-    type Selection = UserSelection;
-    fn from_row(
-        selection: &Self::Selection,
-        row: <sqlx::Sqlite as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn select_from_row(
-        selection: &Self,
-        row: <sqlx::Sqlite as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id.is_selected() {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id.is_selected() {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age.is_selected() {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name.is_selected() {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday.is_selected() {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn from_row_full(row: <sqlx::Sqlite as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        selected.id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.age = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.name = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        Ok(selected)
-    }
-}
-impl taitan_orm::traits::SelectedEntity<sqlx::MySql> for UserSelectedEntity {
-    type Selection = UserSelection;
-    fn from_row(
-        selection: &Self::Selection,
-        row: <sqlx::MySql as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn select_from_row(
-        selection: &Self,
-        row: <sqlx::MySql as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id.is_selected() {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id.is_selected() {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age.is_selected() {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name.is_selected() {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday.is_selected() {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn from_row_full(row: <sqlx::MySql as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        selected.id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.age = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.name = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        Ok(selected)
-    }
-}
-impl taitan_orm::traits::SelectedEntity<sqlx::Postgres> for UserSelectedEntity {
-    type Selection = UserSelection;
-    fn from_row(
-        selection: &Self::Selection,
-        row: <sqlx::Postgres as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn select_from_row(
-        selection: &Self,
-        row: <sqlx::Postgres as sqlx::Database>::Row,
-    ) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        if selection.id.is_selected() {
-            selected.id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.request_id.is_selected() {
-            selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.age.is_selected() {
-            selected.age = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.name.is_selected() {
-            selected.name = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        if selection.birthday.is_selected() {
-            selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-            i += 1;
-        };
-        Ok(selected)
-    }
-    fn from_row_full(row: <sqlx::Postgres as sqlx::Database>::Row) -> Result<Self, sqlx::Error>
-    where
-        Self: Sized,
-    {
-        let mut selected = Self::default();
-        let mut i = 0;
-        selected.id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.request_id = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.age = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.name = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        selected.birthday = sqlx::Row::try_get(&row, i).ok().into();
-        i += 1;
-        Ok(selected)
-    }
-}
-impl taitan_orm::traits::Selection for UserSelectedEntity {
-    fn get_table_name(&self) -> &'static str {
-        "user"
-    }
-    fn get_selected_fields(&self) -> Vec<String> {
-        let mut fields = Vec::new();
-        if self.id.is_selected() {
-            fields.push("id".to_string());
-        };
-        if self.request_id.is_selected() {
-            fields.push("r_id".to_string());
-        };
-        if self.age.is_selected() {
-            fields.push("age".to_string());
-        };
-        if self.name.is_selected() {
-            fields.push("name".to_string());
-        };
-        if self.birthday.is_selected() {
-            fields.push("birthday".to_string());
-        };
-        return fields;
-    }
-    fn full_fields() -> Self
-    where
-        Self: Sized,
-    {
-        Self {
-            id: taitan_orm::result::Optional::Selected,
-            request_id: taitan_orm::result::Optional::Selected,
-            age: taitan_orm::result::Optional::Selected,
-            name: taitan_orm::result::Optional::Selected,
-            birthday: taitan_orm::result::Optional::Selected,
-        }
-    }
-}
+
+//
+// impl taitan_orm::traits::Selection for UserSelectedEntity {
+//     fn get_table_name(&self) -> &'static str {
+//         "user"
+//     }
+//     fn get_selected_fields(&self) -> Vec<String> {
+//         let mut fields = Vec::new();
+//         fields.push("id".to_string());
+//         fields.push("request_id".to_string());
+//         fields.push("age".to_string());
+//         fields.push("name".to_string());
+//         fields.push("birthday".to_string());
+//         return fields;
+//     }
+//     fn full_fields() -> Self
+//     where
+//         Self: Sized + Default,
+//     {
+//         Self {
+//             ..Default::default()
+//         }
+//     }
+// }
+
 #[derive(Debug, Default)]
 pub struct UserOrdering<'a> {
     fields: Vec<std::borrow::Cow<'a, str>>,

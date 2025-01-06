@@ -1,10 +1,10 @@
-use case::CaseExt;
+use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::types::{DefaultTypeChecker, TypeChecker};
+use case::CaseExt;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{Field, LitStr};
-use crate::attrs::{AttrParser, DefaultAttrParser};
 
 pub trait NamesAddConstructor {
     fn of_str(field: Field) -> TokenStream {
@@ -126,8 +126,14 @@ pub trait NamesAddConstructor {
         let span = field.span();
         let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
-        quote_spanned! { span=>
-            if self.#field_name.is_selected() {
+        if DefaultTypeChecker::type_is_option(&field.ty) {
+            quote_spanned! { span=>
+                if self.#field_name.is_selected() {
+                    fields.push(#field_name_string.to_string());
+                }
+            }
+        } else {
+            quote_spanned! { span=>
                 fields.push(#field_name_string.to_string());
             }
         }

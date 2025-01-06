@@ -57,7 +57,7 @@ macro_rules! transaction_impl {
         async fn fetch_option<'a, SE>(
             &'a mut self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
         ) -> crate::result::Result<Option<SE>>
         where
@@ -81,7 +81,7 @@ macro_rules! transaction_impl {
         async fn fetch_option_plain<'a, SE>(
             &'a mut self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
@@ -107,7 +107,7 @@ macro_rules! transaction_impl {
         async fn fetch_all<'a, SE>(
             &'a mut self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
         ) -> crate::result::Result<Vec<SE>>
         where
@@ -131,7 +131,7 @@ macro_rules! transaction_impl {
         async fn fetch_all_plain<'a, SE>(
             &'a mut self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,

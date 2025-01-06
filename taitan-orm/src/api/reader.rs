@@ -36,23 +36,24 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(record_count)
     }
 
-    async fn __select<SE, M>(
-        &self,
-        selection: &SE::Selection,
-        unique: &dyn Unique<Mutation = M>,
-    ) -> Result<Option<SE>>
-    where
-        M: Mutation,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
-    {
-        tracing::debug!(target: "taitan_orm", command = "select", primary = ?unique, selection = ?selection);
-        let sql = self.get_generator().get_select_sql(selection, unique);
-        tracing::debug!(target: "taitan_orm", command = "select", sql = sql);
-        let args = Self::extract_unique_arguments(unique)?;
-        let result: Option<SE> = self.fetch_option(&sql, selection, args).await?;
-        tracing::debug!(target: "taitan_orm", command = "select", result = ?result);
-        Ok(result)
-    }
+    // #[deprecated]
+    // async fn __select<SE, M>(
+    //     &self,
+    //     selection: &SE::Selection,
+    //     unique: &dyn Unique<Mutation = M>,
+    // ) -> Result<Option<SE>>
+    // where
+    //     M: Mutation,
+    //     SE: SelectedEntity<Self::DB> + Send + Unpin,
+    // {
+    //     tracing::debug!(target: "taitan_orm", command = "select", primary = ?unique, selection = ?selection);
+    //     let sql = self.get_generator().get_select_sql(selection, unique);
+    //     tracing::debug!(target: "taitan_orm", command = "select", sql = sql);
+    //     let args = Self::extract_unique_arguments(unique)?;
+    //     let result: Option<SE> = self.fetch_option(&sql, selection, args).await?;
+    //     tracing::debug!(target: "taitan_orm", command = "select", result = ?result);
+    //     Ok(result)
+    // }
 
     async fn select<SE, M>(
         &self,
@@ -72,26 +73,27 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(result)
     }
 
-    async fn __search<SE>(
-        &self,
-        selection: &SE::Selection,
-        location: &dyn Location,
-        order_by: &Option<&dyn OrderBy>,
-        page: &Option<&crate::page::Pagination>,
-    ) -> Result<Vec<SE>>
-    where
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
-    {
-        tracing::debug!(target: "taitan_orm", command = "search", location = ?location, order_by = ?order_by, selection = ?selection);
-        let sql =
-            self.get_generator()
-                .get_search_paged_sql(selection, &Some(location), order_by, page);
-        tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
-        let result: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
-        tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
-        Ok(result)
-    }
+    // #[deprecated(note = "Please use `select()` instead")]
+    // async fn __search<SE>(
+    //     &self,
+    //     selection: &SE::Selection,
+    //     location: &dyn Location,
+    //     order_by: &Option<&dyn OrderBy>,
+    //     page: &Option<&crate::page::Pagination>,
+    // ) -> Result<Vec<SE>>
+    // where
+    //     SE: SelectedEntity<Self::DB> + Send + Unpin,
+    // {
+    //     tracing::debug!(target: "taitan_orm", command = "search", location = ?location, order_by = ?order_by, selection = ?selection);
+    //     let sql =
+    //         self.get_generator()
+    //             .get_search_paged_sql(selection, &Some(location), order_by, page);
+    //     tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
+    //     let args = Self::extract_location_arguments(location)?;
+    //     let result: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
+    //     tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
+    //     Ok(result)
+    // }
 
     async fn search<SE>(
         &self,
@@ -114,35 +116,36 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(result)
     }
 
-    async fn __search_paged<SE>(
-        &self,
-        selection: &SE::Selection,
-        location: &dyn Location,
-        order_by: &dyn OrderBy,
-        page: &crate::page::Pagination,
-    ) -> Result<crate::page::PagedList<Self::DB, SE>>
-    where
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
-    {
-        tracing::debug!(target: "taitan_orm", command = "search_paged", location = ?location, order_by = ?order_by, selection = ?selection, page = ?page);
-        let record_count = self.count(location).await?;
-        if record_count <= 0 {
-            return Ok(crate::page::PagedList::empty(page.page_size, page.page_num));
-        }
-
-        let sql = self.get_generator().get_search_paged_sql(
-            selection,
-            &Some(location),
-            &Some(order_by),
-            &Some(&page),
-        );
-        tracing::debug!(target: "taitan_orm", command = "search_paged", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
-        let entity_list: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
-        let result = taitan_orm_trait::build_paged_list(entity_list, record_count, page);
-        tracing::debug!(target: "taitan_orm", command = "search_paged", result = ?result);
-        Ok(result)
-    }
+    // #[deprecated(note = "Please use `select_paged` instead")]
+    // async fn __search_paged<SE>(
+    //     &self,
+    //     selection: &SE::Selection,
+    //     location: &dyn Location,
+    //     order_by: &dyn OrderBy,
+    //     page: &crate::page::Pagination,
+    // ) -> Result<crate::page::PagedList<Self::DB, SE>>
+    // where
+    //     SE: SelectedEntity<Self::DB> + Send + Unpin,
+    // {
+    //     tracing::debug!(target: "taitan_orm", command = "search_paged", location = ?location, order_by = ?order_by, selection = ?selection, page = ?page);
+    //     let record_count = self.count(location).await?;
+    //     if record_count <= 0 {
+    //         return Ok(crate::page::PagedList::empty(page.page_size, page.page_num));
+    //     }
+    //
+    //     let sql = self.get_generator().get_search_paged_sql(
+    //         selection,
+    //         &Some(location),
+    //         &Some(order_by),
+    //         &Some(&page),
+    //     );
+    //     tracing::debug!(target: "taitan_orm", command = "search_paged", sql = sql);
+    //     let args = Self::extract_location_arguments(location)?;
+    //     let entity_list: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
+    //     let result = taitan_orm_trait::build_paged_list(entity_list, record_count, page);
+    //     tracing::debug!(target: "taitan_orm", command = "search_paged", result = ?result);
+    //     Ok(result)
+    // }
 
     async fn search_paged<SE>(
         &self,
@@ -174,34 +177,35 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         Ok(result)
     }
 
-    async fn __devour<SE>(
-        &self,
-        selection: &SE::Selection,
-        order_by: &Option<&dyn OrderBy>,
-        page: &Option<&crate::page::Pagination>,
-    ) -> Result<Vec<SE>>
-    where
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
-    {
-        tracing::debug!(target: "taitan_orm", command = "devour", selection = ?selection);
-        let sql = self
-            .get_generator()
-            .get_search_paged_sql(selection, &None, order_by, page);
-        tracing::debug!(target: "taitan_orm", command = "devour", sql = sql);
-        match page {
-            None => {
-                let result: Vec<SE> = self.fetch_all_plain(&sql, selection).await?;
-                tracing::debug!(target: "taitan_orm", command = "devour", result = ?result);
-                Ok(result)
-            }
-            Some(page) => {
-                let args = Self::extract_pagination_arguments(page)?;
-                let result: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
-                tracing::debug!(target: "taitan_orm", command = "devour", result = ?result);
-                Ok(result)
-            }
-        }
-    }
+    // #[deprecated(note = "Please use `devour()` instead")]
+    // async fn __devour<SE>(
+    //     &self,
+    //     selection: &SE::Selection,
+    //     order_by: &Option<&dyn OrderBy>,
+    //     page: &Option<&crate::page::Pagination>,
+    // ) -> Result<Vec<SE>>
+    // where
+    //     SE: SelectedEntity<Self::DB> + Send + Unpin,
+    // {
+    //     tracing::debug!(target: "taitan_orm", command = "devour", selection = ?selection);
+    //     let sql = self
+    //         .get_generator()
+    //         .get_search_paged_sql(selection, &None, order_by, page);
+    //     tracing::debug!(target: "taitan_orm", command = "devour", sql = sql);
+    //     match page {
+    //         None => {
+    //             let result: Vec<SE> = self.fetch_all_plain(&sql, selection).await?;
+    //             tracing::debug!(target: "taitan_orm", command = "devour", result = ?result);
+    //             Ok(result)
+    //         }
+    //         Some(page) => {
+    //             let args = Self::extract_pagination_arguments(page)?;
+    //             let result: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
+    //             tracing::debug!(target: "taitan_orm", command = "devour", result = ?result);
+    //             Ok(result)
+    //         }
+    //     }
+    // }
 
     async fn devour<SE>(
         &self,
@@ -232,35 +236,36 @@ pub trait ReaderApi: SqlExecutor + SqlGeneratorContainer + Extractor {
         }
     }
 
-    async fn __devour_paged<SE>(
-        &self,
-        selection: &SE::Selection,
-        order_by: &dyn OrderBy,
-        page: &crate::page::Pagination,
-    ) -> Result<crate::page::PagedList<Self::DB, SE>>
-    where
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
-    {
-        tracing::debug!(target: "taitan_orm", command = "devour_paged", order_by = ?order_by, selection = ?selection, page = ?page);
-        let record_count = self.count_all(selection.get_table_name()).await?;
-        if record_count <= 0 {
-            return Ok(crate::page::PagedList::empty(page.page_size, page.page_num));
-        }
-
-        tracing::debug!(target: "taitan_orm", command = "devour_paged", selection = ?selection);
-        let sql = self.get_generator().get_search_paged_sql(
-            selection,
-            &None,
-            &Some(order_by),
-            &Some(page),
-        );
-        tracing::debug!(target: "taitan_orm", command = "devour_paged", sql = sql);
-        let args = Self::extract_pagination_arguments(page)?;
-        let entity_list: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
-        let result = taitan_orm_trait::build_paged_list(entity_list, record_count, page);
-        tracing::debug!(target: "taitan_orm", command = "devour_paged", result = ?result);
-        Ok(result)
-    }
+    // #[deprecated(note = "Please use `devour_paged()` instead")]
+    // async fn __devour_paged<SE>(
+    //     &self,
+    //     selection: &SE::Selection,
+    //     order_by: &dyn OrderBy,
+    //     page: &crate::page::Pagination,
+    // ) -> Result<crate::page::PagedList<Self::DB, SE>>
+    // where
+    //     SE: SelectedEntity<Self::DB> + Send + Unpin,
+    // {
+    //     tracing::debug!(target: "taitan_orm", command = "devour_paged", order_by = ?order_by, selection = ?selection, page = ?page);
+    //     let record_count = self.count_all(selection.get_table_name()).await?;
+    //     if record_count <= 0 {
+    //         return Ok(crate::page::PagedList::empty(page.page_size, page.page_num));
+    //     }
+    //
+    //     tracing::debug!(target: "taitan_orm", command = "devour_paged", selection = ?selection);
+    //     let sql = self.get_generator().get_search_paged_sql(
+    //         selection,
+    //         &None,
+    //         &Some(order_by),
+    //         &Some(page),
+    //     );
+    //     tracing::debug!(target: "taitan_orm", command = "devour_paged", sql = sql);
+    //     let args = Self::extract_pagination_arguments(page)?;
+    //     let entity_list: Vec<SE> = self.fetch_all(&sql, selection, args).await?;
+    //     let result = taitan_orm_trait::build_paged_list(entity_list, record_count, page);
+    //     tracing::debug!(target: "taitan_orm", command = "devour_paged", result = ?result);
+    //     Ok(result)
+    // }
 
     async fn devour_paged<SE>(
         &self,

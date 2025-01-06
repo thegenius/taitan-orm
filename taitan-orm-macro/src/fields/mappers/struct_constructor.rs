@@ -35,6 +35,29 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
         }
     }
 
+    fn of_option_selected(&self, table_name: &str, struct_name: &str, should_serde: bool) -> TokenStream {
+        let struct_ident = Ident::new(&struct_name, Span::call_site());
+        let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_option_field);
+        if should_serde {
+            quote! {
+                #[derive(taitan_orm::prelude::Selected, Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+                #[table_name = #table_name]
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        } else {
+            quote! {
+                #[derive(taitan_orm::prelude::Selected, Default, Debug, Clone)]
+                #[table_name = #table_name]
+                pub struct #struct_ident {
+                    #(#fields_tokens,)*
+                }
+            }
+        }
+    }
+
+    // should_serde的实现是否可以更加优雅
     // field_name: Option<LocationExpr<T>>
     fn of_location(&self, struct_name: &str, should_serde: bool) -> TokenStream {
         let struct_ident = Ident::new(&struct_name, Span::call_site());
@@ -99,11 +122,13 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
         }
     }
 
+    // 给full_fields()的实现使用
     fn of_optional_selected(&self) -> TokenStream {
         let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_optional_selected_field);
         quote! {
             Self {
                 #(#fields_tokens,)*
+                ..Default::default()
             }
         }
     }

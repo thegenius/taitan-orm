@@ -58,7 +58,7 @@ macro_rules! executor_impl {
         async fn fetch_option<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
         ) -> crate::result::Result<Option<SE>>
         where
@@ -84,7 +84,7 @@ macro_rules! executor_impl {
         async fn fetch_option_plain<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> crate::result::Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
@@ -112,7 +112,7 @@ macro_rules! executor_impl {
         async fn fetch_all<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
         ) -> crate::result::Result<Vec<SE>>
         where
@@ -138,7 +138,7 @@ macro_rules! executor_impl {
         async fn fetch_all_plain<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
@@ -302,7 +302,7 @@ macro_rules! fetch_option_fn {
         async fn fetch_option<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: SqliteArguments<'a>,
         ) -> Result<Option<SE>>
         where
@@ -321,7 +321,7 @@ macro_rules! fetch_option_plain_fn {
         async fn fetch_option_plain<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> Result<Option<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
@@ -341,7 +341,7 @@ macro_rules! fetch_all_fn {
         async fn fetch_all<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
             args: SqliteArguments<'a>,
         ) -> Result<Vec<SE>>
         where
@@ -360,7 +360,7 @@ macro_rules! fetch_all_plain_fn {
         async fn fetch_all_plain<'a, SE>(
             &'a self,
             stmt: &'a str,
-            selection: &'a SE::Selection,
+            selection: &'a SE,
         ) -> Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,

@@ -1,5 +1,5 @@
 
-
+现在，生成struct和trait impl是混合的，应该分开为struct实现和impl
 
 
 目前正在进行的工作：

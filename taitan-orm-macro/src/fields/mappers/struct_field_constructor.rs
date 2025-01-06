@@ -92,8 +92,8 @@ pub trait StructFieldConstructor {
 
     fn get_optional_selected_field(field: Field) -> TokenStream {
         let field_ident = field.ident;
-        quote!{
-            #field_ident: taitan_orm::result::Optional::Selected
+        quote! {
+            #field_ident: taitan_orm::result::Optional::Null
         }
     }
 }

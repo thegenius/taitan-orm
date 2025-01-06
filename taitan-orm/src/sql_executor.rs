@@ -75,7 +75,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
     async fn fetch_option<'a, SE>(
         &'a self,
         stmt: &'a str,
-        selection: &'a SE::Selection,
+        selection: &'a SE,
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Option<SE>>
     where
@@ -94,7 +94,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
     async fn fetch_option_plain<'a, SE>(
         &'a self,
         stmt: &'a str,
-        selection: &'a SE::Selection,
+        selection: &'a SE,
     ) -> Result<Option<SE>>
     where
         SE: SelectedEntity<Self::DB> + Send + Unpin;
@@ -112,7 +112,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
     async fn fetch_all<'a, SE>(
         &'a self,
         stmt: &'a str,
-        selection: &'a SE::Selection,
+        selection: &'a SE,
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Vec<SE>>
     where
@@ -131,7 +131,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
     async fn fetch_all_plain<'a, SE>(
         &'a self,
         stmt: &'a str,
-        selection: &'a SE::Selection,
+        selection: &'a SE,
     ) -> Result<Vec<SE>>
     where
         SE: SelectedEntity<Self::DB> + Send + Unpin;
