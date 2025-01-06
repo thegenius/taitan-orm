@@ -1,3 +1,4 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! exists_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -13,6 +14,7 @@ macro_rules! exists_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! count_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -28,6 +30,7 @@ macro_rules! count_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! count_all_fn {
     ($args_type:ty) => {
@@ -42,6 +45,7 @@ macro_rules! count_all_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! select_fn {
     ($gen_args_fn:path) => {
@@ -65,6 +69,7 @@ macro_rules! select_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! search_fn {
     ($gen_args_fn:path) => {
@@ -91,6 +96,7 @@ macro_rules! search_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! search_paged_fn {
     ($gen_args_fn:path) => {
@@ -123,6 +129,7 @@ macro_rules! search_paged_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! devour_fn {
     ($gen_args_fn:path) => {
@@ -155,6 +162,7 @@ macro_rules! devour_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! devour_paged_fn {
     ($gen_args_fn:path) => {
@@ -184,5 +192,3 @@ macro_rules! devour_paged_fn {
         }
     };
 }
-
-
