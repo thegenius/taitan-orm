@@ -1,9 +1,10 @@
 
-use sqlx::sqlx_macros;
+use sqlx::{sqlx_macros, Sqlite};
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 use taitan_orm::prelude::Schema;
-use taitan_orm_trait::Optional;
+use taitan_orm_trait::{Optional, SelectedEntity};
+use crate::entities::user::UserSelected;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
@@ -26,7 +27,13 @@ pub struct UserEntity {
     pub birthday: Optional<PrimitiveDateTime>,
 }
 
+fn check_is_selected_entity<DB: sqlx::Database, SE: SelectedEntity<DB>>(se: &SE) {}
+
 #[sqlx_macros::test]
 pub async fn entity_macro_spec() -> taitan_orm::result::Result<()> {
+
+    // let selected = UserSelectedEntity::default();
+    // check_is_selected_entity::<Sqlite, UserSelectedEntity>(&selected);
+
     Ok(())
 }

@@ -1,11 +1,14 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::{FieldsContainer, FieldsParser};
+use crate::fields::{DefaultFieldMapper, FieldsContainer, FieldsParser};
 use syn::Field;
+use crate::types::{DefaultTypeChecker, TypeChecker};
 
 pub trait FieldsFilter: FieldsContainer {
     fn filter_annotated_fields(&self, annotation_str: &str) -> Vec<Field>;
     fn filter_not_annotated_fields(&self, annotation_str: &str) -> Vec<Field>;
     fn filter_not_auto_generated(&self) -> Vec<Field>;
+
+    fn filter_optional(&self) -> Vec<Field>;
     fn filter_named_fields(&self, annotation_str: &Vec<String>) -> Vec<Field>;
     fn get_sorted_fields_vec(&self) -> Vec<Field>;
     fn get_insert_fields_vec(&self) -> Vec<Field>;
@@ -53,6 +56,17 @@ impl FieldsFilter for FieldsParser {
         result
     }
 
+    fn filter_optional(&self) -> Vec<Field> {
+        let mut result: Vec<Field> = Vec::new();
+        for field in self.get_fields().iter() {
+            let is_optional =
+                DefaultTypeChecker::type_is_option(&field.ty);
+            if is_optional {
+                result.push(field.clone());
+            }
+        }
+        result
+    }
 
     fn filter_named_fields(&self, names: &Vec<String>) -> Vec<Field> {
         let mut result: Vec<Field> = Vec::new();

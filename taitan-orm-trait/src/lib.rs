@@ -8,7 +8,7 @@ mod mutation;
 mod order_by;
 mod page;
 mod schema;
-mod selected;
+mod selected_entity;
 mod selection;
 mod template_record;
 mod unique;
@@ -17,8 +17,11 @@ mod write_command;
 mod template;
 mod optional;
 mod field;
+mod selected;
 
 pub use schema::Schema;
+// pub use selected::Selected;
+
 pub use optional::Optional;
 
 pub use error::NotImplementError;
@@ -32,9 +35,9 @@ pub use mutation::Mutation;
 pub use unique::Unique;
 pub use update_command::UpdateCommand;
 
-pub use selected::SelectedEntity;
+pub use selected_entity::SelectedEntity;
 pub use selection::Selection;
-pub use selected::SelectedEntityNew;
+// pub use selected_entity::SelectedEntityNew;
 
 pub use join::FromClause;
 pub use location::CmpOperator;
