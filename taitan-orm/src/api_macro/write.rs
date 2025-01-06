@@ -1,4 +1,4 @@
-
+#[doc(hidden)]
 #[macro_export]
 macro_rules! insert_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -14,6 +14,7 @@ macro_rules! insert_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! upsert_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -29,6 +30,7 @@ macro_rules! upsert_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! update_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -48,6 +50,7 @@ macro_rules! update_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! change_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -67,6 +70,7 @@ macro_rules! change_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! delete_fn {
     ($args_type:ty, $gen_args_fn:path) => {
@@ -82,6 +86,7 @@ macro_rules! delete_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! purify_fn {
     ($args_type:ty, $gen_args_fn:path) => {

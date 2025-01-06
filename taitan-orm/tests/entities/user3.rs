@@ -1,5 +1,4 @@
-use sqlx::{Error, Sqlite};
-use taitan_orm_trait::{CmpOperator, NotValidCmpError, Optional};
+use taitan_orm_trait::Optional;
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 

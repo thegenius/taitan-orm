@@ -1,7 +1,7 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! executor_impl {
     ($conn_type:ty) => {
-
         async fn execute<'a>(
             &'a self,
             stmt: &'a str,
@@ -22,7 +22,10 @@ macro_rules! executor_impl {
             &'a self,
             stmt: &'s str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::result::Result<u64> where 'a: 's{
+        ) -> crate::result::Result<u64>
+        where
+            'a: 's,
+        {
             let ex = self.get_pool()?;
             let result = Self::generic_count(ex, stmt, args).await?;
             Ok(result.count)
@@ -35,7 +38,6 @@ macro_rules! executor_impl {
             let result = Self::generic_count_plain(ex, stmt, args).await?;
             Ok(result.count)
         }
-
 
         async fn fetch_exists<'a>(
             &'a self,
@@ -220,7 +222,10 @@ macro_rules! executor_impl {
             Self::generic_fetch_all_full(ex, stmt, args).await
         }
 
-        async fn fetch_all_full_plain<'a, SE>(&'a self, stmt: &'a str) -> crate::result::Result<Vec<SE>>
+        async fn fetch_all_full_plain<'a, SE>(
+            &'a self,
+            stmt: &'a str,
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -232,6 +237,7 @@ macro_rules! executor_impl {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! execute_fn {
     () => {
@@ -245,6 +251,7 @@ macro_rules! execute_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! execute_plain_fn {
     () => {
@@ -257,6 +264,7 @@ macro_rules! execute_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_exists_fn {
     () => {
@@ -271,6 +279,7 @@ macro_rules! fetch_exists_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_exists_plain_fn {
     () => {
@@ -286,6 +295,7 @@ macro_rules! fetch_exists_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_option_fn {
     () => {
@@ -304,6 +314,7 @@ macro_rules! fetch_option_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_option_plain_fn {
     () => {
@@ -323,6 +334,7 @@ macro_rules! fetch_option_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_all_fn {
     () => {
@@ -341,6 +353,7 @@ macro_rules! fetch_all_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_all_plain_fn {
     () => {
@@ -360,6 +373,7 @@ macro_rules! fetch_all_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_one_full_fn {
     () => {
@@ -377,6 +391,7 @@ macro_rules! fetch_one_full_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_one_full_plain_fn {
     () => {
@@ -392,6 +407,7 @@ macro_rules! fetch_one_full_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_option_full_fn {
     () => {
@@ -409,6 +425,7 @@ macro_rules! fetch_option_full_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_option_full_plain_fn {
     () => {
@@ -424,6 +441,7 @@ macro_rules! fetch_option_full_plain_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_all_full_fn {
     () => {
@@ -441,6 +459,7 @@ macro_rules! fetch_all_full_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_all_full_plain_fn {
     () => {

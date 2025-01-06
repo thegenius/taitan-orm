@@ -2,12 +2,12 @@
 use crate::entities::user::*;
 use sqlx::sqlx_macros;
 use taitan_orm::database::sqlite::{ SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::prelude:: { WriterApi, ReaderApi, SqlExecutor};
+use taitan_orm::prelude:: { WriterApi, ReaderApi};
 use time::macros::datetime;
 use uuid::Uuid;
 
 // use entities::user::*;
-use taitan_orm_trait::{CmpOperator, Entity, Location, LocationExpr, Optional, Selection, Unique, UpdateCommand};
+use taitan_orm_trait::{CmpOperator, LocationExpr, Optional, Selection};
 use crate::setup::{get_test_mutex, setup_logger};
 
 #[sqlx_macros::test]
@@ -82,7 +82,7 @@ async fn test_insert_user(db: &mut SqliteDatabase, user: &User) -> taitan_orm::r
     let success = db.insert(user).await?;
     assert!(success);
 
-    let mut selection = UserSelected::full_fields();
+    let selection = UserSelected::full_fields();
     let primary = UserPrimary { id: user.id };
     let entity_opt: Option<UserSelected> = db.select(&selection, &primary).await?;
     assert!(entity_opt.is_some());

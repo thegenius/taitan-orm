@@ -1,3 +1,4 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! execute_by_template_fn {
     ($gen_args_fn:path) => {
@@ -14,7 +15,7 @@ macro_rules! execute_by_template_fn {
     };
 }
 
-
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_one_by_template_fn {
     ($gen_args_fn:path) => {
@@ -34,6 +35,7 @@ macro_rules! fetch_one_by_template_fn {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_option_by_template_fn {
     ($gen_args_fn:path) => {
@@ -53,7 +55,7 @@ macro_rules! fetch_option_by_template_fn {
     };
 }
 
-
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_all_by_template_fn {
     ($gen_args_fn:path) => {
@@ -73,7 +75,7 @@ macro_rules! fetch_all_by_template_fn {
     };
 }
 
-
+#[doc(hidden)]
 #[macro_export]
 macro_rules! fetch_paged_by_template_fn {
     ($gen_count_args_fn:path, $gen_args_fn:path) => {
@@ -124,5 +126,3 @@ macro_rules! fetch_paged_by_template_fn {
         }
     };
 }
-
-

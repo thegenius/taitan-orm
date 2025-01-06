@@ -1,8 +1,6 @@
 use sqlx::sqlx_macros;
 use std::borrow::Cow;
 use taitan_orm::prelude::*;
-use time::PrimitiveDateTime;
-use uuid::Uuid;
 // use taitan_orm_trait::pagination::Pagination;
 #[derive(TemplateRecord, Clone, Debug)]
 #[sql = "select * from ${name}"]

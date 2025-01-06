@@ -38,19 +38,17 @@
 //! | `uuid::fmt::Simple`                   | CHAR(32), VARCHAR, TEXT                              |
 
 use std::marker::PhantomData;
-use taitan_orm_trait::{CmpOperator, LocationExpr, Optional, Selection};
-use taitan_orm_trait::{Entity, Location, Mutation, SelectedEntity, Unique, UpdateCommand};
+use taitan_orm_trait::{CmpOperator, LocationExpr, Optional};
+use taitan_orm_trait::{Entity, Location, Unique, UpdateCommand};
 use taitan_orm::prelude::SqlGenericExecutor;
 
-use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqliteArguments;
 use sqlx::types::Uuid;
-use sqlx::{sqlx_macros, Database};
+use sqlx::sqlx_macros;
 
 use sqlx::Arguments;
 use sqlx::Row;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
-use taitan_orm::prelude::SqlExecutor;
 use time::macros::datetime;
 
 use crate::entities::user::*;

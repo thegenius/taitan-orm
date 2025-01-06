@@ -1,5 +1,4 @@
-use sqlx::{Error, Sqlite};
-use taitan_orm_trait::{FieldName, LocationMode};
+use taitan_orm_trait::FieldName;
 use time::PrimitiveDateTime;
 use uuid::Uuid;
 

@@ -1,3 +1,4 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! transaction_impl {
     ($conn_type:ty) => {
@@ -25,17 +26,23 @@ macro_rules! transaction_impl {
             Self::generic_exists(&mut *self.transaction, stmt, args).await
         }
 
-        async fn fetch_exists_plain<'a, A>(&'a mut self, stmt: &'a str) -> crate::result::Result<bool> {
+        async fn fetch_exists_plain<'a, A>(
+            &'a mut self,
+            stmt: &'a str,
+        ) -> crate::result::Result<bool> {
             let args: std::marker::PhantomData<<Self::DB as sqlx::Database>::Arguments<'a>> =
                 std::marker::PhantomData::default();
             Self::generic_exists_plain(&mut *self.transaction, stmt, args).await
         }
 
-         async fn fetch_count<'s, 'a>(
+        async fn fetch_count<'s, 'a>(
             &'a mut self,
             stmt: &'s str,
             args: <Self::DB as sqlx::Database>::Arguments<'a>,
-        ) -> crate::result::Result<u64> where 'a: 's {
+        ) -> crate::result::Result<u64>
+        where
+            'a: 's,
+        {
             let result = Self::generic_count(&mut *self.transaction, stmt, args).await?;
             Ok(result.count)
         }
@@ -70,7 +77,6 @@ macro_rules! transaction_impl {
         {
             Self::generic_fetch_option_(&mut *self.transaction, stmt, selection, args).await
         }
-
 
         async fn fetch_option_plain<'a, SE>(
             &'a mut self,
@@ -159,7 +165,10 @@ macro_rules! transaction_impl {
             Self::generic_fetch_one_full(&mut *self.transaction, stmt, args).await
         }
 
-        async fn fetch_one_full_plain<'a, SE>(&'a mut self, stmt: &'a str) -> crate::result::Result<SE>
+        async fn fetch_one_full_plain<'a, SE>(
+            &'a mut self,
+            stmt: &'a str,
+        ) -> crate::result::Result<SE>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
@@ -202,7 +211,10 @@ macro_rules! transaction_impl {
             Self::generic_fetch_all_full(&mut *self.transaction, stmt, args).await
         }
 
-        async fn fetch_all_full_plain<'a, SE>(&'a mut self, stmt: &'a str) -> crate::result::Result<Vec<SE>>
+        async fn fetch_all_full_plain<'a, SE>(
+            &'a mut self,
+            stmt: &'a str,
+        ) -> crate::result::Result<Vec<SE>>
         where
             SE: taitan_orm_trait::SelectedEntity<Self::DB> + Send + Unpin,
         {
