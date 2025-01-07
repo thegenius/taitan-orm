@@ -5,7 +5,7 @@ use nom::character::complete::{alphanumeric1, multispace0};
 use nom::error::ParseError;
 use nom::sequence::preceded;
 use nom::IResult;
-use crate::template::template_value::TemplateSqlValue;
+use crate::template::TemplateSqlValue;
 
 
 pub fn parse_segment_as_value(input: &str) -> IResult<&str, TemplateSqlValue> {

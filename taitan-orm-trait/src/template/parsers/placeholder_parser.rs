@@ -1,6 +1,5 @@
 use crate::template::parsers::variable_parser::parse_variable_chain;
-use crate::template::template_value::{TemplatePlaceholder, TemplateSqlValue};
-use crate::template::TemplateVariableChain;
+use crate::template::{TemplatePlaceholder, TemplateSqlValue, TemplateVariableChain};
 use nom::character::complete::multispace0;
 use nom::error::ParseError;
 use nom::{
@@ -82,7 +81,7 @@ pub fn parse_percent_placeholder(input: &str) -> IResult<&str, TemplatePlacehold
 mod test {
     use super::*;
     use crate::template::parsers::parse_placeholder;
-    use crate::template::template_value::TemplateVariable;
+    use crate::template::{TemplatePlaceholder, TemplateVariable};
 
     #[test]
     pub fn test_parse_percent_placeholder() {

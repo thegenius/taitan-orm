@@ -1,14 +1,23 @@
 use crate::template::parser::parse_template_sql;
-use crate::template::template_value::{TemplateExpr, TemplateSqlValue};
+use crate::template::{TemplateExpr, TemplateSqlValue};
 use nom::error::ErrorKind::NonEmpty;
 
+/// sql允许是simple字符串，或者合法的
+/// hash signs应该被转化为 ?
+/// dollar signs应该被转化为 {{ var }}，这样可以被渲染
+/// percent expr 应该被转化为
+/// {% if val.is_some() %}
+/// var = {{val.unwrap()}}
+/// {% elif val.is_null %}
+/// var is null
+/// {% else %}
+/// {% endif %}
 #[derive(Debug, Clone)]
 pub struct ParsedTemplateSql {
     pub sql: String,
     pub hash_signs: Vec<String>,
     pub dollar_signs: Vec<String>,
-    pub percent_signs: Vec<String>,
-    pub percent_expr: Vec<TemplateExpr>,
+    pub percent_signs: Vec<String>
 }
 
 impl ParsedTemplateSql {
@@ -114,7 +123,44 @@ impl ParsedTemplateSql {
 
 #[cfg(test)]
 mod tests {
+    use rinja::Template;
+    use crate::Optional;
     use super::*;
+
+    #[derive(Template)]
+    #[template(source = "Hello {{ name }}", ext = "txt")]
+    struct HelloTemplate<'a> {
+        name: &'a str,
+    }
+
+    #[derive(Template)]
+    #[template(source = "{% if name.is_some() %}hello {{ name.unwrap() }}{% elif name.is_null() %}hello is null{% else %}{% endif %}", ext = "txt")]
+    struct IfBlockTemplate<'a> {
+        name: Optional<&'a str>,
+    }
+
+    #[test]
+    fn test_rinja_dollar_placeholder() {
+        let hello_template = HelloTemplate {name: "Allen"};
+        let rendered = hello_template.render().unwrap();
+        assert_eq!(rendered, "Hello Allen");
+    }
+
+    #[test]
+    fn test_rinja_if_block() {
+        let if_template = IfBlockTemplate {name:  Optional::Some("Allen")};
+        let rendered = if_template.render().unwrap();
+        assert_eq!(rendered, "hello Allen");
+
+        let if_template = IfBlockTemplate {name:  Optional::Null};
+        let rendered = if_template.render().unwrap();
+        assert_eq!(rendered, "hello is null");
+
+        let if_template = IfBlockTemplate {name:  Optional::None};
+        let rendered = if_template.render().unwrap();
+        assert_eq!(rendered, "");
+    }
+
 
     // #[test]
     // fn test_template_sql() {

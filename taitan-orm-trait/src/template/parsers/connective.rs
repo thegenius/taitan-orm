@@ -1,4 +1,4 @@
-use crate::template::template_value::TemplateConnective;
+use crate::template::TemplateConnective;
 use crate::template::TemplateSqlValue;
 use nom::bytes::complete::tag_no_case;
 use nom::{

@@ -1,5 +1,5 @@
 use crate::template::parsers::{parse_number, parse_operator, parse_placeholder, parse_variable_chain};
-use crate::template::template_value::{
+use crate::template::{
     TemplateExpr, TemplateExprFirstPart, TemplateExprSecondPart, TemplateSqlValue,
 };
 
@@ -87,7 +87,8 @@ pub fn parse_expr_as_value(input: &str) -> IResult<&str, TemplateSqlValue> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::template::template_value::{TemplateConnective, TemplatePlaceholder, TemplateVariable};
+    use crate::template::{TemplateConnective, TemplatePlaceholder, TemplateVariable};
+    use crate::template::structs::TemplateExprFirstPart;
     use crate::template::TemplateExpr;
     use crate::template::TemplateVariableChain;
 

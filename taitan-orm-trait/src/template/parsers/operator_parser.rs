@@ -10,7 +10,7 @@ use nom::{
 use nom::bytes::complete::tag_no_case;
 use nom::character::complete::multispace0;
 use nom::error::ParseError;
-use crate::template::template_value::TemplateSqlValue;
+use crate::template::TemplateSqlValue;
 
 pub fn parse_operator(
     input: &str,

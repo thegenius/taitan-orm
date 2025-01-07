@@ -15,7 +15,7 @@ use nom::Compare;
 use nom::InputLength;
 use nom::InputTake;
 
-use crate::template::template_value::{TemplateSqlValue, TemplateString};
+use crate::template::{TemplateSqlValue, TemplateString};
 use nom::IResult;
 
 pub fn parse_string_as_value(

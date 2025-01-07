@@ -8,7 +8,7 @@ use nom::{
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
-use crate::template::template_value::{TemplateVariableChain, TemplateSqlValue, TemplateVariable};
+use crate::template::{TemplateVariableChain, TemplateSqlValue, TemplateVariable};
 
 fn parse_variable(input: &str) -> IResult<&str, TemplateVariable> {
     alt((

@@ -12,20 +12,11 @@ use crate::template::parsers::placeholder_parser::parse_placeholder_as_value;
 use crate::template::parsers::segment_parser::parse_segment_as_value;
 use crate::template::parsers::string_parser::parse_string_as_value;
 use crate::template::parsers::variable_parser::parse_variable_chain_as_value;
-use crate::template::template_value::TemplateSqlValue;
-use crate::template::{TemplateExpr, TemplatePlaceholder, TemplateString, TemplateVariableChain};
+use crate::template::{TemplateExpr, TemplatePlaceholder, TemplateSqlValue, TemplateString, TemplateVariableChain};
 use nom::sequence::tuple;
 use crate::template::parsers::number_parser::parse_number_as_value;
 
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// pub enum TemplateSqlValue {
-//     String(TemplateString),
-//     Segment(String),
-//     Operator(String),
-//     VariableChain(TemplateVariableChain),
-//     Expression(TemplateExpr),
-//     Placeholder(TemplatePlaceholder),
-// }
+
 pub fn parse_template_sql_value(input: &str) -> IResult<&str, TemplateSqlValue> {
     alt((
         parse_placeholder_as_value,
@@ -48,7 +39,8 @@ pub fn parse_template_sql_values(input: &str) -> IResult<&str, Vec<TemplateSqlVa
 
 #[cfg(test)]
 mod tests {
-    use crate::template::template_value::TemplateVariable;
+    use crate::template::TemplateVariableChain;
+    use crate::template::TemplateVariable;
     use super::*;
 
     #[test]
