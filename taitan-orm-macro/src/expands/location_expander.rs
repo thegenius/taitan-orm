@@ -1,16 +1,12 @@
+use crate::attrs::{AttrParser, DefaultAttrParser};
+use crate::expands::struct_generator::generate_location_struct;
+use crate::fields::FieldsParser;
+use crate::fields::LocationParser;
+use crate::fields::StructConstructor;
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::{Attribute, FieldsNamed};
-use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::expands::struct_generator::generate_location_struct;
-use crate::fields::FieldsParser;
-use crate::fields::StructConstructor;
-use crate::fields::LocationParser;
-
-
-
-
 
 pub fn generate_location_struct_and_impl(
     ident: &Ident,
@@ -18,7 +14,6 @@ pub fn generate_location_struct_and_impl(
     fields: &FieldsNamed,
     should_serde: bool,
 ) -> TokenStream {
-
     let table_name = DefaultAttrParser::extract_table_name(ident, attrs);
     let struct_ident = format_ident!("{}Location", table_name.to_camel());
     let struct_stream = generate_location_struct(ident, attrs, fields, should_serde);
@@ -40,16 +35,13 @@ pub fn generate_location_impl(
     attrs: &Vec<Attribute>,
     fields: &FieldsNamed,
 ) -> TokenStream {
-
     let table_name = DefaultAttrParser::extract_table_name(struct_ident, attrs);
-    let parser = FieldsParser::from_named(fields);
-
     let where_clause = FieldsParser::from_named(fields).get_where_clause();
-    let location_fields_name = parser.get_location_fields_name();
-    let location_arguments_sqlite = FieldsParser::from_named(fields).gen_location_arguments_sqlite();
+    let location_arguments_sqlite =
+        FieldsParser::from_named(fields).gen_location_arguments_sqlite();
     let location_arguments_mysql = FieldsParser::from_named(fields).gen_location_arguments_mysql();
-    let location_arguments_postgres = FieldsParser::from_named(fields).gen_location_arguments_postgres();
-
+    let location_arguments_postgres =
+        FieldsParser::from_named(fields).gen_location_arguments_postgres();
 
     let output = quote! {
 
@@ -59,11 +51,7 @@ pub fn generate_location_impl(
                 #table_name
             }
 
-            fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
-                #location_fields_name
-            }
-
-            fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+            fn get_where_clause(&self) -> String {
                 #where_clause
             }
 

@@ -19,3 +19,4 @@ pub use ordering_expander::generate_ordering_struct_and_impl;
 pub use template_expander::generate_template_struct_and_impl;
 pub use location_expr_expander::generate_location_expr_enum_and_impl;
 pub use selected_expander::generate_selected_impl;
+pub use location_expander::generate_location_impl;

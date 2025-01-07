@@ -74,11 +74,11 @@ pub fn generate_location_expr_enum_and_impl(
                 #table_name
             }
 
-            fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
-                #location_fields_name
-            }
+            // fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
+            //     #location_fields_name
+            // }
 
-            fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+            fn get_where_clause(&self) -> String {
                 #where_clause
             }
 

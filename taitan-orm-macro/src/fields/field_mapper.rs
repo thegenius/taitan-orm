@@ -138,29 +138,21 @@ pub trait FieldMapper {
         let field_name = field.ident.unwrap();
         let span = field_name.span();
         let field_name_lit = LitStr::new(&field_name.to_string(), span);
-        // quote_spanned! { span =>
-        //     if let taitan_orm::Optional::Some(#field_name) = &self.#field_name {
-        //         sql.push(wrap_char);
-        //         sql.push_str(#field_name_lit);
-        //         sql.push(wrap_char);
-        //         sql.push_str(#field_name.cmp.get_sql());
-        //         sql.push(place_holder);
-        //     }
-        // }
+        
         quote_spanned! { span =>
             match &self.#field_name {
                 Optional::Some(#field_name) => {
-                    sql.push(wrap_char);
+                    sql.push('`');
                     sql.push_str(#field_name_lit);
-                    sql.push(wrap_char);
+                    sql.push('`');
                     sql.push_str(#field_name.cmp.get_sql());
-                    sql.push(place_holder);
+                    sql.push('?');
                     sql.push_str(connectives);
                 },
                 Optional::Null => {
-                    sql.push(wrap_char);
+                    sql.push('`');
                     sql.push_str(#field_name_lit);
-                    sql.push(wrap_char);
+                    sql.push('`');
                     sql.push_str(" IS NULL ");
                 }
                 _=>{}
@@ -176,11 +168,11 @@ pub trait FieldMapper {
         let field_name_lit = LitStr::new(&field_name.to_string(), span);
         quote_spanned! { span =>
             Self::#enum_ident(#field_name) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(#field_name_lit);
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(#field_name.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
         }
     }

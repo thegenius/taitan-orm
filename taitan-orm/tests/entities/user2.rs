@@ -281,62 +281,62 @@ impl taitan_orm::traits::Location for UserLocation {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_location_fields_name(&self) -> Vec<FieldName> {
-        let mut fields = Vec::new();
-        if self.id.is_some() {
-            fields.push(FieldName::from_str("id", false));
-        };
-        fields.push(FieldName::from_str("request_id", false));
-        if self.age.is_some() {
-            fields.push(FieldName::from_str("age", false));
-        };
-        fields.push(FieldName::from_str("name", false));
-        if self.birthday.is_some() {
-            fields.push(FieldName::from_str("birthday", false));
-        };
-        fields
-    }
-    fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+    // fn get_location_fields_name(&self) -> Vec<FieldName> {
+    //     let mut fields = Vec::new();
+    //     if self.id.is_some() {
+    //         fields.push(FieldName::from_str("id", false));
+    //     };
+    //     fields.push(FieldName::from_str("request_id", false));
+    //     if self.age.is_some() {
+    //         fields.push(FieldName::from_str("age", false));
+    //     };
+    //     fields.push(FieldName::from_str("name", false));
+    //     if self.birthday.is_some() {
+    //         fields.push(FieldName::from_str("birthday", false));
+    //     };
+    //     fields
+    // }
+    fn get_where_clause(&self) -> String {
         let mut sql = String::default();
         let connectives = self.mode.as_connective();
         if let Some(id) = &self.id {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("id");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(id.cmp.get_sql());
-            sql.push(place_holder);
+            sql.push('?');
             sql.push_str(connectives);
         }
         if let Some(request_id) = &self.request_id {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("request_id");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(request_id.cmp.get_sql());
-            sql.push(place_holder);
+            sql.push('?');
             sql.push_str(connectives);
         }
         if let Some(age) = &self.age {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("age");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(age.cmp.get_sql());
-            sql.push(place_holder);
+            sql.push('?');
             sql.push_str(connectives);
         }
         if let Some(name) = &self.name {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("name");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(name.cmp.get_sql());
-            sql.push(place_holder);
+            sql.push('?');
             sql.push_str(connectives);
         }
         if let Some(birthday) = &self.birthday {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("birthday");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(birthday.cmp.get_sql());
-            sql.push(place_holder);
+            sql.push('?');
             sql.push_str(connectives);
         }
         sql.strip_suffix(connectives)

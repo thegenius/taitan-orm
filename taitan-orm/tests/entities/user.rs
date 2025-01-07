@@ -430,11 +430,11 @@ impl UserLocation {
         field_name: &str,
         loc: &LocationExpr<T>,
     ) {
-        sql.push(wrap_char);
+        sql.push('`');
         sql.push_str(field_name);
-        sql.push(wrap_char);
+        sql.push('`');
         sql.push_str(loc.get_cmp_sql());
-        sql.push(place_holder);
+        sql.push('?');
     }
 }
 
@@ -443,52 +443,52 @@ impl Location for UserLocation {
         "user"
     }
 
-    fn get_location_fields_name(&self) -> Vec<FieldName> {
-        let mut fields = Vec::new();
-        if let Optional::Some(_) = &self.request_id {
-            fields.push(FieldName::from_str("request_id", false));
-        }
-        if let Optional::Some(_) = &self.name {
-            fields.push(FieldName::from_str("name", false));
-        }
-        if let Optional::Some(_) = &self.age {
-            fields.push(FieldName::from_str("age", false));
-        }
-        if let Optional::Some(_) = &self.birthday {
-            fields.push(FieldName::from_str("birthday", false));
-        }
-        fields
-    }
+    // fn get_location_fields_name(&self) -> Vec<FieldName> {
+    //     let mut fields = Vec::new();
+    //     if let Optional::Some(_) = &self.request_id {
+    //         fields.push(FieldName::from_str("request_id", false));
+    //     }
+    //     if let Optional::Some(_) = &self.name {
+    //         fields.push(FieldName::from_str("name", false));
+    //     }
+    //     if let Optional::Some(_) = &self.age {
+    //         fields.push(FieldName::from_str("age", false));
+    //     }
+    //     if let Optional::Some(_) = &self.birthday {
+    //         fields.push(FieldName::from_str("birthday", false));
+    //     }
+    //     fields
+    // }
 
-    fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+    fn get_where_clause(&self) -> String {
         let mut sql = String::default();
         if let Optional::Some(request_id) = &self.request_id {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("request_id");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(request_id.get_cmp_sql());
-            sql.push(place_holder);
+            sql.push('?');
         }
         if let Optional::Some(name) = &self.name {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("name");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(name.get_cmp_sql());
-            sql.push(place_holder);
+            sql.push('?');
         }
         if let Optional::Some(age) = &self.age {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("age");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(age.get_cmp_sql());
-            sql.push(place_holder);
+            sql.push('?');
         }
         if let Optional::Some(birthday) = &self.birthday {
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str("birthday");
-            sql.push(wrap_char);
+            sql.push('`');
             sql.push_str(birthday.get_cmp_sql());
-            sql.push(place_holder);
+            sql.push('?');
         }
         sql
     }

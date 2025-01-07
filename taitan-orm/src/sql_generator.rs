@@ -174,7 +174,7 @@ pub trait SqlGenerator {
     fn get_count_sql(&self, location: &dyn Location) -> String {
         let table_name = location.get_table_name();
 
-        let where_clause = location.get_where_clause(self.get_wrap_char(), self.get_place_holder());
+        let where_clause = location.get_where_clause();
         let select_sql = format!(
             "SELECT COUNT(1) AS {}count{} FROM {}{}{} WHERE {}",
             self.get_wrap_char(),
@@ -222,7 +222,7 @@ pub trait SqlGenerator {
         match location {
             None => String::new(),
             Some(location) => {
-                let where_fields = location.get_where_clause(self.get_wrap_char(), self.get_place_holder());
+                let where_fields = location.get_where_clause();
                 format!("WHERE {}", where_fields)
             }
         }
@@ -275,7 +275,7 @@ pub trait SqlGenerator {
         let mut location_stmts: Vec<String> = Vec::new();
         for location in locations {
             let where_clause =
-                location.get_where_clause(self.get_wrap_char(), self.get_place_holder());
+                location.get_where_clause();
             location_stmts.push(where_clause);
         }
         let where_clause = location_stmts.join(",");
@@ -434,7 +434,7 @@ pub trait SqlGenerator {
             self.get_place_holder(),
         );
 
-        let where_clause = location.get_where_clause(self.get_wrap_char(), self.get_place_holder());
+        let where_clause = location.get_where_clause();
         let update_sql = format!(
             "UPDATE {}{}{} SET {} WHERE {}",
             self.get_wrap_char(),
@@ -465,7 +465,7 @@ pub trait SqlGenerator {
 
     fn get_purify_sql(&self, location: &dyn Location) -> String {
         let table_name = location.get_table_name();
-        let where_clause = location.get_where_clause(self.get_wrap_char(), self.get_place_holder());
+        let where_clause = location.get_where_clause();
         let delete_sql = format!(
             "DELETE FROM {}{}{} WHERE {}",
             self.get_wrap_char(),

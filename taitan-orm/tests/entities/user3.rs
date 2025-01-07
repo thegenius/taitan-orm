@@ -484,139 +484,139 @@ impl taitan_orm::traits::Location for UserLocation {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
-        let mut fields = Vec::new();
-        match &self.id {
-            taitan_orm::result::Optional::Some(id) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("id", false));
-            }
-            taitan_orm::result::Optional::Null => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("id", true));
-            }
-            _ => {}
-        };
-        match &self.request_id {
-            taitan_orm::result::Optional::Some(request_id) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
-            }
-            taitan_orm::result::Optional::Null => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", true));
-            }
-            _ => {}
-        };
-        match &self.age {
-            taitan_orm::result::Optional::Some(age) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
-            }
-            taitan_orm::result::Optional::Null => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
-            }
-            _ => {}
-        };
-        match &self.name {
-            taitan_orm::result::Optional::Some(name) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
-            }
-            taitan_orm::result::Optional::Null => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("name", true));
-            }
-            _ => {}
-        };
-        match &self.birthday {
-            taitan_orm::result::Optional::Some(birthday) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
-            }
-            taitan_orm::result::Optional::Null => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
-            }
-            _ => {}
-        };
-        return fields;
-    }
-    fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+    // fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
+    //     let mut fields = Vec::new();
+    //     match &self.id {
+    //         taitan_orm::result::Optional::Some(id) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("id", false));
+    //         }
+    //         taitan_orm::result::Optional::Null => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("id", true));
+    //         }
+    //         _ => {}
+    //     };
+    //     match &self.request_id {
+    //         taitan_orm::result::Optional::Some(request_id) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false));
+    //         }
+    //         taitan_orm::result::Optional::Null => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("r_id", true));
+    //         }
+    //         _ => {}
+    //     };
+    //     match &self.age {
+    //         taitan_orm::result::Optional::Some(age) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("age", false));
+    //         }
+    //         taitan_orm::result::Optional::Null => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("age", true));
+    //         }
+    //         _ => {}
+    //     };
+    //     match &self.name {
+    //         taitan_orm::result::Optional::Some(name) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("name", false));
+    //         }
+    //         taitan_orm::result::Optional::Null => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("name", true));
+    //         }
+    //         _ => {}
+    //     };
+    //     match &self.birthday {
+    //         taitan_orm::result::Optional::Some(birthday) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false));
+    //         }
+    //         taitan_orm::result::Optional::Null => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("birthday", true));
+    //         }
+    //         _ => {}
+    //     };
+    //     return fields;
+    // }
+    fn get_where_clause(&self) -> String {
         let mut sql = String::default();
         let connectives = self.mode.as_connective();
         match &self.id {
             Optional::Some(id) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(id.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
                 sql.push_str(connectives);
             }
             Optional::Null => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(" IS NULL ");
             }
             _ => {}
         }
         match &self.request_id {
             Optional::Some(request_id) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("request_id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(request_id.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
                 sql.push_str(connectives);
             }
             Optional::Null => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("request_id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(" IS NULL ");
             }
             _ => {}
         }
         match &self.age {
             Optional::Some(age) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("age");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(age.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
                 sql.push_str(connectives);
             }
             Optional::Null => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("age");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(" IS NULL ");
             }
             _ => {}
         }
         match &self.name {
             Optional::Some(name) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("name");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(name.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
                 sql.push_str(connectives);
             }
             Optional::Null => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("name");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(" IS NULL ");
             }
             _ => {}
         }
         match &self.birthday {
             Optional::Some(birthday) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("birthday");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(birthday.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
                 sql.push_str(connectives);
             }
             Optional::Null => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("birthday");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(" IS NULL ");
             }
             _ => {}
@@ -728,58 +728,58 @@ impl taitan_orm::traits::Location for UserLocationExpr {
     fn get_table_name(&self) -> &'static str {
         "user"
     }
-    fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
-        let mut fields = Vec::new();
-        match self {
-            Self::Id(_) => fields.push(taitan_orm::prelude::FieldName::from_str("id", false)),
-            Self::RequestId(_) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false))
-            }
-            Self::Age(_) => fields.push(taitan_orm::prelude::FieldName::from_str("age", false)),
-            Self::Name(_) => fields.push(taitan_orm::prelude::FieldName::from_str("name", false)),
-            Self::Birthday(_) => {
-                fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false))
-            }
-        }
-        return fields;
-    }
-    fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String {
+    // fn get_location_fields_name(&self) -> Vec<taitan_orm::prelude::FieldName> {
+    //     let mut fields = Vec::new();
+    //     match self {
+    //         Self::Id(_) => fields.push(taitan_orm::prelude::FieldName::from_str("id", false)),
+    //         Self::RequestId(_) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("r_id", false))
+    //         }
+    //         Self::Age(_) => fields.push(taitan_orm::prelude::FieldName::from_str("age", false)),
+    //         Self::Name(_) => fields.push(taitan_orm::prelude::FieldName::from_str("name", false)),
+    //         Self::Birthday(_) => {
+    //             fields.push(taitan_orm::prelude::FieldName::from_str("birthday", false))
+    //         }
+    //     }
+    //     return fields;
+    // }
+    fn get_where_clause(&self) -> String {
         let mut sql = String::default();
         match self {
             Self::Id(id) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(id.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
             Self::RequestId(request_id) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("request_id");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(request_id.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
             Self::Age(age) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("age");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(age.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
             Self::Name(name) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("name");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(name.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
             Self::Birthday(birthday) => {
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str("birthday");
-                sql.push(wrap_char);
+                sql.push('`');
                 sql.push_str(birthday.cmp.get_sql());
-                sql.push(place_holder);
+                sql.push('?');
             }
         }
         return sql;
