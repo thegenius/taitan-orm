@@ -1,3 +1,4 @@
+use case::CaseExt;
 use proc_macro2::Ident;
 use syn::{Attribute, Expr, Field, Lit, Meta, Path};
 use quote::format_ident;
@@ -184,10 +185,9 @@ impl AttrParser for DefaultAttrParser {
     }
 
     fn extract_table_name(ident: &Ident, attrs: &Vec<Attribute>) -> String {
-        let mut name = ident.to_string();
-        name = <DefaultAttrParser as AttrParser>::extract_val_from_attrs(attrs, "table_name")
-            .unwrap_or(name);
-        return name;
+        let name = ident.to_string().to_snake();
+        <DefaultAttrParser as AttrParser>::extract_val_from_attrs(attrs, "table_name")
+            .unwrap_or(name)
     }
 
     fn extract_template_sql(attrs: &Vec<Attribute>) -> Option<String> {

@@ -33,16 +33,16 @@ pub trait RowConstructor: FieldsContainer + RowGetConstructor {
     //     )
     // }
 
-    #[deprecated]
-    fn gen_selected_row(&self) -> TokenStream {
-        let tokens = self.map_field_vec(&<Self as RowGetConstructor>::of_selected_row_i);
-        quote!(
-            let mut selected = Self::default();
-            let mut i = 0;
-            #(#tokens;)*
-            Ok(selected)
-        )
-    }
+    // #[deprecated]
+    // fn gen_selected_row(&self) -> TokenStream {
+    //     let tokens = self.map_field_vec(&<Self as RowGetConstructor>::of_selected_row_i);
+    //     quote!(
+    //         let mut selected = Self::default();
+    //         let mut i = 0;
+    //         #(#tokens;)*
+    //         Ok(selected)
+    //     )
+    // }
 
     fn gen_selected_self_row(&self) -> TokenStream {
         let tokens = self.map_field_vec(&<Self as RowGetConstructor>::of_selected_self_row_i);

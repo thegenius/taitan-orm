@@ -19,18 +19,18 @@ pub trait RowGetConstructor {
     //     }
     // }
 
-    #[deprecated]
-    fn of_selected_row_i(field: Field) -> TokenStream {
-        let field_name = field.ident.unwrap();
-        let span = field_name.span();
-        // let field_name_lit = LitStr::new(&field_name.to_string(), span);
-        quote_spanned! { span =>
-            if selection.#field_name {
-                selected.#field_name = sqlx::Row::try_get(&row, i).ok().into();
-                i += 1;
-            }
-        }
-    }
+    // #[deprecated]
+    // fn of_selected_row_i(field: Field) -> TokenStream {
+    //     let field_name = field.ident.unwrap();
+    //     let span = field_name.span();
+    //     // let field_name_lit = LitStr::new(&field_name.to_string(), span);
+    //     quote_spanned! { span =>
+    //         if selection.#field_name {
+    //             selected.#field_name = sqlx::Row::try_get(&row, i).ok().into();
+    //             i += 1;
+    //         }
+    //     }
+    // }
 
     // used by from_selected_row
     fn of_selected_self_row_i(field: Field) -> TokenStream {

@@ -27,17 +27,6 @@ pub trait NamesAddConstructor {
         let span = field.span();
         let field_name = field.ident.unwrap();
         let field_name_string = LitStr::new(&field_alias.to_string(), span);
-        // if DefaultTypeChecker::type_is_option(field_type) {
-        //     quote_spanned! { span=>
-        //         if self.#field_name.not_none() {
-        //             fields.push(#field_name_string.to_string());
-        //         }
-        //     }
-        // } else {
-        //     quote_spanned! { span=>
-        //         fields.push(#field_name_string.to_string());
-        //     }
-        // }
 
         if DefaultTypeChecker::type_is_option(field_type) {
             quote_spanned! { span=>

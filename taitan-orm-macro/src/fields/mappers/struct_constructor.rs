@@ -59,12 +59,13 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
 
     // should_serde的实现是否可以更加优雅
     // field_name: Option<LocationExpr<T>>
-    fn of_location(&self, struct_name: &str, should_serde: bool) -> TokenStream {
+    fn of_location(&self, table_name: &str, struct_name: &str, should_serde: bool) -> TokenStream {
         let struct_ident = Ident::new(&struct_name, Span::call_site());
         let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_location_field);
         if should_serde {
             quote! {
                 #[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+                #[table_name = #table_name]
                 pub struct #struct_ident {
                     mode: taitan_orm::prelude::LocationMode,
                     #(#fields_tokens,)*
@@ -72,7 +73,8 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
             }
         } else {
             quote! {
-            #[derive(Default, Debug, Clone)]
+                #[derive(Default, Debug, Clone)]
+                #[table_name = #table_name]
                 pub struct #struct_ident {
                     mode: taitan_orm::prelude::LocationMode,
                     #(#fields_tokens,)*
