@@ -1,6 +1,7 @@
 use crate::template::structs::template_connective::TemplateConnective;
 use crate::template::{TemplatePlaceholder, TemplateVariableChain, ToSql};
 use std::fmt::Display;
+use crate::Optional;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprFirstPart {
@@ -54,6 +55,21 @@ impl Display for TemplateExprSecondPart {
     }
 }
 
+impl ToSql for Option<TemplateConnective> {
+    fn to_set_sql(&self) -> String {
+        match self {
+            Some(val) => val.to_set_sql(),
+            None => String::new(),
+        }
+    }
+    fn to_where_sql(&self) -> String {
+        match self {
+            Some(val) => val.to_where_sql(),
+            None => String::new(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplateExpr {
     pub first_part: TemplateExprFirstPart,
@@ -95,12 +111,14 @@ impl ToSql for TemplateExpr {
             TemplateExprSecondPart::Number(val) => val.to_string(),
             TemplateExprSecondPart::Percent(val) => {
                 format!(
-                    "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{}=NULL{{% else %}}{{% endif %}}",
+                    "{{% if {}.is_some() %}}{} {} ? {}{{% elif {}.is_null() %}}{}=NULL {}{{% else %}}{{% endif %}}",
                     val.to_string(),
                     self.first_part.to_set_sql(),
                     self.operator,
+                    self.connective.to_set_sql(),
                     val.to_string(),
                     self.first_part.to_set_sql(),
+                    self.connective.to_set_sql()
                 )
             }
         }
@@ -115,28 +133,33 @@ impl ToSql for TemplateExpr {
             TemplateExprSecondPart::Percent(val) => {
                 if self.operator.eq("=") {
                     format!(
-                        "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
+                        "{{% if {}.is_some() %}}{} {} ? {}{{% elif {}.is_null() %}}{} IS NULL {}{{% else %}}{{% endif %}}",
                         val.to_string(),
                         self.first_part.to_where_sql(),
                         self.operator,
+                        self.connective.to_where_sql(),
                         val.to_string(),
                         self.first_part.to_where_sql(),
+                        self.connective.to_set_sql()
                     )
                 } else if self.operator.eq("<>") {
                     format!(
-                        "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
+                        "{{% if {}.is_some() %}}{} {} ? {}{{% elif {}.is_null() %}}{} IS NOT NULL {}{{% else %}}{{% endif %}}",
                         val.to_string(),
                         self.first_part.to_where_sql(),
                         self.operator,
+                        self.connective.to_where_sql(),
                         val.to_string(),
                         self.first_part.to_where_sql(),
+                        self.connective.to_set_sql()
                     )
-                } else  {
+                } else {
                     format!(
-                        "{{% if {}.is_some() %}}{} {} ?{{% else %}}{{% endif %}}",
+                        "{{% if {}.is_some() %}}{} {} ? {}{{% else %}}{{% endif %}}",
                         val.to_string(),
                         self.first_part.to_where_sql(),
                         self.operator,
+                        self.connective.to_set_sql()
                     )
                 }
             }
@@ -173,11 +196,14 @@ mod tests {
         };
 
         let sql = expr.to_set_sql();
-        assert_eq!(sql, "{% if second.is_some() %}first = ?{% elif second.is_null() %}first=NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}first = ? {% elif second.is_null() %}first=NULL {% else %}{% endif %}");
     }
 
     #[derive(Template)]
-    #[template(source = "{% if second.is_some() %}first = ?{% elif second.is_null() %}first=NULL{% else %}{% endif %}", ext = "txt")]
+    #[template(
+        source = "{% if second.is_some() %}first = ? {% elif second.is_null() %}first=NULL {% else %}{% endif %}",
+        ext = "txt"
+    )]
     struct VariableExprTemplate<'a> {
         first: &'a str,
         second: Optional<&'a str>,
@@ -187,21 +213,21 @@ mod tests {
     fn test_variable_expr() {
         let template = VariableExprTemplate {
             first: "Allen",
-            second: Optional::Some("Bob")
+            second: Optional::Some("Bob"),
         };
         let rendered = template.render().unwrap();
-        assert_eq!(rendered, "first = ?");
+        assert_eq!(rendered, "first = ? ");
 
         let template = VariableExprTemplate {
             first: "Allen",
-            second: Optional::Null
+            second: Optional::Null,
         };
         let rendered = template.render().unwrap();
-        assert_eq!(rendered, "first=NULL");
+        assert_eq!(rendered, "first=NULL ");
 
         let template = VariableExprTemplate {
             first: "Allen",
-            second: Optional::None
+            second: Optional::None,
         };
         let rendered = template.render().unwrap();
         assert_eq!(rendered, "");
@@ -227,12 +253,15 @@ mod tests {
         };
 
         let sql = expr.to_set_sql();
-        assert_eq!(sql, "{% if second.is_some() %}{{first}} = ?{% elif second.is_null() %}{{first}}=NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}{{first}} = ? {% elif second.is_null() %}{{first}}=NULL {% else %}{% endif %}");
     }
 
 
     #[derive(Template)]
-    #[template(source = "{% if second.is_some() %}{{first}} = ?{% elif second.is_null() %}{{first}}=NULL{% else %}{% endif %}", ext = "txt")]
+    #[template(
+        source = "{% if second.is_some() %}{{first}} = ?{% elif second.is_null() %}{{first}}=NULL{% else %}{% endif %}",
+        ext = "txt"
+    )]
     struct DollarExprTemplate<'a> {
         first: &'a str,
         second: Optional<&'a str>,
@@ -242,21 +271,21 @@ mod tests {
     fn test_dollar_expr() {
         let template = DollarExprTemplate {
             first: "Allen",
-            second: Optional::Some("Bob")
+            second: Optional::Some("Bob"),
         };
         let rendered = template.render().unwrap();
         assert_eq!(rendered, "Allen = ?");
 
         let template = DollarExprTemplate {
             first: "Allen",
-            second: Optional::Null
+            second: Optional::Null,
         };
         let rendered = template.render().unwrap();
         assert_eq!(rendered, "Allen=NULL");
 
         let template = DollarExprTemplate {
             first: "Allen",
-            second: Optional::None
+            second: Optional::None,
         };
         let rendered = template.render().unwrap();
         assert_eq!(rendered, "");
@@ -281,7 +310,7 @@ mod tests {
         };
 
         let sql = expr.to_where_sql();
-        assert_eq!(sql, "{% if second.is_some() %}first >= ?{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}first >= ? {% else %}{% endif %}");
 
         let expr = TemplateExpr {
             first_part: first_part.clone(),
@@ -291,7 +320,7 @@ mod tests {
         };
 
         let sql = expr.to_where_sql();
-        assert_eq!(sql, "{% if second.is_some() %}first = ?{% elif second.is_null() %}first IS NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}first = ? {% elif second.is_null() %}first IS NULL {% else %}{% endif %}");
 
         let expr = TemplateExpr {
             first_part: first_part.clone(),
@@ -301,7 +330,6 @@ mod tests {
         };
 
         let sql = expr.to_where_sql();
-        assert_eq!(sql, "{% if second.is_some() %}first <> ?{% elif second.is_null() %}first IS NOT NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}first <> ? {% elif second.is_null() %}first IS NOT NULL {% else %}{% endif %}");
     }
-
 }
