@@ -17,6 +17,8 @@ use nom::{
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
+use nom::combinator::opt;
+use crate::template::parsers::connective::parse_connective;
 
 fn parse_first_part(input: &str) -> IResult<&str, TemplateExprFirstPart> {
     // 解析表达式的第一个部分
@@ -45,11 +47,13 @@ pub fn parse_expr(input: &str) -> IResult<&str, TemplateExpr> {
             parse_operator,    // 解析操作符
             space0,            // 允许等号后有空格
             parse_second_part, // 解析第二个部分
+            opt(preceded(multispace0, parse_connective)),
         )),
-        |(first_part, _, operator, _, second_part)| TemplateExpr {
+        |(first_part, _, operator, _, second_part, connective)| TemplateExpr {
             first_part,
             operator,
             second_part,
+            connective,
         },
     )(input)
 }
@@ -83,25 +87,26 @@ pub fn parse_expr_as_value(input: &str) -> IResult<&str, TemplateSqlValue> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::template::template_value::TemplatePlaceholder;
+    use crate::template::template_value::{TemplateConnective, TemplatePlaceholder, TemplateVariable};
     use crate::template::TemplateExpr;
     use crate::template::TemplateVariableChain;
 
     #[test]
     fn test_parse_expr() {
-        let (remaining, parsed) = parse_expr("a.b > = %  { sdf_d . sdf_sv_1 }").unwrap();
+        let (remaining, parsed) = parse_expr("a.b > = %  { sdf_d . sdf_sv_1 } AND").unwrap();
         assert_eq!(
             parsed,
             TemplateExpr {
                 first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
-                    variables: vec!["a".to_string(), "b".to_string()]
+                    variables: vec![TemplateVariable::Simple("a".to_string()), TemplateVariable::Simple("b".to_string())]
                 }),
                 operator: ">=".to_string(),
                 second_part: TemplateExprSecondPart::Percent(TemplatePlaceholder::Percent(
                     TemplateVariableChain {
-                        variables: vec!["sdf_d".to_string(), "sdf_sv_1".to_string()]
+                        variables: vec![TemplateVariable::Simple("sdf_d".to_string()), TemplateVariable::Simple("sdf_sv_1".to_string())]
                     }
-                ))
+                )),
+                connective: Some(TemplateConnective::And("AND".to_string()))
             }
         );
     }

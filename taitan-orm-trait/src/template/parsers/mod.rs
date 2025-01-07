@@ -6,6 +6,7 @@ mod placeholder_parser;
 mod segment_parser;
 mod value_parser;
 mod number_parser;
+mod connective;
 
 pub use string_parser::parse_string;
 pub use variable_parser::parse_variable_chain;

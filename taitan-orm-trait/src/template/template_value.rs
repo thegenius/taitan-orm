@@ -1,6 +1,10 @@
 use std::fmt::Display;
 use std::fs::OpenOptions;
 
+pub trait ToSql {
+    fn to_sql(&self) -> String;
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateString {
     SingleQuoteString(String),
@@ -16,17 +20,55 @@ impl Display for TemplateString {
         write!(f, "{}", str)
     }
 }
+impl ToSql for TemplateString {
+    fn to_sql(&self) -> String {
+        self.to_string()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TemplateVariable {
+    Simple(String),
+    Quote(String),
+}
+
+impl Display for TemplateVariable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TemplateVariable::Simple(val) => write!(f, "{}", val),
+            TemplateVariable::Quote(val) => write!(f, "`{}`", val),
+        }
+    }
+}
+
+impl ToSql for TemplateVariable {
+    fn to_sql(&self) -> String {
+        self.to_string()
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplateVariableChain {
-    pub variables: Vec<String>,
+    pub variables: Vec<TemplateVariable>,
 }
 
 impl Display for TemplateVariableChain {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.variables.join(".").fmt(f)
+        // 使用 Iterator 的 map 和 collect 来构建一个字符串向量，
+        // 然后使用 join 方法将它们连接起来。
+        let strings: Vec<String> = self.variables.iter().map(|v| v.to_string()).collect();
+        write!(f, "{}", strings.join("."))
     }
 }
+
+impl ToSql for TemplateVariableChain {
+    fn to_sql(&self) -> String {
+        self.to_string()
+    }
+}
+
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplatePlaceholder {
@@ -35,12 +77,51 @@ pub enum TemplatePlaceholder {
     Percent(TemplateVariableChain),
 }
 
+impl Display for TemplatePlaceholder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TemplatePlaceholder::Dollar(val) => write!(f, "{}", val),
+            TemplatePlaceholder::Hash(val) => write!(f, "{}", val),
+            TemplatePlaceholder::Percent(val) => write!(f, "{}", val),
+        }
+    }
+}
+
+impl ToSql for TemplatePlaceholder {
+    fn to_sql(&self) -> String {
+        match self {
+            TemplatePlaceholder::Dollar(val) => val.to_sql(),
+            TemplatePlaceholder::Hash(val) => val.to_sql(),
+            TemplatePlaceholder::Percent(val) => val.to_sql(),
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprFirstPart {
     Dollar(TemplatePlaceholder),
     Variable(TemplateVariableChain),
 }
+
+impl Display for TemplateExprFirstPart {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TemplateExprFirstPart::Dollar(val) => write!(f, "{}", val),
+            TemplateExprFirstPart::Variable(val) => write!(f, "{}", val),
+        }
+    }
+}
+
+impl ToSql for TemplateExprFirstPart {
+    fn to_sql(&self) -> String {
+        match self {
+            TemplateExprFirstPart::Dollar(val) => val.to_sql(),
+            TemplateExprFirstPart::Variable(val) => val.to_sql(),
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprSecondPart {
@@ -69,9 +150,16 @@ pub struct TemplateVariableExpr {
 pub struct TemplateExpr {
     pub first_part: TemplateExprFirstPart,
     pub operator: String,
-    pub second_part: TemplateExprSecondPart
+    pub second_part: TemplateExprSecondPart,
+    pub connective: Option<TemplateConnective>
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TemplateConnective {
+    And(String),
+    Or(String),
+    Comma(String)
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateSqlValue {
@@ -82,6 +170,7 @@ pub enum TemplateSqlValue {
     VariableChain(TemplateVariableChain),
     Expression(TemplateExpr),
     Placeholder(TemplatePlaceholder),
+    Connective(TemplateConnective),
 }
 
 

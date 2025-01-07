@@ -1,6 +1,6 @@
-use crate::template::parsers::variable_parser::{parse_variable_chain};
-use crate::template::TemplateVariableChain;
+use crate::template::parsers::variable_parser::parse_variable_chain;
 use crate::template::template_value::{TemplatePlaceholder, TemplateSqlValue};
+use crate::template::TemplateVariableChain;
 use nom::character::complete::multispace0;
 use nom::error::ParseError;
 use nom::{
@@ -82,6 +82,7 @@ pub fn parse_percent_placeholder(input: &str) -> IResult<&str, TemplatePlacehold
 mod test {
     use super::*;
     use crate::template::parsers::parse_placeholder;
+    use crate::template::template_value::TemplateVariable;
 
     #[test]
     pub fn test_parse_percent_placeholder() {
@@ -89,7 +90,10 @@ mod test {
         assert_eq!(
             parsed,
             TemplatePlaceholder::Percent(TemplateVariableChain {
-                variables: vec!["sdf_d".to_string(), "sdf_sv_1".to_string()]
+                variables: vec![
+                    TemplateVariable::Simple("sdf_d".to_string()),
+                    TemplateVariable::Simple("sdf_sv_1".to_string())
+                ]
             })
         );
     }
@@ -100,7 +104,10 @@ mod test {
         assert_eq!(
             parsed,
             TemplatePlaceholder::Dollar(TemplateVariableChain {
-                variables: vec!["sdf_d".to_string(), "sdf_sv_1".to_string()]
+                variables: vec![
+                    TemplateVariable::Simple("sdf_d".to_string()),
+                    TemplateVariable::Simple("sdf_sv_1".to_string())
+                ]
             })
         );
     }
@@ -111,7 +118,10 @@ mod test {
         assert_eq!(
             parsed,
             TemplatePlaceholder::Hash(TemplateVariableChain {
-                variables: vec!["sdf_d".to_string(), "sdf_sv_1".to_string()]
+                variables: vec![
+                    TemplateVariable::Simple("sdf_d".to_string()),
+                    TemplateVariable::Simple("sdf_sv_1".to_string())
+                ]
             })
         );
     }

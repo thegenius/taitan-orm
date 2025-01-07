@@ -48,7 +48,7 @@ pub fn parse_template_sql_values(input: &str) -> IResult<&str, Vec<TemplateSqlVa
 
 #[cfg(test)]
 mod tests {
-
+    use crate::template::template_value::TemplateVariable;
     use super::*;
 
     #[test]
@@ -59,23 +59,23 @@ mod tests {
             parsed,
             vec![
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
-                    variables: vec!["SELECT".to_string()]
+                    variables: vec![TemplateVariable::Simple("SELECT".to_string())]
                 }),
                 TemplateSqlValue::Segment("*".to_string()),
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
-                    variables: vec!["test".to_string()]
+                    variables: vec![TemplateVariable::Quote("test".to_string())]
                 }),
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
-                    variables: vec!["user".to_string()]
+                    variables: vec![TemplateVariable::Simple("user".to_string())]
                 }),
                 TemplateSqlValue::Placeholder(TemplatePlaceholder::Dollar(TemplateVariableChain {
-                    variables: vec!["v1".to_string(), "v2".to_string(), "v3".to_string()]
+                    variables: vec![TemplateVariable::Simple("v1".to_string()), TemplateVariable::Simple("v2".to_string()), TemplateVariable::Simple("v3".to_string())]
                 })),
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
-                    variables: vec!["where".to_string()]
+                    variables: vec![TemplateVariable::Simple("where".to_string())]
                 }),
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
-                    variables: vec!["id".to_string()]
+                    variables: vec![TemplateVariable::Simple("id".to_string())]
                 }),
                 TemplateSqlValue::Operator("=".to_string()),
                 TemplateSqlValue::Number("23".to_string()),

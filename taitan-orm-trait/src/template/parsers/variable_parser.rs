@@ -8,15 +8,16 @@ use nom::{
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
-use crate::template::template_value::{TemplateVariableChain, TemplateSqlValue};
+use crate::template::template_value::{TemplateVariableChain, TemplateSqlValue, TemplateVariable};
 
-fn parse_variable(input: &str) -> IResult<&str, String> {
+fn parse_variable(input: &str) -> IResult<&str, TemplateVariable> {
     alt((
         parse_quoted_variable, // 尝试解析带引号的变量名
         parse_simple_variable,        // 如果失败，则尝试解析不带引号的变量名
     ))(input)
 }
-fn parse_simple_variable(input: &str) -> IResult<&str, String> {
+
+fn parse_simple_variable_as_str(input: &str) -> IResult<&str, String> {
     // 解析变量名，允许字母数字字符和下划线
     map(
         recognize(pair(
@@ -26,14 +27,19 @@ fn parse_simple_variable(input: &str) -> IResult<&str, String> {
         |s: &str| s.to_string(),
     )(input)
 }
+fn parse_simple_variable(input: &str) -> IResult<&str, TemplateVariable> {
+    let (remaining, parsed) = parse_simple_variable_as_str(input)?;
+    Ok((remaining, TemplateVariable::Simple(parsed)))
+}
 
-fn parse_quoted_variable(input: &str) -> IResult<&str, String> {
+fn parse_quoted_variable(input: &str) -> IResult<&str, TemplateVariable> {
     // 解析带引号的变量名，例如 `var`
-    delimited(
+    let (remaining, parsed) =  delimited(
         tag("`"),
-        parse_variable,
+        parse_simple_variable_as_str,
         tag("`"),
-    )(input)
+    )(input)?;
+    Ok((remaining, TemplateVariable::Quote(parsed)))
 }
 
 pub fn parse_variable_chain(input: &str) -> IResult<&str, TemplateVariableChain> {
@@ -71,7 +77,7 @@ mod test {
         assert_eq!(
             parsed,
             TemplateVariableChain {
-                variables: vec!["sdf_d".to_string(), "sdf_sv_1".to_string()]
+                variables: vec![TemplateVariable::Simple("sdf_d".to_string()), TemplateVariable::Simple("sdf_sv_1".to_string())]
             }
         );
         assert_eq!(remaining, " ");
