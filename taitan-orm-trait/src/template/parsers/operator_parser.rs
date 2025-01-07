@@ -47,7 +47,7 @@ pub fn parse_operator(
                 multispace0,
                 preceded(multispace0, tag("=")),
             )),
-            |_| "!= ".to_string(),
+            |_| "<> ".to_string(),
         ),
 
         // 单字符操作符
@@ -57,6 +57,8 @@ pub fn parse_operator(
         // 确保单个符号也可以被解析
         map(preceded(multispace0, tag(">=")), |s: &str| s.to_string()),
         map(preceded(multispace0, tag("<=")), |s: &str| s.to_string()),
+        map(preceded(multispace0, tag("!=")), |s: &str| "<>".to_string()),
+        map(preceded(multispace0, tag("<>")), |s: &str| "<>".to_string()),
         map(preceded(multispace0, tag_no_case("like")), |_| "LIKE".to_string())
     ))(input)?;
 
@@ -103,7 +105,7 @@ mod test {
             parse_operator("! =").unwrap();
         assert_eq!(
             parsed,
-            "!=".to_string()
+            "<>".to_string()
         );
 
         let (remaining, parsed) =

@@ -113,15 +113,32 @@ impl ToSql for TemplateExpr {
             TemplateExprSecondPart::Hash(val) => val.to_where_sql(),
             TemplateExprSecondPart::Number(val) => val.to_string(),
             TemplateExprSecondPart::Percent(val) => {
-                format!(
-                    "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{}{}NULL{{% else %}}{{% endif %}}",
-                    val.to_string(),
-                    self.first_part.to_where_sql(),
-                    self.operator,
-                    val.to_string(),
-                    self.first_part.to_where_sql(),
-                    self.operator,
-                )
+                if self.operator.eq("=") {
+                    format!(
+                        "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
+                        val.to_string(),
+                        self.first_part.to_where_sql(),
+                        self.operator,
+                        val.to_string(),
+                        self.first_part.to_where_sql(),
+                    )
+                } else if self.operator.eq("<>") {
+                    format!(
+                        "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
+                        val.to_string(),
+                        self.first_part.to_where_sql(),
+                        self.operator,
+                        val.to_string(),
+                        self.first_part.to_where_sql(),
+                    )
+                } else  {
+                    format!(
+                        "{{% if {}.is_some() %}}{} {} ?{{% else %}}{{% endif %}}",
+                        val.to_string(),
+                        self.first_part.to_where_sql(),
+                        self.operator,
+                    )
+                }
             }
         }
     }
@@ -257,14 +274,34 @@ mod tests {
         let second_part = TemplateExprSecondPart::Percent(placeholder);
 
         let expr = TemplateExpr {
-            first_part,
+            first_part: first_part.clone(),
             operator: ">=".to_string(),
-            second_part,
+            second_part: second_part.clone(),
             connective: None,
         };
 
         let sql = expr.to_where_sql();
-        assert_eq!(sql, "{% if second.is_some() %}first >= ?{% elif second.is_null() %}first>=NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if second.is_some() %}first >= ?{% else %}{% endif %}");
+
+        let expr = TemplateExpr {
+            first_part: first_part.clone(),
+            operator: "=".to_string(),
+            second_part: second_part.clone(),
+            connective: None,
+        };
+
+        let sql = expr.to_where_sql();
+        assert_eq!(sql, "{% if second.is_some() %}first = ?{% elif second.is_null() %}first IS NULL{% else %}{% endif %}");
+
+        let expr = TemplateExpr {
+            first_part: first_part.clone(),
+            operator: "<>".to_string(),
+            second_part: second_part.clone(),
+            connective: None,
+        };
+
+        let sql = expr.to_where_sql();
+        assert_eq!(sql, "{% if second.is_some() %}first <> ?{% elif second.is_null() %}first IS NOT NULL{% else %}{% endif %}");
     }
 
 }
