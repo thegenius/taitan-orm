@@ -206,6 +206,7 @@ pub struct UserCustomTemplate {
 }
 
 ```
+* you can run the template example in examples/template directory.
 
 
 
