@@ -118,6 +118,88 @@ async fn main() -> taitan_orm::result::Result<()> {
 ```
 * you can run the crud example in examples/crud directory.
 
+# Usage
+1. Compile Time Generation  
+when we derive(Schema), taitan-orm will generate helper struct for you.
+
+```rust
+#[derive(Schema, Clone, Debug)]
+#[table_name = "user"]
+pub struct User {
+ #[primary_key]
+ id: i32,
+ name: String,
+ age: Optional<i32>,
+}
+
+// struct for primary key 
+pub struct UserPrimary {
+ id: i32
+}
+
+// struct for mutation/update 
+pub struct UserMutation {
+ name: Optional<String>,
+ age: Optional<i32>
+}
+
+// struct to generate where condition 
+pub struct UserLocation {
+ mode: LocationMode,
+ id: Optional<LocationExpr<i32>>,
+ name: Optional<LocationExpr<String>>,
+ age: Optional<LocationExpr<i32>>,
+}
+
+// struct to select field and recv result from database 
+pub struct UserSelectedEntity {
+ id: Optional<i32>,
+ name: Optional<String>,
+ age: Optional<i32>,
+}
+```
+
+2. Template   
+Taitan-ORM has the most powerful orm template engine you ever meet.
+
+```rust
+/// This is the #{} syntax, this will be parsed at compile time,
+/// In run time, engine will get the sql as: UPDATE `user` SET name = ? WHERE `id` = ?
+#[derive(TemplateRecord, Debug)]
+#[sql = "UPDATE `user` SET name = #{name} WHERE `id` = #{id}"]
+pub struct UserUpdateTemplate {
+    id: i32,
+    name: String,
+}
+
+/// This is the ${} syntax, and will render the sql at run time,
+/// After render, engine get the sql: UPDATE `user` SET user_name = 2 WHERE `id` = 100
+#[derive(TemplateRecord, Debug)]
+#[sql = "UPDATE `user` SET ${name} = 2 WHERE `id` = ${id}"]
+pub struct UserUpdateTemplate {
+ id: i32,      // suppose to be 100
+ name: String, // suppose to be "user_name"
+}
+
+/// This is the %{} syntax, and will be parsed at run time,
+/// But Special for Optional Field
+/// 1. When template is { name: "Allen", age: None },
+///    After render, engine get the sql: select `id`, `name`, `age` FROM `user` where `name` = ?
+/// 2. When template is { name: "Allen", age: Some(33) },
+///    After render, engine get the sql: select `id`, `name`, `age` FROM `user` where age >= ? AND `name` = ?
+/// when parser encounters "%{age}", 
+/// it treats the entire expression with connective "age >= %{age} AND"  as an integrated unit
+#[derive(TemplateRecord, Debug)]
+#[sql = "select `id`, `name`, `age` FROM `user` where age >= %{age} AND `name` = #{name}"]
+pub struct UserCustomTemplate {
+ name: String,
+ age: Optional<i32>,
+}
+
+```
+
+
+
 # Examples
 At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
 
@@ -140,7 +222,6 @@ At present, the documentation for this newly-born project is limited. You can re
 What is being polished?
 - 1. write api: to support postgres insert returning syntax
 - 2. search api: support index and more
-- 3. template api: support %{if } syntax and more
 
 
 - **0.2 Correctness**: specification and code coverage and fuzz  📎  
