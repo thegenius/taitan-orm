@@ -6,7 +6,7 @@ pub trait TypeChecker {
     fn type_has_one_of_names(ty: &Type, names: &[&str]) -> bool;
 
     fn type_is_option(ty: &Type) -> bool;
-
+    fn type_is_location_mode(ty: &Type) -> bool;
     fn get_field_type_name(field: &Field) -> String;
 
     fn field_is_option(field: &Field) -> bool;
@@ -50,8 +50,15 @@ impl TypeChecker for DefaultTypeChecker {
                 "core::option::Option::",
                 "Optional::",
                 "taitan_orm::prelude::Optional::",
-                "taitan_orm::result::Optional::"
+                "taitan_orm::result::Optional::",
             ],
+        )
+    }
+
+    fn type_is_location_mode(ty: &Type) -> bool {
+        <DefaultTypeChecker as TypeChecker>::type_has_one_of_names(
+            ty,
+            &["taitan_orm::prelude::LocationMode", "LocationMode"],
         )
     }
 

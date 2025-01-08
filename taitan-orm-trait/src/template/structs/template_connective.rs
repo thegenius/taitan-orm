@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use crate::template::to_sql::SqlTemplateSign;
 use crate::template::ToSql;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,3 +28,5 @@ impl ToSql for TemplateConnective {
         self.to_string()
     }
 }
+
+impl SqlTemplateSign for TemplateConnective {}

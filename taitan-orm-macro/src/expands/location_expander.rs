@@ -1,6 +1,6 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::expands::struct_generator::generate_location_struct;
-use crate::fields::FieldsParser;
+use crate::fields::{FieldsFilter, FieldsParser};
 use crate::fields::LocationParser;
 use crate::fields::StructConstructor;
 use case::CaseExt;
@@ -36,12 +36,15 @@ pub fn generate_location_impl(
     fields: &FieldsNamed,
 ) -> TokenStream {
     let table_name = DefaultAttrParser::extract_table_name(struct_ident, attrs);
-    let where_clause = FieldsParser::from_named(fields).get_where_clause();
+
+    let fields = FieldsParser::from_named(fields).filter_not_mode();
+
+    let where_clause = FieldsParser::from_vec(&fields).get_where_clause();
     let location_arguments_sqlite =
-        FieldsParser::from_named(fields).gen_location_arguments_sqlite();
-    let location_arguments_mysql = FieldsParser::from_named(fields).gen_location_arguments_mysql();
+        FieldsParser::from_vec(&fields).gen_location_arguments_sqlite();
+    let location_arguments_mysql = FieldsParser::from_vec(&fields).gen_location_arguments_mysql();
     let location_arguments_postgres =
-        FieldsParser::from_named(fields).gen_location_arguments_postgres();
+        FieldsParser::from_vec(&fields).gen_location_arguments_postgres();
 
     let output = quote! {
 

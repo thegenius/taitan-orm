@@ -64,7 +64,7 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
         let fields_tokens = self.map_field_vec(&<Self as StructFieldConstructor>::get_location_field);
         if should_serde {
             quote! {
-                #[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+                #[derive(taitan_orm::prelude::Condition, Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
                 #[table_name = #table_name]
                 pub struct #struct_ident {
                     mode: taitan_orm::prelude::LocationMode,
@@ -73,7 +73,7 @@ pub trait StructConstructor: FieldsContainer + StructFieldConstructor {
             }
         } else {
             quote! {
-                #[derive(Default, Debug, Clone)]
+                #[derive(taitan_orm::prelude::Condition, Default, Debug, Clone)]
                 #[table_name = #table_name]
                 pub struct #struct_ident {
                     mode: taitan_orm::prelude::LocationMode,

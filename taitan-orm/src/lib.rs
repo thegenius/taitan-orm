@@ -30,6 +30,7 @@ pub mod prelude {
     pub use taitan_orm_macro::Schema;
     pub use taitan_orm_macro::TemplateRecord;
     pub use taitan_orm_macro::Selected;
+    pub use taitan_orm_macro::Condition;
     // pub use crate::db::Executor;
 
     pub use crate::result::Optional;
@@ -67,7 +68,7 @@ pub mod traits {
     pub use taitan_orm_trait::{CountSql, Entity, Location, LocationExpr, Mutation, OrderBy, Schema, SelectedEntity, Selection, Unique};
     pub use taitan_orm_trait::validate_order_by;
     pub use taitan_orm_trait::ParsedTemplateSql;
-    pub use taitan_orm_trait::TemplateValue;
+    pub use taitan_orm_trait::TemplateSqlValue;
     pub use taitan_orm_trait::TemplateRecord;
     pub use taitan_orm_trait::LocationMode;
     pub use taitan_orm_trait::NotValidCmpError;

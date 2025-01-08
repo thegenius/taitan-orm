@@ -4,7 +4,7 @@ use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
 use proc_macro::TokenStream;
-use crate::location::impl_location_macro;
+use crate::location::impl_condition_macro;
 
 mod attrs;
 mod expands;
@@ -37,9 +37,9 @@ pub fn expand_selected(input: TokenStream) -> TokenStream {
     impl_selected_macro(input)
 }
 
-#[proc_macro_derive(Location, attributes(table_name))]
+#[proc_macro_derive(Condition, attributes(table_name))]
 pub fn expand_location(input: TokenStream) -> TokenStream {
-    impl_location_macro(input)
+    impl_condition_macro(input)
 }
 
 #[proc_macro_derive(TemplateRecord, attributes(sql, count_sql, limit_field))]

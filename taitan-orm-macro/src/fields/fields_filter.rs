@@ -8,6 +8,8 @@ pub trait FieldsFilter: FieldsContainer {
     fn filter_not_annotated_fields(&self, annotation_str: &str) -> Vec<Field>;
     fn filter_not_auto_generated(&self) -> Vec<Field>;
 
+    fn filter_not_mode(&self) -> Vec<Field>;
+
     fn filter_optional(&self) -> Vec<Field>;
     fn filter_named_fields(&self, annotation_str: &Vec<String>) -> Vec<Field>;
     fn get_sorted_fields_vec(&self) -> Vec<Field>;
@@ -62,6 +64,18 @@ impl FieldsFilter for FieldsParser {
             let is_optional =
                 DefaultTypeChecker::type_is_option(&field.ty);
             if is_optional {
+                result.push(field.clone());
+            }
+        }
+        result
+    }
+
+    fn filter_not_mode(&self) -> Vec<Field> {
+        let mut result: Vec<Field> = Vec::new();
+        for field in self.get_fields().iter() {
+            let is_mode =
+                DefaultTypeChecker::type_is_location_mode(&field.ty);
+            if !is_mode {
                 result.push(field.clone());
             }
         }

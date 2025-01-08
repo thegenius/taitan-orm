@@ -5,8 +5,8 @@ version = "0.1.2"
 rust-version.workspace = true
 
 [dependencies]
-#taitan-orm = {path = "../../taitan-orm"}
-taitan-orm = {version = "0.1.6"}
+taitan-orm = {path = "../../taitan-orm"}
+#taitan-orm = {version = "0.1.6"}
 axum = "0.8.0-alpha.1"
 tokio = {version = "1.42.0", features = ["full"]}
 sqlx = {version = "0.8.2", features = ["runtime-tokio", "mysql", "sqlite", "postgres", "bigdecimal", "time", "uuid"]}

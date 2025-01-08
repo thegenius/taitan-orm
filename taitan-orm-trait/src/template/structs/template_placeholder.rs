@@ -1,5 +1,6 @@
 use crate::template::structs::template_variable_chain::TemplateVariableChain;
-use crate::template::ToSql;
+use crate::template::to_sql::SqlTemplateSign;
+use crate::template::{TemplateConnective, ToSql};
 use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,6 +54,24 @@ impl ToSql for TemplatePlaceholder {
     }
 }
 
+impl SqlTemplateSign for TemplatePlaceholder {
+    fn get_template_signs(&self) -> Vec<String> {
+        match self {
+            Self::Percent(var) => vec![var.to_string()],
+            Self::Dollar(var) => vec![var.to_string()],
+            Self::Hash(_) => vec![],
+        }
+    }
+
+    fn get_argument_signs(&self) -> Vec<String> {
+        match self {
+            Self::Percent(var) => vec![var.to_string()],
+            Self::Dollar(var) => vec![],
+            Self::Hash(var) => vec![var.to_string()],
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::template::TemplatePlaceholder;
@@ -68,7 +87,6 @@ mod tests {
         let sql = placeholder.to_set_sql();
         assert_eq!(sql, "?");
 
-
         let placeholder = TemplatePlaceholder::Dollar(TemplateVariableChain {
             variables: vec![TemplateVariable::Simple("var".to_string())],
         });
@@ -80,6 +98,5 @@ mod tests {
         });
         let sql = placeholder.to_set_sql();
         assert_eq!(sql, "{% if var.is_some() %}{{var.unwrap()}}{% elif var.is_null() %}NULL{% else %}{% endif %}");
-
     }
 }

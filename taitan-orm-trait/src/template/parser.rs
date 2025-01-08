@@ -194,16 +194,16 @@ pub fn parse_variable(input: &str) -> IResult<&str, &str> {
 // }
 
 
-pub fn parse_template_sql(input: &str) -> IResult<&str, Vec<TemplateSqlValue>> {
-    let mut values: Vec<TemplateSqlValue> = Vec::new();
-    let (mut remaining, mut parsed) = parse_template_sql_value(input)?;
-    values.push(parsed);
-    while !remaining.is_empty() {
-        (remaining, parsed) = parse_template_sql_value(remaining)?;
-        values.push(parsed);
-    }
-    Ok((remaining, values))
-}
+// pub fn parse_template_sql(input: &str) -> IResult<&str, Vec<TemplateSqlValue>> {
+//     let mut values: Vec<TemplateSqlValue> = Vec::new();
+//     let (mut remaining, mut parsed) = parse_template_sql_value(input)?;
+//     values.push(parsed);
+//     while !remaining.is_empty() {
+//         (remaining, parsed) = parse_template_sql_value(remaining)?;
+//         values.push(parsed);
+//     }
+//     Ok((remaining, values))
+// }
 
 #[cfg(test)]
 mod test {

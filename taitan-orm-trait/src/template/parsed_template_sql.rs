@@ -1,6 +1,7 @@
-use crate::template::parser::parse_template_sql;
-use crate::template::{TemplateExpr, TemplateSqlValue};
+use crate::template::to_sql::SqlTemplateSign;
+use crate::template::{TemplateExpr, TemplatePlaceholder, TemplateSqlValue, ToSql};
 use nom::error::ErrorKind::NonEmpty;
+use crate::template::parsers::parse_template_sql_values;
 
 /// sql允许是simple字符串，或者合法的
 /// hash signs应该被转化为 ?
@@ -14,15 +15,25 @@ use nom::error::ErrorKind::NonEmpty;
 /// {% endif %}
 #[derive(Debug, Clone)]
 pub struct ParsedTemplateSql {
-    pub sql: String,
-    pub hash_signs: Vec<String>,
-    pub dollar_signs: Vec<String>,
-    pub percent_signs: Vec<String>
+    set_sql: String,
+    where_sql: String,
+    template_signs: Vec<String>,
+    argument_signs: Vec<String>,
 }
 
-impl ParsedTemplateSql {
-    pub fn build(values: Vec<TemplateSqlValue>) {
 
+/// used to generate two struct
+/// 1. rinja template struct, if there is template signs: dollar signs or percent signs
+/// 2. arguments name list, corresponding to ?
+
+impl ParsedTemplateSql {
+
+    pub fn parse(template_sql: &str) -> Result<Self, nom::Err<nom::error::Error<&str>>> {
+        let trimmed_template_sql = template_sql.trim();
+        let (remaining, parsed) = parse_template_sql_values(trimmed_template_sql)?;
+        Ok(Self::build(parsed))
+    }
+    pub fn build(values: Vec<TemplateSqlValue>) -> Self {
         let has_question_mark: bool = values
             .iter()
             .any(|e| &TemplateSqlValue::Segment("?".to_string()) == e);
@@ -30,6 +41,50 @@ impl ParsedTemplateSql {
             panic!("sql template should not contains ?");
         }
 
+        let template_signs: Vec<String> = values
+            .iter()
+            .flat_map(TemplateSqlValue::get_template_signs)
+            .collect();
+        let argument_signs: Vec<String> = values
+            .iter()
+            .flat_map(TemplateSqlValue::get_argument_signs)
+            .collect();
+        let set_sql: String = values
+            .iter()
+            .map(TemplateSqlValue::to_set_sql)
+            .collect::<Vec<String>>()
+            .join(" ").trim().to_string();
+        let where_sql: String = values
+            .iter()
+            .map(TemplateSqlValue::to_where_sql)
+            .collect::<Vec<String>>()
+            .join(" ").trim().to_string();
+
+        Self {
+            set_sql,
+            where_sql,
+            template_signs,
+            argument_signs
+        }
+    }
+
+    pub fn get_set_sql(&self) -> &str {
+        &self.set_sql
+    }
+
+    pub fn get_where_sql(&self) -> &str {
+        &self.where_sql
+    }
+
+    pub fn get_template_signs(&self) -> &Vec<String> {
+        &self.template_signs
+    }
+    pub fn get_argument_signs(&self) -> &Vec<String> {
+        &self.argument_signs
+    }
+
+    pub fn need_render(&self) -> bool {
+        !self.template_signs.is_empty()
     }
 }
 
@@ -123,9 +178,9 @@ impl ParsedTemplateSql {
 
 #[cfg(test)]
 mod tests {
-    use rinja::Template;
-    use crate::Optional;
     use super::*;
+    use crate::Optional;
+    use rinja::Template;
 
     #[derive(Template)]
     #[template(source = "Hello {{ name }}", ext = "txt")]
@@ -134,33 +189,41 @@ mod tests {
     }
 
     #[derive(Template)]
-    #[template(source = "{% if name.is_some() %}hello {{ name.unwrap() }}{% elif name.is_null() %}hello is null{% else %}{% endif %}", ext = "txt")]
+    #[template(
+        source = "{% if name.is_some() %}hello {{ name.unwrap() }}{% elif name.is_null() %}hello is null{% else %}{% endif %}",
+        ext = "txt"
+    )]
     struct IfBlockTemplate<'a> {
         name: Optional<&'a str>,
     }
 
     #[test]
     fn test_rinja_dollar_placeholder() {
-        let hello_template = HelloTemplate {name: "Allen"};
+        let hello_template = HelloTemplate { name: "Allen" };
         let rendered = hello_template.render().unwrap();
         assert_eq!(rendered, "Hello Allen");
     }
 
     #[test]
     fn test_rinja_if_block() {
-        let if_template = IfBlockTemplate {name:  Optional::Some("Allen")};
+        let if_template = IfBlockTemplate {
+            name: Optional::Some("Allen"),
+        };
         let rendered = if_template.render().unwrap();
         assert_eq!(rendered, "hello Allen");
 
-        let if_template = IfBlockTemplate {name:  Optional::Null};
+        let if_template = IfBlockTemplate {
+            name: Optional::Null,
+        };
         let rendered = if_template.render().unwrap();
         assert_eq!(rendered, "hello is null");
 
-        let if_template = IfBlockTemplate {name:  Optional::None};
+        let if_template = IfBlockTemplate {
+            name: Optional::None,
+        };
         let rendered = if_template.render().unwrap();
         assert_eq!(rendered, "");
     }
-
 
     // #[test]
     // fn test_template_sql() {

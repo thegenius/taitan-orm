@@ -1,5 +1,6 @@
 use std::fmt::Display;
-use crate::template::ToSql;
+use crate::template::to_sql::SqlTemplateSign;
+use crate::template::{TemplateConnective, ToSql};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateString {
@@ -25,3 +26,5 @@ impl ToSql for TemplateString {
         self.to_string()
     }
 }
+
+impl SqlTemplateSign for TemplateString {}

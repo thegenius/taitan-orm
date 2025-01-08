@@ -138,10 +138,10 @@ pub trait FieldMapper {
         let field_name = field.ident.unwrap();
         let span = field_name.span();
         let field_name_lit = LitStr::new(&field_name.to_string(), span);
-        
+
         quote_spanned! { span =>
             match &self.#field_name {
-                Optional::Some(#field_name) => {
+                taitan_orm::result::Optional::Some(#field_name) => {
                     sql.push('`');
                     sql.push_str(#field_name_lit);
                     sql.push('`');
@@ -149,7 +149,7 @@ pub trait FieldMapper {
                     sql.push('?');
                     sql.push_str(connectives);
                 },
-                Optional::Null => {
+                taitan_orm::result::Optional::Null => {
                     sql.push('`');
                     sql.push_str(#field_name_lit);
                     sql.push('`');

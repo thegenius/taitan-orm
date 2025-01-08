@@ -13,5 +13,7 @@ pub use variable_parser::parse_variable_chain;
 pub use operator_parser::parse_operator;
 pub use placeholder_parser::parse_placeholder;
 pub use segment_parser::parse_segment;
-pub use value_parser::parse_template_sql_value;
 pub use number_parser::parse_number;
+
+pub use value_parser::parse_template_sql_value;
+pub use value_parser::parse_template_sql_values;

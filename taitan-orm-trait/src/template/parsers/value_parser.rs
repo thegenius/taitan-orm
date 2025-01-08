@@ -5,7 +5,6 @@ use nom::character::complete::{multispace0, multispace1};
 use nom::multi::separated_list1;
 use nom::IResult;
 
-use crate::template::parser::parse_template_sql;
 use crate::template::parsers::express_parser::parse_expr_as_value;
 use crate::template::parsers::operator_parser::parse_operator_as_value;
 use crate::template::parsers::placeholder_parser::parse_placeholder_as_value;

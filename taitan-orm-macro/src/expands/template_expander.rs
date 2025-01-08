@@ -16,7 +16,7 @@ pub fn generate_template_struct_and_impl(
     let template_sql = DefaultAttrParser::extract_template_sql(&attrs)
         .expect("TemplateRecord must have sql attribute, for example: #[sql = \" select name from user where id = #{id}\"]");
 
-    let template_sql = ParsedTemplateSql::build(template_sql.as_str())
+    let template_sql = ParsedTemplateSql::parse(template_sql.as_str())
         .expect(format!("Failed to parse template sql: {}", template_sql).as_str());
 
     let limit_fields = FieldsParser::from_named(fields).filter_annotated_fields("limit_field");
@@ -37,12 +37,12 @@ pub fn generate_template_struct_and_impl(
         if limit_fields_names.len() < 1 {
             panic!("you must specify at least one limit field");
         }
-        let parsed_count_sql = ParsedTemplateSql::build(count_sql.as_str())
+        let parsed_count_sql = ParsedTemplateSql::parse(count_sql.as_str())
             .expect(format!("Failed to parse template count sql: {}", count_sql).as_str());
         gen_fn_get_count_sql(ident, data, generics, Some(&parsed_count_sql))
     };
 
-    let variables = template_sql.variables;
+    let variables = template_sql.get_argument_signs();
     let args_add = gen_args_add_clause(&variables);
 
     let limit_field: Option<&String> = limit_fields_names.first();
@@ -207,7 +207,7 @@ fn gen_fn_get_count_sql(
     }
 
     let parsed_template_sql = parsed_template_sql_opt.unwrap();
-    let marked_sql = &parsed_template_sql.sql;
+    let marked_sql = &parsed_template_sql.get_where_sql();
 
     if parsed_template_sql.need_render() {
         let template_struct_stream =
@@ -242,9 +242,9 @@ fn gen_fn_get_sql(
     generics: &Generics,
     parsed_template_sql: &ParsedTemplateSql,
 ) -> SqlRenderFnStream {
-    let marked_sql = &parsed_template_sql.sql;
+    let marked_sql = &parsed_template_sql.get_where_sql();
     let template_struct_name = format_ident!("{}Template", ident);
-    if parsed_template_sql.dollar_signs.is_empty() {
+    if parsed_template_sql.get_template_signs().is_empty() {
         let fn_stream = quote! {
             fn get_sql(&self, page: Option<&taitan_orm::page::Pagination>) -> String {
                     if let Some(page) = page {

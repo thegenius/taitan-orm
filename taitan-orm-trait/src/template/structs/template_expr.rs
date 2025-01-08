@@ -2,6 +2,7 @@ use crate::template::structs::template_connective::TemplateConnective;
 use crate::template::{TemplatePlaceholder, TemplateVariableChain, ToSql};
 use std::fmt::Display;
 use crate::Optional;
+use crate::template::to_sql::SqlTemplateSign;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprFirstPart {
@@ -33,6 +34,20 @@ impl ToSql for TemplateExprFirstPart {
         }
     }
 }
+
+impl SqlTemplateSign for TemplateExprFirstPart {
+    fn get_template_signs(&self) -> Vec<String> {
+        match self {
+            TemplateExprFirstPart::Dollar(val) => val.get_template_signs(),
+            _ => vec![],
+        }
+    }
+
+    fn get_argument_signs(&self) -> Vec<String> {
+        vec![]
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprSecondPart {
@@ -70,12 +85,49 @@ impl ToSql for Option<TemplateConnective> {
     }
 }
 
+impl SqlTemplateSign for TemplateExprSecondPart {
+    fn get_template_signs(&self) -> Vec<String> {
+        match self {
+            TemplateExprSecondPart::Percent(val) => val.get_template_signs(),
+            TemplateExprSecondPart::Dollar(val) => val.get_template_signs(),
+            _ => vec![],
+        }
+    }
+    fn get_argument_signs(&self) -> Vec<String> {
+        match self {
+            TemplateExprSecondPart::Percent(val) => val.get_argument_signs(),
+            TemplateExprSecondPart::Hash(val) => val.get_argument_signs(),
+            _ => vec![],
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TemplateExpr {
     pub first_part: TemplateExprFirstPart,
     pub operator: String,
     pub second_part: TemplateExprSecondPart,
     pub connective: Option<TemplateConnective>,
+}
+
+impl SqlTemplateSign for TemplateExpr {
+    fn get_template_signs(&self) -> Vec<String> {
+        let mut signs: Vec<String> = vec![];
+        let first_part_signs = self.first_part.get_template_signs();
+        let second_part_signs = self.second_part.get_template_signs();
+        signs.extend(first_part_signs);
+        signs.extend(second_part_signs);
+        signs
+    }
+
+    fn get_argument_signs(&self) -> Vec<String> {
+        let mut signs: Vec<String> = vec![];
+        let first_part_signs = self.first_part.get_argument_signs();
+        let second_part_signs = self.second_part.get_argument_signs();
+        signs.extend(first_part_signs);
+        signs.extend(second_part_signs);
+        signs
+    }
 }
 
 impl Display for TemplateExpr {
