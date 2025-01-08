@@ -166,7 +166,7 @@ Taitan-ORM has the most powerful orm template engine you ever meet.
 /// This is the #{} syntax, this will be parsed at compile-time,
 /// In run time, engine will get the sql: 
 /// UPDATE `user` SET name = ? WHERE `id` = ?
-/// There will zero-overhead at run-time
+/// There will be zero-overhead at run-time
 #[derive(TemplateRecord, Debug)]
 #[sql = "UPDATE `user` SET name = #{name} WHERE `id` = #{id}"]
 pub struct UserUpdateTemplate {
