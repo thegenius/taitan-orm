@@ -29,6 +29,14 @@ pub struct UserSelectTemplate {
     page: Pagination,
 }
 
+
+#[derive(TemplateRecord, Debug)]
+#[sql = "select `id`, `name`, `age` FROM `user` where age >= %{age} AND `name` = #{name}"]
+pub struct UserCustomTemplate {
+    name: String,
+    age: Optional<i32>,
+}
+
 #[tokio::main]
 async fn main() -> taitan_orm::result::Result<()> {
     tracing_subscriber::fmt()
@@ -86,6 +94,23 @@ async fn main() -> taitan_orm::result::Result<()> {
     assert_eq!(paged_users.page.total, 1);
     let user = paged_users.data.first().unwrap();
     assert_eq!(user.name.clone().unwrap(), "Bob".to_string());
+
+    // This template will execute sql: select `id`, `name`, `age` FROM `user` where `name` = #{name}
+    let template = UserCustomTemplate {
+        name: "Bob".to_string(),
+        age: Optional::None,
+    };
+    let users: Vec<UserSelectedEntity> = db.fetch_all_by_template(&template).await?;
+    assert_eq!(users.len(), 1);
+
+    // This template will execute sql: select `id`, `name`, `age` FROM `user` where `age` > #{age} `name` = #{name}
+    let template = UserCustomTemplate {
+        name: "Bob".to_string(),
+        age: Optional::Some(25),
+    };
+    let users: Vec<UserSelectedEntity> = db.fetch_all_by_template(&template).await?;
+    assert_eq!(users.len(), 0);
+
     println!("template success!");
     Ok(())
 }
