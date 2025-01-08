@@ -12,7 +12,7 @@
 
 # Quick Start
 ```toml
-taitan-orm = { version = "0.1.6" }
+taitan-orm = { version = "0.1.7" }
 ```
 ```rust 
 
