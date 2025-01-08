@@ -3,15 +3,15 @@ name = "taitan-orm"
 edition = "2021"
 version.workspace = true
 rust-version.workspace = true
-license-file = "LICENSE"
-description = "ORM based on sqlx"
+license = "MIT OR Apache-2.0"
+description = "Next Generation ORM based on sqlx"
 homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
-taitan-orm-trait = { path = "../taitan-orm-trait" }
-taitan-orm-macro = { path = "../taitan-orm-macro" }
-#taitan-orm-trait = { version = "0.1.6" }
-#taitan-orm-macro = { version = "0.1.6" }
+#taitan-orm-trait = { path = "../taitan-orm-trait" }
+#taitan-orm-macro = { path = "../taitan-orm-macro" }
+taitan-orm-trait = { version = "0.1.7" }
+taitan-orm-macro = { version = "0.1.7" }
 sqlx = {workspace = true}
 serde = {workspace = true}
 time = {workspace = true}
