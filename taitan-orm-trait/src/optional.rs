@@ -1,3 +1,4 @@
+use std::fmt::{Debug, Display};
 use serde::{Deserialize, Serialize};
 
 
@@ -19,6 +20,16 @@ impl<T> PartialEq<Option<T>> for Optional<T> {
             Optional::None => matches!(other, None),
             Optional::Some(s) => matches!(other, Some(s)),
             _ => false,
+        }
+    }
+}
+
+impl<T> Display for Optional<T> where T: Debug {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Optional::None => write!(fmt, ""),
+            Optional::Null => write!(fmt, ""),
+            Optional::Some(s) => write!(fmt, "{:?}", s),
         }
     }
 }

@@ -2,6 +2,7 @@ use crate::template::structs::template_connective::TemplateConnective;
 use crate::template::{TemplatePlaceholder, TemplateVariableChain, ToSql};
 use std::fmt::Display;
 use crate::Optional;
+use crate::template::parsed_template_sql::TemplateField;
 use crate::template::to_sql::SqlTemplateSign;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -43,7 +44,7 @@ impl SqlTemplateSign for TemplateExprFirstPart {
         }
     }
 
-    fn get_argument_signs(&self) -> Vec<String> {
+    fn get_argument_signs(&self) -> Vec<TemplateField> {
         vec![]
     }
 }
@@ -93,7 +94,7 @@ impl SqlTemplateSign for TemplateExprSecondPart {
             _ => vec![],
         }
     }
-    fn get_argument_signs(&self) -> Vec<String> {
+    fn get_argument_signs(&self) -> Vec<TemplateField> {
         match self {
             TemplateExprSecondPart::Percent(val) => val.get_argument_signs(),
             TemplateExprSecondPart::Hash(val) => val.get_argument_signs(),
@@ -120,8 +121,8 @@ impl SqlTemplateSign for TemplateExpr {
         signs
     }
 
-    fn get_argument_signs(&self) -> Vec<String> {
-        let mut signs: Vec<String> = vec![];
+    fn get_argument_signs(&self) -> Vec<TemplateField> {
+        let mut signs: Vec<TemplateField> = vec![];
         let first_part_signs = self.first_part.get_argument_signs();
         let second_part_signs = self.second_part.get_argument_signs();
         signs.extend(first_part_signs);
@@ -157,16 +158,23 @@ impl Display for TemplateExpr {
 impl ToSql for TemplateExpr {
     fn to_set_sql(&self) -> String {
         match &self.second_part {
-            TemplateExprSecondPart::Dollar(val) => val.to_set_sql(),
-            TemplateExprSecondPart::Variable(val) => val.to_set_sql(),
-            TemplateExprSecondPart::Hash(val) => val.to_set_sql(),
-            TemplateExprSecondPart::Number(val) => val.to_string(),
+            TemplateExprSecondPart::Dollar(val) => {
+                format!("{} = {}", self.first_part.to_set_sql(), val.to_set_sql())
+            },
+            TemplateExprSecondPart::Variable(val) => {
+                format!("{} = {}", self.first_part.to_set_sql(), val.to_set_sql())
+            },
+            TemplateExprSecondPart::Hash(val) => {
+                format!("{} = {}", self.first_part.to_set_sql(), val.to_set_sql())
+            },
+            TemplateExprSecondPart::Number(val) => {
+                format!("{} = {}", self.first_part.to_set_sql(), val)
+            },
             TemplateExprSecondPart::Percent(val) => {
                 format!(
-                    "{{% if {}.is_some() %}}{} {} ? {}{{% elif {}.is_null() %}}{}=NULL {}{{% else %}}{{% endif %}}",
+                    "{{% if {}.is_some() %}}{} = ? {}{{% elif {}.is_null() %}}{}=NULL {}{{% else %}}{{% endif %}}",
                     val.to_string(),
                     self.first_part.to_set_sql(),
-                    self.operator,
                     self.connective.to_set_sql(),
                     val.to_string(),
                     self.first_part.to_set_sql(),
@@ -178,10 +186,18 @@ impl ToSql for TemplateExpr {
 
     fn to_where_sql(&self) -> String {
         match &self.second_part {
-            TemplateExprSecondPart::Dollar(val) => val.to_where_sql(),
-            TemplateExprSecondPart::Variable(val) => val.to_where_sql(),
-            TemplateExprSecondPart::Hash(val) => val.to_where_sql(),
-            TemplateExprSecondPart::Number(val) => val.to_string(),
+            TemplateExprSecondPart::Dollar(val) => {
+                format!("{} {} {}", self.first_part.to_where_sql(), self.operator, val.to_where_sql())
+            },
+            TemplateExprSecondPart::Variable(val) => {
+                format!("{} {} {}", self.first_part.to_where_sql(), self.operator, val.to_where_sql())
+            },
+            TemplateExprSecondPart::Hash(val) => {
+                format!("{} {} {}", self.first_part.to_where_sql(), self.operator, val.to_where_sql())
+            },
+            TemplateExprSecondPart::Number(val) => {
+                format!("{} {} {}", self.first_part.to_where_sql(), self.operator, val)
+            },
             TemplateExprSecondPart::Percent(val) => {
                 if self.operator.eq("=") {
                     format!(

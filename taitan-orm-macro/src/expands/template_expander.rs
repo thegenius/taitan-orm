@@ -4,7 +4,7 @@ use crate::util::{build_impl_trait_token, copy_to_template_struct};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{Attribute, Data, FieldsNamed, Generics};
-use taitan_orm_trait::ParsedTemplateSql;
+use taitan_orm_trait::{ParsedTemplateSql, TemplateField};
 
 pub fn generate_template_struct_and_impl(
     ident: &Ident,
@@ -55,9 +55,9 @@ pub fn generate_template_struct_and_impl(
             let count_variables = variables.clone()
                 .into_iter()
                 .filter(|variable| {
-                    variable.ne(limit_field) && !variable.starts_with(&limit_field_dot)
+                    variable.name.ne(limit_field) && !variable.name.starts_with(&limit_field_dot)
                 })
-                .collect::<Vec<String>>();
+                .collect::<Vec<TemplateField>>();
             gen_args_add_clause(&count_variables)
         }
     };
@@ -87,11 +87,11 @@ pub fn generate_template_struct_and_impl(
 
             #get_pagination_fn_stream
 
-            fn get_variables(&self) -> Vec<String> {
-                vec![
-                    #(#variables.to_string(), )*
-                ]
-            }
+            // fn get_variables(&self) -> Vec<String> {
+            //     vec![
+            //         #(#variables.name.to_string(), )*
+            //     ]
+            // }
 
             fn gen_template_count_arguments_sqlite(&self) -> Result<sqlx::sqlite::SqliteArguments<'_>, sqlx::error::BoxDynError> {
                 let mut args = sqlx::sqlite::SqliteArguments::default();
@@ -169,18 +169,26 @@ fn generate_dot_variables(idents: &Vec<Ident>) -> TokenStream {
     }).collect::<TokenStream>();
     tokens
 }
-fn gen_args_add_clause<T: AsRef<str>>(fields: &Vec<T>) -> Vec<TokenStream> {
+fn gen_args_add_clause(fields: &Vec<TemplateField>) -> Vec<TokenStream> {
     fields
         .iter()
         .map(|variable| {
-            let variable_names = variable.as_ref().split('.').collect::<Vec<&str>>();
-            // panic!("{:?}", variable_names);
+            let variable_names = variable.name.split('.').collect::<Vec<&str>>();
             let variable_idents = variable_names.iter().map(|name| format_ident!("{}", name)).collect::<Vec<Ident>>();
             let variable_stream = generate_dot_variables(&variable_idents);
-            // panic!("{}", variable_stream);
-            quote! {
-                sqlx::Arguments::add(&mut args, &self.#variable_stream )?;
+            if variable.is_optional {
+                quote! {
+                    match &self.#variable_stream {
+                        taitan_orm::result::Optional::Some(val) => sqlx::Arguments::add(&mut args, val)?,
+                        _ => {}
+                    }
+                }
+            } else {
+                quote! {
+                    sqlx::Arguments::add(&mut args, &self.#variable_stream )?;
+                }
             }
+
         })
         .collect::<Vec<TokenStream>>()
 }

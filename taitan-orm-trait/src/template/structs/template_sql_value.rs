@@ -3,6 +3,7 @@ use crate::template::{
     TemplateConnective, TemplateExpr, TemplatePlaceholder, TemplateString, TemplateVariableChain,
     ToSql,
 };
+use crate::template::parsed_template_sql::TemplateField;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateSqlValue {
@@ -53,7 +54,7 @@ impl SqlTemplateSign for TemplateSqlValue {
         }
     }
 
-    fn get_argument_signs(&self) -> Vec<String> {
+    fn get_argument_signs(&self) -> Vec<TemplateField> {
         match self {
             Self::Placeholder(p) => p.get_argument_signs(),
             Self::Expression(e) => e.get_argument_signs(),

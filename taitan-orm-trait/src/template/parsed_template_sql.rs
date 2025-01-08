@@ -1,6 +1,7 @@
 use crate::template::to_sql::SqlTemplateSign;
 use crate::template::{TemplateExpr, TemplatePlaceholder, TemplateSqlValue, ToSql};
-use nom::error::ErrorKind::NonEmpty;
+use nom::error::ErrorKind::{Fail, NonEmpty};
+use rinja::filters::format;
 use crate::template::parsers::parse_template_sql_values;
 
 /// sql允许是simple字符串，或者合法的
@@ -18,7 +19,13 @@ pub struct ParsedTemplateSql {
     set_sql: String,
     where_sql: String,
     template_signs: Vec<String>,
-    argument_signs: Vec<String>,
+    argument_signs: Vec<TemplateField>,
+}
+
+#[derive(Debug, Clone)]
+pub struct TemplateField {
+    pub name: String,
+    pub is_optional: bool,
 }
 
 
@@ -30,8 +37,22 @@ impl ParsedTemplateSql {
 
     pub fn parse(template_sql: &str) -> Result<Self, nom::Err<nom::error::Error<&str>>> {
         let trimmed_template_sql = template_sql.trim();
-        let (remaining, parsed) = parse_template_sql_values(trimmed_template_sql)?;
-        Ok(Self::build(parsed))
+        let mut values: Vec<TemplateSqlValue> = Vec::new();
+        let (mut remaining, mut parsed) = parse_template_sql_values(trimmed_template_sql)?;
+        values.extend(parsed);
+        while !remaining.is_empty() {
+            let trimmed_remaining = remaining.trim();
+            (remaining, parsed) = parse_template_sql_values(trimmed_remaining)?;
+            values.extend(parsed);
+        }
+
+
+        // let (remaining, parsed) = parse_template_sql_values(trimmed_template_sql)?;
+        // if !remaining.is_empty() {
+        //     // panic!("there is remaining remaining tokens: {:?}", remaining);
+        //     return Err(nom::Err::Error(nom::error::Error::new(remaining, Fail)));
+        // }
+        Ok(Self::build(values))
     }
     pub fn build(values: Vec<TemplateSqlValue>) -> Self {
         let has_question_mark: bool = values
@@ -45,7 +66,7 @@ impl ParsedTemplateSql {
             .iter()
             .flat_map(TemplateSqlValue::get_template_signs)
             .collect();
-        let argument_signs: Vec<String> = values
+        let argument_signs: Vec<TemplateField> = values
             .iter()
             .flat_map(TemplateSqlValue::get_argument_signs)
             .collect();
@@ -79,7 +100,7 @@ impl ParsedTemplateSql {
     pub fn get_template_signs(&self) -> &Vec<String> {
         &self.template_signs
     }
-    pub fn get_argument_signs(&self) -> &Vec<String> {
+    pub fn get_argument_signs(&self) -> &Vec<TemplateField> {
         &self.argument_signs
     }
 
@@ -223,6 +244,28 @@ mod tests {
         };
         let rendered = if_template.render().unwrap();
         assert_eq!(rendered, "");
+    }
+
+
+    // #[derive(Template, Clone, Debug)]
+    // #[template(source= "select * from `user` WHERE name = %{name} AND age = #{age} ", ext = "txt")]
+    // pub struct TestTemplate6 {
+    //     name: Optional<String>,
+    //     age: i32,
+    // }
+
+    #[test]
+    fn test_template_sql() {
+        let parsed_template = ParsedTemplateSql::parse("select * from `user` WHERE name = %{name} AND age = #{age} ").unwrap();
+        assert_eq!(parsed_template.get_where_sql(), "select * from `user` WHERE {% if name.is_some() %}name = ? AND{% elif name.is_null() %}name IS NULL AND{% else %}{% endif %} age = ?");
+        // assert_eq!(parsed_template.variables, vec!["v1.v2.v3"]);
+    }
+
+    #[test]
+    fn test_parse_sql_1() {
+        let parsed_template = ParsedTemplateSql::parse("select count(*) from ${name} #{age} \"hello ${name}\"").unwrap();
+        assert_eq!(parsed_template.get_where_sql(), "select count ( * ) from {{name}} ? \"hello ${name}\"");
+
     }
 
     // #[test]

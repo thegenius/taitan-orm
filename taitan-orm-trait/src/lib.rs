@@ -58,6 +58,7 @@ pub use page::count_sql::CountSql;
 pub use template_record::TemplateRecord;
 pub use template::ParsedTemplateSql;
 pub use template::TemplateSqlValue;
+pub use template::TemplateField;
 
 pub use write_command::WriteCommand;
 pub use page::paged_list::build_paged_list;

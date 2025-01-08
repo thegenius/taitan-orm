@@ -18,5 +18,6 @@ pub use structs::TemplateSqlValue;
 pub use structs::TemplateExprFirstPart;
 pub use structs::TemplateExprSecondPart;
 
+pub use parsed_template_sql::TemplateField;
 
 pub use parsed_template_sql::ParsedTemplateSql;

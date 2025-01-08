@@ -18,7 +18,7 @@ pub trait TemplateRecord: Sync + Debug {
         None
     }
 
-    fn get_variables(&self) -> Vec<String>;
+    // fn get_variables(&self) -> Vec<String>;
 
     fn gen_template_count_arguments_sqlite(&self) -> Result<SqliteArguments<'_>, BoxDynError> {
         Err(NotImplementError("gen_template_count_arguments_sqlite".to_string()).into())

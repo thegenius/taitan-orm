@@ -2,6 +2,7 @@ use crate::template::structs::template_variable_chain::TemplateVariableChain;
 use crate::template::to_sql::SqlTemplateSign;
 use crate::template::{TemplateConnective, ToSql};
 use std::fmt::Display;
+use crate::template::parsed_template_sql::TemplateField;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplatePlaceholder {
@@ -16,7 +17,7 @@ impl TemplatePlaceholder {
             TemplatePlaceholder::Dollar(val) => format!("{{{{{}}}}}", val.to_set_sql()),
             TemplatePlaceholder::Hash(val) => "?".to_string(),
             TemplatePlaceholder::Percent(val) => format!(
-                "{{% if {}.is_some() %}}{{{{{}.unwrap()}}}}{{% elif {}.is_null() %}}NULL{{% else %}}{{% endif %}}",
+                "{{% if {}.is_some() %}}{{{{{}}}}}{{% elif {}.is_null() %}}NULL{{% else %}}{{% endif %}}",
                 val.to_set_sql(),
                 val.to_set_sql(),
                 val.to_set_sql(),
@@ -63,11 +64,11 @@ impl SqlTemplateSign for TemplatePlaceholder {
         }
     }
 
-    fn get_argument_signs(&self) -> Vec<String> {
+    fn get_argument_signs(&self) -> Vec<TemplateField> {
         match self {
-            Self::Percent(var) => vec![var.to_string()],
+            Self::Percent(var) => vec![TemplateField{ name: var.to_string(), is_optional: true}],
             Self::Dollar(var) => vec![],
-            Self::Hash(var) => vec![var.to_string()],
+            Self::Hash(var) => vec![TemplateField{ name: var.to_string(), is_optional: false}],
         }
     }
 }
@@ -97,6 +98,6 @@ mod tests {
             variables: vec![TemplateVariable::Simple("var".to_string())],
         });
         let sql = placeholder.to_set_sql();
-        assert_eq!(sql, "{% if var.is_some() %}{{var.unwrap()}}{% elif var.is_null() %}NULL{% else %}{% endif %}");
+        assert_eq!(sql, "{% if var.is_some() %}{{var}}{% elif var.is_null() %}NULL{% else %}{% endif %}");
     }
 }
