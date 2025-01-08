@@ -119,8 +119,8 @@ async fn main() -> taitan_orm::result::Result<()> {
 * you can run the crud example in examples/crud directory.
 
 # Usage
-1. Compile Time Generation  
-when we derive(Schema), taitan-orm will generate helper struct for you.
+## Compile Time Generation  
+When we derive(Schema), Taitan-ORM will generate helper struct for you.
 
 ```rust
 #[derive(Schema, Clone, Debug)]
@@ -159,12 +159,14 @@ pub struct UserSelectedEntity {
 }
 ```
 
-2. Template   
+## Template   
 Taitan-ORM has the most powerful orm template engine you ever meet.
 
 ```rust
-/// This is the #{} syntax, this will be parsed at compile time,
-/// In run time, engine will get the sql as: UPDATE `user` SET name = ? WHERE `id` = ?
+/// This is the #{} syntax, this will be parsed at compile-time,
+/// In run time, engine will get the sql: 
+/// UPDATE `user` SET name = ? WHERE `id` = ?
+/// There will zero-overhead at run-time
 #[derive(TemplateRecord, Debug)]
 #[sql = "UPDATE `user` SET name = #{name} WHERE `id` = #{id}"]
 pub struct UserUpdateTemplate {
@@ -172,8 +174,10 @@ pub struct UserUpdateTemplate {
     name: String,
 }
 
-/// This is the ${} syntax, and will render the sql at run time,
-/// After render, engine get the sql: UPDATE `user` SET user_name = 2 WHERE `id` = 100
+/// This is the ${} syntax, and will render the sql at run-time,
+/// After render, engine get the sql: 
+/// UPDATE `user` SET user_name = 2 WHERE `id` = 100
+/// This is usually used for dynamic sql generation
 #[derive(TemplateRecord, Debug)]
 #[sql = "UPDATE `user` SET ${name} = 2 WHERE `id` = ${id}"]
 pub struct UserUpdateTemplate {
@@ -181,14 +185,19 @@ pub struct UserUpdateTemplate {
  name: String, // suppose to be "user_name"
 }
 
-/// This is the %{} syntax, and will be parsed at run time,
-/// But Special for Optional Field
+/// This is the %{} syntax, the most beautiful one, will be parsed at run time,
+/// But Special for Optional variable
 /// 1. When template is { name: "Allen", age: None },
-///    After render, engine get the sql: select `id`, `name`, `age` FROM `user` where `name` = ?
+///    After render, engine will get the sql: 
+///    select `id`, `name`, `age` FROM `user` where `name` = ?
 /// 2. When template is { name: "Allen", age: Some(33) },
-///    After render, engine get the sql: select `id`, `name`, `age` FROM `user` where age >= ? AND `name` = ?
+///    After render, engine will get the sql: 
+///    select `id`, `name`, `age` FROM `user` where age >= ? AND `name` = ?
+///
 /// when parser encounters "%{age}", 
-/// it treats the entire expression with connective "age >= %{age} AND"  as an integrated unit
+/// it will treat the entire expression with connective 
+/// "age >= %{age} AND" as an integrated unit
+/// when Optional variable is None, the entire expression will be ignored
 #[derive(TemplateRecord, Debug)]
 #[sql = "select `id`, `name`, `age` FROM `user` where age >= %{age} AND `name` = #{name}"]
 pub struct UserCustomTemplate {
