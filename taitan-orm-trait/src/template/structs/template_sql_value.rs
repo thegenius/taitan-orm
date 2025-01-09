@@ -5,6 +5,7 @@ use crate::template::{
 };
 use crate::template::parsed_template_sql::TemplateField;
 
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateSqlValue {
     Number(String),

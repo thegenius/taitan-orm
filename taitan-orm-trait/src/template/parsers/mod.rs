@@ -14,6 +14,9 @@ pub use operator_parser::parse_operator;
 pub use placeholder_parser::parse_placeholder;
 pub use segment_parser::parse_segment;
 pub use number_parser::parse_number;
+pub use express_parser::parse_expr;
+pub use express_parser::parse_expr_as_value;
+pub use express_parser::parse_simple_expr;
 
 pub use value_parser::parse_template_sql_value;
 pub use value_parser::parse_template_sql_values;

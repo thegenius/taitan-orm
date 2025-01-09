@@ -1,8 +1,10 @@
+use crate::template::parsers::{parse_expr, parse_template_sql_values};
 use crate::template::to_sql::SqlTemplateSign;
 use crate::template::{TemplateExpr, TemplatePlaceholder, TemplateSqlValue, ToSql};
 use nom::error::ErrorKind::{Fail, NonEmpty};
+use nom::IResult;
 use rinja::filters::format;
-use crate::template::parsers::parse_template_sql_values;
+use std::cell::RefCell;
 
 /// sql允许是simple字符串，或者合法的
 /// hash signs应该被转化为 ?
@@ -20,6 +22,7 @@ pub struct ParsedTemplateSql {
     where_sql: String,
     template_signs: Vec<String>,
     argument_signs: Vec<TemplateField>,
+    pub(crate) origin: Vec<TemplateSqlValue>,
 }
 
 #[derive(Debug, Clone)]
@@ -28,24 +31,99 @@ pub struct TemplateField {
     pub is_optional: bool,
 }
 
-
 /// used to generate two struct
 /// 1. rinja template struct, if there is template signs: dollar signs or percent signs
 /// 2. arguments name list, corresponding to ?
 
-impl ParsedTemplateSql {
+fn assign_inorder_indices(expr: &mut TemplateExpr, counter: &mut i32, input_expr_symbol: &str) {
+    match expr {
+        TemplateExpr::Simple {
+            index, expr_symbol, ..
+        } => {
+            *index = *counter;
+            *counter += 1;
+            *expr_symbol = input_expr_symbol.to_string();
+            // 可以在这里设置特定的 expr_symbol，如果需要的话
+        }
+        TemplateExpr::Not {
+            expr,
+            index,
+            expr_symbol,
+        }
+        | TemplateExpr::Parenthesized {
+            expr,
+            index,
+            expr_symbol,
+        } => {
+            assign_inorder_indices(expr.as_mut(), counter, input_expr_symbol);
+            *index = *counter;
+            *expr_symbol = input_expr_symbol.to_string();
+            *counter += 1;
+        }
+        TemplateExpr::And {
+            left,
+            right,
+            index,
+            expr_symbol,
+        }
+        | TemplateExpr::Or {
+            left,
+            right,
+            index,
+            expr_symbol,
+        } => {
+            assign_inorder_indices(left.as_mut(), counter, input_expr_symbol);
+            assign_inorder_indices(right.as_mut(), counter, input_expr_symbol);
+            *index = *counter;
+            *expr_symbol = input_expr_symbol.to_string();
+            *counter += 1;
+        }
+    }
+}
 
+/// 公开接口用于分配索引和符号
+pub fn assign_indices(expr: &mut TemplateExpr, expr_symbol: &str) {
+    let mut counter = 0;
+    assign_inorder_indices(expr, &mut counter, expr_symbol);
+}
+
+impl ParsedTemplateSql {
     pub fn parse(template_sql: &str) -> Result<Self, nom::Err<nom::error::Error<&str>>> {
         let trimmed_template_sql = template_sql.trim();
         let mut values: Vec<TemplateSqlValue> = Vec::new();
+        let expr_symbol_prefix = "expr_";
+        let mut expr_count = 0;
         let (mut remaining, mut parsed) = parse_template_sql_values(trimmed_template_sql)?;
+        for mut item in &mut parsed {
+            match &mut item {
+                TemplateSqlValue::Expression(expr) => {
+                    assign_indices(
+                        expr,
+                        format!("{}{}", expr_symbol_prefix, expr_count).as_str(),
+                    );
+                }
+                _ => {}
+            }
+        }
+
         values.extend(parsed);
         while !remaining.is_empty() {
             let trimmed_remaining = remaining.trim();
             (remaining, parsed) = parse_template_sql_values(trimmed_remaining)?;
+            expr_count += 1;
+            for mut item in &mut parsed {
+                match &mut item {
+                    TemplateSqlValue::Expression(expr) => {
+                        assign_indices(
+                            expr,
+                            format!("{}{}", expr_symbol_prefix, expr_count).as_str(),
+                        );
+                    }
+                    _ => {}
+                }
+            }
             values.extend(parsed);
         }
-
 
         // let (remaining, parsed) = parse_template_sql_values(trimmed_template_sql)?;
         // if !remaining.is_empty() {
@@ -74,18 +152,23 @@ impl ParsedTemplateSql {
             .iter()
             .map(TemplateSqlValue::to_set_sql)
             .collect::<Vec<String>>()
-            .join(" ").trim().to_string();
+            .join(" ")
+            .trim()
+            .to_string();
         let where_sql: String = values
             .iter()
             .map(TemplateSqlValue::to_where_sql)
             .collect::<Vec<String>>()
-            .join(" ").trim().to_string();
+            .join(" ")
+            .trim()
+            .to_string();
 
         Self {
             set_sql,
             where_sql,
             template_signs,
-            argument_signs
+            argument_signs,
+            origin: values,
         }
     }
 
@@ -200,6 +283,9 @@ impl ParsedTemplateSql {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::template::{
+        TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariable, TemplateVariableChain,
+    };
     use crate::Optional;
     use rinja::Template;
 
@@ -246,7 +332,6 @@ mod tests {
         assert_eq!(rendered, "");
     }
 
-
     // #[derive(Template, Clone, Debug)]
     // #[template(source= "select * from `user` WHERE name = %{name} AND age = #{age} ", ext = "txt")]
     // pub struct TestTemplate6 {
@@ -256,16 +341,105 @@ mod tests {
 
     #[test]
     fn test_template_sql() {
-        let parsed_template = ParsedTemplateSql::parse("select * from `user` WHERE name = %{name} AND age = #{age} ").unwrap();
-        assert_eq!(parsed_template.get_where_sql(), "select * from `user` WHERE {% if name.is_some() %}name = ? AND{% elif name.is_null() %}name IS NULL AND{% else %}{% endif %} age = ?");
-        // assert_eq!(parsed_template.variables, vec!["v1.v2.v3"]);
+        let parsed_template = ParsedTemplateSql::parse(
+            "select * from `user` WHERE name = %{name} AND age = #{age} OR a > ${age}",
+        )
+        .unwrap();
+        assert_eq!(parsed_template.get_where_sql(), "select * from `user` WHERE (({% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %} AND age = ?) OR a > {{age}})");
+
+        let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
+            variables: vec![TemplateVariable::Simple("name".to_string())],
+        });
+
+        let second_part =
+            TemplateExprSecondPart::Percent(TemplatePlaceholder::Percent(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("name".to_string())],
+            }));
+
+        let expr1 = TemplateExpr::Simple {
+            first_part,
+            operator: "=".to_string(),
+            second_part,
+            index: 0,
+            expr_symbol: "expr_0".to_string(),
+        };
+
+        let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
+            variables: vec![TemplateVariable::Simple("age".to_string())],
+        });
+
+        let second_part =
+            TemplateExprSecondPart::Hash(TemplatePlaceholder::Hash(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("age".to_string())],
+            }));
+
+        let expr2 = TemplateExpr::Simple {
+            first_part,
+            operator: "=".to_string(),
+            second_part,
+            index: 1,
+            expr_symbol: "expr_0".to_string(),
+        };
+
+        let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
+            variables: vec![TemplateVariable::Simple("a".to_string())],
+        });
+
+        let second_part =
+            TemplateExprSecondPart::Dollar(TemplatePlaceholder::Dollar(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("age".to_string())],
+            }));
+
+        let expr3 = TemplateExpr::Simple {
+            first_part,
+            operator: ">".to_string(),
+            second_part,
+            index: 3,
+            expr_symbol: "expr_0".to_string(),
+        };
+
+        let expr = TemplateExpr::Or {
+            left: Box::new(TemplateExpr::And {
+                left: Box::new(expr1),
+                right: Box::new(expr2),
+                index: 2,
+                expr_symbol: "expr_0".to_string(),
+            }),
+            right: Box::new(expr3),
+            index: 4,
+            expr_symbol: "expr_0".to_string(),
+        };
+
+        assert_eq!(
+            parsed_template.origin,
+            vec![
+                TemplateSqlValue::VariableChain(TemplateVariableChain {
+                    variables: vec![TemplateVariable::Simple("select".to_string())]
+                }),
+                TemplateSqlValue::Segment("*".to_string()),
+                TemplateSqlValue::VariableChain(TemplateVariableChain {
+                    variables: vec![TemplateVariable::Simple("from".to_string())]
+                }),
+                TemplateSqlValue::VariableChain(TemplateVariableChain {
+                    variables: vec![TemplateVariable::Quote("user".to_string())]
+                }),
+                TemplateSqlValue::VariableChain(TemplateVariableChain {
+                    variables: vec![TemplateVariable::Simple("WHERE".to_string())]
+                }),
+                TemplateSqlValue::Expression(expr)
+            ]
+        );
     }
 
     #[test]
     fn test_parse_sql_1() {
-        let parsed_template = ParsedTemplateSql::parse("select count(*) from ${name} #{age} \"hello ${name}\"").unwrap();
-        assert_eq!(parsed_template.get_where_sql(), "select count ( * ) from {{name}} ? \"hello ${name}\"");
-
+        let parsed_template =
+            ParsedTemplateSql::parse("select count(*) from ${name} #{age} \"hello ${name}\"")
+                .unwrap();
+        assert_eq!(
+            parsed_template.get_where_sql(),
+            "select count ( * ) from {{name}} ? \"hello ${name}\""
+        );
     }
 
     // #[test]

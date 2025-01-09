@@ -40,17 +40,25 @@ pub fn parse_template_sql_values(input: &str) -> IResult<&str, Vec<TemplateSqlVa
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::template::structs::TemplateExpr;
     use crate::template::TemplateConnective::And;
     use crate::template::TemplateVariable;
     use crate::template::{TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariableChain};
-
-
-
 
     #[test]
     fn test_parse_template_sql_value() {
         let (remaining, parsed) =
             parse_template_sql_values("SELECT * `test` user ${v1. v2. v3} where id = 23 ").unwrap();
+        let expr_simple = TemplateExpr::Simple {
+            first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("id".to_string())],
+            }),
+            operator: "=".to_string(),
+            second_part: TemplateExprSecondPart::Number("23".to_string()),
+            index: 0,
+            expr_symbol: "".to_string(),
+        };
+
         assert_eq!(
             parsed,
             vec![
@@ -74,14 +82,8 @@ mod tests {
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
                     variables: vec![TemplateVariable::Simple("where".to_string())]
                 }),
-                TemplateSqlValue::Expression(TemplateExpr {
-                    first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
-                        variables: vec![TemplateVariable::Simple("id".to_string())]
-                    }),
-                    operator: "=".to_string(),
-                    second_part: TemplateExprSecondPart::Number("23".to_string()),
-                    connective: None
-                }),
+                TemplateSqlValue::Expression(
+                    expr_simple),
             ]
         );
     }
@@ -92,6 +94,42 @@ mod tests {
             "select * from `user` WHERE name = %{name} AND age = #{age} ",
         )
         .unwrap();
+
+        let expr = TemplateExpr::Simple {
+            first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("name".to_string())],
+            }),
+            operator: "=".to_string(),
+            second_part: TemplateExprSecondPart::Percent(TemplatePlaceholder::Percent(
+                TemplateVariableChain {
+                    variables: vec![TemplateVariable::Simple("name".to_string())],
+                },
+            )),
+            index: 0,
+            expr_symbol: "".to_string()
+        };
+        let expr2 = TemplateExpr::Simple {
+            first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
+                variables: vec![TemplateVariable::Simple("age".to_string())],
+            }),
+            operator: "=".to_string(),
+            second_part: TemplateExprSecondPart::Hash(TemplatePlaceholder::Hash(
+                TemplateVariableChain {
+                    variables: vec![TemplateVariable::Simple("age".to_string())],
+                },
+            )),
+            index: 0,
+            expr_symbol: "".to_string()
+        };
+
+        let expr3 = TemplateExpr::And {
+            left: Box::new(expr),
+            right: Box::new(expr2),
+            index: 0,
+            expr_symbol: "".to_string()
+        };
+
+
         assert_eq!(
             parsed,
             vec![
@@ -108,29 +146,7 @@ mod tests {
                 TemplateSqlValue::VariableChain(TemplateVariableChain {
                     variables: vec![TemplateVariable::Simple("WHERE".to_string())]
                 }),
-                TemplateSqlValue::Expression(TemplateExpr {
-                    first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
-                        variables: vec![TemplateVariable::Simple("name".to_string())]
-                    }),
-                    operator: "=".to_string(),
-                    second_part: TemplateExprSecondPart::Percent(TemplatePlaceholder::Percent(
-                        TemplateVariableChain {
-                            variables: vec![TemplateVariable::Simple("name".to_string())]
-                        }
-                    )),
-                    connective: Some(And("AND".to_string()))
-                }),
-                TemplateSqlValue::Expression(TemplateExpr {
-                    first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
-                        variables: vec![TemplateVariable::Simple("age".to_string())]
-                    }),
-                    operator: "=".to_string(),
-                    second_part: TemplateExprSecondPart::Hash( TemplatePlaceholder::Hash(
-                        TemplateVariableChain {
-                        variables: vec![TemplateVariable::Simple("age".to_string())]
-                    })),
-                    connective: None
-                })
+                TemplateSqlValue::Expression(expr3),
             ]
         );
     }
