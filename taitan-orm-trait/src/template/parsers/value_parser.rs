@@ -57,6 +57,8 @@ mod tests {
             second_part: TemplateExprSecondPart::Number("23".to_string()),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         assert_eq!(
@@ -106,7 +108,9 @@ mod tests {
                 },
             )),
             index: 0,
-            expr_symbol: "".to_string()
+            expr_symbol: "name".to_string(),
+            left_optional: true,
+            right_optional: true,
         };
         let expr2 = TemplateExpr::Simple {
             first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
@@ -119,14 +123,18 @@ mod tests {
                 },
             )),
             index: 0,
-            expr_symbol: "".to_string()
+            expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let expr3 = TemplateExpr::And {
             left: Box::new(expr),
             right: Box::new(expr2),
             index: 0,
-            expr_symbol: "".to_string()
+            expr_symbol: "name".to_string(),
+            left_optional: true,
+            right_optional: false,
         };
 
 

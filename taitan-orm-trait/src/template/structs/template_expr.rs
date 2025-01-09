@@ -113,30 +113,82 @@ pub enum TemplateExpr {
         operator: String,
         second_part: TemplateExprSecondPart,
         index: i32,
+        left_optional: bool,
+        right_optional: bool,
         expr_symbol: String,
     },
     Not {
         expr: Box<TemplateExpr>,
         index: i32,
+        left_optional: bool,
+        right_optional: bool,
         expr_symbol: String,
     },
     Parenthesized {
         expr: Box<TemplateExpr>,
         index: i32,
+        left_optional: bool,
+        right_optional: bool,
         expr_symbol: String,
     },
-    And{
+    And {
         left: Box<TemplateExpr>,
         right: Box<TemplateExpr>,
         index: i32,
+        left_optional: bool,
+        right_optional: bool,
         expr_symbol: String,
     },
     Or {
         left: Box<TemplateExpr>,
         right: Box<TemplateExpr>,
         index: i32,
+        left_optional: bool,
+        right_optional: bool,
         expr_symbol: String,
     },
+}
+
+impl TemplateExpr {
+    pub fn get_expr_symbol(&self) -> &str {
+        match self {
+            TemplateExpr::Simple { expr_symbol, .. } => expr_symbol,
+            TemplateExpr::Not { expr_symbol, .. } => expr_symbol,
+            TemplateExpr::Parenthesized { expr_symbol, .. } => expr_symbol,
+            TemplateExpr::And { expr_symbol, .. } => expr_symbol,
+            TemplateExpr::Or { expr_symbol, .. } => expr_symbol,
+        }
+    }
+
+    pub fn is_optional(&self) -> bool {
+        match self {
+            TemplateExpr::Simple {
+                left_optional,
+                right_optional,
+                ..
+            } => *left_optional && *right_optional,
+            TemplateExpr::Not {
+                left_optional,
+                right_optional,
+                ..
+            } => *left_optional && *right_optional,
+            TemplateExpr::Parenthesized {
+                left_optional,
+                right_optional,
+                ..
+            } => *left_optional && *right_optional,
+            TemplateExpr::And {
+                left_optional,
+                right_optional,
+                ..
+            } => *left_optional && *right_optional,
+            TemplateExpr::Or {
+                left_optional,
+                right_optional,
+                ..
+            } => *left_optional && *right_optional,
+        }
+    }
 }
 
 // #[derive(Debug, Clone, PartialEq, Eq)]
@@ -170,15 +222,14 @@ pub enum TemplateExpr {
 //     }
 // }
 
-
-
 impl SqlTemplateSign for TemplateExpr {
     fn get_template_signs(&self) -> Vec<String> {
         match self {
             TemplateExpr::Simple {
                 first_part,
                 operator,
-                second_part,..
+                second_part,
+                ..
             } => {
                 let mut signs: Vec<String> = vec![];
                 let first_part_signs = first_part.get_template_signs();
@@ -187,15 +238,15 @@ impl SqlTemplateSign for TemplateExpr {
                 signs.extend(second_part_signs);
                 signs
             }
-            TemplateExpr::Not{expr, ..} => expr.get_template_signs(),
-            TemplateExpr::Parenthesized{expr, ..} => expr.get_template_signs(),
-            TemplateExpr::And{left, right, ..} => {
+            TemplateExpr::Not { expr, .. } => expr.get_template_signs(),
+            TemplateExpr::Parenthesized { expr, .. } => expr.get_template_signs(),
+            TemplateExpr::And { left, right, .. } => {
                 let mut signs1 = left.get_template_signs();
                 let mut signs2 = right.get_template_signs();
                 signs1.extend(signs2);
                 signs1
             }
-            TemplateExpr::Or{left, right, ..} => {
+            TemplateExpr::Or { left, right, .. } => {
                 let mut signs1 = left.get_template_signs();
                 let mut signs2 = right.get_template_signs();
                 signs1.extend(signs2);
@@ -209,7 +260,8 @@ impl SqlTemplateSign for TemplateExpr {
             TemplateExpr::Simple {
                 first_part,
                 operator,
-                second_part,..
+                second_part,
+                ..
             } => {
                 let mut signs: Vec<TemplateField> = vec![];
                 let first_part_signs = first_part.get_argument_signs();
@@ -218,15 +270,15 @@ impl SqlTemplateSign for TemplateExpr {
                 signs.extend(second_part_signs);
                 signs
             }
-            TemplateExpr::Not{expr, ..} => expr.get_argument_signs(),
-            TemplateExpr::Parenthesized{expr, ..} => expr.get_argument_signs(),
-            TemplateExpr::And{left, right, ..} => {
+            TemplateExpr::Not { expr, .. } => expr.get_argument_signs(),
+            TemplateExpr::Parenthesized { expr, .. } => expr.get_argument_signs(),
+            TemplateExpr::And { left, right, .. } => {
                 let mut signs1 = left.get_argument_signs();
                 let mut signs2 = right.get_argument_signs();
                 signs1.extend(signs2);
                 signs1
             }
-            TemplateExpr::Or{left, right, ..} => {
+            TemplateExpr::Or { left, right, .. } => {
                 let mut signs1 = left.get_argument_signs();
                 let mut signs2 = right.get_argument_signs();
                 signs1.extend(signs2);
@@ -242,16 +294,17 @@ impl Display for TemplateExpr {
             TemplateExpr::Simple {
                 first_part,
                 operator,
-                second_part,..
+                second_part,
+                ..
             } => {
                 write!(f, "{} {} {}", first_part, operator, second_part)
             }
-            TemplateExpr::Not{expr,..} => write!(f, "NOT {}", expr),
-            TemplateExpr::Parenthesized{expr, ..} => write!(f, "({})", expr),
-            TemplateExpr::And{left, right,..} => {
+            TemplateExpr::Not { expr, .. } => write!(f, "NOT {}", expr),
+            TemplateExpr::Parenthesized { expr, .. } => write!(f, "({})", expr),
+            TemplateExpr::And { left, right, .. } => {
                 write!(f, "({} AND {})", left, right)
             }
-            TemplateExpr::Or{left, right,..} => {
+            TemplateExpr::Or { left, right, .. } => {
                 write!(f, "({} OR {})", left, right)
             }
         }
@@ -271,7 +324,8 @@ impl ToSql for TemplateExpr {
             TemplateExpr::Simple {
                 first_part,
                 operator,
-                second_part,..
+                second_part,
+                ..
             } => match second_part {
                 TemplateExprSecondPart::Dollar(val) => {
                     format!("{} = {}", first_part.to_set_sql(), val.to_set_sql())
@@ -295,16 +349,16 @@ impl ToSql for TemplateExpr {
                         )
                 }
             },
-            TemplateExpr::Not{expr, ..} => {
+            TemplateExpr::Not { expr, .. } => {
                 format!("NOT {}", expr.to_set_sql())
             }
-            TemplateExpr::Parenthesized{expr, ..} => {
+            TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_set_sql())
             }
-            TemplateExpr::And{left, right,..} => {
+            TemplateExpr::And { left, right, .. } => {
                 format!("({} AND {})", left.to_set_sql(), right.to_set_sql())
             }
-            TemplateExpr::Or{left, right,..}=> {
+            TemplateExpr::Or { left, right, .. } => {
                 format!("({} OR {})", left.to_set_sql(), right.to_set_sql())
             }
         }
@@ -315,7 +369,8 @@ impl ToSql for TemplateExpr {
             TemplateExpr::Simple {
                 first_part,
                 operator,
-                second_part,..
+                second_part,
+                ..
             } => match second_part {
                 TemplateExprSecondPart::Dollar(val) => {
                     format!(
@@ -373,16 +428,16 @@ impl ToSql for TemplateExpr {
                     }
                 }
             },
-            TemplateExpr::And{left, right,..} => {
+            TemplateExpr::And { left, right, .. } => {
                 format!("({} AND {})", left.to_where_sql(), right.to_where_sql())
             }
-            TemplateExpr::Or{left, right,..} => {
+            TemplateExpr::Or { left, right, .. } => {
                 format!("({} OR {})", left.to_where_sql(), right.to_where_sql())
             }
-            TemplateExpr::Not{expr, ..} => {
+            TemplateExpr::Not { expr, .. } => {
                 format!("NOT {}", expr.to_where_sql())
             }
-            TemplateExpr::Parenthesized{expr, ..} => {
+            TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_where_sql())
             }
         }
@@ -418,6 +473,8 @@ mod tests {
             second_part,
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let sql = expr.to_set_sql();
@@ -477,6 +534,8 @@ mod tests {
             second_part,
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let sql = expr.to_set_sql();
@@ -535,6 +594,8 @@ mod tests {
             second_part: second_part.clone(),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let sql = expr.to_where_sql();
@@ -549,6 +610,8 @@ mod tests {
             second_part: second_part.clone(),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let sql = expr.to_where_sql();
@@ -560,6 +623,8 @@ mod tests {
             second_part: second_part.clone(),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let sql = expr.to_where_sql();

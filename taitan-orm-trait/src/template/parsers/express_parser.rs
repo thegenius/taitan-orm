@@ -23,6 +23,7 @@ use nom::{
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
+use rinja::filters::e;
 
 type ParseResult<'a, O> = IResult<&'a str, O, Error<&'a str>>;
 fn parse_first_part(input: &str) -> ParseResult<TemplateExprFirstPart> {
@@ -55,12 +56,25 @@ pub fn parse_simple_expr(input: &str) -> ParseResult<TemplateExpr> {
             parse_second_part, // 解析第二个部分
                               // opt(preceded(multispace0, parse_connective)),
         )),
-        |(first_part, _, operator, _, second_part)| TemplateExpr::Simple {
-            first_part,
-            operator,
-            second_part,
-            index: 0,
-            expr_symbol: "".to_string(),
+        |(first_part, _, operator, _, second_part)| match &second_part {
+            TemplateExprSecondPart::Percent(percent) => TemplateExpr::Simple {
+                expr_symbol: percent.to_string(),
+                first_part,
+                operator,
+                second_part,
+                index: 0,
+                left_optional: true,
+                right_optional: true,
+            },
+            _ => TemplateExpr::Simple {
+                first_part,
+                operator,
+                second_part,
+                index: 0,
+                expr_symbol: "".to_string(),
+                left_optional: false,
+                right_optional: false,
+            },
         },
     )(input)
 }
@@ -69,9 +83,11 @@ fn parse_parenthesized_expr(input: &str) -> ParseResult<TemplateExpr> {
     // 解析带括号的表达式
     map(delimited(tag("("), parse_expr, tag(")")), |expr| {
         TemplateExpr::Parenthesized {
+            left_optional: expr.is_optional(),
+            right_optional: expr.is_optional(),
+            expr_symbol: expr.get_expr_symbol().to_string(),
             expr: Box::new(expr),
             index: 0,
-            expr_symbol: "".to_string(),
         }
     })(input)
 }
@@ -81,9 +97,11 @@ fn parse_not_expr(input: &str) -> ParseResult<TemplateExpr> {
     map(
         tuple((tag_no_case("not"), space0, parse_primary_expr)),
         |(_, _, expr)| TemplateExpr::Not {
+            left_optional: expr.is_optional(),
+            right_optional: expr.is_optional(),
+            expr_symbol: expr.get_expr_symbol().to_string(),
             expr: Box::new(expr),
             index: 0,
-            expr_symbol: "".to_string(),
         },
     )(input)
 }
@@ -103,14 +121,46 @@ fn parse_and_expr(input: &str) -> ParseResult<TemplateExpr> {
     )(remaining)
     {
         remaining = new_remaining;
-        expr = TemplateExpr::And {
-            left: Box::new(expr),
-            right: Box::new(next_expr),
-            index: 0,
-            expr_symbol: "".to_string(),
-        };
+        let left_expr_symbol = expr.get_expr_symbol().to_string();
+        let right_expr_symbol = next_expr.get_expr_symbol().to_string();
+        expr = if expr.is_optional() && next_expr.is_optional() {
+            TemplateExpr::And {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: format!("{} && {}", left_expr_symbol, right_expr_symbol),
+                left_optional: true,
+                right_optional: true,
+            }
+        } else if expr.is_optional() {
+            TemplateExpr::And {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: left_expr_symbol,
+                left_optional: true,
+                right_optional: false,
+            }
+        } else if next_expr.is_optional() {
+            TemplateExpr::And {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: right_expr_symbol,
+                left_optional: false,
+                right_optional: true,
+            }
+        } else {
+            TemplateExpr::And {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: "".to_string(),
+                left_optional: false,
+                right_optional: false,
+            }
+        }
     }
-
     Ok((remaining, expr))
 }
 
@@ -122,12 +172,45 @@ fn parse_or_expr(input: &str) -> ParseResult<TemplateExpr> {
         preceded(tuple((space0, tag_no_case("or"), space0)), parse_and_expr)(remaining)
     {
         remaining = new_remaining;
-        expr = TemplateExpr::Or {
-            left: Box::new(expr),
-            right: Box::new(next_expr),
-            index: 0,
-            expr_symbol: "".to_string(),
-        };
+        let left_expr_symbol = expr.get_expr_symbol().to_string();
+        let right_expr_symbol = next_expr.get_expr_symbol().to_string();
+        expr = if expr.is_optional() && next_expr.is_optional() {
+            TemplateExpr::Or {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: format!("{} && {}", left_expr_symbol, right_expr_symbol),
+                left_optional: true,
+                right_optional: true,
+            }
+        } else if expr.is_optional() {
+            TemplateExpr::Or {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: left_expr_symbol,
+                left_optional: true,
+                right_optional: false,
+            }
+        } else if next_expr.is_optional() {
+            TemplateExpr::Or {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: right_expr_symbol,
+                left_optional: false,
+                right_optional: true,
+            }
+        } else {
+            TemplateExpr::Or {
+                left: Box::new(expr),
+                right: Box::new(next_expr),
+                index: 0,
+                expr_symbol: "".to_string(),
+                left_optional: false,
+                right_optional: false,
+            }
+        }
     }
 
     Ok((remaining, expr))
@@ -198,7 +281,9 @@ mod tests {
                 },
             )),
             index: 0,
-            expr_symbol: "".to_string(),
+            expr_symbol: "sdf_d.sdf_sv_1".to_string(),
+            left_optional: true,
+            right_optional: true,
         };
 
         let second_expr = TemplateExpr::Simple {
@@ -207,6 +292,8 @@ mod tests {
             second_part: TemplateExprSecondPart::Number("100".to_string()),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         let third_expr = TemplateExpr::Simple {
@@ -219,6 +306,8 @@ mod tests {
             }),
             index: 0,
             expr_symbol: "".to_string(),
+            left_optional: false,
+            right_optional: false,
         };
 
         assert_eq!(
@@ -229,10 +318,14 @@ mod tests {
                     left: Box::new(second_expr),
                     right: Box::new(third_expr),
                     index: 0,
-                    expr_symbol: "".to_string()
+                    expr_symbol: "".to_string(),
+                    left_optional: false,
+                    right_optional: false,
                 }),
                 index: 0,
-                expr_symbol: "".to_string(),
+                expr_symbol: "sdf_d.sdf_sv_1".to_string(),
+                left_optional: true,
+                right_optional: false,
             }
         );
     }
