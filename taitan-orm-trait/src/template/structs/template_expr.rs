@@ -481,9 +481,10 @@ impl Display for TemplateExpr {
 }
 
 fn recursively_trim_parentheses(s: &str) -> String {
-    let mut result = s.to_string();
+    let mut result = s.trim().to_string();
     while result.starts_with('(') && result.ends_with(')') && result.len() > 2 {
         result = result[1..result.len() - 1].to_string();
+        result = result.trim().to_string();
     }
     result
 }
@@ -752,7 +753,12 @@ impl ToSql for TemplateExpr {
                 format!("({})", expr.to_where_sql())
             }
         };
-        recursively_trim_parentheses(&origin)
+        let trimmed = recursively_trim_parentheses(&origin);
+        if trimmed.is_empty() {
+            " FALSE ".to_owned()
+        } else {
+            trimmed
+        }
     }
 }
 

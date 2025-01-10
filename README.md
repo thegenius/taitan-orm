@@ -230,9 +230,8 @@ At present, the documentation for this newly-born project is limited. You can re
 - **0.1 API** 🔧  
 **⚠️API may change, so just have a taste!**  
 What is being polished?
-- 1. write api: to support postgres insert returning syntax
+- 1. write api: to support postgres insert returning syntax and batch insert/batch upsert
 - 2. search api: support index and more
-
 
 - **0.2 Correctness**: specification and code coverage and fuzz  📎  
 **🙏Help is wanted, maybe a long-running mysql instance and a postgres instance**
