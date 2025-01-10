@@ -42,7 +42,7 @@ mod tests {
     use super::*;
     use crate::template::structs::TemplateExpr;
     use crate::template::TemplateConnective::And;
-    use crate::template::{PairOptionalContext, TemplateVariable, UnitOptionalContext};
+    use crate::template::{OptionalVariable, PairOptionalContext, TemplateVariable, UnitOptionalContext};
     use crate::template::{TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariableChain};
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
                 },
             )),
             optional_context: UnitOptionalContext::Optional {
-                variables: vec!["name".to_string()]
+                variables: vec![OptionalVariable{ name:"name".to_string(), null_as_none: false}]
             },
         };
         let expr2 = TemplateExpr::Simple {
@@ -125,7 +125,7 @@ mod tests {
             left: Box::new(expr),
             right: Box::new(expr2),
             optional_context: PairOptionalContext::LeftOptional {
-                variables: vec!["name".to_string()]
+                variables: vec![OptionalVariable{ name:"name".to_string(), null_as_none: false}]
             },
         };
 

@@ -15,6 +15,7 @@ pub use template_expr::TemplateExpr;
 pub use template_expr::TemplateExprFirstPart;
 pub use template_expr::TemplateExprSecondPart;
 pub use template_sql_value::TemplateSqlValue;
+pub use template_expr::OptionalVariable;
 
 pub use template_expr::UnitOptionalContext;
 pub use template_expr::PairOptionalContext;

@@ -92,14 +92,14 @@ pub async fn template_macro_spec() -> taitan_orm::result::Result<()> {
         age: 23,
     };
     let sql = template.get_sql(None);
-    assert_eq!(sql, "select * from `user` WHERE name = ? AND age = ?");
+    assert_eq!(sql, "select * from `user` WHERE name = ?  AND  age = ?");
 
     let template = TestTemplate6 {
         name: taitan_orm::result::Optional::None,
         age: 23,
     };
     let sql = template.get_sql(None);
-    assert_eq!(sql, "select * from `user` WHERE  age = ?");
+    assert_eq!(sql, "select * from `user` WHERE   age = ?");
 
     let template = TestTemplate6 {
         name: taitan_orm::result::Optional::Null,
@@ -108,7 +108,7 @@ pub async fn template_macro_spec() -> taitan_orm::result::Result<()> {
 
 
     let sql = template.get_sql(None);
-    assert_eq!(sql, "select * from `user` WHERE name IS NULL AND age = ?");
+    assert_eq!(sql, "select * from `user` WHERE name IS NULL  AND  age = ?");
 
     Ok(())
 }

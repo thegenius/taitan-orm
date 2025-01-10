@@ -110,9 +110,23 @@ impl SqlTemplateSign for TemplateExprSecondPart {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OptionalVariable {
+    pub name: String,
+    pub null_as_none: bool,
+}
+
+impl Display for OptionalVariable {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
+// TODO: variables需要从Vec<String>
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UnitOptionalContext {
     NotOptional,
-    Optional { variables: Vec<String> },
+    Optional { variables: Vec<OptionalVariable> },
 }
 impl UnitOptionalContext {
     pub fn is_optional(&self) -> bool {
@@ -121,7 +135,7 @@ impl UnitOptionalContext {
             _ => true,
         }
     }
-    pub fn get_variables(&self) -> Vec<String> {
+    pub fn get_variables(&self) -> Vec<OptionalVariable> {
         match self {
             UnitOptionalContext::NotOptional => vec![],
             UnitOptionalContext::Optional { variables } => variables.to_owned(),
@@ -132,14 +146,14 @@ impl UnitOptionalContext {
 pub enum PairOptionalContext {
     NotOptional,
     LeftOptional {
-        variables: Vec<String>,
+        variables: Vec<OptionalVariable>,
     },
     RightOptional {
-        variables: Vec<String>,
+        variables: Vec<OptionalVariable>,
     },
     BothOptional {
-        left_variables: Vec<String>,
-        right_variables: Vec<String>,
+        left_variables: Vec<OptionalVariable>,
+        right_variables: Vec<OptionalVariable>,
     },
 }
 
@@ -150,7 +164,7 @@ impl PairOptionalContext {
             _ => false,
         }
     }
-    pub fn get_variables(&self) -> Vec<String> {
+    pub fn get_variables(&self) -> Vec<OptionalVariable> {
         match self {
             PairOptionalContext::NotOptional => vec![],
             PairOptionalContext::LeftOptional { variables } => variables.to_owned(),
@@ -188,7 +202,7 @@ impl OptionalContext {
         }
     }
 
-    pub fn get_variables(&self) -> Vec<String> {
+    pub fn get_variables(&self) -> Vec<OptionalVariable> {
         match self {
             OptionalContext::UnitOptional(unit) => unit.get_variables(),
             OptionalContext::PairOptional(pair) => pair.get_variables(),
@@ -225,7 +239,7 @@ pub enum TemplateExpr {
 }
 
 impl TemplateExpr {
-    pub fn get_optional_variables(&self) -> Vec<String> {
+    pub fn get_optional_variables(&self) -> Vec<OptionalVariable> {
         match self {
             TemplateExpr::Simple {
                 optional_context, ..
@@ -591,7 +605,13 @@ impl ToSql for TemplateExpr {
                     let variables = self.get_optional_variables();
                     let check_some_conditions = variables
                         .iter()
-                        .map(|v| format!("{}.is_some() || {}.is_null()", v, v))
+                        .map(|v| {
+                            if v.null_as_none {
+                                format!("{}.is_some()", v)
+                            } else {
+                                format!("{}.is_some() || {}.is_null()", v, v)
+                            }
+                        })
                         .collect::<Vec<String>>()
                         .join(" && ");
                     let render_and =
@@ -611,7 +631,13 @@ impl ToSql for TemplateExpr {
                     let variables = self.get_optional_variables();
                     let check_some_conditions = variables
                         .iter()
-                        .map(|v| format!("{}.is_some() || {}.is_null()", v, v))
+                        .map(|v| {
+                            if v.null_as_none {
+                                format!("{}.is_some()", v)
+                            } else {
+                                format!("{}.is_some() || {}.is_null()", v, v)
+                            }
+                        })
                         .collect::<Vec<String>>()
                         .join(" && ");
                     let render_or =

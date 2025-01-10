@@ -2,8 +2,8 @@ use crate::template::parsers::{
     parse_number, parse_operator, parse_placeholder, parse_variable_chain,
 };
 use crate::template::{
-    PairOptionalContext, TemplateExpr, TemplateExprFirstPart, TemplateExprSecondPart,
-    TemplateSqlValue, UnitOptionalContext,
+    OptionalVariable, PairOptionalContext, TemplateExpr, TemplateExprFirstPart,
+    TemplateExprSecondPart, TemplateSqlValue, UnitOptionalContext,
 };
 
 use crate::template::parsers::connective::parse_connective;
@@ -11,6 +11,7 @@ use crate::template::parsers::placeholder_parser::{
     parse_dollar_placeholder, parse_hash_placeholder, parse_percent_placeholder,
 };
 use crate::template::TemplateExpr::{Not, Parenthesized};
+use crate::template::TemplateExprSecondPart::Variable;
 use nom::bytes::complete::tag_no_case;
 use nom::character::complete::multispace0;
 use nom::combinator::opt;
@@ -60,7 +61,10 @@ pub fn parse_simple_expr(input: &str) -> ParseResult<TemplateExpr> {
         |(first_part, _, operator, _, second_part)| match &second_part {
             TemplateExprSecondPart::Percent(percent) => TemplateExpr::Simple {
                 optional_context: UnitOptionalContext::Optional {
-                    variables: vec![percent.get_optional_variable().unwrap()],
+                    variables: vec![OptionalVariable {
+                        name: percent.get_optional_variable().unwrap(),
+                        null_as_none: operator.ne("=") && operator.ne("<>"),
+                    }],
                 },
                 first_part,
                 operator,
@@ -130,7 +134,7 @@ fn parse_and_expr(input: &str) -> ParseResult<TemplateExpr> {
         } else if expr.is_optional() {
             TemplateExpr::And {
                 optional_context: PairOptionalContext::LeftOptional {
-                  variables: expr.get_optional_variables(),
+                    variables: expr.get_optional_variables(),
                 },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
@@ -266,7 +270,10 @@ mod tests {
                 },
             )),
             optional_context: UnitOptionalContext::Optional {
-                variables: vec!["sdf_d.sdf_sv_1".to_string()],
+                variables: vec![OptionalVariable {
+                    name: "sdf_d.sdf_sv_1".to_string(),
+                    null_as_none: true,
+                }],
             },
         };
 
@@ -298,7 +305,10 @@ mod tests {
                     optional_context: PairOptionalContext::NotOptional,
                 }),
                 optional_context: PairOptionalContext::LeftOptional {
-                    variables: vec!["sdf_d.sdf_sv_1".to_string()],
+                    variables: vec![OptionalVariable {
+                        name: "sdf_d.sdf_sv_1".to_string(),
+                        null_as_none: true
+                    }],
                 },
             }
         );

@@ -281,7 +281,7 @@ impl ParsedTemplateSql {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::template::{PairOptionalContext, TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariable, TemplateVariableChain, UnitOptionalContext};
+    use crate::template::{OptionalVariable, PairOptionalContext, TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariable, TemplateVariableChain, UnitOptionalContext};
     use crate::Optional;
     use rinja::Template;
 
@@ -357,7 +357,7 @@ mod tests {
             operator: "=".to_string(),
             second_part,
             optional_context: UnitOptionalContext::Optional {
-                variables: vec!["name".to_string()],
+                variables: vec![OptionalVariable{ name:"name".to_string(), null_as_none: false }],
             },
         };
 
@@ -398,7 +398,7 @@ mod tests {
                 left: Box::new(expr1),
                 right: Box::new(expr2),
                 optional_context: PairOptionalContext::LeftOptional {
-                    variables: vec!["name".to_string()],
+                    variables: vec![OptionalVariable{ name:"name".to_string(), null_as_none: false }],
                 },
             }),
             right: Box::new(expr3),
