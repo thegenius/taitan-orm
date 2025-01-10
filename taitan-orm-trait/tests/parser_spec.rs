@@ -19,14 +19,13 @@ use taitan_orm_trait::{ParsedTemplateSql, TemplateSqlValue};
 fn not_expr_spec_01() {
     let parsed = ParsedTemplateSql::parse("NOT age = %{age}").unwrap();
     let sql = parsed.get_where_sql();
-    // let values = parsed.get_template_values();
-    // assert_eq!(values, &vec![TemplateSqlValue::Number("age".to_string())]);
-
-
     assert_eq!(sql, "{% if age.is_some() %} NOT age = ? {% else if age.is_null() %} age IS NOT NULL {% else %}{% endif %}");
-    // assert_eq!(
-    //     sql,
-    //     "NOT {% if age.is_some() %}age = ?{% elif age.is_null() %}age IS NULL{% else %}{% endif %}"
-    // );
 }
 
+
+#[test]
+fn and_expr_spec_01() {
+    let parsed = ParsedTemplateSql::parse("age = %{age} AND name = %{name}").unwrap();
+    let sql = parsed.get_where_sql();
+    assert_eq!(sql, "{% if age.is_some() %} NOT age = ? {% else if age.is_null() %} age IS NOT NULL {% else %}{% endif %}");
+}

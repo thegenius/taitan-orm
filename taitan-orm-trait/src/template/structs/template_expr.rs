@@ -118,7 +118,7 @@ impl UnitOptionalContext {
     pub fn is_optional(&self) -> bool {
         match self {
             UnitOptionalContext::NotOptional => false,
-            _=> true,
+            _ => true,
         }
     }
     pub fn get_variables(&self) -> Vec<String> {
@@ -144,10 +144,9 @@ pub enum PairOptionalContext {
 }
 
 impl PairOptionalContext {
-
     pub fn is_optional(&self) -> bool {
         match self {
-            PairOptionalContext::BothOptional {..} => true,
+            PairOptionalContext::BothOptional { .. } => true,
             _ => false,
         }
     }
@@ -580,10 +579,44 @@ impl ToSql for TemplateExpr {
                 }
             },
             TemplateExpr::And { left, right, .. } => {
-                format!("({} AND {})", left.to_where_sql(), right.to_where_sql())
+                if self.is_optional() {
+                    let variables = self.get_optional_variables();
+                    let check_some_conditions = variables
+                        .iter()
+                        .map(|v| format!("{}.is_some()", v))
+                        .collect::<Vec<String>>()
+                        .join(" && ");
+                    let render_and =
+                        format!("{{% if {} %}} AND {{% endif %}}", check_some_conditions);
+                    format!(
+                        "({} {} {})",
+                        left.to_where_sql(),
+                        render_and,
+                        right.to_where_sql()
+                    )
+                } else {
+                    format!("({} AND {})", left.to_where_sql(), right.to_where_sql())
+                }
             }
             TemplateExpr::Or { left, right, .. } => {
-                format!("({} OR {})", left.to_where_sql(), right.to_where_sql())
+                if self.is_optional() {
+                    let variables = self.get_optional_variables();
+                    let check_some_conditions = variables
+                        .iter()
+                        .map(|v| format!("{}.is_some()", v))
+                        .collect::<Vec<String>>()
+                        .join(" && ");
+                    let render_or =
+                        format!("{{% if {} %}} OR {{% endif %}}", check_some_conditions);
+                    format!(
+                        "({} {} {})",
+                        left.to_where_sql(),
+                        render_or,
+                        right.to_where_sql()
+                    )
+                } else {
+                    format!("({} OR {})", left.to_where_sql(), right.to_where_sql())
+                }
             }
 
             /// not 语句只能转化成where sql，不能转化成set sql
@@ -607,24 +640,40 @@ impl ToSql for TemplateExpr {
             } => {
                 match expr.as_ref() {
                     TemplateExpr::Not { expr, .. } => expr.to_where_sql(),
-                    TemplateExpr::Parenthesized { expr, optional_context, .. } => {
+                    TemplateExpr::Parenthesized {
+                        expr,
+                        optional_context,
+                        ..
+                    } => {
                         let variables = optional_context.get_variables();
                         let check_some_conditions = variables
                             .iter()
                             .map(|v| format!("{}.is_some()", v))
                             .collect::<Vec<String>>()
                             .join(" && ");
-                        format!("{{% if {} %}} NOT {{% endif %}} ({})", check_some_conditions, expr.to_where_sql())
+                        format!(
+                            "{{% if {} %}} NOT {{% endif %}} ({})",
+                            check_some_conditions,
+                            expr.to_where_sql()
+                        )
                     }
-                    TemplateExpr::And { optional_context, .. } |
-                    TemplateExpr::Or { optional_context, .. } => {
+                    TemplateExpr::And {
+                        optional_context, ..
+                    }
+                    | TemplateExpr::Or {
+                        optional_context, ..
+                    } => {
                         let variables = optional_context.get_variables();
                         let check_some_conditions = variables
                             .iter()
                             .map(|v| format!("{}.is_some()", v))
                             .collect::<Vec<String>>()
                             .join(" && ");
-                        format!("{{% if {} %}} NOT {{% endif %}}{}", check_some_conditions, expr.to_where_sql())
+                        format!(
+                            "{{% if {} %}} NOT {{% endif %}}{}",
+                            check_some_conditions,
+                            expr.to_where_sql()
+                        )
                     }
                     TemplateExpr::Simple {
                         first_part,
@@ -656,9 +705,7 @@ impl ToSql for TemplateExpr {
                             } else {
                                 format!(
                                     "{{% if {}.is_some() %}}NOT {} {} ?{{% else %}}{{% endif %}}",
-                                    variable,
-                                    variable,
-                                    operator,
+                                    variable, variable, operator,
                                 )
                             }
                         } else {
