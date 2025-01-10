@@ -107,86 +107,204 @@ impl SqlTemplateSign for TemplateExprSecondPart {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum UnitOptionalContext {
+    NotOptional,
+    Optional { variables: Vec<String> },
+}
+impl UnitOptionalContext {
+    pub fn get_variables(&self) -> Vec<String> {
+        match self {
+            UnitOptionalContext::NotOptional => vec![],
+            UnitOptionalContext::Optional { variables } => variables.to_owned(),
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PairOptionalContext {
+    NotOptional,
+    LeftOptional {
+        variables: Vec<String>,
+    },
+    RightOptional {
+        variables: Vec<String>,
+    },
+    BothOptional {
+        left_variables: Vec<String>,
+        right_variables: Vec<String>,
+    },
+}
+
+impl PairOptionalContext {
+    pub fn get_variables(&self) -> Vec<String> {
+        match self {
+            PairOptionalContext::NotOptional => vec![],
+            PairOptionalContext::LeftOptional { variables } => variables.to_owned(),
+            PairOptionalContext::RightOptional { variables } => variables.to_owned(),
+            PairOptionalContext::BothOptional {
+                left_variables,
+                right_variables,
+            } => {
+                let mut variables = Vec::new();
+                variables.extend(left_variables.to_owned());
+                variables.extend(right_variables.to_owned());
+                variables
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OptionalContext {
+    UnitOptional(UnitOptionalContext),
+    PairOptional(PairOptionalContext),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExpr {
     Simple {
         first_part: TemplateExprFirstPart,
         operator: String,
         second_part: TemplateExprSecondPart,
-        index: i32,
-        left_optional: bool,
-        right_optional: bool,
-        expr_symbol: String,
+        optional_context: UnitOptionalContext,
     },
     Not {
         expr: Box<TemplateExpr>,
-        index: i32,
-        left_optional: bool,
-        right_optional: bool,
-        expr_symbol: String,
+        optional_context: OptionalContext,
     },
     Parenthesized {
         expr: Box<TemplateExpr>,
-        index: i32,
-        left_optional: bool,
-        right_optional: bool,
-        expr_symbol: String,
+        optional_context: OptionalContext,
     },
     And {
         left: Box<TemplateExpr>,
         right: Box<TemplateExpr>,
-        index: i32,
-        left_optional: bool,
-        right_optional: bool,
-        expr_symbol: String,
+        optional_context: PairOptionalContext,
     },
     Or {
         left: Box<TemplateExpr>,
         right: Box<TemplateExpr>,
-        index: i32,
-        left_optional: bool,
-        right_optional: bool,
-        expr_symbol: String,
+        optional_context: PairOptionalContext,
     },
 }
 
 impl TemplateExpr {
-    pub fn get_expr_symbol(&self) -> &str {
+    pub fn get_optional_variables(&self) -> Vec<String> {
         match self {
-            TemplateExpr::Simple { expr_symbol, .. } => expr_symbol,
-            TemplateExpr::Not { expr_symbol, .. } => expr_symbol,
-            TemplateExpr::Parenthesized { expr_symbol, .. } => expr_symbol,
-            TemplateExpr::And { expr_symbol, .. } => expr_symbol,
-            TemplateExpr::Or { expr_symbol, .. } => expr_symbol,
+            TemplateExpr::Simple {
+                optional_context, ..
+            } => match optional_context {
+                UnitOptionalContext::NotOptional => vec![],
+                UnitOptionalContext::Optional { variables } => variables.to_owned(),
+            },
+            TemplateExpr::Not {
+                optional_context, ..
+            }
+            | TemplateExpr::Parenthesized {
+                optional_context, ..
+            } => match optional_context {
+                OptionalContext::PairOptional(context) => context.get_variables(),
+                OptionalContext::UnitOptional(context) => context.get_variables(),
+            },
+            TemplateExpr::And {
+                optional_context, ..
+            }
+            | TemplateExpr::Or {
+                optional_context, ..
+            } => optional_context.get_variables(),
+        }
+    }
+
+    pub fn pop_optional_context(&mut self) -> OptionalContext {
+        match self {
+            TemplateExpr::Simple {
+                optional_context, ..
+            } => {
+                let ctx = OptionalContext::UnitOptional(optional_context.clone());
+                *optional_context = UnitOptionalContext::NotOptional;
+                ctx
+            }
+            TemplateExpr::Not {
+                optional_context, ..
+            }
+            | TemplateExpr::Parenthesized {
+                optional_context, ..
+            } => {
+                let ctx = optional_context.clone();
+                match optional_context {
+                    OptionalContext::PairOptional(context) => {
+                        *optional_context =
+                            OptionalContext::PairOptional(PairOptionalContext::NotOptional)
+                    }
+                    OptionalContext::UnitOptional(context) => {
+                        *optional_context =
+                            OptionalContext::UnitOptional(UnitOptionalContext::NotOptional);
+                    }
+                }
+                ctx
+            }
+            TemplateExpr::And {
+                optional_context, ..
+            } => OptionalContext::PairOptional(optional_context.clone()),
+            TemplateExpr::Or {
+                optional_context, ..
+            } => OptionalContext::PairOptional(optional_context.clone()),
+        }
+    }
+    pub fn get_optional_context(&self) -> OptionalContext {
+        match self {
+            TemplateExpr::Simple {
+                optional_context, ..
+            } => OptionalContext::UnitOptional(optional_context.clone()),
+            TemplateExpr::Not {
+                optional_context, ..
+            } => optional_context.clone(),
+            TemplateExpr::Parenthesized {
+                optional_context, ..
+            } => optional_context.clone(),
+            TemplateExpr::And {
+                optional_context, ..
+            } => OptionalContext::PairOptional(optional_context.clone()),
+            TemplateExpr::Or {
+                optional_context, ..
+            } => OptionalContext::PairOptional(optional_context.clone()),
         }
     }
 
     pub fn is_optional(&self) -> bool {
         match self {
             TemplateExpr::Simple {
-                left_optional,
-                right_optional,
-                ..
-            } => *left_optional && *right_optional,
+                optional_context, ..
+            } => match optional_context {
+                UnitOptionalContext::NotOptional => false,
+                UnitOptionalContext::Optional { .. } => true,
+            },
             TemplateExpr::Not {
-                left_optional,
-                right_optional,
-                ..
-            } => *left_optional && *right_optional,
-            TemplateExpr::Parenthesized {
-                left_optional,
-                right_optional,
-                ..
-            } => *left_optional && *right_optional,
+                optional_context, ..
+            }
+            | TemplateExpr::Parenthesized {
+                optional_context, ..
+            } => match optional_context {
+                OptionalContext::UnitOptional(ctx) => match ctx {
+                    UnitOptionalContext::NotOptional => false,
+                    _ => true,
+                },
+                OptionalContext::PairOptional(ctx) => match ctx {
+                    PairOptionalContext::NotOptional => false,
+                    _ => true,
+                },
+            },
             TemplateExpr::And {
-                left_optional,
-                right_optional,
-                ..
-            } => *left_optional && *right_optional,
+                optional_context, ..
+            } => match optional_context {
+                PairOptionalContext::BothOptional { .. } => true,
+                _ => false,
+            },
             TemplateExpr::Or {
-                left_optional,
-                right_optional,
-                ..
-            } => *left_optional && *right_optional,
+                optional_context, ..
+            } => match optional_context {
+                PairOptionalContext::BothOptional { .. } => true,
+                _ => false,
+            },
         }
     }
 }
@@ -341,12 +459,12 @@ impl ToSql for TemplateExpr {
                 }
                 TemplateExprSecondPart::Percent(val) => {
                     format!(
-                            "{{% if {}.is_some() %}}{} = ?{{% elif {}.is_null() %}}{}=NULL{{% else %}}{{% endif %}}",
-                            val.to_string(),
-                            first_part.to_set_sql(),
-                            val.to_string(),
-                            first_part.to_set_sql(),
-                        )
+                        "{{% if {}.is_some() %}}{} = ?{{% elif {}.is_null() %}}{}=NULL{{% else %}}{{% endif %}}",
+                        val.to_string(),
+                        first_part.to_set_sql(),
+                        val.to_string(),
+                        first_part.to_set_sql(),
+                    )
                 }
             },
             TemplateExpr::Not { expr, .. } => {
@@ -402,22 +520,22 @@ impl ToSql for TemplateExpr {
                 TemplateExprSecondPart::Percent(val) => {
                     if operator.eq("=") {
                         format!(
-                                "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
-                                val.to_string(),
-                                first_part.to_where_sql(),
-                                operator,
-                                val.to_string(),
-                                first_part.to_where_sql(),
-                            )
+                            "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
+                            val.to_string(),
+                            first_part.to_where_sql(),
+                            operator,
+                            val.to_string(),
+                            first_part.to_where_sql(),
+                        )
                     } else if operator.eq("<>") {
                         format!(
-                                "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
-                                val.to_string(),
-                                first_part.to_where_sql(),
-                                operator,
-                                val.to_string(),
-                                first_part.to_where_sql(),
-                            )
+                            "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
+                            val.to_string(),
+                            first_part.to_where_sql(),
+                            operator,
+                            val.to_string(),
+                            first_part.to_where_sql(),
+                        )
                     } else {
                         format!(
                             "{{% if {}.is_some() %}}{} {} ?{{% else %}}{{% endif %}}",
@@ -446,6 +564,7 @@ impl ToSql for TemplateExpr {
 
 #[cfg(test)]
 mod tests {
+    use crate::template::structs::template_expr::UnitOptionalContext;
     use crate::template::TemplateVariable;
     use crate::template::TemplateVariableChain;
     use crate::template::ToSql;
@@ -471,10 +590,7 @@ mod tests {
             first_part,
             operator: "=".to_string(),
             second_part,
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let sql = expr.to_set_sql();
@@ -532,10 +648,7 @@ mod tests {
             first_part,
             operator: "=".to_string(),
             second_part,
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let sql = expr.to_set_sql();
@@ -592,10 +705,7 @@ mod tests {
             first_part: first_part.clone(),
             operator: ">=".to_string(),
             second_part: second_part.clone(),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let sql = expr.to_where_sql();
@@ -608,10 +718,7 @@ mod tests {
             first_part: first_part.clone(),
             operator: "=".to_string(),
             second_part: second_part.clone(),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let sql = expr.to_where_sql();
@@ -621,10 +728,7 @@ mod tests {
             first_part: first_part.clone(),
             operator: "<>".to_string(),
             second_part: second_part.clone(),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let sql = expr.to_where_sql();

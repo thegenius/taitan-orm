@@ -2,7 +2,8 @@ use crate::template::parsers::{
     parse_number, parse_operator, parse_placeholder, parse_variable_chain,
 };
 use crate::template::{
-    TemplateExpr, TemplateExprFirstPart, TemplateExprSecondPart, TemplateSqlValue,
+    PairOptionalContext, TemplateExpr, TemplateExprFirstPart, TemplateExprSecondPart,
+    TemplateSqlValue, UnitOptionalContext,
 };
 
 use crate::template::parsers::connective::parse_connective;
@@ -58,22 +59,18 @@ pub fn parse_simple_expr(input: &str) -> ParseResult<TemplateExpr> {
         )),
         |(first_part, _, operator, _, second_part)| match &second_part {
             TemplateExprSecondPart::Percent(percent) => TemplateExpr::Simple {
-                expr_symbol: percent.to_string(),
+                optional_context: UnitOptionalContext::Optional {
+                    variables: vec![percent.get_optional_variable().unwrap()],
+                },
                 first_part,
                 operator,
                 second_part,
-                index: 0,
-                left_optional: true,
-                right_optional: true,
             },
             _ => TemplateExpr::Simple {
                 first_part,
                 operator,
                 second_part,
-                index: 0,
-                expr_symbol: "".to_string(),
-                left_optional: false,
-                right_optional: false,
+                optional_context: UnitOptionalContext::NotOptional,
             },
         },
     )(input)
@@ -81,13 +78,11 @@ pub fn parse_simple_expr(input: &str) -> ParseResult<TemplateExpr> {
 
 fn parse_parenthesized_expr(input: &str) -> ParseResult<TemplateExpr> {
     // 解析带括号的表达式
-    map(delimited(tag("("), parse_expr, tag(")")), |expr| {
-        TemplateExpr::Parenthesized {
-            left_optional: expr.is_optional(),
-            right_optional: expr.is_optional(),
-            expr_symbol: expr.get_expr_symbol().to_string(),
+    map(delimited(tag("("), parse_expr, tag(")")), |mut expr| {
+        let context = expr.pop_optional_context();
+        Parenthesized {
+            optional_context: context,
             expr: Box::new(expr),
-            index: 0,
         }
     })(input)
 }
@@ -96,12 +91,12 @@ fn parse_not_expr(input: &str) -> ParseResult<TemplateExpr> {
     // 解析 NOT 表达式
     map(
         tuple((tag_no_case("not"), space0, parse_primary_expr)),
-        |(_, _, expr)| TemplateExpr::Not {
-            left_optional: expr.is_optional(),
-            right_optional: expr.is_optional(),
-            expr_symbol: expr.get_expr_symbol().to_string(),
-            expr: Box::new(expr),
-            index: 0,
+        |(_, _, mut expr)| {
+            let context = expr.pop_optional_context();
+            Not {
+                optional_context: context,
+                expr: Box::new(expr),
+            }
         },
     )(input)
 }
@@ -115,49 +110,44 @@ fn parse_primary_expr(input: &str) -> ParseResult<TemplateExpr> {
 fn parse_and_expr(input: &str) -> ParseResult<TemplateExpr> {
     let (mut remaining, mut expr) = parse_primary_expr(input)?;
 
-    while let Ok((new_remaining, next_expr)) = preceded(
+    while let Ok((new_remaining, mut next_expr)) = preceded(
         tuple((space0, tag_no_case("and"), space0)),
         parse_primary_expr,
     )(remaining)
     {
         remaining = new_remaining;
-        let left_expr_symbol = expr.get_expr_symbol().to_string();
-        let right_expr_symbol = next_expr.get_expr_symbol().to_string();
+        let left_ctx = expr.get_optional_context();
+        let right_ctx = next_expr.get_optional_context();
         expr = if expr.is_optional() && next_expr.is_optional() {
             TemplateExpr::And {
+                optional_context: PairOptionalContext::BothOptional {
+                    left_variables: expr.get_optional_variables(),
+                    right_variables: next_expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: format!("{} && {}", left_expr_symbol, right_expr_symbol),
-                left_optional: true,
-                right_optional: true,
             }
         } else if expr.is_optional() {
             TemplateExpr::And {
+                optional_context: PairOptionalContext::LeftOptional {
+                  variables: expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: left_expr_symbol,
-                left_optional: true,
-                right_optional: false,
             }
         } else if next_expr.is_optional() {
             TemplateExpr::And {
+                optional_context: PairOptionalContext::RightOptional {
+                    variables: next_expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: right_expr_symbol,
-                left_optional: false,
-                right_optional: true,
             }
         } else {
             TemplateExpr::And {
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: "".to_string(),
-                left_optional: false,
-                right_optional: false,
+                optional_context: PairOptionalContext::NotOptional,
             }
         }
     }
@@ -172,43 +162,38 @@ fn parse_or_expr(input: &str) -> ParseResult<TemplateExpr> {
         preceded(tuple((space0, tag_no_case("or"), space0)), parse_and_expr)(remaining)
     {
         remaining = new_remaining;
-        let left_expr_symbol = expr.get_expr_symbol().to_string();
-        let right_expr_symbol = next_expr.get_expr_symbol().to_string();
+        let left_ctx = expr.get_optional_context();
+        let right_ctx = next_expr.get_optional_context();
         expr = if expr.is_optional() && next_expr.is_optional() {
             TemplateExpr::Or {
+                optional_context: PairOptionalContext::BothOptional {
+                    left_variables: expr.get_optional_variables(),
+                    right_variables: next_expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: format!("{} && {}", left_expr_symbol, right_expr_symbol),
-                left_optional: true,
-                right_optional: true,
             }
         } else if expr.is_optional() {
             TemplateExpr::Or {
+                optional_context: PairOptionalContext::LeftOptional {
+                    variables: expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: left_expr_symbol,
-                left_optional: true,
-                right_optional: false,
             }
         } else if next_expr.is_optional() {
             TemplateExpr::Or {
+                optional_context: PairOptionalContext::RightOptional {
+                    variables: next_expr.get_optional_variables(),
+                },
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: right_expr_symbol,
-                left_optional: false,
-                right_optional: true,
             }
         } else {
             TemplateExpr::Or {
                 left: Box::new(expr),
                 right: Box::new(next_expr),
-                index: 0,
-                expr_symbol: "".to_string(),
-                left_optional: false,
-                right_optional: false,
+                optional_context: PairOptionalContext::NotOptional,
             }
         }
     }
@@ -280,20 +265,16 @@ mod tests {
                     ],
                 },
             )),
-            index: 0,
-            expr_symbol: "sdf_d.sdf_sv_1".to_string(),
-            left_optional: true,
-            right_optional: true,
+            optional_context: UnitOptionalContext::Optional {
+                variables: vec!["sdf_d.sdf_sv_1".to_string()],
+            },
         };
 
         let second_expr = TemplateExpr::Simple {
             first_part: TemplateExprFirstPart::Number("100".to_string()),
             operator: "=".to_string(),
             second_part: TemplateExprSecondPart::Number("100".to_string()),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let third_expr = TemplateExpr::Simple {
@@ -304,10 +285,7 @@ mod tests {
             second_part: TemplateExprSecondPart::Variable(TemplateVariableChain {
                 variables: vec![TemplateVariable::Simple("d".to_string())],
             }),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         assert_eq!(
@@ -317,15 +295,11 @@ mod tests {
                 right: Box::new(TemplateExpr::And {
                     left: Box::new(second_expr),
                     right: Box::new(third_expr),
-                    index: 0,
-                    expr_symbol: "".to_string(),
-                    left_optional: false,
-                    right_optional: false,
+                    optional_context: PairOptionalContext::NotOptional,
                 }),
-                index: 0,
-                expr_symbol: "sdf_d.sdf_sv_1".to_string(),
-                left_optional: true,
-                right_optional: false,
+                optional_context: PairOptionalContext::LeftOptional {
+                    variables: vec!["sdf_d.sdf_sv_1".to_string()],
+                },
             }
         );
     }

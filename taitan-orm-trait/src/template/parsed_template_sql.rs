@@ -35,58 +35,58 @@ pub struct TemplateField {
 /// 1. rinja template struct, if there is template signs: dollar signs or percent signs
 /// 2. arguments name list, corresponding to ?
 
-fn assign_inorder_indices(expr: &mut TemplateExpr, counter: &mut i32) {
-    match expr {
-        TemplateExpr::Simple {
-            index, expr_symbol, ..
-        } => {
-            *index = *counter;
-            *counter += 1;
-            // 可以在这里设置特定的 expr_symbol，如果需要的话
-        }
-        TemplateExpr::Not {
-            expr,
-            index,
-            expr_symbol,
-            ..
-        }
-        | TemplateExpr::Parenthesized {
-            expr,
-            index,
-            expr_symbol,
-            ..
-        } => {
-            assign_inorder_indices(expr.as_mut(), counter);
-            *index = *counter;
-            *counter += 1;
-        }
-        TemplateExpr::And {
-            left,
-            right,
-            index,
-            expr_symbol,
-            ..
-        }
-        | TemplateExpr::Or {
-            left,
-            right,
-            index,
-            expr_symbol,
-            ..
-        } => {
-            assign_inorder_indices(left.as_mut(), counter);
-            assign_inorder_indices(right.as_mut(), counter);
-            *index = *counter;
-            *counter += 1;
-        }
-    }
-}
+// fn assign_inorder_indices(expr: &mut TemplateExpr, counter: &mut i32) {
+//     match expr {
+//         TemplateExpr::Simple {
+//             index, left_symbol: expr_symbol, ..
+//         } => {
+//             *index = *counter;
+//             *counter += 1;
+//             // 可以在这里设置特定的 expr_symbol，如果需要的话
+//         }
+//         TemplateExpr::Not {
+//             expr,
+//             index,
+//             left_symbol: expr_symbol,
+//             ..
+//         }
+//         | TemplateExpr::Parenthesized {
+//             expr,
+//             index,
+//             left_symbol: expr_symbol,
+//             ..
+//         } => {
+//             assign_inorder_indices(expr.as_mut(), counter);
+//             *index = *counter;
+//             *counter += 1;
+//         }
+//         TemplateExpr::And {
+//             left,
+//             right,
+//             index,
+//             left_symbol: expr_symbol,
+//             ..
+//         }
+//         | TemplateExpr::Or {
+//             left,
+//             right,
+//             index,
+//             left_symbol: expr_symbol,
+//             ..
+//         } => {
+//             assign_inorder_indices(left.as_mut(), counter);
+//             assign_inorder_indices(right.as_mut(), counter);
+//             *index = *counter;
+//             *counter += 1;
+//         }
+//     }
+// }
 
 /// 公开接口用于分配索引和符号
-pub fn assign_indices(expr: &mut TemplateExpr) {
-    let mut counter = 0;
-    assign_inorder_indices(expr, &mut counter);
-}
+// pub fn assign_indices(expr: &mut TemplateExpr) {
+//     let mut counter = 0;
+//     assign_inorder_indices(expr, &mut counter);
+// }
 
 impl ParsedTemplateSql {
     pub fn parse(template_sql: &str) -> Result<Self, nom::Err<nom::error::Error<&str>>> {
@@ -94,28 +94,28 @@ impl ParsedTemplateSql {
         let mut values: Vec<TemplateSqlValue> = Vec::new();
         let mut expr_count = 0;
         let (mut remaining, mut parsed) = parse_template_sql_values(trimmed_template_sql)?;
-        for mut item in &mut parsed {
-            match &mut item {
-                TemplateSqlValue::Expression(expr) => {
-                    assign_indices(expr);
-                }
-                _ => {}
-            }
-        }
+        // for mut item in &mut parsed {
+        //     match &mut item {
+        //         TemplateSqlValue::Expression(expr) => {
+        //             assign_indices(expr);
+        //         }
+        //         _ => {}
+        //     }
+        // }
 
         values.extend(parsed);
         while !remaining.is_empty() {
             let trimmed_remaining = remaining.trim();
             (remaining, parsed) = parse_template_sql_values(trimmed_remaining)?;
             expr_count += 1;
-            for mut item in &mut parsed {
-                match &mut item {
-                    TemplateSqlValue::Expression(expr) => {
-                        assign_indices(expr);
-                    }
-                    _ => {}
-                }
-            }
+            // for mut item in &mut parsed {
+            //     match &mut item {
+            //         TemplateSqlValue::Expression(expr) => {
+            //             assign_indices(expr);
+            //         }
+            //         _ => {}
+            //     }
+            // }
             values.extend(parsed);
         }
 
@@ -277,9 +277,7 @@ impl ParsedTemplateSql {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::template::{
-        TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariable, TemplateVariableChain,
-    };
+    use crate::template::{PairOptionalContext, TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariable, TemplateVariableChain, UnitOptionalContext};
     use crate::Optional;
     use rinja::Template;
 
@@ -354,10 +352,9 @@ mod tests {
             first_part,
             operator: "=".to_string(),
             second_part,
-            index: 0,
-            expr_symbol: "name".to_string(),
-            left_optional: true,
-            right_optional: true,
+            optional_context: UnitOptionalContext::Optional {
+                variables: vec!["name".to_string()],
+            },
         };
 
         let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
@@ -373,10 +370,7 @@ mod tests {
             first_part,
             operator: "=".to_string(),
             second_part,
-            index: 1,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
@@ -392,26 +386,19 @@ mod tests {
             first_part,
             operator: ">".to_string(),
             second_part,
-            index: 3,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let expr = TemplateExpr::Or {
             left: Box::new(TemplateExpr::And {
                 left: Box::new(expr1),
                 right: Box::new(expr2),
-                index: 2,
-                expr_symbol: "name".to_string(),
-                left_optional: true,
-                right_optional: false,
+                optional_context: PairOptionalContext::LeftOptional {
+                    variables: vec!["name".to_string()],
+                },
             }),
             right: Box::new(expr3),
-            index: 4,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: PairOptionalContext::NotOptional,
         };
 
         assert_eq!(

@@ -42,7 +42,7 @@ mod tests {
     use super::*;
     use crate::template::structs::TemplateExpr;
     use crate::template::TemplateConnective::And;
-    use crate::template::TemplateVariable;
+    use crate::template::{PairOptionalContext, TemplateVariable, UnitOptionalContext};
     use crate::template::{TemplateExprFirstPart, TemplateExprSecondPart, TemplateVariableChain};
 
     #[test]
@@ -55,10 +55,7 @@ mod tests {
             }),
             operator: "=".to_string(),
             second_part: TemplateExprSecondPart::Number("23".to_string()),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         assert_eq!(
@@ -107,10 +104,9 @@ mod tests {
                     variables: vec![TemplateVariable::Simple("name".to_string())],
                 },
             )),
-            index: 0,
-            expr_symbol: "name".to_string(),
-            left_optional: true,
-            right_optional: true,
+            optional_context: UnitOptionalContext::Optional {
+                variables: vec!["name".to_string()]
+            },
         };
         let expr2 = TemplateExpr::Simple {
             first_part: TemplateExprFirstPart::Variable(TemplateVariableChain {
@@ -122,19 +118,15 @@ mod tests {
                     variables: vec![TemplateVariable::Simple("age".to_string())],
                 },
             )),
-            index: 0,
-            expr_symbol: "".to_string(),
-            left_optional: false,
-            right_optional: false,
+            optional_context: UnitOptionalContext::NotOptional,
         };
 
         let expr3 = TemplateExpr::And {
             left: Box::new(expr),
             right: Box::new(expr2),
-            index: 0,
-            expr_symbol: "name".to_string(),
-            left_optional: true,
-            right_optional: false,
+            optional_context: PairOptionalContext::LeftOptional {
+                variables: vec!["name".to_string()]
+            },
         };
 
 
