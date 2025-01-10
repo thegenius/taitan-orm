@@ -3,7 +3,10 @@ use crate::template::structs::template_connective::TemplateConnective;
 use crate::template::to_sql::SqlTemplateSign;
 use crate::template::{TemplatePlaceholder, TemplateVariableChain, ToSql};
 use crate::Optional;
+use nom::sequence::pair;
+use rinja::filters::format;
 use std::fmt::{Display, Formatter};
+use std::ops::Deref;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TemplateExprFirstPart {
@@ -112,6 +115,12 @@ pub enum UnitOptionalContext {
     Optional { variables: Vec<String> },
 }
 impl UnitOptionalContext {
+    pub fn is_optional(&self) -> bool {
+        match self {
+            UnitOptionalContext::NotOptional => false,
+            _=> true,
+        }
+    }
     pub fn get_variables(&self) -> Vec<String> {
         match self {
             UnitOptionalContext::NotOptional => vec![],
@@ -135,6 +144,13 @@ pub enum PairOptionalContext {
 }
 
 impl PairOptionalContext {
+
+    pub fn is_optional(&self) -> bool {
+        match self {
+            PairOptionalContext::BothOptional {..} => true,
+            _ => false,
+        }
+    }
     pub fn get_variables(&self) -> Vec<String> {
         match self {
             PairOptionalContext::NotOptional => vec![],
@@ -157,6 +173,28 @@ impl PairOptionalContext {
 pub enum OptionalContext {
     UnitOptional(UnitOptionalContext),
     PairOptional(PairOptionalContext),
+}
+
+impl OptionalContext {
+    pub fn is_optional(&self) -> bool {
+        match self {
+            OptionalContext::UnitOptional(ctx) => match ctx {
+                UnitOptionalContext::NotOptional => false,
+                _ => true,
+            },
+            OptionalContext::PairOptional(ctx) => match ctx {
+                PairOptionalContext::BothOptional { .. } => true,
+                _ => false,
+            },
+        }
+    }
+
+    pub fn get_variables(&self) -> Vec<String> {
+        match self {
+            OptionalContext::UnitOptional(unit) => unit.get_variables(),
+            OptionalContext::PairOptional(pair) => pair.get_variables(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -467,18 +505,15 @@ impl ToSql for TemplateExpr {
                     )
                 }
             },
-            TemplateExpr::Not { expr, .. } => {
-                format!("NOT {}", expr.to_set_sql())
-            }
+            /// Not语句不能转化为set语句
+            TemplateExpr::Not { expr, .. } => "".to_string(),
             TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_set_sql())
             }
-            TemplateExpr::And { left, right, .. } => {
-                format!("({} AND {})", left.to_set_sql(), right.to_set_sql())
-            }
-            TemplateExpr::Or { left, right, .. } => {
-                format!("({} OR {})", left.to_set_sql(), right.to_set_sql())
-            }
+            /// And语句不能转化为set语句
+            TemplateExpr::And { left, right, .. } => "".to_string(),
+            /// Or语句不能转化为set语句
+            TemplateExpr::Or { left, right, .. } => "".to_string(),
         }
     }
 
@@ -520,19 +555,17 @@ impl ToSql for TemplateExpr {
                 TemplateExprSecondPart::Percent(val) => {
                     if operator.eq("=") {
                         format!(
-                            "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
+                            "{{% if {}.is_some() %}}{} = ?{{% elif {}.is_null() %}}{} IS NULL{{% else %}}{{% endif %}}",
                             val.to_string(),
                             first_part.to_where_sql(),
-                            operator,
                             val.to_string(),
                             first_part.to_where_sql(),
                         )
                     } else if operator.eq("<>") {
                         format!(
-                            "{{% if {}.is_some() %}}{} {} ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
+                            "{{% if {}.is_some() %}}{} <> ?{{% elif {}.is_null() %}}{} IS NOT NULL{{% else %}}{{% endif %}}",
                             val.to_string(),
                             first_part.to_where_sql(),
-                            operator,
                             val.to_string(),
                             first_part.to_where_sql(),
                         )
@@ -552,8 +585,87 @@ impl ToSql for TemplateExpr {
             TemplateExpr::Or { left, right, .. } => {
                 format!("({} OR {})", left.to_where_sql(), right.to_where_sql())
             }
-            TemplateExpr::Not { expr, .. } => {
-                format!("NOT {}", expr.to_where_sql())
+
+            /// not 语句只能转化成where sql，不能转化成set sql
+            /// 1. 关于not的嵌套
+            ///    多个not直接嵌套后会被优化为单个not
+            /// 2. 关于not的子元素为simple
+            ///    2.1 not expr的子元素如果是optional的，且比较符是 = 和 <>
+            ///         2.1.1 not age = %{age} 应该渲染为
+            ///             {% if age.is_some() %}not age =  ?{% else if age.is_null() %} age IS NOT NULL {% else %}{% endif %}
+            ///         2.1.2 not age <> %{age} 应该渲染为
+            ///             {% if age.is_some() %}not age <> ?{% else if age.is_null() %} age IS NULL {% else %}{% endif %}
+            ///    2.2 not expr的子元素如果是optional的，且比较符不是 = 和 <>
+            ///         not age >= %{age} 应该渲染为
+            ///         {% if age.is_some() %}not age >= ?{% else %}{% endif %}
+            /// 3. 关于not的子元素是()或者and或者or
+            /// not (age = %{age} AND name = %{name})应该渲染为
+            /// {% if age.is_some() && name.is_some() %} NOT {% endif %} (age = ? AND name = ?)
+            TemplateExpr::Not {
+                expr,
+                optional_context,
+            } => {
+                match expr.as_ref() {
+                    TemplateExpr::Not { expr, .. } => expr.to_where_sql(),
+                    TemplateExpr::Parenthesized { expr, optional_context, .. } => {
+                        let variables = optional_context.get_variables();
+                        let check_some_conditions = variables
+                            .iter()
+                            .map(|v| format!("{}.is_some()", v))
+                            .collect::<Vec<String>>()
+                            .join(" && ");
+                        format!("{{% if {} %}} NOT {{% endif %}} ({})", check_some_conditions, expr.to_where_sql())
+                    }
+                    TemplateExpr::And { optional_context, .. } |
+                    TemplateExpr::Or { optional_context, .. } => {
+                        let variables = optional_context.get_variables();
+                        let check_some_conditions = variables
+                            .iter()
+                            .map(|v| format!("{}.is_some()", v))
+                            .collect::<Vec<String>>()
+                            .join(" && ");
+                        format!("{{% if {} %}} NOT {{% endif %}}{}", check_some_conditions, expr.to_where_sql())
+                    }
+                    TemplateExpr::Simple {
+                        first_part,
+                        second_part,
+                        operator,
+                        ..
+                    } => {
+                        // panic!("{:?}", expr);
+                        if self.is_optional() {
+                            let variables = self.get_optional_variables();
+                            let variable = variables.first().unwrap();
+                            // {% if age.is_some() %}NOT age =  ?{% else if age.is_null() %}NOT age IS NULL{% else %}{% endif %}
+                            if operator.eq("=") {
+                                format!(
+                                    "{{% if {}.is_some() %}} NOT {} = ? {{% else if {}.is_null() %}} {} IS NOT NULL {{% else %}}{{% endif %}}",
+                                    variable,
+                                    variable,
+                                    variable,
+                                    variable,
+                                )
+                            } else if operator.eq("<>") {
+                                format!(
+                                    "{{% if {}.is_some() %}}NOT {} <> ?{{% else if {}.is_null() %}}{} IS NULL {{% else %}}{{% endif %}}",
+                                    variable,
+                                    variable,
+                                    variable,
+                                    variable,
+                                )
+                            } else {
+                                format!(
+                                    "{{% if {}.is_some() %}}NOT {} {} ?{{% else %}}{{% endif %}}",
+                                    variable,
+                                    variable,
+                                    operator,
+                                )
+                            }
+                        } else {
+                            format!("NOT {}", expr.to_where_sql())
+                        }
+                    }
+                }
             }
             TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_where_sql())

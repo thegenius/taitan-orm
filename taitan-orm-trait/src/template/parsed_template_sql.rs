@@ -174,6 +174,9 @@ impl ParsedTemplateSql {
         &self.where_sql
     }
 
+    pub fn get_template_values(&self) -> &Vec<TemplateSqlValue> {
+        &self.origin
+    }
     pub fn get_template_signs(&self) -> &Vec<String> {
         &self.template_signs
     }
