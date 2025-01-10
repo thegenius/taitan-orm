@@ -466,6 +466,14 @@ impl Display for TemplateExpr {
     }
 }
 
+fn recursively_trim_parentheses(s: &str) -> String {
+    let mut result = s.to_string();
+    while result.starts_with('(') && result.ends_with(')') && result.len() > 2 {
+        result = result[1..result.len() - 1].to_string();
+    }
+    result
+}
+
 /// percent expr 应该被转化为
 /// {% if val.is_some() %}
 /// {{ {} val.unwrap()}}
@@ -517,7 +525,7 @@ impl ToSql for TemplateExpr {
     }
 
     fn to_where_sql(&self) -> String {
-        match self {
+        let origin = match self {
             TemplateExpr::Simple {
                 first_part,
                 operator,
@@ -579,11 +587,11 @@ impl ToSql for TemplateExpr {
                 }
             },
             TemplateExpr::And { left, right, .. } => {
-                if self.is_optional() {
+                if left.is_optional() || right.is_optional() {
                     let variables = self.get_optional_variables();
                     let check_some_conditions = variables
                         .iter()
-                        .map(|v| format!("{}.is_some()", v))
+                        .map(|v| format!("{}.is_some() || {}.is_null()", v, v))
                         .collect::<Vec<String>>()
                         .join(" && ");
                     let render_and =
@@ -599,11 +607,11 @@ impl ToSql for TemplateExpr {
                 }
             }
             TemplateExpr::Or { left, right, .. } => {
-                if self.is_optional() {
+                if left.is_optional() || right.is_optional() {
                     let variables = self.get_optional_variables();
                     let check_some_conditions = variables
                         .iter()
-                        .map(|v| format!("{}.is_some()", v))
+                        .map(|v| format!("{}.is_some() || {}.is_null()", v, v))
                         .collect::<Vec<String>>()
                         .join(" && ");
                     let render_or =
@@ -717,7 +725,8 @@ impl ToSql for TemplateExpr {
             TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_where_sql())
             }
-        }
+        };
+        recursively_trim_parentheses(&origin)
     }
 }
 

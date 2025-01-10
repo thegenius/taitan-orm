@@ -88,6 +88,7 @@ pub struct TemplateField {
 //     assign_inorder_indices(expr, &mut counter);
 // }
 
+
 impl ParsedTemplateSql {
     pub fn parse(template_sql: &str) -> Result<Self, nom::Err<nom::error::Error<&str>>> {
         let trimmed_template_sql = template_sql.trim();
@@ -340,7 +341,7 @@ mod tests {
             "select * from `user` WHERE name = %{name} AND age = #{age} OR a > ${age}",
         )
         .unwrap();
-        assert_eq!(parsed_template.get_where_sql(), "select * from `user` WHERE (({% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %} AND age = ?) OR a > {{age}})");
+        assert_eq!(parsed_template.get_where_sql(), "select * from `user` WHERE {% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %} {% if name.is_some() || name.is_null() %} AND {% endif %} age = ? OR a > {{age}}");
 
         let first_part = TemplateExprFirstPart::Variable(TemplateVariableChain {
             variables: vec![TemplateVariable::Simple("name".to_string())],
