@@ -51,6 +51,13 @@ pub struct TestTemplate6 {
     age: i32,
 }
 
+#[derive(TemplateRecord, Clone, Debug)]
+#[sql = "select * from `user` WHERE not name = %{name} AND age = %{age} "]
+pub struct TestTemplate7 {
+    name: taitan_orm::result::Optional<String>,
+    age: taitan_orm::result::Optional<i32>,
+}
+
 #[sqlx_macros::test]
 pub async fn template_macro_spec() -> taitan_orm::result::Result<()> {
     let template = TestTemplate1 {
@@ -106,9 +113,49 @@ pub async fn template_macro_spec() -> taitan_orm::result::Result<()> {
         age: 23,
     };
 
-
     let sql = template.get_sql(None);
     assert_eq!(sql, "select * from `user` WHERE name IS NULL  AND  age = ?");
+
+    let template = TestTemplate7 {
+        name: taitan_orm::result::Optional::Some("wang".to_string()),
+        age: taitan_orm::result::Optional::Some(23),
+    };
+
+    let sql = template.get_sql(None);
+    assert_eq!(sql, "select * from `user` WHERE  NOT name = ?   AND  age = ?");
+
+    let template = TestTemplate7 {
+        name: taitan_orm::result::Optional::Null,
+        age: taitan_orm::result::Optional::Some(23),
+    };
+
+    let sql = template.get_sql(None);
+    assert_eq!(sql, "select * from `user` WHERE  name IS NOT NULL   AND  age = ?");
+
+    let template = TestTemplate7 {
+        name: taitan_orm::result::Optional::Some("wang".to_string()),
+        age: taitan_orm::result::Optional::None,
+    };
+
+    let sql = template.get_sql(None);
+    assert_eq!(sql, "select * from `user` WHERE  NOT name = ?   ");
+
+    let template = TestTemplate7 {
+        name: taitan_orm::result::Optional::None,
+        age: taitan_orm::result::Optional::Some(23),
+    };
+
+    let sql = template.get_sql(None);
+    assert_eq!(sql, "select * from `user` WHERE   age = ?");
+
+    let template = TestTemplate7 {
+        name: taitan_orm::result::Optional::None,
+        age: taitan_orm::result::Optional::None,
+    };
+
+    let sql = template.get_sql(None);
+    assert_eq!(sql, "select * from `user` WHERE   ");
+
 
     Ok(())
 }

@@ -19,7 +19,7 @@ use taitan_orm_trait::{ParsedTemplateSql, TemplateSqlValue};
 fn not_expr_spec_01() {
     let parsed = ParsedTemplateSql::parse("NOT age = %{age}").unwrap();
     let sql = parsed.get_where_sql();
-    assert_eq!(sql, "{% if age.is_some() %} NOT age = ? {% else if age.is_null() %} age IS NOT NULL {% else %}{% endif %}");
+    assert_eq!(sql, "{% if age.is_some() %} NOT age = ? {% elif age.is_null() %} age IS NOT NULL {% else %}{% endif %}");
 }
 
 
@@ -27,5 +27,12 @@ fn not_expr_spec_01() {
 fn and_expr_spec_01() {
     let parsed = ParsedTemplateSql::parse("age = %{age} AND name = %{name}").unwrap();
     let sql = parsed.get_where_sql();
-    assert_eq!(sql, "{% if age.is_some() %}age = ?{% elif age.is_null() %}age IS NULL{% else %}{% endif %} {% if age.is_some() || age.is_null() && name.is_some() || name.is_null() %} AND {% endif %} {% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %}");
+    assert_eq!(sql, "{% if age.is_some() %}age = ?{% elif age.is_null() %}age IS NULL{% else %}{% endif %} {% if (age.is_some() || age.is_null()) && (name.is_some() || name.is_null()) %} AND {% endif %} {% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %}");
+}
+
+#[test]
+fn and_expr_spec_02() {
+    let parsed = ParsedTemplateSql::parse("NOT age = %{age} AND name = %{name}").unwrap();
+    let sql = parsed.get_where_sql();
+    assert_eq!(sql, "{% if age.is_some() %} NOT age = ? {% elif age.is_null() %} age IS NOT NULL {% else %}{% endif %} {% if (age.is_some() || age.is_null()) && (name.is_some() || name.is_null()) %} AND {% endif %} {% if name.is_some() %}name = ?{% elif name.is_null() %}name IS NULL{% else %}{% endif %}");
 }

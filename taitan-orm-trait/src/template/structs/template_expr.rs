@@ -489,6 +489,20 @@ fn recursively_trim_parentheses(s: &str) -> String {
     result
 }
 
+fn generate_check_template(variables: &Vec<OptionalVariable>) -> String {
+    variables
+        .iter()
+        .map(|v| {
+            if v.null_as_none {
+                format!("{}.is_some()", v)
+            } else {
+                format!("({}.is_some() || {}.is_null())", v, v)
+            }
+        })
+        .collect::<Vec<String>>()
+        .join(" && ")
+}
+
 /// percent expr 应该被转化为
 /// {% if val.is_some() %}
 /// {{ {} val.unwrap()}}
@@ -604,17 +618,7 @@ impl ToSql for TemplateExpr {
             TemplateExpr::And { left, right, .. } => {
                 if left.is_optional() || right.is_optional() {
                     let variables = self.get_optional_variables();
-                    let check_some_conditions = variables
-                        .iter()
-                        .map(|v| {
-                            if v.null_as_none {
-                                format!("{}.is_some()", v)
-                            } else {
-                                format!("{}.is_some() || {}.is_null()", v, v)
-                            }
-                        })
-                        .collect::<Vec<String>>()
-                        .join(" && ");
+                    let check_some_conditions = generate_check_template(&variables);
                     let render_and =
                         format!("{{% if {} %}} AND {{% endif %}}", check_some_conditions);
                     format!(
@@ -630,17 +634,7 @@ impl ToSql for TemplateExpr {
             TemplateExpr::Or { left, right, .. } => {
                 if left.is_optional() || right.is_optional() {
                     let variables = self.get_optional_variables();
-                    let check_some_conditions = variables
-                        .iter()
-                        .map(|v| {
-                            if v.null_as_none {
-                                format!("{}.is_some()", v)
-                            } else {
-                                format!("{}.is_some() || {}.is_null()", v, v)
-                            }
-                        })
-                        .collect::<Vec<String>>()
-                        .join(" && ");
+                    let check_some_conditions = generate_check_template(&variables);
                     let render_or =
                         format!("{{% if {} %}} OR {{% endif %}}", check_some_conditions);
                     format!(
@@ -681,11 +675,7 @@ impl ToSql for TemplateExpr {
                         ..
                     } => {
                         let variables = optional_context.get_variables();
-                        let check_some_conditions = variables
-                            .iter()
-                            .map(|v| format!("{}.is_some()", v))
-                            .collect::<Vec<String>>()
-                            .join(" && ");
+                        let check_some_conditions = generate_check_template(&variables);
                         format!(
                             "{{% if {} %}} NOT {{% endif %}} ({})",
                             check_some_conditions,
@@ -699,11 +689,7 @@ impl ToSql for TemplateExpr {
                         optional_context, ..
                     } => {
                         let variables = optional_context.get_variables();
-                        let check_some_conditions = variables
-                            .iter()
-                            .map(|v| format!("{}.is_some()", v))
-                            .collect::<Vec<String>>()
-                            .join(" && ");
+                        let check_some_conditions = generate_check_template(&variables);
                         format!(
                             "{{% if {} %}} NOT {{% endif %}}{}",
                             check_some_conditions,
@@ -723,7 +709,7 @@ impl ToSql for TemplateExpr {
                             // {% if age.is_some() %}NOT age =  ?{% else if age.is_null() %}NOT age IS NULL{% else %}{% endif %}
                             if operator.eq("=") {
                                 format!(
-                                    "{{% if {}.is_some() %}} NOT {} = ? {{% else if {}.is_null() %}} {} IS NOT NULL {{% else %}}{{% endif %}}",
+                                    "{{% if {}.is_some() %}} NOT {} = ? {{% elif {}.is_null() %}} {} IS NOT NULL {{% else %}}{{% endif %}}",
                                     variable,
                                     variable,
                                     variable,
@@ -731,7 +717,7 @@ impl ToSql for TemplateExpr {
                                 )
                             } else if operator.eq("<>") {
                                 format!(
-                                    "{{% if {}.is_some() %}}NOT {} <> ?{{% else if {}.is_null() %}}{} IS NULL {{% else %}}{{% endif %}}",
+                                    "{{% if {}.is_some() %}}NOT {} <> ?{{% elif {}.is_null() %}}{} IS NULL {{% else %}}{{% endif %}}",
                                     variable,
                                     variable,
                                     variable,
