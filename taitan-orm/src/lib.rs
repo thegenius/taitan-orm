@@ -1,3 +1,13 @@
+//! TaiTan-ORM has gone to great lengths to enhance the developer experience.
+//! The primary guiding principle behind all API designs is to prioritize ease of use and developer satisfaction.
+//! This commitment ensures that APIs are intuitive, consistent, and efficient,
+//! reducing the learning curve and increasing productivity for developers.
+
+//! First of all, TaiTan-ORM has introduced several concepts designed to simplify and facilitate the learning of its API.
+//! 1. Entity
+//! An Entity corresponds one database table
+//! 2.
+
 #![allow(async_fn_in_trait)]
 #![allow(dead_code)]
 #![forbid(unsafe_code)]

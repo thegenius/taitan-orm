@@ -208,6 +208,24 @@ pub struct UserCustomTemplate {
 ```
 * you can run the template example in examples/template directory.
 
+## Transaction
+Seamless transaction handling
+```rust
+async fn trx_insert_user(
+    db: &mut SqliteDatabase,
+    user1: &User,
+    user2: &User,
+) -> taitan_orm::result::Result<()> {
+    let mut trx = db.transaction().await?; // create a transaction, trx
+    trx.insert(user1).await?;              // same api as database
+    trx.insert(user2).await?;              // rollback if there is any error
+    trx.commit().await?;                   // commit it
+    Ok(())                                 // when trx drop, if not commit, rollback 
+}
+```
+
+# Concepts
+![](https://github.com/thegenius/taitan-orm/blob/main/docs/concept.png)
 
 
 # Examples
