@@ -231,7 +231,7 @@ async fn trx_insert_user(
 # Examples
 At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
 
-| example     | descption                   |
+| example     | description                 |
 |-------------|-----------------------------|
 | crud        | basic crud example          |
 | template    | template with paged example |
