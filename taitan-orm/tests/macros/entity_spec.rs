@@ -11,6 +11,7 @@ use taitan_orm_trait::{Optional, SelectedEntity};
 #[unique_key = "name, birthday"]
 #[serde_struct = "primary"]
 #[serde_struct = "unique"]
+#[index(name="user", fields("key1", "key2"))]
 pub struct UserEntity {
     #[primary_key]
     #[auto_increment]

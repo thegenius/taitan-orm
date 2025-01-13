@@ -25,7 +25,8 @@ mod location;
         auto_increment,
         generated,
         field_name,
-        serde_struct
+        serde_struct,
+        index
     )
 )]
 pub fn expand_schema_macro(input: TokenStream) -> TokenStream {

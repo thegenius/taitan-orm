@@ -1,17 +1,22 @@
 use case::CaseExt;
-use proc_macro2::Ident;
-use syn::{Attribute, Expr, Field, Lit, Meta, Path};
+use darling::ast::NestedMeta;
+use proc_macro2::{Ident, TokenTree};
+use quote::__private::ext::RepToTokensExt;
+use syn::{parse_macro_input, Attribute, DeriveInput, Expr, Field, Lit, Meta, Path};
 use quote::format_ident;
 
 pub trait AttrParser {
     fn extract_field_db_ident(field: &Field) -> Ident;
     fn extract_val_from_attr(attr: &Attribute, name: &str) -> Option<String>;
+    fn extract_path_val_from_attr(attr: &Attribute, path: &str) -> Option<IndexAttribute>;
 
     fn check_is_attr(attr: &Attribute, name: &str) -> bool;
 
     fn extract_val_from_attrs(attrs: &Vec<Attribute>, name: &str) -> Option<String>;
+    fn extract_index_fields(attrs: &Vec<Attribute>) -> Vec<IndexAttribute>;
 
     fn extract_val_vec_from_attrs(attrs: &Vec<Attribute>, name: &str) -> Vec<String>;
+    // fn extract_path_val_from_attrs(attrs: &Vec<Attribute>, name: &str) -> Vec<String>;
 
     fn check_has_attr(attrs: &Vec<Attribute>, name: &str) -> bool;
 
@@ -27,12 +32,75 @@ pub trait AttrParser {
 
 pub struct DefaultAttrParser {}
 
+
+#[derive(Debug, Clone)]
+pub struct IndexAttribute {
+    name: String,
+    fields: Vec<String>,
+}
+
 impl AttrParser for DefaultAttrParser {
+
+    fn extract_path_val_from_attr(attr: &Attribute, name: &str) -> Option<IndexAttribute> {
+        let path: &Path = attr.path();
+        if !path.is_ident(name) {
+            return None;
+        }
+
+
+        let mut name: Option<String> = None;
+        let mut fields = Vec::new();
+        match &attr.meta {
+            Meta::List(meta_list) => {
+                let mut token_stream: proc_macro2::TokenStream = meta_list.clone().tokens;
+                let mut tokens = token_stream.into_iter();
+                while let Some(token) = tokens.next() {
+                    match token {
+                        proc_macro2::TokenTree::Ident(ident) if ident == "name" => {
+                            if let Some(TokenTree::Punct(punct)) = tokens.next() {
+                                if punct.as_char() == '=' {
+                                    if let Some(TokenTree::Literal(lit)) = tokens.next() {
+                                        name = Some(lit.to_string().trim_matches('"').to_string());
+                                    }
+                                }
+                            }
+                        },
+                        TokenTree::Ident(ident) if ident == "fields" => {
+                            if let Some(TokenTree::Group(group)) = tokens.next() {
+                                for field in group.stream() {
+                                    if let TokenTree::Literal(lit) = field {
+                                        fields.push(lit.to_string().trim_matches('"').to_string());
+                                    }
+                                }
+                            }
+                        }
+                        _=>{}
+                    }
+                }
+            },
+            _ => {},
+        }
+
+        if name.is_some() {
+            return Some(IndexAttribute {
+                name: name.unwrap(),
+                fields
+            });
+        } else {
+            return None;
+        }
+    }
+
     fn extract_val_from_attr(attr: &Attribute, name: &str) -> Option<String> {
         let path: &Path = attr.path();
         if !path.is_ident(name) {
             return None;
         }
+
+        if name == "index" {
+            panic!("{:?}", attr);
+        }
+
 
         match &attr.meta {
             Meta::NameValue(name_value) => {
@@ -128,6 +196,17 @@ impl AttrParser for DefaultAttrParser {
         return attr_path_name == name;
     }
 
+    // fn extract_path_val_from_attrs(attrs: &Vec<Attribute>, path: &str) -> Vec<String> {
+    //     let mut values:Vec<String> = Vec::new();
+    //     for attr in attrs {
+    //         let val_opt = <DefaultAttrParser as AttrParser>::extract_path_val_from_attr(attr, path);
+    //         if val_opt.is_some() {
+    //             values.push(val_opt.unwrap());
+    //         }
+    //     }
+    //     values
+    // }
+
     fn extract_val_from_attrs(attrs: &Vec<Attribute>, name: &str) -> Option<String> {
         for attr in attrs {
             let val_opt = <DefaultAttrParser as AttrParser>::extract_val_from_attr(attr, name);
@@ -149,6 +228,16 @@ impl AttrParser for DefaultAttrParser {
         return result;
     }
 
+    fn extract_index_fields(attrs: &Vec<Attribute>) -> Vec<IndexAttribute> {
+        let mut results: Vec<IndexAttribute> = Vec::new();
+        for attr in attrs {
+            let val_opt = <DefaultAttrParser as AttrParser>::extract_path_val_from_attr(attr, "index");
+            if let Some(val) = val_opt {
+                results.push(val);
+            }
+        }
+        results
+    }
     fn extract_serde_names(attrs: &Vec<Attribute>) -> Vec<&'static str> {
         let mut results: Vec<&'static str> = Vec::new();
         for attr in attrs {
