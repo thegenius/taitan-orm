@@ -35,8 +35,8 @@ pub struct DefaultAttrParser {}
 
 #[derive(Debug, Clone)]
 pub struct IndexAttribute {
-    name: String,
-    fields: Vec<String>,
+    pub name: String,
+    pub fields: Vec<String>,
 }
 
 impl AttrParser for DefaultAttrParser {

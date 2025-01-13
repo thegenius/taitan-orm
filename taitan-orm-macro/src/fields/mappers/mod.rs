@@ -6,7 +6,11 @@ mod names_constructor;
 mod names_add_constructor;
 mod row_get_constructor;
 mod row_constructor;
+mod sql_constructor;
+mod sql_constructors;
 
+pub use sql_constructors::SqlConstructors;
+pub use sql_constructor::SqlConstructor;
 
 pub use struct_field_constructor::StructFieldConstructor;
 pub use struct_constructor::StructConstructor;

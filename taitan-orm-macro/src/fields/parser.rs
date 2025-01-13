@@ -1,8 +1,4 @@
-use crate::fields::mappers::{
-    ArgsAddConstructor, ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite,
-    NamesAddConstructor, NamesConstructor, RowConstructor, RowGetConstructor, StructConstructor,
-    StructFieldConstructor,
-};
+use crate::fields::mappers::{ArgsAddConstructor, ArgsConstructorMySql, ArgsConstructorPostgres, ArgsConstructorSqlite, NamesAddConstructor, NamesConstructor, RowConstructor, RowGetConstructor, SqlConstructor, SqlConstructors, StructConstructor, StructFieldConstructor};
 use crate::fields::{DefaultFieldMapper, FieldMapType, FieldMapper, LocationParser, UniqueParser};
 use crate::types::{DefaultTypeChecker, TypeChecker};
 use crate::types::{DefaultTypeExtractor, TypeExtractor};
@@ -78,6 +74,9 @@ impl LocationParser for FieldsParser {}
 impl RowGetConstructor for FieldsParser {}
 
 impl RowConstructor for FieldsParser {}
+
+impl SqlConstructor for FieldsParser {}
+impl SqlConstructors for FieldsParser {}
 
 impl FieldsParser {
     pub fn map_with<F>(self, map_fn: &F) -> Vec<TokenStream>

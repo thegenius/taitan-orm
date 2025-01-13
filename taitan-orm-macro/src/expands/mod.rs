@@ -11,6 +11,7 @@ mod struct_generator;
 
 pub use struct_generator::generate_selected_struct;
 pub use struct_generator::generate_location_struct;
+pub use struct_generator::generate_index_struct;
 
 
 pub use entity_expander::generate_entity_impl;

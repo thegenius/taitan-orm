@@ -22,6 +22,22 @@ pub trait StructFieldConstructor {
         }
     }
 
+    // enum variant 中使用
+    fn get_not_option_not_pub_field(field: Field) -> TokenStream {
+        let field_ident = field.ident;
+        if DefaultTypeChecker::type_is_option(&field.ty) {
+            let inner_type = DefaultTypeExtractor::get_option_inner_type(&field.ty).unwrap();
+            quote! {
+                #field_ident: taitan_orm::traits::LocationExpr<#inner_type>
+            }
+        } else {
+            let field_ty = field.ty;
+            quote!{
+                #field_ident: taitan_orm::traits::LocationExpr<#field_ty>
+            }
+        }
+    }
+
     // field_name: Option<T>
     fn get_option_field(field: Field) -> TokenStream {
         let field_ident = field.ident;
