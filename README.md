@@ -2,7 +2,7 @@
 
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
 [![Version](https://img.shields.io/badge/crates-0.1.9-green)](https://crates.io/crates/taitan-orm)
-[![Version](https://img.shields.io/badge/Lines-18k-yellow)](https://crates.io/crates/taitan-orm)
+[![Version](https://img.shields.io/badge/Lines-19k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
