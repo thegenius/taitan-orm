@@ -1,3 +1,4 @@
+
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::format_ident;
@@ -54,14 +55,27 @@ pub trait SqlConstructors: FieldsContainer + SqlConstructor {
                 .join("");
             let variant_ident = format_ident!("{}", variant_name);
 
+            let last_index = enum_fields.len() - 1;
             let push_stmts = enum_fields
                 .into_iter()
                 .map(Self::get_expr_field)
                 .collect::<Vec<TokenStream>>();
 
+
+            let connected_push_stmts: Vec<TokenStream> = push_stmts.clone().into_iter()
+                .enumerate().flat_map(|(i, item)| {
+                    if i < last_index {
+                        vec![item, quote! { sql.push_str(" AND "); }]
+                    } else {
+                        vec![item]
+                    }
+            }).collect::<Vec<TokenStream>>();
+
+
+
             let variant = quote! {
                 #struct_ident::#variant_ident{#(#variant_fields,)*.. } =>{
-                    #(#push_stmts)*
+                    #(#connected_push_stmts)*
                 }
             };
             variants.push(variant);

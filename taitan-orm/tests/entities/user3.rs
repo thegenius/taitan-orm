@@ -212,6 +212,7 @@ impl taitan_orm::traits::Location for UserIndexUser {
                 sql.push_str("`id`");
                 sql.push_str(id.cmp.get_sql());
                 sql.push('?');
+                sql.push_str(" AND ");
                 sql.push_str("`name`");
                 sql.push_str(name.cmp.get_sql());
                 sql.push('?');

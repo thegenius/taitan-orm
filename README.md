@@ -17,17 +17,22 @@ taitan-orm = { version = "0.1.8" }
 ```rust 
 
 use std::borrow::Cow;
+use sqlx::types::time::PrimitiveDateTime;
+use time::macros::datetime;
 use taitan_orm::database::sqlite::SqliteDatabase;
 use taitan_orm::database::sqlite::SqliteLocalConfig;
 use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
+#[unique_key = "name"]
+#[index(name = "idx_hello", fields("age", "birthday"))]
 pub struct User {
  #[primary_key]
  id: i32,
  name: String,
  age: Optional<i32>,
+ birthday: Optional<PrimitiveDateTime>
 }
 
 #[tokio::main]
@@ -72,7 +77,15 @@ async fn main() -> taitan_orm::result::Result<()> {
 
  db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
  db.execute_plain(
-  "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
+  "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64), `birthday` DATETIME)",
+ )
+         .await?;
+ db.execute_plain(
+  "CREATE UNIQUE INDEX `uk_name` ON `user` (`name`);",
+ )
+         .await?;
+ db.execute_plain(
+  "CREATE INDEX `idx_age_birthday` ON `user` (`age`, `birthday`);",
  )
          .await?;
 
@@ -81,6 +94,7 @@ async fn main() -> taitan_orm::result::Result<()> {
   id: 1,
   name: "Allen".to_string(),
   age: Optional::Some(23),
+  birthday: Optional::Some(datetime!(2019-01-01 0:00))
  };
  let result = db.insert(&entity).await?;
  assert_eq!(result, true);
@@ -89,6 +103,7 @@ async fn main() -> taitan_orm::result::Result<()> {
  let mutation = UserMutation {
   name: Optional::None,
   age: Optional::Some(24),
+  birthday: Optional::None
  };
  let primary = UserPrimary { id: 1 };
  let result = db.update(&mutation, &primary).await?;
@@ -99,7 +114,20 @@ async fn main() -> taitan_orm::result::Result<()> {
  let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
  assert!(entity.is_some());
 
- // 4. search
+ // 4. select by unique
+ let uk = UserNameUnique { name: "Allen".to_string() };
+ let unique_entity : Option<UserSelectedEntity> = db.select(&selection, &uk).await?;
+ assert!(unique_entity.is_some());
+
+ // 5. search by index
+ let index = UserIndexIdxHello::AgeBirthday {
+  age: LocationExpr::from("=", 24)?,
+  birthday: LocationExpr::from("=", datetime!(2019-01-01 0:00))?
+ };
+ let index_entities: Vec<UserSelectedEntity> = db.search(&selection, &index, &None, &None).await?;
+ assert_eq!(index_entities.len(), 1);
+
+ // 6. search
  let selection = UserSelectedEntity::full_fields();
  let location = UserLocationExpr::id(">=", 1)?;
  let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
@@ -120,16 +148,19 @@ async fn main() -> taitan_orm::result::Result<()> {
 
 # Usage
 ## Compile Time Generation  
-When we derive(Schema), Taitan-ORM will generate helper struct for you.
+When derive(Schema), TaiTan-ORM will generate helper struct for you.
 
 ```rust
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
+#[unique_key = "name"]
+#[index(name = "idx_hello", fields("age", "birthday"))]
 pub struct User {
  #[primary_key]
  id: i32,
  name: String,
  age: Optional<i32>,
+ birthday: Optional<PrimitiveDateTime>
 }
 
 // struct for primary key 
@@ -141,6 +172,22 @@ pub struct UserPrimary {
 pub struct UserMutation {
  name: Optional<String>,
  age: Optional<i32>
+}
+
+// struct for unique key
+pub struct UserNameUnique { 
+ name: String 
+}
+
+// struct for index hello
+pub enum UserIndexIdxHello {
+    Age { 
+        age: LocationExpr<i32> 
+    },
+    AgeBirthday{ 
+        age: LocationExpr<i32>, 
+        birthday: LocationExpr<PrimitiveDateTime> 
+    }
 }
 
 // struct to generate where condition 
@@ -159,8 +206,25 @@ pub struct UserSelectedEntity {
 }
 ```
 
+
 ## Template   
-Taitan-ORM has the most powerful orm template engine you ever meet.
+TaiTan-ORM: The Most Powerful ORM Template Engine You'll Ever Meet
+
+### 1. Comprehensive Template Features with Jinja Syntax Support
+Titan-ORM offers a full-featured template engine that supports the popular Jinja syntax, providing powerful templating capabilities.
+### 2. Compile-Time Processing for Zero Runtime Overhead
+In the vast majority of cases, compile-time processing is utilized, resulting in essentially zero overhead during runtime. This ensures optimal performance and efficiency.
+### 3. A Revolutionary Optional Syntax
+Introducing a new Optional syntax that helps you avoid cumbersome and unsightly template code, making your templates cleaner and more maintainable.
+### ⚠️ <span style="color: red;">warning: before 0.2, syntax may change</span>
+
+| syntax                                   | description                                                            |
+|------------------------------------------|------------------------------------------------------------------------|
+| <span style="color: red;">#{}</span>     | compile time render syntax, may change                                 |
+| <span style="color: white;">${}</span>   | dynamic render syntax                                                  |
+| <span style="color: red;">%{}</span>     | now used for optional, but it may confused with {% %}, so maybe change |
+| <span style="color: green;">{% %}</span> | Jinja template syntax, **this will not change**                        |
+| <span style="color: white;">@{}</span>   | candidate for compile time render                                      |
 
 ```rust
 /// This is the #{} syntax, this will be parsed at compile-time,

@@ -38,7 +38,7 @@ pub fn impl_schema_macro(input: TokenStream) -> TokenStream {
 
 
     let mut output = generate_entity_impl(&ident, &attrs, &fields);
-    let index_struct_stream = generate_index_struct(&ident, &attrs, &fields, true);
+    let index_struct_stream = generate_index_struct(&ident, &attrs, &fields, false);
     let primary_struct_stream = generate_unique_structs_and_impls(&ident, &attrs, &fields, serde_list.contains(&"unique"));
     let location_struct_stream = generate_location_struct(&ident, &attrs, &fields, serde_list.contains(&"location"));
     let location_enum_stream = generate_location_expr_enum_and_impl(&ident, &attrs, &fields, serde_list.contains(&"location"));
