@@ -1,6 +1,6 @@
 use crate::error::NotValidConditionError;
 use crate::location::location_expr::LogicalOperator;
-use crate::LocationExpr;
+use crate::{Location, LocationExpr};
 use rinja::filters::e;
 use sqlx::mysql::MySqlArguments;
 use sqlx::postgres::PgArguments;
@@ -8,6 +8,37 @@ use sqlx::sqlite::SqliteArguments;
 use sqlx::{Arguments, Database, Type};
 use std::fmt::Debug;
 use std::str::Chars;
+use sqlx::error::BoxDynError;
+
+#[derive(Debug)]
+pub struct And<'a> {
+    conditions: Vec<Box<dyn Location + 'a>>
+}
+
+impl<'a> Location for And<'a> {
+    fn get_table_name(&self) -> &'static str {
+        todo!()
+    }
+
+    fn get_where_clause(&self) -> String {
+        todo!()
+    }
+
+    fn gen_location_arguments_sqlite(&self) -> Result<SqliteArguments<'_>, BoxDynError> {
+        todo!()
+    }
+
+    fn gen_location_arguments_mysql(&self) -> Result<MySqlArguments, BoxDynError> {
+        todo!()
+    }
+
+    fn gen_location_arguments_postgres(&self) -> Result<PgArguments, BoxDynError> {
+        todo!()
+    }
+}
+
+
+
 
 pub trait Condition {
     fn get_where_clause(&self, wrap_char: char, place_holder: char) -> String;

@@ -4,7 +4,7 @@
 
 目前正在进行的工作：
 1. 支持手写SelectedEntity，支持字段不是Optional: Done
-2. 支持template中通过 %{} 语法识别Optional字段
+2. 支持template中通过 %{} 语法识别Optional字段:  Done
 
 3. 支持TemplateLocation，实现了Location trait, 必需绑定SelectedEntity
    这个比TemplateRecord多的就是可以筛选字段
