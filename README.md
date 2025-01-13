@@ -168,10 +168,11 @@ pub struct UserPrimary {
  id: i32
 }
 
-// struct for mutation/update 
+// struct for update 
 pub struct UserMutation {
  name: Optional<String>,
- age: Optional<i32>
+ age: Optional<i32>,
+ birthday: Optional<PrimitiveDateTime>
 }
 
 // struct for unique key
@@ -179,7 +180,10 @@ pub struct UserNameUnique {
  name: String 
 }
 
-// struct for index hello
+// struct for index_hello, designed for index prefix matching
+// age is allowed,
+// age, birthday is allowed
+// birthday is not allowed
 pub enum UserIndexIdxHello {
     Age { 
         age: LocationExpr<i32> 
