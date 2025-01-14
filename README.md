@@ -41,53 +41,9 @@ async fn main() -> taitan_orm::result::Result<()> {
          .with_max_level(tracing::Level::TRACE)
          .init();
 
- // // For MySql
- // // manually build ConnectOptions
- // let conn = MySqlConnectOptions::new()
- //     .host("localhost")
- //     .username("root")
- //     .password("password")
- //     .database("db")
- //     .connect().await?;
- //
- // // parse options from a string
- // let opts: MySqlConnectOptions = "mysql://root:password@localhost/db".parse()?;
- // let mut db: MySqlDatabase = MySqlDatabase::build(opts).await?;
-
- // // For Postgres
- // Manually-constructed options
- // let conn = PgConnectOptions::new()
- //     .host("secret-host")
- //     .port(2525)
- //     .username("secret-user")
- //     .password("secret-password")
- //     .ssl_mode(PgSslMode::Require)
- //     .connect()
- //     .await?;
- // // parse options from a string
- // let mut opts: PgConnectOptions = "postgres:// localhost/ mydb".parse()?;
- // let mut db: PostgresDatabase = PostgresDatabase::build(opts).await?;
-
- // 0. prepare sqlite database
- let config = SqliteLocalConfig {
-  work_dir: Cow::from("./workspace"),
-  db_file: Cow::from("test.db"),
- };
- let mut db: SqliteDatabase = SqliteDatabase::build(config).await?;
-
- db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
- db.execute_plain(
-  "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64), `birthday` DATETIME)",
- )
-         .await?;
- db.execute_plain(
-  "CREATE UNIQUE INDEX `uk_name` ON `user` (`name`);",
- )
-         .await?;
- db.execute_plain(
-  "CREATE INDEX `idx_age_birthday` ON `user` (`age`, `birthday`);",
- )
-         .await?;
+ // 0. setup database
+ // refer to docs/setup.md for database setup
+ let db = ...; 
 
  // 1. insert entity
  let entity = User {
@@ -184,6 +140,10 @@ pub struct UserNameUnique {
 // age is allowed,
 // age, birthday is allowed
 // birthday is not allowed
+
+
+
+
 pub enum UserIndexIdxHello {
     Age { 
         age: LocationExpr<i32> 
@@ -312,6 +272,8 @@ At present, the documentation for this newly-born project is limited. You can re
  MySql  
  Postgres   
  Sqlite  
+[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/setup.md)
+
 
 # ROADMAP
 - **0.1 API** 🔧  
