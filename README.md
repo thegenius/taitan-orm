@@ -272,7 +272,7 @@ At present, the documentation for this newly-born project is limited. You can re
  MySql  
  Postgres   
  Sqlite  
-[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/setup.md)
+Please refer to 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/setup.md) for details
 
 
 # ROADMAP
