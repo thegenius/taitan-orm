@@ -282,6 +282,7 @@ What is being polished?
 
 - **0.2 Correctness**: specification and code coverage and fuzz  📎  
 **🙏Help is wanted, maybe a long-running mysql instance and a postgres instance**
+now there is a rough coverage report: 🪧[report](https://github.com/thegenius/taitan-orm/blob/main/docs/coverage.md)
 
 - **0.3 Documentation**: doc the usage and implementation  📎  
 **🖊️Starting from version 0.3, I will focus my efforts on documentation.**

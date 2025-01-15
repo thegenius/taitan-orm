@@ -8,6 +8,8 @@ members = [
 resolver = "2"
 
 default-members = [
+    "taitan-orm-trait",
+    "taitan-orm-macro",
     "taitan-orm"
 ]
 
