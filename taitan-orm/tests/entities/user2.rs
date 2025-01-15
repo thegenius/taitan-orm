@@ -1,5 +1,5 @@
 
-use taitan_orm_trait::FieldName;
+use taitan_orm_trait::{FieldName, AllLocation};
 
 
 use time::PrimitiveDateTime;
@@ -277,6 +277,11 @@ pub struct UserLocation {
     name: Option<taitan_orm::traits::LocationExpr<String>>,
     birthday: Option<taitan_orm::traits::LocationExpr<PrimitiveDateTime>>,
 }
+
+impl UserLocation {
+    pub const FULL: AllLocation = AllLocation::new("hello");
+}
+
 impl taitan_orm::traits::Location for UserLocation {
     fn get_table_name(&self) -> &'static str {
         "user"

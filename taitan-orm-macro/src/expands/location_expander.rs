@@ -47,6 +47,9 @@ pub fn generate_location_impl(
         FieldsParser::from_vec(&fields).gen_location_arguments_postgres();
 
     let output = quote! {
+        impl #struct_ident {
+            pub const ALL: taitan_orm::traits::AllLocation = taitan_orm::traits::AllLocation::new(#table_name);
+        }
 
         impl taitan_orm::traits::Location for #struct_ident {
 

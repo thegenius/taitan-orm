@@ -121,3 +121,4 @@ impl taitan_orm::traits::Selection for SelectedTest {
         }
     }
 }
+

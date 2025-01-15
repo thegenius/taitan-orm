@@ -81,6 +81,7 @@ pub mod traits {
     pub use taitan_orm_trait::TemplateSqlValue;
     pub use taitan_orm_trait::TemplateRecord;
     pub use taitan_orm_trait::LocationMode;
+    pub use taitan_orm_trait::AllLocation;
     pub use taitan_orm_trait::NotValidCmpError;
     pub use taitan_orm_trait::CmpOperator;
 }
