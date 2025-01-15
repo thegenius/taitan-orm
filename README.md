@@ -67,12 +67,14 @@ async fn main() -> taitan_orm::result::Result<()> {
 
  // 3. select
  let selection = UserSelectedEntity::full_fields();
- let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
+ let entity: Option<UserSelectedEntity> 
+         = db.select(&selection, &primary).await?;
  assert!(entity.is_some());
 
  // 4. select by unique
  let uk = UserNameUnique { name: "Allen".to_string() };
- let unique_entity : Option<UserSelectedEntity> = db.select(&selection, &uk).await?;
+ let unique_entity : Option<UserSelectedEntity> 
+         = db.select(&selection, &uk).await?;
  assert!(unique_entity.is_some());
 
  // 5. search by index
@@ -140,10 +142,6 @@ pub struct UserNameUnique {
 // age is allowed,
 // age, birthday is allowed
 // birthday is not allowed
-
-
-
-
 pub enum UserIndexIdxHello {
     Age { 
         age: LocationExpr<i32> 

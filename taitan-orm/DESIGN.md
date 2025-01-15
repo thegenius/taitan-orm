@@ -123,9 +123,9 @@ sql api: 操作API
 async fn insert(entity: &dyn Entity) -> Result<bool>;
 async fn upsert(entity: &dyn Entity) -> Result<bool>;
 async fn update<M: Mutation>(mutation: &M, unique: &M::Primary) -> Result<bool>;
-async fn change<M: Mutation>(mutation: &M, location: &M::Location) -> Result<bool>;
+async fn change<M: Mutation>(mutation: &M, location: &M::Location) -> Result<u64>;
 async fn delete(unique: &dyn Unique) -> Result<bool>;
-async fn purify(location: &dyn Location) -> Result<usize>;
+async fn purify(location: &dyn Location) -> Result<u64>;
 ```
 
 ```rust
