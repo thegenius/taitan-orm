@@ -1,23 +1,3 @@
-
-# Write API
-写入API的设计原则如下：
-### 第一原则: 最小化心智负担
- 目前只需要理解4个概念，就能完全掌握这些API  
-（1）entity，就是表结构的直接映射，entity的字段应该和表结构一致  
-（2）mutation，就是表的更新操作，包含除主键外所有字段的optional  
-（3）unique，就是表的唯一索引，包含主键，在表中可以唯一定位到一行记录  
-（4）location，就是表的条件搜索，可以定位到表中0-n条记录  
-### 第二原则：最少的API来实现一套逻辑完备的写入操作
-当前的最小集只有10个API，其中7个是常规写入操作，3个是批量操作。
-### 第三原则：最大化程序员开发体验
-第三条解释起来最麻烦，但基本都有明确的示例：  
- (1) insert/upsert/create返回bool，而不是int，
-直接暴露底层的int会把非常多的复杂性带入到使用，
-比如insert on duplicate可能返回理论上只可能返回0，1，所以true和false比int更加清晰
- (2) create需要处理自增ID生成的逻辑，不同数据库完全不一样，框架把这些复杂性统一掉
- (3) entity/mutation/unique/location都是trait，完全可以自定义
-
-
 # Write API
 The design principles of the Write API are as follows:
 
@@ -91,8 +71,12 @@ create( mut entity{ field1, field2, field3, field4 } ) -> ()
 ```rust
 async fn insert(&self, entity: &dyn Entity) -> Result<()>
 ```
-插入操作是最基本的写入操作，来执行表的insert操作，他的心智模型就是简单的插入，如果遇到冲突就插入失败。
-由于表字段可能有default和not null约束，还可能是auto increment，entity的字段类型可能是optional的。
+The insert operation is the most basic write operation, used to perform an INSERT into a table.   
+Its mental model is straightforward: simply insert a new record into the table; if a conflict occurs, the insertion fails.
+
+However, because table columns may have DEFAULT and NOT NULL constraints,   
+and could also be AUTO INCREMENT, the field types in the entity might be optional (Optional).   
+This adds complexity to the insert operation.
 
 |                  | not optional         | optional::None   | optional::Null | optional::Some  |
 |------------------|----------------------|------------------|----------------|-----------------|
@@ -103,12 +87,19 @@ async fn insert(&self, entity: &dyn Entity) -> Result<()>
 | auto increment   | ❌ compile time error | ✅                | run time error |  run time error |
 | generated        | ❌ compile time error | ✅                | run time error |  run time error |
 
-从工程实践上来讲数据库字段最佳实践是：
-1. 尽量避免使用null，null在写入和查询时都需要特殊处理，易触发一些你意想不到的逻辑错误 
-null在json序列化，反序列化，在数据库的写入和读取过程中都十分容易触发错误
-2. 新增字段必需要包含default
-3. select *禁止使用，因为新增字段就可能触发逻辑错误
-4. 尽量避免使用auto increment，这会让后续迁移到分布式系统时面临巨大挑战
+Best Practices for Database Fields (From an Engineering Perspective)
+
+From an engineering perspective, best practices for database fields include the following:
+
+#### Avoid Using NULL as Much as Possible:
+* NULL requires special handling during writes and queries and can easily trigger unexpected logical errors.
+* NULL is prone to causing issues during JSON serialization and deserialization, as well as during database read and write operations.
+#### Newly Added Fields Must Include a Default Value (DEFAULT):
+* When adding new fields, always specify a default value to ensure that inserts do not fail due to missing values and to reduce potential errors.
+#### Prohibit the Use of SELECT *:
+* Avoid using SELECT *, as adding new fields can lead to logical errors. Explicitly listing the required columns enhances code maintainability and stability.
+#### Avoid Using Auto Increment (AUTO INCREMENT) as Much as Possible:
+* Minimize the use of auto-increment fields, as this can present significant challenges when migrating to distributed systems. Managing globally unique auto-increment IDs in a distributed environment is complex and can lead to conflicts or other issues.
 
 
 

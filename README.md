@@ -254,6 +254,8 @@ async fn trx_insert_user(
 # Concepts
 ![](https://github.com/thegenius/taitan-orm/blob/main/docs/concept.png)
 
+# Documents
+1. [Write API](https://github.com/thegenius/taitan-orm/blob/main/docs/write_en.md)
 
 # Examples
 At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
