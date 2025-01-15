@@ -79,6 +79,7 @@ function  signature: async fn insert(&self, entity: &dyn Entity) -> Result<bool>
 
 从工程实践上来讲数据库字段最佳实践是：
 1. 尽量避免使用null，null在写入和查询时都需要特殊处理，易触发一些你意想不到的逻辑错误 
+null在json序列化，反序列化，在数据库的写入和读取过程中都十分容易触发错误
 2. 新增字段必需要包含default
 3. select *禁止使用，因为新增字段就可能触发逻辑错误
 4. 尽量避免使用auto increment，这会让后续迁移到分布式系统时面临巨大挑战
