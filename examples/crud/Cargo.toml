@@ -8,6 +8,7 @@ rust-version.workspace = true
 taitan-orm = { path = "../../taitan-orm" }
 #taitan-orm = {version = "0.1.6"}
 sqlx = { workspace = true }
+time = {workspace = true}
 tokio = { version = "1.35.1", features = ["full"] }
 tracing = {workspace = true}
 tracing-subscriber = {workspace = true}

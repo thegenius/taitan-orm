@@ -1,7 +1,8 @@
 use sqlx::mysql::MySqlConnectOptions;
 use sqlx::postgres::PgConnectOptions;
 use std::borrow::Cow;
-
+use sqlx::types::time::PrimitiveDateTime;
+use time::macros::datetime;
 use taitan_orm::database::mysql::MySqlDatabase;
 use taitan_orm::database::postgres::PostgresDatabase;
 
@@ -12,11 +13,14 @@ use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug)]
 #[table_name = "user"]
+#[unique_key = "name"]
+#[index(name = "idx_hello", fields("age", "birthday"))]
 pub struct User {
     #[primary_key]
     id: i32,
     name: String,
     age: Optional<i32>,
+    birthday: Optional<PrimitiveDateTime>
 }
 
 #[tokio::main]
@@ -61,15 +65,24 @@ async fn main() -> taitan_orm::result::Result<()> {
 
     db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
     db.execute_plain(
-        "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
+        "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64), `birthday` DATETIME)",
     )
     .await?;
+    db.execute_plain(
+        "CREATE UNIQUE INDEX `uk_name` ON `user` (`name`);",
+    )
+        .await?;
+    db.execute_plain(
+        "CREATE INDEX `idx_age_birthday` ON `user` (`age`, `birthday`);",
+    )
+        .await?;
 
     // 1. insert entity
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
         age: Optional::Some(23),
+        birthday: Optional::Some(datetime!(2019-01-01 0:00))
     };
     let result = db.insert(&entity).await?;
     assert_eq!(result, true);
@@ -78,6 +91,7 @@ async fn main() -> taitan_orm::result::Result<()> {
     let mutation = UserMutation {
         name: Optional::None,
         age: Optional::Some(24),
+        birthday: Optional::None
     };
     let primary = UserPrimary { id: 1 };
     let result = db.update(&mutation, &primary).await?;
@@ -88,7 +102,20 @@ async fn main() -> taitan_orm::result::Result<()> {
     let entity: Option<UserSelectedEntity> = db.select(&selection, &primary).await?;
     assert!(entity.is_some());
 
-    // 4. search
+    // 4. select by unique
+    let uk = UserNameUnique { name: "Allen".to_string() };
+    let unique_entity : Option<UserSelectedEntity> = db.select(&selection, &uk).await?;
+    assert!(unique_entity.is_some());
+
+    // 5. search by index
+    let index = UserIndexIdxHello::AgeBirthday {
+        age: LocationExpr::from("=", 24)?,
+        birthday: LocationExpr::from("=", datetime!(2019-01-01 0:00))?
+    };
+    let index_entities: Vec<UserSelectedEntity> = db.search(&selection, &index, &None, &None).await?;
+    assert_eq!(index_entities.len(), 1);
+
+    // 6. search
     let selection = UserSelectedEntity::full_fields();
     let location = UserLocationExpr::id(">=", 1)?;
     let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
