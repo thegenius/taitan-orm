@@ -62,20 +62,45 @@ batch_upsert([entity])                 -> ()
 ```
 
 ## insert 
+```text
+insert( entity{ field1, field2, field3, field4 } ) -> ()
+                  |       |       |       |--> Optional::None ----[ IGNORE]----> colum4
+                  |       |       |--> Optional::Null ------------[ NULL  ]----> colum3(set)
+                  |       |--> Optional::Some(val) ---------------[ value ]----> colum2(set)
+                  |--> Not Optional: val -------------------------[ value ]----> colum1(key not exists)
+```
+upsert has the similar cognitive model as insert, but when primary key/unique key conflict, execute update.
+```text
+upsert( entity{ field1, field2, field3, field4 } ) -> ()
+                  |       |       |       |--> Optional::None ----[ IGNORE]----> colum4
+                  |       |       |--> Optional::Null ------------[ NULL  ]----> colum3(update)
+                  |       |--> Optional::Some(val) ---------------[ value ]----> colum2(update)
+                  |--> Not Optional: val -------------------------[ value ]----> colum1(key already exists)
+```
+
+create has the similar cognitive model as insert, but when there is generated colum, it will fetch from database.
+```text
+create( entity{ field1, field2, field3, field4 } ) -> ()
+                  |       |       |       |<-- Optional::None <----[ FETCH ]----- colum4(generated)
+                  |       |       |--> Optional::Null -------------[ NULL  ]----> colum3
+                  |       |--> Optional::Some(val) ----------------[ value ]----> colum2
+                  |--> Not Optional: val --------------------------[ value ]----> colum1(key not exists)
+```
+
 ```rust
-cognitive sense    : insert(entity) -> bool
-function  signature: async fn insert(&self, entity: &dyn Entity) -> Result<bool>
+async fn insert(&self, entity: &dyn Entity) -> Result<()>
 ```
 插入操作是最基本的写入操作，来执行表的insert操作，他的心智模型就是简单的插入，如果遇到冲突就插入失败。
 由于表字段可能有default和not null约束，还可能是auto increment，entity的字段类型可能是optional的。
 
-|                  | not optional         | optional::None   | optional::Null       | optional::Some  |
-|------------------|----------------------|------------------|----------------------|-----------------|
-| -                | ✅                    | null             | null                 | ✅               |
-| default          | ✅                    | default          | null                 | ✅               |
-| not null         | ✅                    | run time error   | null, run time error | ✅               |
-| not null default | ✅                    | default          | null, run time error | ✅               |
-| auto increment   | ❌ compile time error | ✅                | null, run time error |  run time error |
+|                  | not optional         | optional::None   | optional::Null | optional::Some  |
+|------------------|----------------------|------------------|----------------|-----------------|
+| -                | ✅                    | null             | null           | ✅               |
+| default          | ✅                    | default          | null           | ✅               |
+| not null         | ✅                    | run time error   | run time error | ✅               |
+| not null default | ✅                    | default          | run time error | ✅               |
+| auto increment   | ❌ compile time error | ✅                | run time error |  run time error |
+| generated        | ❌ compile time error | ✅                | run time error |  run time error |
 
 从工程实践上来讲数据库字段最佳实践是：
 1. 尽量避免使用null，null在写入和查询时都需要特殊处理，易触发一些你意想不到的逻辑错误 
