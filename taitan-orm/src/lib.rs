@@ -67,6 +67,13 @@ pub mod prelude {
     pub use crate::page::*;
 }
 
+/// The page module provides types and utilities for working with paginated database queries.
+///
+/// # Types
+/// - `Pagination`: Represents pagination parameters (page number and page size)
+/// - `PagedInfo`: Contains metadata about a paginated result set
+/// - `PagedList`: A paginated collection of items with metadata
+/// - `build_paged_list`: Helper function to construct a PagedList
 pub mod page {
     pub use taitan_orm_trait::pagination::Pagination;
     pub use taitan_orm_trait::paged_info::PagedInfo;
