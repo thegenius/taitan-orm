@@ -1,16 +1,16 @@
 # Write API
 The design principles of the Write API are as follows:
 
-### First Principle: Minimize Cognitive Load  
+### 1: Minimize Cognitive Load  
 To fully understand and use these APIs, you only need to grasp four core concepts:  
 Entity: An entity is a direct mapping of a database table structure. The fields of an entity should match those of the table.  
 Mutation: A mutation represents update operations on a table. It includes all fields of optional type except the primary key.  
 Unique: A unique constraint refers to the unique index of a table, including the primary key. It uniquely identifies a single record in the table.  
 Location: A location specifies condition-based searches within a table, which can locate 0 to n records.
-### Second Principle: Minimal API Set for Complete Write Operations    
+### 2: Minimal API Set for Complete Write Operations    
 The current minimal set consists of only 10 APIs, with 7 being standard write operations and 3 for batch operations.
 
-### Third Principle: Maximize Developer Experience  
+### 3: Maximize Developer Experience  
 This principle is the most complex to explain but generally comes with clear examples:
 
 1. insert/upsert/create return bool instead of int.  

@@ -478,7 +478,7 @@ pub trait SqlGenerator {
     }
 }
 #[inline]
-fn wrap_fields(fields: &[String], wrap_char: char) -> String {
+pub fn wrap_fields(fields: &[String], wrap_char: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{}", wrap_char, e, wrap_char))
@@ -486,7 +486,7 @@ fn wrap_fields(fields: &[String], wrap_char: char) -> String {
         .join(",")
 }
 #[inline]
-fn wrap_field_names(fields: &[FieldName], wrap_char: char) -> String {
+pub fn wrap_field_names(fields: &[FieldName], wrap_char: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{}", wrap_char, e.database_field_name(), wrap_char))
@@ -497,7 +497,7 @@ fn wrap_field_names(fields: &[FieldName], wrap_char: char) -> String {
 
 
 #[inline]
-fn wrap_locate_fields(fields: &[String], wrap_char: char, place_holder: char) -> String {
+pub fn wrap_locate_fields(fields: &[String], wrap_char: char, place_holder: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{} = {}", wrap_char, e, wrap_char, place_holder))
@@ -506,7 +506,7 @@ fn wrap_locate_fields(fields: &[String], wrap_char: char, place_holder: char) ->
 }
 
 #[inline]
-fn wrap_locate_fields_from_name(fields: &[FieldName], wrap_char: char, place_holder: char) -> String {
+pub fn wrap_locate_fields_from_name(fields: &[FieldName], wrap_char: char, place_holder: char) -> String {
     fields
         .iter()
         .map(|e|
@@ -521,7 +521,7 @@ fn wrap_locate_fields_from_name(fields: &[FieldName], wrap_char: char, place_hol
 }
 
 #[inline]
-fn wrap_str_fields(fields: &[&str], wrap_char: char) -> String {
+pub fn wrap_str_fields(fields: &[&str], wrap_char: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{}", wrap_char, e, wrap_char))
@@ -530,7 +530,7 @@ fn wrap_str_fields(fields: &[&str], wrap_char: char) -> String {
 }
 
 #[inline]
-fn wrap_cow_str_fields(fields: &[Cow<'_, str>], wrap_char: char) -> String {
+pub fn wrap_cow_str_fields(fields: &[Cow<'_, str>], wrap_char: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{}", wrap_char, e, wrap_char))
@@ -539,7 +539,7 @@ fn wrap_cow_str_fields(fields: &[Cow<'_, str>], wrap_char: char) -> String {
 }
 
 #[inline]
-fn wrap_locate_str_fields(fields: &[&str], wrap_char: char, place_holder: char) -> String {
+pub fn wrap_locate_str_fields(fields: &[&str], wrap_char: char, place_holder: char) -> String {
     fields
         .iter()
         .map(|e| format!("{}{}{} = {}", wrap_char, e, wrap_char, place_holder))
@@ -548,7 +548,7 @@ fn wrap_locate_str_fields(fields: &[&str], wrap_char: char, place_holder: char) 
 }
 
 #[inline]
-fn wrap_pg_locate_str_fields(fields: &[&str], wrap_char: char) -> String {
+pub fn wrap_pg_locate_str_fields(fields: &[&str], wrap_char: char) -> String {
     fields
         .iter()
         .enumerate()
@@ -558,7 +558,7 @@ fn wrap_pg_locate_str_fields(fields: &[&str], wrap_char: char) -> String {
 }
 
 #[inline]
-fn generate_question_marks(fields: &[&str]) -> String {
+pub fn generate_question_marks(fields: &[&str]) -> String {
     fields
         .iter()
         .map(|_| "?".to_string())
@@ -566,7 +566,7 @@ fn generate_question_marks(fields: &[&str]) -> String {
         .join(", ")
 }
 #[inline]
-fn generate_question_mark_list(fields: &[String]) -> String {
+pub fn generate_question_mark_list(fields: &[String]) -> String {
     fields
         .iter()
         .map(|_| "?".to_string())
@@ -575,7 +575,7 @@ fn generate_question_mark_list(fields: &[String]) -> String {
 }
 
 #[inline]
-fn generate_question_mark_list_from_names(fields: &[FieldName]) -> String {
+pub fn generate_question_mark_list_from_names(fields: &[FieldName]) -> String {
     fields
         .iter()
         .map(|e| {

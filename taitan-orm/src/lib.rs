@@ -35,7 +35,6 @@ pub mod database;
 pub mod error;
 pub mod result;
 
-
 pub mod prelude {
     pub use taitan_orm_macro::Schema;
     pub use taitan_orm_macro::TemplateRecord;
