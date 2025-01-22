@@ -10,6 +10,10 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
+🎆**The next two weeks are for the Chinese Spring Festival, and I will be taking two weeks off.**
+**Following the Spring Festival, I plan to release a significant update. This new version will encompass a wide range of enhancements and API updates.**
+
+
 # Quick Start
 ```toml
 taitan-orm = { version = "0.1.9" }
