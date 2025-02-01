@@ -2,8 +2,13 @@ use std::borrow::Cow;
 use sqlx::{Arguments, Database, Sqlite};
 use time::PrimitiveDateTime;
 use time::macros::datetime;
-use taitan_orm_trait::brave_new::entity::Entity;
+use taitan_orm_trait::brave_new::entity::{Entity, SqliteEntity};
 use taitan_orm_trait::brave_new::result::Result;
+
+
+fn call_entity(entity: &dyn SqliteEntity) -> Cow<'_, str> {
+    entity.gen_create_sql()
+}
 
 struct User {
     name: String,
@@ -43,6 +48,7 @@ impl Entity<Sqlite> for User {
 #[test]
 fn entity_trait_spec() {
     let user = User{name: "Allen".to_string(), created: datetime!(2019-01-01 0:00)};
-    let insert_args = user.gen_insert_args().unwrap();
-    let insert_args = user.gen_upsert_args().unwrap();
+    let insert_args = <User as taitan_orm_trait::brave_new::entity::Entity<Sqlite>>::gen_insert_args(&user).unwrap();
+    let insert_args = <User as taitan_orm_trait::brave_new::entity::Entity<Sqlite>>::gen_upsert_args(&user).unwrap();
+    call_entity(&user);
 }

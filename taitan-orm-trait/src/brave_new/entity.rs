@@ -1,5 +1,5 @@
 use super::result::Result;
-use sqlx::{Arguments, Database};
+use sqlx::{Arguments, Database, MySql, Postgres, Sqlite};
 use std::borrow::Cow;
 
 pub trait Entity<DB: Database> {
@@ -19,3 +19,12 @@ pub trait Entity<DB: Database> {
         Ok(args)
     }
 }
+
+pub trait MysqlEntity: Entity<MySql> {}
+impl<T: Entity<MySql>> MysqlEntity for T {}
+
+pub trait PostgresEntity: Entity<Postgres> {}
+impl<T: Entity<Postgres>> PostgresEntity for T {}
+
+pub trait SqliteEntity: Entity<Sqlite> {}
+impl<T: Entity<Sqlite>> SqliteEntity for T {}
