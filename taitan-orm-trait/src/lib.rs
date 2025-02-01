@@ -18,6 +18,7 @@ mod template;
 mod optional;
 mod field;
 mod selected;
+pub mod brave_new;
 
 pub use schema::Schema;
 // pub use selected::Selected;
