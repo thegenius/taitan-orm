@@ -1,8 +1,9 @@
 use super::result::Result;
 use sqlx::{Arguments, Database, MySql, Postgres, Sqlite};
 use std::borrow::Cow;
+use std::fmt::Debug;
 
-pub trait Entity<DB: Database> {
+pub trait Entity<DB: Database>: Debug {
     fn gen_insert_sql<'a>(&self) -> Cow<'a, str>;
     fn gen_upsert_sql<'a>(&self) -> Cow<'a, str>;
     fn gen_create_sql<'a>(&self) -> Cow<'a, str>;

@@ -7,6 +7,7 @@ use taitan_orm_trait::Optional;
 use time::macros::datetime;
 use time::PrimitiveDateTime;
 
+#[derive(Debug)]
 struct UserMutation {
     name: Optional<String>,
     created: Optional<PrimitiveDateTime>,

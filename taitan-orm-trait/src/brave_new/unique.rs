@@ -1,7 +1,8 @@
+use std::fmt::Debug;
 use crate::brave_new::location::Location;
 use sqlx::{Database, MySql, Postgres, Sqlite};
 
-pub trait Unique<DB: Database>: Location<DB> {}
+pub trait Unique<DB: Database>: Location<DB> + Debug {}
 
 pub trait MysqlUnique: Unique<MySql> {}
 impl<T: Unique<MySql>> MysqlUnique for T {}

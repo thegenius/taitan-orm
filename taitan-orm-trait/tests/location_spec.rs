@@ -8,6 +8,7 @@ use time::macros::datetime;
 use time::PrimitiveDateTime;
 
 
+#[derive(Debug)]
 struct UserLocation {
     name: Optional<LocationExpr<String>>,
     created: Optional<LocationExpr<PrimitiveDateTime>>,

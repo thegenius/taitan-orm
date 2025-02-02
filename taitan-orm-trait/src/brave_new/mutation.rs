@@ -1,9 +1,9 @@
 use super::result::Result;
 use sqlx::{Database, MySql, Postgres, Sqlite};
 use std::borrow::Cow;
+use std::fmt::Debug;
 
-
-pub trait Mutation<DB: Database> {
+pub trait Mutation<DB: Database>: Debug {
     fn gen_update_set_sql<'a>(&self) -> Cow<'a, str>;
     fn add_update_set_args<'a>(&'a self, args: &mut DB::Arguments<'a>) -> Result<()>;
     fn all_none(&self) -> bool;

@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use sqlx::{Arguments, Database, Sqlite};
+use sqlx::{Arguments, Database, FromRow, Sqlite};
 use time::PrimitiveDateTime;
 use time::macros::datetime;
 use taitan_orm_trait::brave_new::entity::{Entity, SqliteEntity};
@@ -10,6 +10,7 @@ fn call_entity(entity: &dyn SqliteEntity) -> Cow<'_, str> {
     entity.gen_create_sql()
 }
 
+#[derive(Debug)]
 struct User {
     name: String,
     created: PrimitiveDateTime
