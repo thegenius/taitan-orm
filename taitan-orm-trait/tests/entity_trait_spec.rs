@@ -3,6 +3,7 @@ use sqlx::{Arguments, Database, FromRow, Sqlite};
 use time::PrimitiveDateTime;
 use time::macros::datetime;
 use taitan_orm_trait::brave_new::entity::{Entity, SqliteEntity};
+use taitan_orm_trait::brave_new::error::wrap_encode;
 use taitan_orm_trait::brave_new::result::Result;
 
 
@@ -33,15 +34,15 @@ impl Entity<Sqlite> for User {
     }
 
     fn add_insert_args<'a>(&'a self, args: &mut <Sqlite as Database>::Arguments<'a>) ->Result<()> {
-        args.add(&self.name)?;
-        args.add(&self.created)?;
+        wrap_encode(args.add(&self.name))?;
+        wrap_encode(args.add(&self.created))?;
         Ok(())
     }
 
     fn add_upsert_args<'a>(&'a self, args: &mut <Sqlite as Database>::Arguments<'a>) ->Result<()> {
-        args.add(&self.name)?;
-        args.add(&self.created)?;
-        args.add(&self.created)?;
+        wrap_encode(args.add(&self.name))?;
+        wrap_encode(args.add(&self.created))?;
+        wrap_encode(args.add(&self.created))?;
         Ok(())
     }
 }

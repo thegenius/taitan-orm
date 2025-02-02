@@ -6,7 +6,7 @@ use taitan_orm_trait::{CmpOperator, LocationExpr, Optional};
 use taitan_orm_trait::brave_new::location::Location;
 use time::macros::datetime;
 use time::PrimitiveDateTime;
-
+use taitan_orm_trait::brave_new::error::wrap_encode;
 
 #[derive(Debug)]
 struct UserLocation {
@@ -28,10 +28,10 @@ impl Location<MySql> for UserLocation {
 
     fn add_where_args<'a>(&'a self, args: &mut <MySql as Database>::Arguments<'a>) -> Result<()> {
         if let Optional::Some(name) =  &self.name {
-            args.add(&name.val)?;
+            wrap_encode(args.add(&name.val))?;
         }
         if let Optional::Some(created) = &self.created {
-            args.add(&created.val)?;
+            wrap_encode(args.add(&created.val))?;
         }
         Ok(())
     }

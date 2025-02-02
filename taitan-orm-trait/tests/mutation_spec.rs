@@ -6,6 +6,7 @@ use taitan_orm_trait::brave_new::result::Result;
 use taitan_orm_trait::Optional;
 use time::macros::datetime;
 use time::PrimitiveDateTime;
+use taitan_orm_trait::brave_new::error::wrap_encode;
 
 #[derive(Debug)]
 struct UserMutation {
@@ -27,10 +28,10 @@ impl Mutation<Postgres> for UserMutation {
 
     fn add_update_set_args<'a>(&'a self, args: &mut <Postgres as Database>::Arguments<'a>) -> Result<()> {
         if let Optional::Some(name) =  &self.name {
-            args.add(name)?;
+            wrap_encode(args.add(name))?;
         }
         if let Optional::Some(created) = &self.created {
-            args.add(created)?;
+            wrap_encode(args.add(created))?;
         }
         Ok(())
     }

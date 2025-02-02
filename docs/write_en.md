@@ -1,71 +1,61 @@
-# Write API
-The design principles of the Write API are as follows:
 
-### 1: Minimize Cognitive Load  
-To fully understand and use these APIs, you only need to grasp four core concepts:  
-Entity: An entity is a direct mapping of a database table structure. The fields of an entity should match those of the table.  
-Mutation: A mutation represents update operations on a table. It includes all fields of optional type except the primary key.  
-Unique: A unique constraint refers to the unique index of a table, including the primary key. It uniquely identifies a single record in the table.  
-Location: A location specifies condition-based searches within a table, which can locate 0 to n records.
-### 2: Minimal API Set for Complete Write Operations    
-The current minimal set consists of only 10 APIs, with 7 being standard write operations and 3 for batch operations.
+## Quick Start
 
-### 3: Maximize Developer Experience  
-This principle is the most complex to explain but generally comes with clear examples:
-
-1. insert/upsert/create return bool instead of int.  
-Exposing the underlying integer can introduce significant complexity into usage.  
-For instance, insert on duplicate might theoretically return only 0 or 1.    
-Therefore, using true and false is clearer than using integers.  
-
-2. create handles auto-increment ID generation logic:
-Different databases handle auto-increment IDs differently. The framework abstracts this complexity to provide a unified experience.  
-3. entity/mutation/unique/location are traits and can be customized:  
-These concepts are implemented as traits, allowing for full customization by developers.
+### WRITE API
+There are only 7 functions with intuitive design
 ```
-insert(entity) -> ()
-upsert(entity) -> ()
-create(entity) -> ()
+insert(entity) -> () # fail if conflict
+upsert(entity) -> () # update if conflict
+create(entity) -> () # fail if conflict, return generated field
 
-update(mutation, unique  ) -> bool;
-change(mutation, location) -> u64;
+update(mutation, unique  ) -> bool # return true if update take effect
+change(mutation, location) -> u64  # return affected rows
 
-delete(unique  ) -> bool;
-purify(location) -> u64;
+delete(unique  ) -> bool # return true if delete take effect
+purify(location) -> u64  # return deleted rows
 ```
 
-# batch
+### BATCH API
+There are 4 batch functions, for insert and delete.   
+There is no batch update sql, so use batch upsert instead. 
 ```
-batch_insert([entity])                 -> ()
-batch_insert_ignore_conflict([entity]) -> ()
-batch_upsert([entity])                 -> ()
+batch_insert([entity])                 -> ()  # success if no conflict
+batch_insert_ignore_conflict([entity]) -> ()  # always success, ignore conflict
+batch_upsert([entity])                 -> ()  # always success, update conflict
+batch_delete([unique])                 -> u64 # return deleted rows
 ```
 
-## insert 
-cognitive model of insert:
+## Cognitive model
+
+### insert
 ```text
 insert( entity{ field1, field2, field3, field4 } ) -> ()
-                  |       |       |       |--> Optional::None ----[ IGNORE]----> colum4
-                  |       |       |--> Optional::Null ------------[ NULL  ]----> colum3(set)
-                  |       |--> Optional::Some(val) ---------------[ value ]----> colum2(set)
-                  |--> Not Optional: val -------------------------[ value ]----> colum1(key not exists)
-```
-upsert has the similar cognitive model as insert, but when primary key/unique key conflict, execute update.
-```text
-upsert( entity{ field1, field2, field3, field4 } ) -> ()
-                  |       |       |       |--> Optional::None ----[ IGNORE]----> colum4
-                  |       |       |--> Optional::Null ------------[ NULL  ]----> colum3(update)
-                  |       |--> Optional::Some(val) ---------------[ value ]----> colum2(update)
-                  |--> Not Optional: val -------------------------[ value ]----> colum1(key already exists)
+                  |       |       |       |--> None --[ IGNORE]--> colum4
+                  |       |       |--> Null ----------[ NULL  ]--> colum3(set)
+                  |       |--> Some(val) -------------[ value ]--> colum2(set)
+                  |--> Not Optional: val -------------[ value ]--> colum1(key not exists)
 ```
 
-create has the similar cognitive model as insert, but when there is generated colum, it will fetch from database.
+### upsert
+upsert has the similar cognitive model as insert,   
+but when primary key/unique key conflict, execute update.
+```text
+upsert( entity{ field1, field2, field3, field4 } ) -> ()
+                  |       |       |       |--> None --[ IGNORE]--> colum4
+                  |       |       |--> Null ----------[ NULL  ]--> colum3(update)
+                  |       |--> Some(val) -------------[ value ]--> colum2(update)
+                  |--> Not Optional: val -------------[ value ]--> colum1(key already exists)
+```
+
+### create
+create has the similar cognitive model as insert,  
+but when there is generated colum, it will fetch from database.
 ```text
 create( mut entity{ field1, field2, field3, field4 } ) -> ()
-                      |       |       |       |<-- Optional::None <----[ FETCH ]----- colum4(generated)
-                      |       |       |--> Optional::Null -------------[ NULL  ]----> colum3
-                      |       |--> Optional::Some(val) ----------------[ value ]----> colum2
-                      |--> Not Optional: val --------------------------[ value ]----> colum1(key not exists)
+                      |       |       |       |<-- None <----[ FETCH ]--  colum4(generated)
+                      |       |       |--> Null -------------[ NULL  ]--> colum3
+                      |       |--> Some(val) ----------------[ value ]--> colum2
+                      |--> Not Optional: val ----------------[ value ]--> colum1(key not exists)
 ```
 
 ```rust
@@ -103,4 +93,28 @@ From an engineering perspective, best practices for database fields include the 
 
 
 
+# Write API
+The design principles of the Write API are as follows:
+
+### 1: Minimize Cognitive Load
+To fully understand and use these APIs, you only need to grasp four core concepts:  
+Entity: An entity is a direct mapping of a database table structure. The fields of an entity should match those of the table.  
+Mutation: A mutation represents update operations on a table. It includes all fields of optional type except the primary key.  
+Unique: A unique constraint refers to the unique index of a table, including the primary key. It uniquely identifies a single record in the table.  
+Location: A location specifies condition-based searches within a table, which can locate 0 to n records.
+### 2: Minimal API Set for Complete Write Operations
+The current minimal set consists of only 10 APIs, with 7 being standard write operations and 3 for batch operations.
+
+### 3: Maximize Developer Experience
+This principle is the most complex to explain but generally comes with clear examples:
+
+1. insert/upsert/create return bool instead of int.  
+   Exposing the underlying integer can introduce significant complexity into usage.  
+   For instance, insert on duplicate might theoretically return only 0 or 1.    
+   Therefore, using true and false is clearer than using integers.
+
+2. create handles auto-increment ID generation logic:
+   Different databases handle auto-increment IDs differently. The framework abstracts this complexity to provide a unified experience.
+3. entity/mutation/unique/location are traits and can be customized:  
+   These concepts are implemented as traits, allowing for full customization by developers.
 
