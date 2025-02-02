@@ -1,4 +1,4 @@
-use crate::brave_new::location::Location;
+use crate::brave_new::location::{Location, LocationKind};
 use sqlx::Database;
 use std::borrow::Cow;
 use std::fmt::{Debug, Display, Formatter};
@@ -47,6 +47,9 @@ where
     L: Location<DB> + Debug,
     R: Location<DB> + Debug,
 {
+    fn kind(&self) -> LocationKind {
+        LocationKind::And
+    }
     fn gen_where_sql<'a>(&self) -> Cow<'a, str> {
         if self.left.all_none() {
             self.right.gen_where_sql()
