@@ -9,7 +9,7 @@ use sqlx::{Database, MySql, Postgres, Sqlite};
 use std::borrow::Cow;
 use std::fmt::Debug;
 
-pub trait TemplateRecord<DB: Database>: Debug {
+pub trait Template<DB: Database>: Debug {
     fn get_sql<'a>(&self, page: Option<&Pagination>) -> Cow<'a, str>;
     fn gen_arguments<'a>(&self) -> Result<DB::Arguments<'a>>;
 
@@ -25,11 +25,11 @@ pub trait TemplateRecord<DB: Database>: Debug {
     }
 }
 
-pub trait MysqlTemplateRecord: TemplateRecord<MySql> {}
-impl<T: TemplateRecord<MySql>> MysqlTemplateRecord for T {}
+pub trait MysqlTemplate: Template<MySql> {}
+impl<T: Template<MySql>> MysqlTemplate for T {}
 
-pub trait PostgresTemplateRecord: TemplateRecord<Postgres> {}
-impl<T: TemplateRecord<Postgres>> PostgresTemplateRecord for T {}
+pub trait PostgresTemplate: Template<Postgres> {}
+impl<T: Template<Postgres>> PostgresTemplate for T {}
 
-pub trait SqliteTemplateRecord: TemplateRecord<Sqlite> {}
-impl<T: TemplateRecord<Sqlite>> SqliteTemplateRecord for T {}
+pub trait SqliteTemplate: Template<Sqlite> {}
+impl<T: Template<Sqlite>> SqliteTemplate for T {}
