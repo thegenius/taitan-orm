@@ -140,7 +140,7 @@ pub fn extract_fields(data: &Data) -> Result<FieldsNamed> {
             ));
         }
     };
-    return Ok(fields.clone());
+    Ok(fields.clone())
 }
 
 pub fn extract_selected_fields_name(fields: &FieldsNamed) -> Vec<proc_macro2::TokenStream> {

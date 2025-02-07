@@ -97,9 +97,9 @@ impl AttrParser for DefaultAttrParser {
             return None;
         }
 
-        if name == "index" {
-            panic!("{:?}", attr);
-        }
+        // if name == "index" {
+        //     panic!("{:?}", attr);
+        // }
 
 
         match &attr.meta {
