@@ -25,6 +25,6 @@ pub fn extract_table_def(struct_name: &str, attrs: &[Attribute], data: &Data) ->
     let mut table_def = TableDef::default();
     table_def.table_name = Cow::Owned(table_name);
 
-    panic!("{:?}", table_def);
+    // panic!("{:?}", table_def);
     table_def
 }

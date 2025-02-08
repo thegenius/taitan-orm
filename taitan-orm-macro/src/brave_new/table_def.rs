@@ -1,8 +1,9 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 use crate::brave_new::field_def::{FieldDef};
 
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct TableDef {
     pub table_name: Cow<'static, str>,
     pub serde_structs: Vec<String>,

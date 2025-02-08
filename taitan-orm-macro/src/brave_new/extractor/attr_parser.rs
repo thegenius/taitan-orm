@@ -7,7 +7,7 @@ pub fn is_attr(attr: &Attribute, name: &str) -> bool {
     let attr_path_name = path_ident.to_string();
     attr_path_name == name
 }
-pub fn has_attr(attrs: &Vec<Attribute>, name: &str) -> bool {
+pub fn has_attr(attrs: &[Attribute], name: &str) -> bool {
     attrs.iter().any(|attr| is_attr(attr, name))
 }
 pub fn extract_attr_val(attr: &Attribute) -> Option<String> {
@@ -20,6 +20,7 @@ pub fn extract_attr_val(attr: &Attribute) -> Option<String> {
     }
     None
 }
+
 pub fn extract_named_attr_val(attr: &Attribute, name: &str) -> Option<String> {
     let path: &Path = attr.path();
     if !path.is_ident(name) {

@@ -4,6 +4,8 @@ use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
 use proc_macro::{TokenStream};
+use std::env;
+use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
 use crate::brave_new::extract_table_def;
@@ -20,9 +22,23 @@ mod util;
 mod location;
 mod brave_new;
 
+fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> {
+    // match env::current_dir() {
+    //     Ok(current_dir) => {
+    //         println!("当前工作目录: {:?}", current_dir);
+    //         panic!("{:?}", current_dir);
+    //     },
+    //     Err(e) => eprintln!("无法获取当前工作目录: {}", e),
+    // }
+    let mut file = std::fs::File::create(file_path)?;
+    file.write_all(content.as_bytes())?;
+    Ok(())
+}
+
 #[proc_macro_derive(
     SchemaNew,
     attributes(
+        debug,
         table_name,
         primary_key,
         unique_key,
@@ -37,9 +53,22 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     let DeriveInput {
         attrs, ident, data, ..
     } = parse_macro_input!(input);
-    
 
-    extract_table_def(&ident.to_string(), &attrs, &data);
+    let debugs= brave_new::attr_parser::extract_named_attrs_val(&attrs, "debug");
+    if debugs.len() > 1 {
+        panic!("cannot use more than one debug attribute");
+    }
+    let table_def = extract_table_def(&ident.to_string(), &attrs, &data);
+
+    if debugs.len() == 1 {
+        let debug_file = debugs.first().unwrap();
+        // panic!("{}",debug_file.to_string());
+        let table_def_json = serde_json::to_string(&table_def);
+        if let Err(err) = write_content_to_file(table_def_json.as_ref().unwrap(), &debug_file) {
+            panic!("cannot write to file: {}", err);
+        }
+    }
+
     TokenStream::new()
 }
 

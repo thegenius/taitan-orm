@@ -17,6 +17,8 @@ syn = { version = "2.0.90", features = ["full"] }
 proc-macro2 = "1.0"
 case = "1.0"
 darling = "0.20.10"
+serde= { workspace = true, features = ["derive"] }
+serde_json = {workspace = true}
 
 #taitan-orm-trait = { path = "../taitan-orm-trait" }
 taitan-orm-trait = { version = "0.1.9" }

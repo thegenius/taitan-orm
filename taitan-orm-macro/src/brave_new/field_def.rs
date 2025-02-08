@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-
+use serde::{Deserialize, Serialize};
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | default |
 //  -------------------------------------------------------------
@@ -7,7 +7,7 @@ use std::borrow::Cow;
 //  ------------------------------------------------------------------------------------------------------------
 //
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct StructFieldDef {
     name: Cow<'static, str>,
     rust_type: Cow<'static, str>,
@@ -16,7 +16,7 @@ pub struct StructFieldDef {
 }
 
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub struct TableColumnDef {
     name: Option<Cow<'static, str>>,
     column_type: Option<Cow<'static, str>>,
@@ -27,7 +27,7 @@ pub struct TableColumnDef {
     is_primary_key_part: bool,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub struct FieldDef {
     struct_field: StructFieldDef,
     table_column: TableColumnDef,
