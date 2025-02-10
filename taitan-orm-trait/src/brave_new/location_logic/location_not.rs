@@ -41,6 +41,9 @@ where
     DB: Database,
     T: Location<DB> + Debug,
 {
+    fn table_name(&self) -> Cow<'static, str> {
+        self.expr.table_name()
+    }
     fn kind(&self) -> LocationKind {
         LocationKind::Not
     }

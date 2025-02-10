@@ -16,6 +16,9 @@ struct UserLocation {
 }
 
 impl Location<MySql> for UserLocation {
+    fn table_name(&self) -> Cow<'static, str> {
+        Cow::Borrowed("user")
+    }
     fn gen_where_sql<'a>(&self) -> Cow<'a, str> {
         let mut sql = String::default();
         let mut has_prev = false;

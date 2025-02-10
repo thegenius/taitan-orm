@@ -1,11 +1,9 @@
-use sqlx::Error;
 use sqlx::error::BoxDynError;
+use sqlx::Error;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum TaitanOrmError {
-
-
     #[error("database connection permanent error: `{0}`")]
     PermanentConnErr(String),
 
@@ -33,6 +31,23 @@ pub enum TaitanOrmError {
     #[error("unexpected error `{0}`")]
     UnexpectedError(String),
 
+    #[error("execute template paged search must has count sql")]
+    TemplatePagedNotHasCountSql,
+
+    #[error("execute template paged search must has page field")]
+    TemplatePageFieldNotFound,
+
+    #[error(transparent)]
+    NotValidCmpErr(#[from] NotValidCmpError),
+
+    #[error(transparent)]
+    NotValidConditionError(#[from] NotValidConditionError),
+
+    #[error(transparent)]
+    NotValidOrderByError(#[from] NotValidOrderByError),
+
+    #[error(transparent)]
+    NotImplementTrait(#[from] NotImplementError),
     // #[error(transparent)]
     // BoxDynError(#[from] Box<dyn std::error::Error + 'static + Send + Sync>),
 }
@@ -53,21 +68,15 @@ impl From<sqlx::Error> for TaitanOrmError {
             }
             /// This should indicate there is a programming error in a SQLx driver or there
             /// is something corrupted with the connection to the database itself.
-            sqlx::Error::Protocol(e) => {
-                TaitanOrmError::PermanentConnErr(e.to_string())
-            }
+            sqlx::Error::Protocol(e) => TaitanOrmError::PermanentConnErr(e.to_string()),
 
             /// Error occurred while attempting to establish a TLS connection
             sqlx::Error::Tls(e) => TaitanOrmError::PermanentConnErr(e.to_string()),
 
             /// Error communicating with the database backend
             sqlx::Error::Io(e) => TaitanOrmError::TemporaryConnErr(e.to_string()),
-            sqlx::Error::PoolTimedOut => {
-                TaitanOrmError::TemporaryConnErr(e.to_string())
-            }
-            sqlx::Error::PoolClosed => {
-                TaitanOrmError::TemporaryConnErr(e.to_string())
-            }
+            sqlx::Error::PoolTimedOut => TaitanOrmError::TemporaryConnErr(e.to_string()),
+            sqlx::Error::PoolClosed => TaitanOrmError::TemporaryConnErr(e.to_string()),
 
             /// database or connection error
             sqlx::Error::Database(e) => {
@@ -75,10 +84,11 @@ impl From<sqlx::Error> for TaitanOrmError {
                 let code = e.code();
                 let err_msg = format!("constraint violated: {}", msg);
                 TaitanOrmError::ConstraintViolationErr(err_msg)
-            },
+            }
 
-
-            sqlx::Error::TypeNotFound{type_name} => TaitanOrmError::TypeNotSupportedErr(type_name.to_string()),
+            sqlx::Error::TypeNotFound { type_name } => {
+                TaitanOrmError::TypeNotSupportedErr(type_name.to_string())
+            }
 
             // encode error
             sqlx::Error::Encode(e) => TaitanOrmError::EncodeError(e.to_string()),
@@ -97,12 +107,47 @@ impl From<sqlx::Error> for TaitanOrmError {
                 TaitanOrmError::DecodeError(format!("Column decode error at column {}", index))
             }
 
-
             // unexpected error
             sqlx::Error::WorkerCrashed => TaitanOrmError::UnexpectedError(e.to_string()),
             sqlx::Error::Migrate(e) => TaitanOrmError::UnexpectedError(e.to_string()),
             sqlx::Error::AnyDriverError(e) => TaitanOrmError::UnexpectedError(e.to_string()),
             _ => TaitanOrmError::UnexpectedError(e.to_string()),
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct NotImplementError(pub String);
+impl std::error::Error for NotImplementError {}
+impl std::fmt::Display for NotImplementError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "method {} is not implements", self.0)
+    }
+}
+
+#[derive(Debug)]
+pub struct NotValidOrderByError(pub String);
+impl std::error::Error for NotValidOrderByError {}
+impl std::fmt::Display for NotValidOrderByError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "order by fields: {} is not valid", self.0)
+    }
+}
+
+#[derive(Debug)]
+pub struct NotValidConditionError(pub String);
+impl std::error::Error for NotValidConditionError {}
+impl std::fmt::Display for NotValidConditionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "condition: {} is not valid", self.0)
+    }
+}
+
+#[derive(Debug)]
+pub struct NotValidCmpError(pub String);
+impl std::error::Error for NotValidCmpError {}
+impl std::fmt::Display for NotValidCmpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "condition: {} is not valid", self.0)
     }
 }

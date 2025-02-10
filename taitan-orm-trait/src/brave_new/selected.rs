@@ -12,6 +12,8 @@ pub trait Selected<DB: Database>: Sized + Default + Debug {
     fn from_row(selection: &Self, row: DB::Row) -> Result<Self>;
 
     fn from_row_full(row: DB::Row) -> Result<Self>;
+
+    fn full_fields() -> Self;
 }
 
 pub trait MysqlSelected: Selected<MySql> {}

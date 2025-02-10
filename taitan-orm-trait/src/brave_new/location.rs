@@ -10,6 +10,7 @@ pub enum LocationKind {
 }
 
 pub trait Location<DB: Database>: Debug {
+    fn table_name(&self) -> Cow<'static, str>;
     fn gen_where_sql<'a>(&self) -> Cow<'a, str>;
     fn add_where_args<'a>(&'a self, args: &mut DB::Arguments<'a>) -> crate::brave_new::result::Result<()>;
     fn all_none(&self) -> bool;
