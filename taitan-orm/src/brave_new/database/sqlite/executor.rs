@@ -1,9 +1,10 @@
-use sqlx::Sqlite;
+use crate::brave_new::count::CountResult;
 use crate::brave_new::database::sqlite::SqliteDatabase;
 use crate::brave_new::SqlExecutor;
-use crate::brave_new::count::CountResult;
-use crate::executor_impl;
+use sqlx::{Database, Sqlite};
+
 use crate::brave_new::sql_generic_executor::SqlGenericExecutor;
+use crate::new_executor_impl;
 
 impl SqlGenericExecutor for SqliteDatabase {
     type DB = Sqlite;
@@ -13,6 +14,7 @@ impl SqlGenericExecutor for SqliteDatabase {
         query_result.rows_affected()
     }
 }
-// impl SqlExecutor for SqliteDatabase {
-//     executor_impl!(SqliteConnection);
-// }
+
+impl SqlExecutor for SqliteDatabase {
+    new_executor_impl! {}
+}

@@ -7,6 +7,7 @@ mod sql_executor;
 mod sql_executor_mut;
 mod sql_generic_executor;
 mod count;
+mod macros;
 
 pub use sql_generator::SqlGenerator;
 pub use args_extractor::ArgsExtractor;
