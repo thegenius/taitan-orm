@@ -33,6 +33,13 @@ pub enum TaitanOrmError {
     #[error("unexpected error `{0}`")]
     UnexpectedError(String),
 
+
+    #[error("execute template paged search must has count sql")]
+    TemplatePagedNotHasCountSql,
+
+    #[error("execute template paged search must has page field")]
+    TemplatePageFieldNotFound
+
     // #[error(transparent)]
     // BoxDynError(#[from] Box<dyn std::error::Error + 'static + Send + Sync>),
 }

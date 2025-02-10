@@ -1,5 +1,5 @@
 use crate::brave_new::ArgsExtractor;
-use crate::result::Result;
+use taitan_orm_trait::brave_new::result::Result;
 use crate::brave_new::{SqlExecutor};
 use crate::brave_new::SqlGenerator;
 use taitan_orm_trait::brave_new::{Entity, Location, Mutation, Unique};

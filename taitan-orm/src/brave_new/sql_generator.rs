@@ -1,6 +1,9 @@
+use crate::brave_new::SqlGenericExecutor;
 use sqlx::Database;
 use taitan_orm_trait::brave_new::{Entity, Location, Mutation, Pagination};
 use taitan_orm_trait::brave_new::{OrderBy, Selected, Unique};
+
+impl<T> SqlGenerator for T where T: SqlGenericExecutor {}
 
 pub trait SqlGenerator {
     fn gen_unique_count_sql<DB: Database, M: Mutation<DB>>(
@@ -130,10 +133,7 @@ pub trait SqlGenerator {
         format!("DELETE FROM {} WHERE {}", table_name, where_sql)
     }
 
-    fn gen_purify_sql<DB: Database>(
-        &self,
-        location: &dyn Location<DB>
-    ) -> String {
+    fn gen_purify_sql<DB: Database>(&self, location: &dyn Location<DB>) -> String {
         let where_sql = location.gen_where_sql();
         let table_name = location.table_name();
         format!("DELETE FROM {} WHERE {}", table_name, where_sql)

@@ -1,6 +1,7 @@
-use crate::result::Result;
 use sqlx::Database;
-use crate::sql_generic_executor::SqlGenericExecutor;
+
+use taitan_orm_trait::brave_new::result::Result;
+use crate::brave_new::SqlGenericExecutor;
 use taitan_orm_trait::brave_new::Selected;
 
 /**
@@ -66,9 +67,9 @@ pub trait SqlExecutor: SqlGenericExecutor {
         &'a self,
         stmt: &'s str,
         args: <Self::DB as sqlx::Database>::Arguments<'a>,
-    ) -> crate::result::Result<u64> where 'a: 's;
+    ) -> Result<u64> where 'a: 's;
 
-    async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64>;
+    async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> Result<u64>;
 
 
     // fetch_option      (stmt, selection, args) -> Result<Option<SE>>

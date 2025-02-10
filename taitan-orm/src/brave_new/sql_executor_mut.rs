@@ -1,7 +1,8 @@
-use crate::result::Result;
-use crate::sql_generic_executor::SqlGenericExecutor;
 use sqlx::Database;
+
+use crate::brave_new::SqlGenericExecutor;
 use taitan_orm_trait::brave_new::Selected;
+use taitan_orm_trait::brave_new::result::Result;
 
 /**
 现在sqlx::Executor的实现还是太过简陋，导致无法把不同数据库和事务的连接抽象成一个独立的实体
@@ -59,11 +60,11 @@ pub trait SqlExecutorMut: SqlGenericExecutor {
         &'a mut self,
         stmt: &'s str,
         args: <Self::DB as sqlx::Database>::Arguments<'a>,
-    ) -> crate::result::Result<u64>
+    ) -> Result<u64>
     where
         'a: 's;
 
-    async fn fetch_count_plain<'a>(&'a mut self, stmt: &'a str) -> crate::result::Result<u64>;
+    async fn fetch_count_plain<'a>(&'a mut self, stmt: &'a str) -> Result<u64>;
 
     // fetch_option      (stmt, selection, args) -> Result<Option<SE>>
     async fn fetch_option<'a, SE>(

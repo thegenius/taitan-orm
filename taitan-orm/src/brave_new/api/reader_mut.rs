@@ -1,7 +1,7 @@
 use crate::brave_new::SqlGenerator;
 use crate::brave_new::ArgsExtractor;
 use crate::brave_new::{SqlExecutorMut};
-use crate::result::Result;
+use taitan_orm_trait::brave_new::result::Result;
 use taitan_orm_trait::brave_new::{build_paged_list, PagedList, Pagination, Selected};
 use taitan_orm_trait::brave_new::{Location, Mutation, OrderBy, Unique};
 
