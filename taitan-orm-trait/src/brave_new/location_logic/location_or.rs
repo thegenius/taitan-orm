@@ -47,6 +47,15 @@ where
     L: Location<DB> + Debug,
     R: Location<DB> + Debug,
 {
+    fn table_name(&self) -> Cow<'static, str> {
+        let left_table_name = self.left.table_name();
+        let right_table_name = self.right.table_name();
+        if left_table_name != right_table_name {
+            Cow::Borrowed("")
+        } else {
+            left_table_name
+        }
+    }
     fn kind(&self) -> LocationKind {
         LocationKind::Or
     }

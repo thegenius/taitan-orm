@@ -34,6 +34,7 @@ pub mod database;
 
 pub mod error;
 pub mod result;
+mod brave_new;
 
 pub mod prelude {
     pub use taitan_orm_macro::Schema;

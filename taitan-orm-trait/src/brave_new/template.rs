@@ -13,8 +13,8 @@ pub trait Template<DB: Database>: Debug {
     fn get_sql<'a>(&self, page: Option<&Pagination>) -> Cow<'a, str>;
     fn gen_arguments<'a>(&self) -> Result<DB::Arguments<'a>>;
 
-    fn get_count_sql<'a>(&self) -> Cow<'a, str> {
-        Cow::from("")
+    fn get_count_sql<'a>(&self) -> Option<Cow<'a, str>> {
+        None
     }
     fn gen_count_arguments<'a>(&self) -> Result<DB::Arguments<'a>> {
         Ok(DB::Arguments::default())
