@@ -1,11 +1,10 @@
-
 use sqlx::query::Query;
-use sqlx::{Database, Executor, IntoArguments};
+use sqlx::{Database, Executor, IntoArguments, Type};
 use std::marker::PhantomData;
 
-use taitan_orm_trait::brave_new::Selected;
-use taitan_orm_trait::brave_new::result::Result;
 use taitan_orm_trait::brave_new::error::TaitanOrmError;
+use taitan_orm_trait::brave_new::result::Result;
+use taitan_orm_trait::brave_new::Selected;
 /**
 本模块提供2个维度的封装
 1. 结果的转化，上层抽象不再感知Row和QueryResult的存在
@@ -50,7 +49,10 @@ generic_fetch_option_full      (ex, stmt, args) -> Result<Option<SE>>
 generic_fetch_option_full_plain(ex, stmt, _   ) -> Result<Option<SE>>
 **/
 
-pub trait SqlGenericExecutor {
+
+
+pub trait SqlGenericExecutor
+{
     type DB: Database;
     type CountType: Selected<Self::DB>;
 

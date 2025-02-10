@@ -12,6 +12,7 @@ mod order_by;
 mod pagination;
 mod paged_info;
 mod paged_list;
+pub mod param;
 
 pub use entity::Entity;
 pub use location::Location;
