@@ -32,6 +32,7 @@ fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> 
     // }
     let mut file = std::fs::File::create(file_path)?;
     file.write_all(content.as_bytes())?;
+    file.sync_all()?;
     Ok(())
 }
 
