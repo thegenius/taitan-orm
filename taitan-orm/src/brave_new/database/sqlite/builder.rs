@@ -5,7 +5,6 @@ use path_absolutize::Absolutize;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqliteSynchronous};
 use sqlx::SqlitePool;
 use crate::error::TaitanOrmError;
-use crate::sql_generator::DefaultSqlGenerator;
 use super::SqliteDatabase;
 pub struct SqliteBuilder {}
 
