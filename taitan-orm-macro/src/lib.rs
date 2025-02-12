@@ -8,7 +8,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use crate::brave_new::extract_table_def;
+// use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
 mod attrs;
@@ -20,7 +20,6 @@ mod template;
 mod types;
 mod util;
 mod location;
-mod brave_new;
 
 fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> {
     // match env::current_dir() {
@@ -55,20 +54,19 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
         attrs, ident, data, ..
     } = parse_macro_input!(input);
 
-    let debugs= brave_new::attr_parser::extract_named_attrs_val(&attrs, "debug");
-    if debugs.len() > 1 {
-        panic!("cannot use more than one debug attribute");
-    }
-    let table_def = extract_table_def(&ident.to_string(), &attrs, &data);
-
-    if debugs.len() == 1 {
-        let debug_file = debugs.first().unwrap();
-        // panic!("{}",debug_file.to_string());
-        let table_def_json = serde_json::to_string(&table_def);
-        if let Err(err) = write_content_to_file(table_def_json.as_ref().unwrap(), &debug_file) {
-            panic!("cannot write to file: {}", err);
-        }
-    }
+    // let debugs= brave_new::attr_parser::extract_named_attrs_val(&attrs, "debug");
+    // if debugs.len() > 1 {
+    //     panic!("cannot use more than one debug attribute");
+    // }
+    // let table_def = extract_table_def(&ident.to_string(), &attrs, &data);
+    //
+    // if debugs.len() == 1 {
+    //     let debug_file = debugs.first().unwrap();
+    //     let table_def_json = serde_json::to_string(&table_def);
+    //     if let Err(err) = write_content_to_file(table_def_json.as_ref().unwrap(), &debug_file) {
+    //         panic!("cannot write to file: {}", err);
+    //     }
+    // }
 
     TokenStream::new()
 }

@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::brave_new::field_def::{FieldDef};
+use crate::field_def::{FieldDef};
 
 #[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct TableDef {

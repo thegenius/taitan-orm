@@ -3,6 +3,7 @@ members = [
     "taitan-orm",
     "taitan-orm-macro",
     "taitan-orm-trait",
+    "taitan-orm-parser",
     "examples/*"
 ]
 resolver = "2"

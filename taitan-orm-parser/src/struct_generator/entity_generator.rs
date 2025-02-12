@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use crate::brave_new::table_def::TableDef;
+use crate::table_def::TableDef;
 
 pub trait EntityGenerator {
 

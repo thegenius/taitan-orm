@@ -16,14 +16,18 @@ sqlx = {workspace = true}
 serde = {workspace = true}
 time = {workspace = true}
 uuid = {workspace = true}
+bigdecimal = {workspace = true}
+
 tracing = {workspace = true}
 thiserror = {workspace = true}
 path-absolutize = {workspace = true}
+
 rinja = "0.3.5"
 
 #bit-vec = "0.8.0"
 
 [dev-dependencies]
+serde_json = {workspace = true}
 anyhow = "1.0.94"
 testcontainers = "0.23.1"
 testcontainers-modules = { version = "0.11.4", features = ["mysql"] }
