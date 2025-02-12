@@ -14,7 +14,9 @@ pub fn field_parser_spec() {
         struct Foo<'a, 'b> {
             a: &'a str,
             b: Cow<'b, str>,
-            c: String
+            c: String,
+            d: Option<Cow<'b, str>>,
+            e: Optional<Cow<'b, str>>
         }
     };
     let fields = InputParser::get_fields_vec(&input.data).unwrap();
@@ -26,4 +28,36 @@ pub fn field_parser_spec() {
         lifetime: Some(Cow::Borrowed("'a")),
     };
     check_expected(&fields, 0, &expect_struct_field);
+
+    let expect_struct_field = StructFieldDef {
+        name: Cow::Borrowed("b"),
+        rust_type: Cow::Borrowed("Cow < 'b , str >"),
+        is_optional: false,
+        lifetime: Some(Cow::Borrowed("'b")),
+    };
+    check_expected(&fields, 1, &expect_struct_field);
+
+    let expect_struct_field = StructFieldDef {
+        name: Cow::Borrowed("c"),
+        rust_type: Cow::Borrowed("String"),
+        is_optional: false,
+        lifetime: None,
+    };
+    check_expected(&fields, 2, &expect_struct_field);
+
+    let expect_struct_field = StructFieldDef {
+        name: Cow::Borrowed("d"),
+        rust_type: Cow::Borrowed("Cow < 'b , str >"),
+        is_optional: true,
+        lifetime: Some(Cow::Borrowed("'b")),
+    };
+    check_expected(&fields, 3, &expect_struct_field);
+
+    let expect_struct_field = StructFieldDef {
+        name: Cow::Borrowed("e"),
+        rust_type: Cow::Borrowed("Cow < 'b , str >"),
+        is_optional: true,
+        lifetime: Some(Cow::Borrowed("'b")),
+    };
+    check_expected(&fields, 4, &expect_struct_field);
 }
