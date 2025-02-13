@@ -41,11 +41,20 @@ fn attr_parser_struct_spec() {
     check_attr(&attrs, 5, "table6", "user60,  user61");
 }
 
+fn check_multi_attrs(attrs: &[Attribute], index: usize, attr0: &NamedAttribute, attr1: &NamedAttribute) {
+    let named_attrs = AttrParser::parse_multi(&attrs[index]);
+    let named_attr0 = named_attrs[0].clone();
+    let named_attr1 = named_attrs[1].clone();
+    assert_eq!(&named_attr0, attr0);
+    assert_eq!(&named_attr1, attr1);
+}
+
 #[test]
 fn attr_parser_spec_multi() {
     let input: DeriveInput = parse_quote! {
         #[table1(index = user60, fields = (f1, f2, f3))]
         #[table2(index = user60, fields = "f1, f2, f3")]
+        #[table3(index(user60), fields(f1, f2, f3))]
         struct Foo<'a, 'b> {
             a: &'a str,
             b: Cow<'b, str>,
@@ -56,22 +65,9 @@ fn attr_parser_spec_multi() {
     };
 
     let attrs = input.attrs;
-    let named_attrs = AttrParser::parse_multi(&attrs[0]);
-    let named_attr0 = named_attrs[0].clone();
-    let expected_named_attr = NamedAttribute::from_str("index", "user60");
-    assert_eq!(named_attr0, expected_named_attr);
-
-    let named_attr1 = named_attrs[1].clone();
-    let expected_named_attr = NamedAttribute::from_str("fields", "f1, f2, f3");
-    assert_eq!(named_attr1, expected_named_attr);
-
-    let named_attrs = AttrParser::parse_multi(&attrs[1]);
-    let named_attr0 = named_attrs[0].clone();
-    let expected_named_attr = NamedAttribute::from_str("index", "user60");
-    assert_eq!(named_attr0, expected_named_attr);
-
-    let named_attr1 = named_attrs[1].clone();
-    let expected_named_attr = NamedAttribute::from_str("fields", "f1, f2,  f3");
-    assert_eq!(named_attr1, expected_named_attr);
-
+    let expected_attr1 = NamedAttribute::from_str("index", "user60");
+    let expected_attr2 = NamedAttribute::from_str("fields", "f1, f2, f3");
+    check_multi_attrs(&attrs, 0, &expected_attr1, &expected_attr2);
+    check_multi_attrs(&attrs, 1, &expected_attr1, &expected_attr2);
+    check_multi_attrs(&attrs, 2, &expected_attr1, &expected_attr2);
 }

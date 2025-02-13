@@ -39,7 +39,7 @@ fn lifetime_parser_extract_field() {
     };
 
     let data = input.data;
-    let fields = InputParser::get_fields_vec(&data).unwrap();
+    let fields = InputParser::get_fields(&data);
     let lifetime_a = LifetimeParser::get_lifetime(&fields[0].ty);
     assert!(lifetime_a.is_some());
     let lifetime_a_str = lifetime_a.unwrap().to_string();

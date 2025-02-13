@@ -152,6 +152,11 @@ impl AttrParser {
                                 let values_inner_str = extract_inner_string(values_str.as_str());
                                 return Some(NamedAttribute::from_str(name, values_inner_str));
                             }
+                            if let Expr::Call(call_expr) = expr {
+                                let name = call_expr.func.to_token_stream().to_string();
+                                let args = call_expr.args.into_token_stream().to_string();
+                                return Some(NamedAttribute::from_str(name, args));
+                            }
                             return None;
                         })
                         .filter(|v| v.is_some())

@@ -19,7 +19,7 @@ pub fn field_parser_spec_struct() {
             e: Optional<Cow<'b, str>>
         }
     };
-    let fields = InputParser::get_fields_vec(&input.data).unwrap();
+    let fields = InputParser::get_fields(&input.data);
 
     let expect_struct_field = StructFieldDef {
         name: Cow::Borrowed("a"),

@@ -12,9 +12,13 @@ pub struct NamedVariant<'a> {
 }
 
 impl InputParser {
-    pub fn get_fields_vec(data: &Data) -> syn::Result<Vec<Field>> {
-        let named_fields = Self::get_fields_named(data)?;
-        Ok(named_fields.named.into_iter().collect())
+    pub fn get_fields(data: &Data) -> Vec<Field> {
+        let named_fields_result = Self::get_fields_named(data);
+        if let Ok(named_fields) = named_fields_result {
+            named_fields.named.into_iter().collect()
+        } else {
+            Vec::new()
+        }
     }
 
     // pub fn get_fields_named(data: &Data) -> syn::Result<FieldsNamed> {

@@ -30,7 +30,7 @@ pub fn extract_table_def(struct_name: &str, attrs: &[Attribute], data: &Data) ->
         struct_name.to_snake()
     };
 
-    let fields = InputParser::get_fields_vec(data).unwrap();
+    let fields = InputParser::get_fields(data);
     let fields_def: Vec<FieldDef> = fields.clone().iter().map(FieldParser::parse).collect();
 
     let mut table_def = TableDef::default();
