@@ -138,7 +138,7 @@ impl AttrParser {
         }
     }
 
-    pub fn parse_one(attrs: &Attribute) -> NamedAttribute {
+    pub fn parse_one<'a>(attrs: &'a Attribute) -> NamedAttribute<'a> {
         let attr_opt = Self::parse(attrs);
         if let Some(attr) = attr_opt {
             attr
@@ -147,7 +147,7 @@ impl AttrParser {
         }
     }
 
-    pub fn parse_list(attr: &Attribute) -> Vec<NamedAttribute<'_>> {
+    pub fn parse_list<'a>(attr: &'a Attribute) -> Vec<NamedAttribute<'a>> {
         let path: &Path = attr.path();
         let attr_name = path.get_ident().unwrap().to_string();
         match &attr.meta {
@@ -234,53 +234,64 @@ impl AttrParser {
         }
     }
 
-    // pub fn extract<'a, 'b>(attrs: &'a [Attribute], name: &'a str) -> Option<NamedAttribute<'b>> {
-    //     let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name)).cloned();
-    //     if let Some(attr) = attr_opt {
-    //         let attr_opt = Self::parse(&attr);
-    //         if let Some(attr) = attr_opt {
-    //             Some(attr)
-    //         } else {
-    //             panic!("cannot parse attribute")
-    //         }
-    //     } else {
-    //         None
-    //     }
-    // }
+    pub fn extract<'a>(attrs: &'a [Attribute], name: &'a str) -> Option<NamedAttribute<'a>> {
+        let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name));
+        if let Some(attr) = attr_opt {
+            let attr_opt = Self::parse(&attr);
+            if let Some(named) = attr_opt {
+                Some(named)
+            } else {
+                panic!("cannot parse attribute")
+            }
+        } else {
+            None
+        }
+    }
 
-    // pub fn extract_one(attrs: &[Attribute], name: &str) -> NamedAttribute<'_> {
-    //     let attr_opt = Self::extract(attrs, name);
-    //     if let Some(attr) = attr_opt {
-    //         attr
-    //     } else {
-    //         panic!("cannot extract attribute")
-    //     }
-    // }
-    //
-    // pub fn extract_list(attrs: &[Attribute], name: &str) -> Vec<NamedAttribute<'_>> {
-    //     let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name)).cloned();
-    //     if let Some(attr) = attr_opt {
-    //         Self::parse_list(&attr)
-    //     } else {
-    //         Vec::new()
-    //     }
-    // }
-    //
-    //
-    // // extract_multi_one (&[attrs], name) -> Vec<NamedAttribute>
-    // pub fn extract_multi_one<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<NamedAttribute<'a>> {
-    //     let attrs = Self::get_attrs(attrs, name);
-    //     let mut attr_list = Vec::new();
-    //     for attr in attrs {
-    //         if let Some(named) = Self::parse(&attr) {
-    //             attr_list.push(named.clone());
-    //         }
-    //     }
-    //     attr_list
-    // }
+    pub fn extract_one<'a>(attrs: &'a [Attribute], name: &'a str) -> NamedAttribute<'a> {
+        let attr_opt = Self::extract(attrs, name);
+        if let Some(attr) = attr_opt {
+            attr
+        } else {
+            panic!("cannot extract attribute")
+        }
+    }
 
-    // extract_multi_list(&[attrs], name) -> Vec<Vec<NamedAttribute>>
+    pub fn extract_list<'a>(attrs: &'a [Attribute], name: &str) -> Vec<NamedAttribute<'a>> {
+        let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name));
+        if let Some(attr) = attr_opt {
+            Self::parse_list(&attr)
+        } else {
+            Vec::new()
+        }
+    }
 
+    pub fn extract_multi_one<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<NamedAttribute<'a>> {
+        let attrs: Vec<&Attribute> = attrs
+            .iter()
+            .filter(|a| Self::is_attr(a, name))
+            .collect();
+        let mut attr_list = Vec::new();
+        for attr in attrs {
+            if let Some(named) = Self::parse(&attr) {
+                attr_list.push(named.clone());
+            }
+        }
+        attr_list
+    }
+
+    pub fn extract_multi_list<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<Vec<NamedAttribute<'a>>> {
+        let attrs: Vec<&Attribute> = attrs
+            .iter()
+            .filter(|a| Self::is_attr(a, name))
+            .collect();
+        let mut attr_list = Vec::new();
+        for attr in attrs {
+            let list = Self::parse_list(&attr);
+            attr_list.push(list);
+        }
+        attr_list
+    }
 }
 
 fn extract_inner_string(s: &str) -> String {
