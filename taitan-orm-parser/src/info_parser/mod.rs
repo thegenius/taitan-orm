@@ -8,3 +8,4 @@ mod input_parser;
 pub use lifetime_parser::LifetimeParser;
 pub use input_parser::InputParser;
 pub use field_parser::FieldParser;
+pub use input_parser::NamedVariant;
