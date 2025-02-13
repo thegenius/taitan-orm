@@ -42,7 +42,7 @@ fn attr_parser_struct_spec() {
 }
 
 fn check_multi_attrs(attrs: &[Attribute], index: usize, attr0: &NamedAttribute, attr1: &NamedAttribute) {
-    let named_attrs = AttrParser::parse_multi(&attrs[index]);
+    let named_attrs = AttrParser::parse_list(&attrs[index]);
     let named_attr0 = named_attrs[0].clone();
     let named_attr1 = named_attrs[1].clone();
     assert_eq!(&named_attr0, attr0);

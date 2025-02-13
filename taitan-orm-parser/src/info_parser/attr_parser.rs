@@ -3,6 +3,21 @@ use std::borrow::Cow;
 use syn::punctuated::Punctuated;
 use syn::{Attribute, Expr, Lit, Meta, Path, Token};
 
+// is_attr  (&attr, name) -> bool
+// has_attr (&[attrs], name) -> bool
+// get_attr (&[attrs], name) -> Option<Attribute>
+// get_attrs(&[attrs], name) -> Vec<Attribute>
+
+// parse       (&attr) -> Option<NamedAttribute>
+// parse_one   (&attr) -> NamedAttribute
+// parse_list  (&attr) -> Vec<NamedAttribute>
+
+// extract           (&[attrs], name) -> Option<NamedAttribute>
+// extract_one       (&[attrs], name) -> NamedAttribute
+// extract_list      (&[attrs], name) -> Vec<NamedAttribute>
+// extract_multi_one (&[attrs], name) -> Vec<NamedAttribute>
+// extract_multi_list(&[attrs], name) -> Vec<Vec<NamedAttribute>>
+
 pub struct AttrParser;
 
 #[derive(Debug, Clone, PartialOrd, PartialEq)]
@@ -53,9 +68,15 @@ impl AttrParser {
         attrs.iter().find(|a| Self::is_attr(a, name)).cloned()
     }
     pub fn get_attrs(attrs: &[Attribute], name: &str) -> Vec<Attribute> {
-        attrs.iter().filter(|a| Self::is_attr(a, name)).cloned().collect()
+        attrs
+            .iter()
+            .filter(|a| Self::is_attr(a, name))
+            .cloned()
+            .collect()
     }
-    pub fn parse(attr: &Attribute) -> Option<NamedAttribute<'_>> {
+
+
+    pub fn parse<'a>(attr: &'a Attribute) -> Option<NamedAttribute<'a>> {
         let path: &Path = attr.path();
         let attr_name = path.get_ident().unwrap().to_string();
         match &attr.meta {
@@ -117,7 +138,16 @@ impl AttrParser {
         }
     }
 
-    pub fn parse_multi(attr: &Attribute) -> Vec<NamedAttribute<'_>> {
+    pub fn parse_one(attrs: &Attribute) -> NamedAttribute {
+        let attr_opt = Self::parse(attrs);
+        if let Some(attr) = attr_opt {
+            attr
+        } else {
+            panic!("cannot parse attribute")
+        }
+    }
+
+    pub fn parse_list(attr: &Attribute) -> Vec<NamedAttribute<'_>> {
         let path: &Path = attr.path();
         let attr_name = path.get_ident().unwrap().to_string();
         match &attr.meta {
@@ -203,6 +233,54 @@ impl AttrParser {
             _ => vec![],
         }
     }
+
+    // pub fn extract<'a, 'b>(attrs: &'a [Attribute], name: &'a str) -> Option<NamedAttribute<'b>> {
+    //     let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name)).cloned();
+    //     if let Some(attr) = attr_opt {
+    //         let attr_opt = Self::parse(&attr);
+    //         if let Some(attr) = attr_opt {
+    //             Some(attr)
+    //         } else {
+    //             panic!("cannot parse attribute")
+    //         }
+    //     } else {
+    //         None
+    //     }
+    // }
+
+    // pub fn extract_one(attrs: &[Attribute], name: &str) -> NamedAttribute<'_> {
+    //     let attr_opt = Self::extract(attrs, name);
+    //     if let Some(attr) = attr_opt {
+    //         attr
+    //     } else {
+    //         panic!("cannot extract attribute")
+    //     }
+    // }
+    //
+    // pub fn extract_list(attrs: &[Attribute], name: &str) -> Vec<NamedAttribute<'_>> {
+    //     let attr_opt = attrs.iter().find(|a| Self::is_attr(a, name)).cloned();
+    //     if let Some(attr) = attr_opt {
+    //         Self::parse_list(&attr)
+    //     } else {
+    //         Vec::new()
+    //     }
+    // }
+    //
+    //
+    // // extract_multi_one (&[attrs], name) -> Vec<NamedAttribute>
+    // pub fn extract_multi_one<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<NamedAttribute<'a>> {
+    //     let attrs = Self::get_attrs(attrs, name);
+    //     let mut attr_list = Vec::new();
+    //     for attr in attrs {
+    //         if let Some(named) = Self::parse(&attr) {
+    //             attr_list.push(named.clone());
+    //         }
+    //     }
+    //     attr_list
+    // }
+
+    // extract_multi_list(&[attrs], name) -> Vec<Vec<NamedAttribute>>
+
 }
 
 fn extract_inner_string(s: &str) -> String {

@@ -13,6 +13,8 @@ use crate::info_parser::input_parser::InputParser;
 use crate::table_def::TableDef;
 use crate::FieldParser;
 
+
+
 pub fn extract_table_def(struct_name: &str, attrs: &[Attribute], data: &Data) -> TableDef {
     let table_name_attr: Option<Attribute> = AttrParser::get_attr(attrs, "table");
 

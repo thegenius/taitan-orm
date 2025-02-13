@@ -1,5 +1,5 @@
 pub mod field_parser;
-pub mod table_def_extractor;
+pub mod schema_parser;
 pub mod attr_parser;
 mod type_parser;
 mod lifetime_parser;
