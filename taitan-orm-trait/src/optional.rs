@@ -1,4 +1,4 @@
-use serde::de::Visitor;
+use serde::de::{Error, IntoDeserializer, Visitor};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::{Debug, Display};
 
@@ -19,9 +19,9 @@ impl<T: Serialize> Serialize for Optional<T> {
         S: Serializer,
     {
         match self {
-            Optional::None => serializer.serialize_str(""),
-            Optional::Null => serializer.serialize_none(),
-            Optional::Some(value) => value.serialize(serializer),
+            Optional::None => serializer.serialize_none(),
+            Optional::Null => serializer.serialize_none(), // 序列化为 null
+            Optional::Some(value) => value.serialize(serializer), // 序列化具体值
         }
     }
 }
@@ -41,24 +41,37 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Optional<T> {
                 formatter.write_str("a string, null, or a value")
             }
 
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            // fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            // where
+            //     E: serde::de::Error,
+            // {
+            //     if v.is_empty() {
+            //         Ok(Optional::None)
+            //     } else {
+            //         Err(serde::de::Error::custom(
+            //             "expected an empty string for None",
+            //         ))
+            //     }
+            // }
+
+            fn visit_unit<E>(self) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
             {
-                if v.is_empty() {
-                    Ok(Optional::None)
-                } else {
-                    Err(serde::de::Error::custom(
-                        "expected an empty string for None",
-                    ))
-                }
+                Ok(Optional::Null)
             }
-
             fn visit_none<E>(self) -> Result<Self::Value, E>
             where
                 E: serde::de::Error,
             {
                 Ok(Optional::Null)
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                T::deserialize(value.into_deserializer()).map(Optional::Some)
             }
 
             fn visit_some<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
@@ -67,6 +80,7 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Optional<T> {
             {
                 T::deserialize(deserializer).map(Optional::Some)
             }
+
         }
 
         deserializer.deserialize_any(OptionalVisitor(std::marker::PhantomData))
@@ -112,6 +126,9 @@ impl<T> From<Option<T>> for Optional<T> {
 }
 
 impl<T> Optional<T> {
+    pub fn is_optional_none(optional: &Optional<T>) -> bool {
+        matches!(optional, Optional::None)
+    }
     pub fn unwrap(self) -> T {
         match self {
             Optional::Some(value) => value,
@@ -189,5 +206,33 @@ impl<T> Optional<T> {
             Optional::Null => true,
             _ => false,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Optional;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize, PartialEq)]
+    struct TestStruct {
+        #[serde(skip_serializing_if = "Optional::is_optional_none")] //序列化的时候如果是None就跳过
+        #[serde(default)] // 反序列化的时候如果缺失，就使用default值Optional::None
+        field1: Optional<String>,
+        field2: Optional<String>,
+        field3: Optional<String>,
+    }
+    #[test]
+    fn test_optional() {
+        let test_1 = TestStruct {
+            field1: Optional::None,
+            field2: Optional::Null,
+            field3: Optional::Some("val".to_string()),
+        };
+        let serialized = serde_json::to_string(&test_1).unwrap();
+        assert_eq!(serialized, r#"{"field2":null,"field3":"val"}"#);
+
+        let deserialized = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(test_1, deserialized);
     }
 }
