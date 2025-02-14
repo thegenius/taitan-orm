@@ -18,7 +18,7 @@ pub struct TableDef<'a> {
 }
 
 impl<'a> TableDef<'a> {
-    pub fn new(input: &'a DeriveInput) -> TableDef<'a> {
+    pub fn parse(input: &'a DeriveInput) -> TableDef<'a> {
         let struct_name = input.ident.to_string();
         let table_name_attr: Option<NamedAttribute> = AttrParser::extract(&input.attrs, "table");
         let table_name = if let Some(attr) = &table_name_attr {
@@ -33,7 +33,7 @@ impl<'a> TableDef<'a> {
         let attrs = &input.attrs;
 
         let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldParser::parse(f)).collect();
-        let primary_attr = AttrParser::extract_one(attrs, "primary");
+        let primary_attr = AttrParser::extract(attrs, "primary").expect("primary attribute missing");
         let uniques_attrs = AttrParser::extract_multi_list(attrs, "unique");
         let uniques = uniques_attrs
             .into_iter()
