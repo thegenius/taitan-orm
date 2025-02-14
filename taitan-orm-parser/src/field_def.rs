@@ -8,33 +8,32 @@ use serde::{Deserialize, Serialize};
 //
 
 #[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
-pub struct StructFieldDef {
-    pub name: Cow<'static, str>,
-    pub rust_type: Cow<'static, str>,
+pub struct StructFieldDef<'a> {
+    pub name: Cow<'a, str>,
+    pub rust_type: Cow<'a, str>,
     pub is_optional: bool,
-    pub lifetime: Option<Cow<'static, str>>,
+    pub lifetime: Option<Cow<'a, str>>,
 }
 
-
+// #[field(name = r_id, type = BIGINT, nullable = true, auto_inc = true)]
 #[derive(Debug, PartialEq, Clone, Default, Deserialize, Serialize)]
-pub struct TableColumnDef {
-    pub name: Option<Cow<'static, str>>,
-    pub column_type: Option<Cow<'static, str>>,
-    pub default_value: Option<Cow<'static, str>>,
-    pub is_nullable: bool,
-    pub is_generated: bool,
-    pub is_auto_inc: bool,
-    pub is_primary_key_part: bool,
+pub struct TableColumnDef<'a> {
+    pub name: Option<Cow<'a, str>>,
+    pub column_type: Option<Cow<'a, str>>,
+    pub default_value: Option<Cow<'a, str>>,
+    pub generated: Option<Cow<'a, str>>,
+    pub nullable: bool,
+    pub auto_inc: bool,
 }
 
 #[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
-pub struct FieldDef {
-    pub struct_field: StructFieldDef,
-    pub table_column: TableColumnDef,
+pub struct FieldDef<'a> {
+    pub struct_field: StructFieldDef<'a>,
+    pub table_column: TableColumnDef<'a>,
 }
 
 
-impl FieldDef {
+impl FieldDef<'_> {
     pub fn database_field_name(&self) -> &str {
         match &self.table_column.name {
             Some(column_name) => column_name,

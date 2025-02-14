@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 use syn::{parse_quote, Attribute, DeriveInput};
+use syn::Expr::Field;
 use taitan_orm_parser::attr_parser::{AttrParser, NamedAttribute};
+use taitan_orm_parser::{FieldParser, InputParser};
 
 fn check_attr(attrs: &[Attribute], index: usize, name: &str, value_str: &str) {
     let value_opt = AttrParser::parse(&attrs[index]);
@@ -70,4 +72,29 @@ fn attr_parser_spec_multi() {
     check_multi_attrs(&attrs, 0, &expected_attr1, &expected_attr2);
     check_multi_attrs(&attrs, 1, &expected_attr1, &expected_attr2);
     check_multi_attrs(&attrs, 2, &expected_attr1, &expected_attr2);
+}
+
+
+#[test]
+fn attr_parser_spec_field_multi() {
+    let input: DeriveInput = parse_quote! {
+        struct Foo<'a> {
+            #[field(name = user_name, db_type = BIGINT, nullable = true, auto_inc = true)]
+            name: &'a str,
+        }
+    };
+
+    let fields = InputParser::get_fields(&input.data);
+    let name_field = &fields[0];
+    let field_attrs = &name_field.attrs;
+    let name_field_attr = &field_attrs[0];
+    let named_attr_list = AttrParser::parse_list(name_field_attr);
+    let expected_named_attr = NamedAttribute::from_str("name", "user_name");
+    assert_eq!(named_attr_list[0], expected_named_attr);
+    let expected_named_attr = NamedAttribute::from_str("db_type", "BIGINT");
+    assert_eq!(named_attr_list[1], expected_named_attr);
+    let expected_named_attr = NamedAttribute::from_str("nullable", "true");
+    assert_eq!(named_attr_list[2], expected_named_attr);
+    let expected_named_attr = NamedAttribute::from_str("auto_inc", "true");
+    assert_eq!(named_attr_list[3], expected_named_attr);
 }

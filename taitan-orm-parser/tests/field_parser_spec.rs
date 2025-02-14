@@ -89,3 +89,4 @@ pub fn field_parser_spec_enum() {
     };
     check_expected(&fields, 1, &expect_struct_field);
 }
+

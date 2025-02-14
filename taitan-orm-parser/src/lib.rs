@@ -18,4 +18,5 @@ pub use field_def::FieldDef;
 pub use info_parser::LifetimeParser;
 pub use info_parser::InputParser;
 pub use info_parser::FieldParser;
+pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;

@@ -15,29 +15,23 @@ use crate::FieldParser;
 
 
 
-pub fn extract_table_def(struct_name: &str, attrs: &[Attribute], data: &Data) -> TableDef {
-    let table_name_attr: Option<Attribute> = AttrParser::get_attr(attrs, "table");
 
-    let table_name: String = if let Some(attr) = table_name_attr {
-        if let Some(named_attr) = AttrParser::parse(&attr) {
-            if named_attr.values.len() == 1 {
-                named_attr.values.first().unwrap().to_string()
-            } else {
-                panic!("wrong table attribute")
-            }
-        } else {
-            struct_name.to_snake()
-        }
+pub fn extract_table_def<'a>(struct_name: &'a str, attrs: &'a [Attribute], data: &'a Data) -> TableDef<'a> {
+
+
+    let table_name_attr: Option<Attribute> = AttrParser::get_attr(attrs, "table");
+    let table_name = if let Some(attr) = table_name_attr {
+        AttrParser::parse_one_single(&attr).get_single_value().to_string()
     } else {
         struct_name.to_snake()
     };
 
-    let fields = InputParser::get_fields(data);
-    let fields_def: Vec<FieldDef> = fields.clone().iter().map(FieldParser::parse).collect();
+    // let fields = InputParser::get_fields(data);
+    // let fields_def: Vec<FieldDef<'a>> = fields.iter().map(FieldParser::parse).collect();
 
     let mut table_def = TableDef::default();
-    table_def.table_name = Cow::Owned(table_name);
-    table_def.columns = fields_def;
+    // table_def.table_name = Cow::Owned(table_name);
+    // table_def.columns = fields_def;
     // panic!("{:?}", table_def);
     table_def
 }

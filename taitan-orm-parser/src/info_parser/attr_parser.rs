@@ -1,7 +1,7 @@
 use quote::ToTokens;
 use std::borrow::Cow;
 use syn::punctuated::Punctuated;
-use syn::{Attribute, Expr, Lit, Meta, Path, Token};
+use syn::{Attribute, Expr, ExprCall, Lit, Meta, Path, Token};
 
 // is_attr  (&attr, name) -> bool
 // has_attr (&[attrs], name) -> bool
@@ -43,6 +43,17 @@ impl<'a> NamedAttribute<'a> {
             values,
         }
     }
+
+    pub fn from_origin<N, F>(name: N, val_str: F) -> Self
+    where
+        N: Into<Cow<'a, str>>,
+        F: Into<Cow<'a, str>>,
+    {
+        Self {
+            name: name.into(),
+            values: vec![val_str.into()],
+        }
+    }
     pub fn from_vec<N>(name: N, values: Vec<Cow<'a, str>>) -> Self
     where
         N: Into<Cow<'a, str>>,
@@ -52,6 +63,14 @@ impl<'a> NamedAttribute<'a> {
             values,
         }
     }
+
+    pub fn get_single_value(&self) -> &Cow<'a, str> {
+        if self.values.len() != 1 {
+            panic!("attribute must have a single value");
+        }
+        &self.values[0]
+    }
+
 }
 impl AttrParser {
     pub fn is_attr(attr: &Attribute, name: &str) -> bool {
@@ -147,6 +166,18 @@ impl AttrParser {
         }
     }
 
+    pub fn parse_one_single<'a>(attrs: &'a Attribute) -> NamedAttribute<'a> {
+        let attr_opt = Self::parse(attrs);
+        if let Some(attr) = attr_opt {
+            if attr.values.len() != 1 {
+                panic!("cannot parse attribute to one single value")
+            }
+            attr
+        } else {
+            panic!("cannot parse attribute")
+        }
+    }
+
     pub fn parse_list<'a>(attr: &'a Attribute) -> Vec<NamedAttribute<'a>> {
         let path: &Path = attr.path();
         let attr_name = path.get_ident().unwrap().to_string();
@@ -179,8 +210,14 @@ impl AttrParser {
                             if let Expr::Assign(assign) = expr {
                                 let name = assign.left.into_token_stream().to_string();
                                 let values_str = assign.right.into_token_stream().to_string();
-                                let values_inner_str = extract_inner_string(values_str.as_str());
-                                return Some(NamedAttribute::from_str(name, values_inner_str));
+                                // TODO: this is hard coding, need to fix
+                                return if name == "generated" {
+                                    let values_inner_str = extract_quote_string(values_str.as_str());
+                                    Some(NamedAttribute::from_origin(name, values_inner_str))
+                                } else {
+                                    let values_inner_str = extract_inner_string(values_str.as_str());
+                                    Some(NamedAttribute::from_str(name, values_inner_str))
+                                }
                             }
                             if let Expr::Call(call_expr) = expr {
                                 let name = call_expr.func.to_token_stream().to_string();
@@ -194,6 +231,7 @@ impl AttrParser {
                         .collect();
                     return values;
                 }
+
 
                 if let Ok(expr) = list.parse_args::<Expr>() {
                     return match expr {
@@ -227,7 +265,6 @@ impl AttrParser {
                         .collect();
                     return vec![NamedAttribute::from_vec(attr_name, values)];
                 }
-
                 vec![]
             }
             _ => vec![],
@@ -251,6 +288,18 @@ impl AttrParser {
     pub fn extract_one<'a>(attrs: &'a [Attribute], name: &'a str) -> NamedAttribute<'a> {
         let attr_opt = Self::extract(attrs, name);
         if let Some(attr) = attr_opt {
+            attr
+        } else {
+            panic!("cannot extract attribute")
+        }
+    }
+
+    pub fn extract_one_single<'a>(attrs: &'a [Attribute], name: &'a str) -> NamedAttribute<'a> {
+        let attr_opt = Self::extract(attrs, name);
+        if let Some(attr) = attr_opt {
+            if attr.values.len() != 1 {
+                panic!("cannot extract attribute to one single value")
+            }
             attr
         } else {
             panic!("cannot extract attribute")
@@ -294,6 +343,14 @@ impl AttrParser {
     }
 }
 
+fn extract_quote_string(s: &str) -> String {
+    let trimmed = s.trim();
+    if trimmed.starts_with('"') && trimmed.ends_with('"') {
+        trimmed[1..trimmed.len() - 1].trim().to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
 fn extract_inner_string(s: &str) -> String {
     let trimmed = s.trim();
     if trimmed.starts_with('(') && trimmed.ends_with(')') {
