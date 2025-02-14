@@ -10,8 +10,15 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
-🎆**The next two weeks are for the Chinese Spring Festival, and I will be taking two weeks off.**
-**Following the Spring Festival, I plan to release a significant update. This new version will encompass a wide range of enhancements and API updates.**
+🎆**0.1.10 will be a big version**
+```
+1. api will have minor adjust, error will be re-designed
+2. sqlite/mysql/postgres support will be feature, so there is no extra code generation that you do not need
+3. attribute defined will use short words
+4. most sql generation move to compile time rather than a runtime sql generator
+5. brave new logic struct [AND OR NOT] to support logic condition
+6. a new designd template parser
+```
 
 
 # Quick Start
