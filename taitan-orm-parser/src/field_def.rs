@@ -1,5 +1,7 @@
 use std::borrow::Cow;
-use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::de::{SeqAccess, Visitor};
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | lifetime
 //  -------------------------------------------------------------
@@ -32,9 +34,8 @@ pub struct FieldDef<'a> {
     pub table_column: TableColumnDef<'a>,
 }
 
-
 impl FieldDef<'_> {
-    pub fn database_field_name(&self) -> &str {
+    pub fn column_name(&self) -> &str {
         match &self.table_column.name {
             Some(column_name) => column_name,
             None => &self.struct_field.name,

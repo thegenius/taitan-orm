@@ -25,6 +25,11 @@ pub struct NamedAttribute<'a> {
     pub name: Cow<'a, str>,
     pub values: Vec<Cow<'a, str>>,
 }
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
+pub struct NamedAttributes<'a> {
+    pub name: Cow<'a, str>,
+    pub attrs: Vec<NamedAttribute<'a>>,
+}
 
 impl<'a> NamedAttribute<'a> {
     pub fn from_str<N, F>(name: N, val_str: F) -> Self
@@ -328,7 +333,7 @@ impl AttrParser {
         attr_list
     }
 
-    pub fn extract_multi_list<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<Vec<NamedAttribute<'a>>> {
+    pub fn extract_multi_list<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<NamedAttributes<'a>> {
         let attrs: Vec<&Attribute> = attrs
             .iter()
             .filter(|a| Self::is_attr(a, name))
@@ -336,7 +341,11 @@ impl AttrParser {
         let mut attr_list = Vec::new();
         for attr in attrs {
             let list = Self::parse_list(&attr);
-            attr_list.push(list);
+            let named_attrs = NamedAttributes {
+                name: Cow::Borrowed(name),
+                attrs: list
+            };
+            attr_list.push(named_attrs);
         }
         attr_list
     }
