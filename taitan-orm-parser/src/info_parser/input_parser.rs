@@ -12,10 +12,10 @@ pub struct NamedVariant<'a> {
 }
 
 impl InputParser {
-    pub fn get_fields(data: &Data) -> Vec<Field> {
+    pub fn get_fields<'a>(data: &'a Data) -> Vec<&'a Field> {
         let named_fields_result = Self::get_fields_named(data);
         if let Ok(named_fields) = named_fields_result {
-            named_fields.named.into_iter().collect()
+            named_fields.named.iter().collect()
         } else {
             Vec::new()
         }
@@ -49,10 +49,10 @@ impl InputParser {
     //     Ok(fields.clone())
     // }
 
-    pub fn get_fields_named(data: &Data) -> syn::Result<FieldsNamed> {
+    pub fn get_fields_named<'a>(data: &'a Data) -> syn::Result<&'a FieldsNamed> {
         if let Data::Struct(DataStruct { fields, .. }) = data {
             match fields {
-                Fields::Named(it) => Ok(it.clone()),
+                Fields::Named(it) => Ok(it),
                 _ => Err(Error::new(
                     Span::call_site(),
                     "Expected a struct with named fields",

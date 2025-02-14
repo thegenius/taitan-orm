@@ -1,10 +1,10 @@
-use std::borrow::Cow;
+use std::borrow::{Borrow, Cow};
 use syn::{parse_quote, DeriveInput, Field};
 use taitan_orm_parser::{InputParser, NamedVariant, StructFieldDef, TableColumnDef};
 use taitan_orm_parser::FieldParser;
 
-fn check_expected(fields: &Vec<Field>, index: usize, expected: &StructFieldDef) {
-    let field_def = FieldParser::parse(fields.get(index).unwrap());
+fn check_expected<T>(fields: &[T], index: usize, expected: &StructFieldDef) where T: Borrow<Field> {
+    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow());
     assert_eq!(&field_def.struct_field, expected);
 }
 
@@ -104,20 +104,20 @@ pub fn field_parser_spec_enum() {
     let variants = InputParser::get_enum_variant(&input.data).unwrap();
     assert_eq!(variants[0].name, Cow::Borrowed("A"));
 
-    let fields = variants[0].clone().fields;
+    let fields = &variants[0].fields;
     let expect_struct_field = StructFieldDef {
         name: Cow::Borrowed("field1"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
-    check_expected(&fields, 0, &expect_struct_field);
+    check_expected(fields, 0, &expect_struct_field);
     let expect_struct_field = StructFieldDef {
         name: Cow::Borrowed("field2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
         lifetime: Some(Cow::Borrowed("'b")),
     };
-    check_expected(&fields, 1, &expect_struct_field);
+    check_expected(fields, 1, &expect_struct_field);
 }
 

@@ -26,8 +26,8 @@ pub fn extract_table_def<'a>(struct_name: &'a str, attrs: &'a [Attribute], data:
         struct_name.to_snake()
     };
 
-    // let fields = InputParser::get_fields(data);
-    // let fields_def: Vec<FieldDef<'a>> = fields.iter().map(FieldParser::parse).collect();
+    let fields = InputParser::get_fields(data);
+    let fields_def: Vec<FieldDef<'a>> = fields.iter().map(|f|FieldParser::parse(*f)).collect();
 
     let mut table_def = TableDef::default();
     // table_def.table_name = Cow::Owned(table_name);
