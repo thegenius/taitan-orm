@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use syn::{parse_quote, DeriveInput, Field};
-use taitan_orm_parser::{InputParser, NamedVariant, StructFieldDef};
+use taitan_orm_parser::{InputParser, NamedVariant, StructFieldDef, TableColumnDef};
 use taitan_orm_parser::FieldParser;
 
 fn check_expected(fields: &Vec<Field>, index: usize, expected: &StructFieldDef) {
@@ -60,6 +60,37 @@ pub fn field_parser_spec_struct() {
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 4, &expect_struct_field);
+}
+
+#[test]
+pub fn field_parser_spec_with_attr() {
+    let input: DeriveInput = parse_quote! {
+        struct Foo<'a> {
+            #[field(name = user_name, column_type = BIGINT, nullable = true, auto_inc = true, generated = "CONCAT(first_name, ' ', last_name)")]
+            e: Optional<Cow<'a, str>>
+        }
+    };
+    let fields = InputParser::get_fields(&input.data);
+    let field = fields.get(0).unwrap();
+    let field_def = FieldParser::parse(field);
+
+    let expect_struct_field = StructFieldDef {
+        name: Cow::Borrowed("e"),
+        rust_type: Cow::Borrowed("Cow < 'a , str >"),
+        is_optional: true,
+        lifetime: Some(Cow::Borrowed("'a")),
+    };
+    let expect_column_def = TableColumnDef {
+        name: Some(Cow::Borrowed("user_name")),
+        column_type: Some(Cow::Borrowed("BIGINT")),
+        default_value: None,
+        generated: Some(Cow::Borrowed("CONCAT(first_name, ' ', last_name)")),
+        nullable: true,
+        auto_inc: true,
+    };
+
+    assert_eq!(field_def.struct_field, expect_struct_field);
+    assert_eq!(field_def.table_column, expect_column_def);
 }
 
 #[test]

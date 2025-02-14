@@ -19,7 +19,7 @@ use crate::FieldParser;
 pub fn extract_table_def<'a>(struct_name: &'a str, attrs: &'a [Attribute], data: &'a Data) -> TableDef<'a> {
 
 
-    let table_name_attr: Option<Attribute> = AttrParser::get_attr(attrs, "table");
+    let table_name_attr: Option<&Attribute> = AttrParser::get_attr(attrs, "table");
     let table_name = if let Some(attr) = table_name_attr {
         AttrParser::parse_one_single(&attr).get_single_value().to_string()
     } else {

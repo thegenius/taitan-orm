@@ -83,14 +83,13 @@ impl AttrParser {
         attrs.iter().any(|attr| Self::is_attr(attr, name))
     }
 
-    pub fn get_attr(attrs: &[Attribute], name: &str) -> Option<Attribute> {
-        attrs.iter().find(|a| Self::is_attr(a, name)).cloned()
+    pub fn get_attr<'a>(attrs: &'a [Attribute], name: &'a str) -> Option<&'a Attribute> {
+        attrs.iter().find(|a| Self::is_attr(a, name))
     }
-    pub fn get_attrs(attrs: &[Attribute], name: &str) -> Vec<Attribute> {
+    pub fn get_attrs<'a>(attrs: &'a [Attribute], name: &'a str) -> Vec<&'a Attribute> {
         attrs
             .iter()
             .filter(|a| Self::is_attr(a, name))
-            .cloned()
             .collect()
     }
 
