@@ -5,6 +5,7 @@ mod info_parser;
 mod struct_generator;
 mod impl_generator;
 pub mod utils;
+mod sql_generator;
 
 // pub use info_parser::schema_parser::extract_table_def;
 pub use info_parser::attr_parser;
