@@ -1,4 +1,3 @@
-use crate::sql_generator::field_processor::FieldGroup::Optional;
 use crate::sql_generator::keywords_escaper::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
