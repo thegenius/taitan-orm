@@ -85,13 +85,12 @@ pub trait FieldProcessor {
                 FieldGroup::Optional(field) => {
                     let field_name = &field.struct_field.name;
                     let field_ident = format_ident!("{}", field_name);
-                    let column_name = field.column_name();
+                    let column_name = field.column_name(self.get_escaper());
                     if index > first_required_index {
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 fields.push(',');
                                 fields.push_str(#column_name);
-                                has_prev = true;
                             }
                         })
                     } else {
@@ -117,7 +116,6 @@ pub trait FieldProcessor {
                         stream.extend(quote! {
                             fields.push(',');
                             fields.push_str(#list_string);
-                            has_prev = true;
                         })
                     } else {
                         stream.extend(quote! {
@@ -142,18 +140,83 @@ pub trait FieldProcessor {
     fn gen_list_string(&self, fields: &[FieldDef]) -> String {
         fields
             .iter()
-            .map(|f| self.get_escaper().escape(f.column_name()))
+            .map(|f| f.column_name(self.get_escaper()))
             .collect::<Vec<Cow<'_, str>>>()
             .join(",")
+    }
+
+    fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
+        if is_all_not_optional(fields) {
+            let list_string = self.gen_marks(fields);
+            return quote! {
+                String::from(#list_string)
+            };
+        }
+        let mut stream = TokenStream::new();
+        stream.extend(quote! {
+            let mut marks = String::default();
+            let mut has_prev = false;
+        });
+        let groups = split_fields(fields);
+        let first_required_index = first_required(&groups);
+        for (index, group) in groups.iter().enumerate() {
+            match group {
+                FieldGroup::Optional(field) => {
+                    let field_name = &field.struct_field.name;
+                    let field_ident = format_ident!("{}", field_name);
+                    let column_name = field.column_name(self.get_escaper());
+                    if index > first_required_index {
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                marks.push_str(",?");
+                            }
+                        })
+                    } else {
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                if has_prev {
+                                    marks.push(',');
+                                }
+                                marks.push('?');
+                                has_prev = true;
+                            }
+                        })
+                    }
+                }
+                FieldGroup::Required(fields) => {
+                    let marks_string = self.gen_marks(&fields);
+                    if index == first_required_index {
+                        stream.extend(quote! {
+                            marks.push_str(#marks_string);
+                            has_prev = true;
+                        })
+                    } else if index > first_required_index {
+                        stream.extend(quote! {
+                            marks.push(',');
+                            marks.push_str(#marks_string);
+                        })
+                    } else {
+                       panic!("required field index < first_required_index should not be possible");
+                    }
+                }
+            }
+        }
+        stream.extend(quote! {marks});
+        let final_stream = quote! {
+            let marks = {
+                #stream
+            };
+        };
+        final_stream
     }
     fn gen_plain_marks(&self, fields: &[FieldDef]) -> String {
         fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
     }
-    fn gen_indexed_marks(&self, fields: &[FieldDef]) -> String {
+    fn gen_indexed_marks(&self, fields: &[FieldDef], base: usize) -> String {
         fields
             .iter()
             .enumerate()
-            .map(|(index, _)| format!("${}", index + 1))
+            .map(|(index, _)| format!("${}", index + base + 1))
             .collect()
     }
     fn gen_marks(&self, fields: &[FieldDef]) -> String;
@@ -183,7 +246,77 @@ impl FieldProcessor for PostgresFieldProcessor {
         &self.escaper
     }
     fn gen_marks(&self, fields: &[FieldDef]) -> String {
-        self.gen_indexed_marks(fields)
+        self.gen_indexed_marks(fields, 0)
+    }
+
+    fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
+        if is_all_not_optional(fields) {
+            let list_string = self.gen_marks(fields);
+            return quote! {
+                String::from(#list_string)
+            };
+        }
+        let mut stream = TokenStream::new();
+        stream.extend(quote! {
+            let mut marks = String::default();
+            let mut has_prev = false;
+            let mut index: usize = 0;
+        });
+
+        let groups = split_fields(fields);
+        let first_required_index = first_required(&groups);
+        for (index, group) in groups.iter().enumerate() {
+            match group {
+                FieldGroup::Optional(field) => {
+                    let field_name = &field.struct_field.name;
+                    let field_ident = format_ident!("{}", field_name);
+                    if index > first_required_index {
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                marks.push_str(format!(",${}", index));
+                                index = index + 1;
+                            }
+                        })
+                    } else {
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                if has_prev {
+                                    marks.push(',');
+                                }
+                                marks.push_str(format!("${}", index));
+                                index = index + 1;
+                                has_prev = true;
+                            }
+                        })
+                    }
+                }
+                FieldGroup::Required(fields) => {
+                    for field in fields {
+                        if index == first_required_index {
+                            stream.extend(quote! {
+                                marks.push_str(format!("${}", index));
+                                index = index + 1;
+                                has_prev = true;
+                            })
+                        } else if index > first_required_index {
+                            stream.extend(quote! {
+                                marks.push_str(format!(",${}", index));
+                                index = index + 1;
+                            })
+                        } else {
+                            panic!("required field index < first_required_index should not be possible");
+                        }
+                    }
+                }
+            }
+        }
+        stream.extend(quote! {marks});
+        let final_stream = quote! {
+            let marks = {
+                #stream
+            };
+        };
+        final_stream
     }
 }
 
@@ -287,7 +420,11 @@ mod test {
         let table_def = TableDef::parse(&input);
         let processor = MySqlFieldProcessor::default();
         let field_list = processor.gen_list_stream(&table_def.fields).to_string();
-        assert_eq!(field_list, "let fields = { let mut fields = String :: default () ; let mut has_prev = false ; fields . push_str (\"a,b,c\") ; has_prev = true ; if self . d . is_some () { fields . push (',') ; fields . push_str (\"d\") ; has_prev = true ; } if self . e . is_some () { fields . push (',') ; fields . push_str (\"e\") ; has_prev = true ; } fields } ;");
+        assert_eq!(field_list, "let fields = { let mut fields = String :: default () ; let mut has_prev = false ; fields . push_str (\"a,b,c\") ; has_prev = true ; if self . d . is_some () { fields . push (',') ; fields . push_str (\"d\") ; } if self . e . is_some () { fields . push (',') ; fields . push_str (\"e\") ; } fields } ;");
+
+        let marks_list = processor.gen_marks_stream(&table_def.fields).to_string();
+        assert_eq!(marks_list, "let marks = { let mut marks = String :: default () ; let mut has_prev = false ; marks . push_str (\"?,?,?\") ; has_prev = true ; if self . d . is_some () { marks . push_str (\",?\") ; } if self . e . is_some () { marks . push_str (\",?\") ; } marks } ;");
+
     }
 
     // #[primary(a, b)]
@@ -318,7 +455,23 @@ mod test {
                 }
                 fields
             };
-            fields
+            fields;
+            let marks = {
+                let mut marks = String::default();
+                let mut has_prev = false;
+                marks.push_str("?,?,?");
+                has_prev = true;
+                if self.d.is_some() {
+                    marks.push(',');
+                    marks.push('?');
+                }
+                if self.e.is_some() {
+                    marks.push(',');
+                    marks.push('?');
+                }
+                marks
+            };
+            marks
         }
     }
 }

@@ -4,6 +4,11 @@ mod keywords_escaper;
 use crate::sql_generator::field_processor::FieldProcessor;
 use crate::TableDef;
 
+pub use keywords_escaper::KeywordsEscaper;
+pub use keywords_escaper::MySqlKeywordEscaper;
+pub use keywords_escaper::SqliteKeywordEscaper;
+pub use keywords_escaper::PostgresKeywordEscaper;
+
 pub trait SqlGenerator {
     type FieldProcessor: FieldProcessor;
 

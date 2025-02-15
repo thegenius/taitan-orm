@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::marker::PhantomData;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::{SeqAccess, Visitor};
+use crate::sql_generator::KeywordsEscaper;
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | lifetime
 //  -------------------------------------------------------------
@@ -35,10 +36,18 @@ pub struct FieldDef<'a> {
 }
 
 impl FieldDef<'_> {
-    pub fn column_name(&self) -> &str {
+
+    pub fn origin_column_name(&self) -> &Cow<'_, str> {
         match &self.table_column.name {
             Some(column_name) => column_name,
             None => &self.struct_field.name,
         }
+    }
+    pub fn column_name(&self, escaper: &dyn KeywordsEscaper) -> Cow<'_, str> {
+        let origin = match &self.table_column.name {
+            Some(column_name) => column_name,
+            None => &self.struct_field.name,
+        };
+        escaper.escape(origin)
     }
 }

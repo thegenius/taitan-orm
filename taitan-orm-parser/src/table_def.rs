@@ -61,14 +61,14 @@ impl<'a> TableDef<'a> {
     fn filter(&'a self, names: &[Cow<'a, str>]) -> Vec<&'a FieldDef<'a>> {
         self.fields
             .iter()
-            .filter(|f| names.iter().any(|a| a == f.column_name()))
+            .filter(|f| names.iter().any(|a| a == f.origin_column_name()))
             .collect::<Vec<_>>()
     }
 
     fn filter_not_in(&'a self, names: &[Cow<'a, str>]) -> Vec<&'a FieldDef<'a>> {
         self.fields
             .iter()
-            .filter(|f| names.iter().all(|a| a != f.column_name()))
+            .filter(|f| names.iter().all(|a| a != f.origin_column_name()))
             .collect::<Vec<_>>()
     }
 }
