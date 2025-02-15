@@ -214,6 +214,17 @@ mod test {
     use super::Optional;
     use serde::{Deserialize, Serialize};
 
+    #[test]
+    fn test_optional_format() {
+        let optional:Optional<String> = Optional::None;
+        let format1 = format!("{}", optional);
+        assert_eq!(format1, "");
+
+        let optional:Optional<String> = Optional::Some(String::from("foo"));
+        let format1 = format!("{}", optional);
+        assert_eq!(format1, "\"foo\"");
+    }
+
     #[derive(Debug, Serialize, Deserialize, PartialEq)]
     struct TestStruct {
         #[serde(skip_serializing_if = "Optional::is_optional_none")] //序列化的时候如果是None就跳过

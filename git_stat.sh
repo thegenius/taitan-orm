@@ -1,0 +1,2 @@
+git log --pretty=tformat: --numstat | grep '\.rs$' | awk '{ add += $1; subs += $2 } END { printf "rs -> Added lines: %s, Removed lines: %s\n", add, subs }'
+git log --pretty=tformat: --numstat | grep '\.md$' | awk '{ add += $1; subs += $2 } END { printf "md -> Added lines: %s, Removed lines: %s\n", add, subs }'
