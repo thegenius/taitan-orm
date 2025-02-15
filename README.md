@@ -16,7 +16,7 @@
 2. sqlite/mysql/postgres support will be feature, so there is no extra code generation that you do not need
 3. attribute defined will use short words
 4. most sql generation move to compile time rather than a runtime sql generator
-5. brave new logic struct [AND OR NOT] to support logic condition
+5. new logic struct [AND OR NOT] to support logic condition
 6. a new designd template parser
 ```
 
