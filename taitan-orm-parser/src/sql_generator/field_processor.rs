@@ -1,3 +1,4 @@
+use crate::field_mapper::{CommaType, FieldMapper};
 use crate::sql_generator::keywords_escaper::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
@@ -5,6 +6,7 @@ use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::borrow::Cow;
+use syn::Field;
 
 enum FieldGroup<'a> {
     Optional(FieldDef<'a>),
@@ -70,72 +72,40 @@ pub trait FieldProcessor {
         if is_all_not_optional(fields) {
             let list_string = self.gen_list_string(fields);
             return quote! {
-                String::from(#list_string)
+                let fields = String::from(#list_string);
             };
         }
         let mut stream = TokenStream::new();
-        stream.extend(quote! {
-            let mut fields = String::default();
-            let mut has_prev = false;
-        });
         let groups = split_fields(fields);
         let first_required_index = first_required(&groups);
         for (index, group) in groups.iter().enumerate() {
+            let comma_type = CommaType::parse(index, first_required_index);
             match group {
                 FieldGroup::Optional(field) => {
-                    let field_name = &field.struct_field.name;
-                    let field_ident = format_ident!("{}", field_name);
-                    let column_name = field.column_name(self.get_escaper());
-                    if index > first_required_index {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                fields.push(',');
-                                fields.push_str(#column_name);
-                            }
-                        })
-                    } else {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    fields.push(',');
-                                }
-                                fields.push_str(#column_name);
-                                has_prev = true;
-                            }
-                        })
-                    }
+                    stream.extend(FieldMapper::add_name(
+                        field,
+                        self.get_escaper(),
+                        &comma_type,
+                        true
+                    ));
                 }
                 FieldGroup::Required(fields) => {
-                    let list_string = self.gen_list_string(&fields);
-                    if index == first_required_index {
-                        stream.extend(quote! {
-                            fields.push_str(#list_string);
-                            has_prev = true;
-                        })
-                    } else if index > first_required_index {
-                        stream.extend(quote! {
-                            fields.push(',');
-                            fields.push_str(#list_string);
-                        })
-                    } else {
-                        stream.extend(quote! {
-                            if has_prev {
-                                fields.push(',');
-                            }
-                            fields.push_str(#list_string);
-                            has_prev = true;
-                        })
-                    }
+                    stream.extend(FieldMapper::add_names(
+                        fields,
+                        self.get_escaper(),
+                        &comma_type,
+                    ));
                 }
             }
         }
-        stream.extend(quote! {fields});
-        let final_stream = quote! {
+        quote! {
             let fields = {
+                let mut fields = String::default();
+                let mut has_prev = false;
                 #stream
+                fields
             };
-        };
-        final_stream
+        }
     }
     fn gen_list_string(&self, fields: &[FieldDef]) -> String {
         fields
@@ -149,65 +119,32 @@ pub trait FieldProcessor {
         if is_all_not_optional(fields) {
             let list_string = self.gen_marks(fields);
             return quote! {
-                String::from(#list_string)
+                let marks = String::from(#list_string);
             };
         }
         let mut stream = TokenStream::new();
-        stream.extend(quote! {
-            let mut marks = String::default();
-            let mut has_prev = false;
-        });
         let groups = split_fields(fields);
         let first_required_index = first_required(&groups);
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Optional(field) => {
-                    let field_name = &field.struct_field.name;
-                    let field_ident = format_ident!("{}", field_name);
-                    let column_name = field.column_name(self.get_escaper());
-                    if index > first_required_index {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                marks.push_str(",?");
-                            }
-                        })
-                    } else {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    marks.push(',');
-                                }
-                                marks.push('?');
-                                has_prev = true;
-                            }
-                        })
-                    }
+                    let comma_type = CommaType::parse(index, first_required_index);
+                    stream.extend(FieldMapper::add_mark(field, &comma_type, true));
                 }
                 FieldGroup::Required(fields) => {
-                    let marks_string = self.gen_marks(&fields);
-                    if index == first_required_index {
-                        stream.extend(quote! {
-                            marks.push_str(#marks_string);
-                            has_prev = true;
-                        })
-                    } else if index > first_required_index {
-                        stream.extend(quote! {
-                            marks.push(',');
-                            marks.push_str(#marks_string);
-                        })
-                    } else {
-                       panic!("required field index < first_required_index should not be possible");
-                    }
+                    let comma_type = CommaType::parse(index, first_required_index);
+                    stream.extend(FieldMapper::add_marks(fields, &comma_type, false));
                 }
             }
         }
-        stream.extend(quote! {marks});
-        let final_stream = quote! {
+        quote! {
             let marks = {
+                let mut marks = String::default();
+                let mut has_prev = false;
                 #stream
+                marks
             };
-        };
-        final_stream
+        }
     }
     fn gen_plain_marks(&self, fields: &[FieldDef]) -> String {
         fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
@@ -257,66 +194,35 @@ impl FieldProcessor for PostgresFieldProcessor {
             };
         }
         let mut stream = TokenStream::new();
-        stream.extend(quote! {
-            let mut marks = String::default();
-            let mut has_prev = false;
-            let mut index: usize = 0;
-        });
-
         let groups = split_fields(fields);
         let first_required_index = first_required(&groups);
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Optional(field) => {
-                    let field_name = &field.struct_field.name;
-                    let field_ident = format_ident!("{}", field_name);
-                    if index > first_required_index {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                marks.push_str(format!(",${}", index));
-                                index = index + 1;
-                            }
-                        })
-                    } else {
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    marks.push(',');
-                                }
-                                marks.push_str(format!("${}", index));
-                                index = index + 1;
-                                has_prev = true;
-                            }
-                        })
-                    }
+                    let comma_type = CommaType::parse(index, first_required_index);
+                    stream.extend(FieldMapper::add_indexed_mark(field, &comma_type, true));
                 }
                 FieldGroup::Required(fields) => {
-                    for field in fields {
-                        if index == first_required_index {
-                            stream.extend(quote! {
-                                marks.push_str(format!("${}", index));
-                                index = index + 1;
-                                has_prev = true;
-                            })
-                        } else if index > first_required_index {
-                            stream.extend(quote! {
-                                marks.push_str(format!(",${}", index));
-                                index = index + 1;
-                            })
-                        } else {
-                            panic!("required field index < first_required_index should not be possible");
+                    let comma_type = CommaType::parse(index, first_required_index);
+                    if index == first_required_index {
+                        stream.extend(FieldMapper::add_marks(fields, &comma_type, true));
+                    } else {
+                        for field in fields {
+                            stream.extend(FieldMapper::add_indexed_mark(field, &comma_type, false));
                         }
                     }
                 }
             }
         }
-        stream.extend(quote! {marks});
-        let final_stream = quote! {
+        quote! {
             let marks = {
+                let mut marks = String::default();
+                let mut has_prev = false;
+                let mut index: usize = 0;
                 #stream
+                marks
             };
-        };
-        final_stream
+        }
     }
 }
 
@@ -420,11 +326,10 @@ mod test {
         let table_def = TableDef::parse(&input);
         let processor = MySqlFieldProcessor::default();
         let field_list = processor.gen_list_stream(&table_def.fields).to_string();
-        assert_eq!(field_list, "let fields = { let mut fields = String :: default () ; let mut has_prev = false ; fields . push_str (\"a,b,c\") ; has_prev = true ; if self . d . is_some () { fields . push (',') ; fields . push_str (\"d\") ; } if self . e . is_some () { fields . push (',') ; fields . push_str (\"e\") ; } fields } ;");
+        assert_eq!(field_list, "let fields = { let mut fields = String :: default () ; let mut has_prev = false ; fields . push_str (\"a,b,c\") ; has_prev = true ; if self . d . is_some () { fields . push_str (\",d\") ; } if self . e . is_some () { fields . push_str (\",e\") ; } fields } ;");
 
         let marks_list = processor.gen_marks_stream(&table_def.fields).to_string();
         assert_eq!(marks_list, "let marks = { let mut marks = String :: default () ; let mut has_prev = false ; marks . push_str (\"?,?,?\") ; has_prev = true ; if self . d . is_some () { marks . push_str (\",?\") ; } if self . e . is_some () { marks . push_str (\",?\") ; } marks } ;");
-
     }
 
     // #[primary(a, b)]
