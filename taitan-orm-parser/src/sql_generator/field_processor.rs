@@ -70,7 +70,7 @@ pub trait FieldProcessor {
 
     fn gen_list_stream(&self, fields: &[FieldDef]) -> TokenStream {
         if is_all_not_optional(fields) {
-            let list_string = self.gen_list_string(fields);
+            let list_string = FieldMapper::gen_names_string(fields, self.get_escaper());
             return quote! {
                 let fields = String::from(#list_string);
             };
@@ -107,17 +107,17 @@ pub trait FieldProcessor {
             };
         }
     }
-    fn gen_list_string(&self, fields: &[FieldDef]) -> String {
-        fields
-            .iter()
-            .map(|f| f.column_name(self.get_escaper()))
-            .collect::<Vec<Cow<'_, str>>>()
-            .join(",")
-    }
+    // fn gen_list_string(&self, fields: &[FieldDef]) -> String {
+    //     fields
+    //         .iter()
+    //         .map(|f| f.column_name(self.get_escaper()))
+    //         .collect::<Vec<Cow<'_, str>>>()
+    //         .join(",")
+    // }
 
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
         if is_all_not_optional(fields) {
-            let list_string = self.gen_marks(fields);
+            let list_string = FieldMapper::gen_plain_marks(fields);
             return quote! {
                 let marks = String::from(#list_string);
             };
@@ -146,17 +146,17 @@ pub trait FieldProcessor {
             };
         }
     }
-    fn gen_plain_marks(&self, fields: &[FieldDef]) -> String {
-        fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
-    }
-    fn gen_indexed_marks(&self, fields: &[FieldDef], base: usize) -> String {
-        fields
-            .iter()
-            .enumerate()
-            .map(|(index, _)| format!("${}", index + base + 1))
-            .collect()
-    }
-    fn gen_marks(&self, fields: &[FieldDef]) -> String;
+    // fn gen_plain_marks(&self, fields: &[FieldDef]) -> String {
+    //     fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
+    // }
+    // fn gen_indexed_marks(&self, fields: &[FieldDef], base: usize) -> String {
+    //     fields
+    //         .iter()
+    //         .enumerate()
+    //         .map(|(index, _)| format!("${}", index + base + 1))
+    //         .collect()
+    // }
+    // fn gen_marks(&self, fields: &[FieldDef]) -> String;
 }
 
 #[derive(Default)]
@@ -168,9 +168,9 @@ impl FieldProcessor for MySqlFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    fn gen_marks(&self, fields: &[FieldDef]) -> String {
-        self.gen_plain_marks(fields)
-    }
+    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
+    //     self.gen_plain_marks(fields)
+    // }
 }
 
 #[derive(Default)]
@@ -182,13 +182,13 @@ impl FieldProcessor for PostgresFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    fn gen_marks(&self, fields: &[FieldDef]) -> String {
-        self.gen_indexed_marks(fields, 0)
-    }
+    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
+    //     self.gen_indexed_marks(fields, 0)
+    // }
 
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
         if is_all_not_optional(fields) {
-            let list_string = self.gen_marks(fields);
+            let list_string = FieldMapper::gen_plain_marks(fields);
             return quote! {
                 String::from(#list_string)
             };
@@ -235,9 +235,9 @@ impl FieldProcessor for SqliteFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    fn gen_marks(&self, fields: &[FieldDef]) -> String {
-        self.gen_plain_marks(fields)
-    }
+    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
+    //     self.gen_plain_marks(fields)
+    // }
 }
 
 #[cfg(test)]
@@ -305,8 +305,7 @@ mod test {
         };
 
         let table_def = TableDef::parse(&input);
-        let processor = MySqlFieldProcessor::default();
-        let field_list = processor.gen_list_string(&table_def.fields);
+        let field_list = FieldMapper::gen_names_string(&table_def.fields, &MySqlKeywordEscaper::default()).to_string();
         assert_eq!(field_list, "a,b,c,d,e");
     }
 

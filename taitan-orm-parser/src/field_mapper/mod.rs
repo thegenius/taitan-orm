@@ -208,17 +208,17 @@ impl FieldMapper {
         }
     }
 
-    fn gen_plain_marks(fields: &[FieldDef]) -> String {
+    pub fn gen_plain_marks(fields: &[FieldDef]) -> String {
         fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
     }
-    fn gen_indexed_marks(fields: &[FieldDef]) -> String {
+    pub fn gen_indexed_marks(fields: &[FieldDef]) -> String {
         fields
             .iter()
             .enumerate()
             .map(|(index, _)| format!("${}", index + 1))
             .collect()
     }
-    fn gen_names_string<'a>(fields: &'a [FieldDef], escaper: &'a dyn KeywordsEscaper) -> String {
+    pub fn gen_names_string<'a>(fields: &'a [FieldDef], escaper: &'a dyn KeywordsEscaper) -> String {
         fields
             .iter()
             .map(|f| f.column_name(escaper))
