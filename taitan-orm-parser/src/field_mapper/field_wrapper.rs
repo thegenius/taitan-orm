@@ -1,8 +1,8 @@
-use std::borrow::Cow;
+use crate::sql_generator::KeywordsEscaper;
+use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use crate::FieldDef;
-use crate::sql_generator::KeywordsEscaper;
+use std::borrow::Cow;
 
 pub trait FieldWrapper {
     type Escaper: KeywordsEscaper;
@@ -32,14 +32,32 @@ pub trait FieldWrapper {
         fields
             .iter()
             .enumerate()
-            .map(|(index, _)| format!("${}", index + 1))
-            .collect()
+            .map(|(index, _)| format!("${}", index))
+            .collect::<Vec<String>>()
+            .join(",")
     }
+
     fn gen_names_string<'a>(&self, fields: &'a [FieldDef]) -> String {
         fields
             .iter()
             .map(|f| f.column_name(self.get_escaper()))
             .collect::<Vec<Cow<'_, str>>>()
+            .join(",")
+    }
+
+    fn gen_plain_set(&self, fields: &[FieldDef]) -> String {
+        fields
+            .iter()
+            .map(|f| format!("{}=?", f.column_name(self.get_escaper())))
+            .collect::<Vec<String>>()
+            .join(",")
+    }
+    fn gen_indexed_set(&self, fields: &[FieldDef]) -> String {
+        fields
+            .iter()
+            .enumerate()
+            .map(|(index, f)| format!("{}=${}", f.column_name(self.get_escaper()), index))
+            .collect::<Vec<String>>()
             .join(",")
     }
 }

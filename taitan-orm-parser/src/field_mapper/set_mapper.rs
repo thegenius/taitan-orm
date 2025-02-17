@@ -42,35 +42,35 @@ pub trait SetMapper: FieldWrapper {
         )
     }
 
-    fn add_field_indexed_mark<'a>(
+    fn add_field_indexed_set<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         comma_type: &'a CommaType,
     ) -> TokenStream {
         let column_name = field.column_name(self.get_escaper());
         let set_clause = format!("{}={{}}", column_name);
-        let set_clause_with_comma = format!(",{}=?", column_name);
+        let set_clause_with_comma = format!(",{}={{}}", column_name);
         let add_stream = match comma_type {
             CommaType::CheckedComma => {
                 quote! {
                     if has_prev {
-                        fields.push(',');
+                        clauses.push(',');
                     }
-                    marks.push_str(format!("${}", index));
+                    clauses.push_str(format!(#set_clause, index));
                     index = index + 1;
                     has_prev = true;
                 }
             }
             CommaType::NoComma => {
                 quote! {
-                    marks.push_str(format!("${}", index));
+                    clauses.push_str(format!(#set_clause, index));
                     index = index + 1;
                     has_prev = true;
                 }
             }
             CommaType::LeadingComma => {
                 quote! {
-                    marks.push_str(format!(",${}", index));
+                    clauses.push_str(format!(#set_clause_with_comma, index));
                     index = index + 1;
                     // has_prev = true;
                 }
@@ -83,37 +83,37 @@ pub trait SetMapper: FieldWrapper {
         )
     }
 
-    fn add_fields_marks<'a>(
+    fn add_fields_sets<'a>(
         &'a self,
         fields: &'a [FieldDef<'a>],
         comma_type: &'a CommaType,
         indexed: bool,
     ) -> TokenStream {
-        let marks = if indexed {
-            Self::gen_indexed_marks(fields)
+        let sets = if indexed {
+            self.gen_indexed_set(fields)
         } else {
-            Self::gen_plain_marks(fields)
+            self.gen_plain_set(fields)
         };
-        let marks_with_comma = format!(",{}", marks);
+        let sets_with_comma = format!(",{}", sets);
         match comma_type {
             CommaType::CheckedComma => {
                 quote! {
                     if has_prev {
-                        marks.push(',');
+                        clauses.push(',');
                     }
-                    marks.push_str(#marks);
+                    clauses.push_str(#sets);
                     has_prev = true;
                 }
             }
             CommaType::NoComma => {
                 quote! {
-                    marks.push_str(#marks);
+                    clauses.push_str(#sets);
                     has_prev = true;
                 }
             }
             CommaType::LeadingComma => {
                 quote! {
-                    marks.push_str(#marks_with_comma);
+                    clauses.push_str(#sets_with_comma);
                     has_prev = true;
                 }
             }
