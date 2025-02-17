@@ -48,7 +48,7 @@ pub trait SetMapper: FieldWrapper {
         comma_type: &'a CommaType,
     ) -> TokenStream {
         let column_name = field.column_name(self.get_escaper());
-        let set_clause = format!("{}=?", column_name);
+        let set_clause = format!("{}={{}}", column_name);
         let set_clause_with_comma = format!(",{}=?", column_name);
         let add_stream = match comma_type {
             CommaType::CheckedComma => {
