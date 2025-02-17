@@ -4,80 +4,28 @@ use crate::sql_generator::keywords_escaper::{
 };
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{quote};
 use std::borrow::Cow;
-use syn::Field;
 
-enum FieldGroup<'a> {
-    Optional(FieldDef<'a>),
-    Required(Vec<FieldDef<'a>>),
-}
+use super::FieldGroup;
+use super::FieldGroupList;
 
-fn first_required(groups: &[FieldGroup<'_>]) -> usize {
-    for (index, group) in groups.iter().enumerate() {
-        if let FieldGroup::Required(_) = group {
-            return index;
-        }
-    }
-    groups.len()
-}
-impl<'a> FieldGroup<'a> {
-    pub fn is_optional(&self) -> bool {
-        matches!(self, FieldGroup::Optional(_))
-    }
-    pub fn len(&self) -> usize {
-        match self {
-            Self::Optional(_) => 1,
-            Self::Required(fields) => fields.len(),
-        }
-    }
-}
-
-fn split_fields<'a>(fields: &'a [FieldDef<'a>]) -> Vec<FieldGroup<'a>> {
-    let mut result = Vec::new();
-    let mut current_group = Vec::new();
-
-    for field in fields {
-        if field.struct_field.is_optional {
-            // 如果当前组不为空，先将其加入结果
-            if !current_group.is_empty() {
-                result.push(FieldGroup::Required(current_group));
-                current_group = Vec::new();
-            }
-            // 将 is_optional 为 true 的字段单独分组
-            result.push(FieldGroup::Optional(field.clone()));
-        } else {
-            // 将 is_optional 为 false 的字段加入当前组
-            current_group.push(field.clone());
-        }
-    }
-
-    // 处理最后一组
-    if !current_group.is_empty() {
-        result.push(FieldGroup::Required(current_group));
-    }
-
-    result
-}
-
-fn is_all_not_optional<'a>(fields: &'a [FieldDef<'a>]) -> bool {
-    fields.iter().all(|f| !f.struct_field.is_optional)
-}
 
 pub trait FieldProcessor {
     type Escaper: KeywordsEscaper;
     fn get_escaper(&self) -> &Self::Escaper;
 
     fn gen_list_stream(&self, fields: &[FieldDef]) -> TokenStream {
-        if is_all_not_optional(fields) {
+        let field_group_list = FieldGroupList::from(fields);
+        if field_group_list.is_all_required {
             let list_string = FieldMapper::gen_names_string(fields, self.get_escaper());
             return quote! {
                 let fields = String::from(#list_string);
             };
         }
         let mut stream = TokenStream::new();
-        let groups = split_fields(fields);
-        let first_required_index = first_required(&groups);
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
         for (index, group) in groups.iter().enumerate() {
             let comma_type = CommaType::parse(index, first_required_index);
             match group {
@@ -107,24 +55,18 @@ pub trait FieldProcessor {
             };
         }
     }
-    // fn gen_list_string(&self, fields: &[FieldDef]) -> String {
-    //     fields
-    //         .iter()
-    //         .map(|f| f.column_name(self.get_escaper()))
-    //         .collect::<Vec<Cow<'_, str>>>()
-    //         .join(",")
-    // }
 
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
-        if is_all_not_optional(fields) {
+        let field_group_list = FieldGroupList::from(fields);
+        if field_group_list.is_all_required {
             let list_string = FieldMapper::gen_plain_marks(fields);
             return quote! {
                 let marks = String::from(#list_string);
             };
         }
         let mut stream = TokenStream::new();
-        let groups = split_fields(fields);
-        let first_required_index = first_required(&groups);
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Optional(field) => {
@@ -146,17 +88,6 @@ pub trait FieldProcessor {
             };
         }
     }
-    // fn gen_plain_marks(&self, fields: &[FieldDef]) -> String {
-    //     fields.iter().map(|f| "?").collect::<Vec<&str>>().join(",")
-    // }
-    // fn gen_indexed_marks(&self, fields: &[FieldDef], base: usize) -> String {
-    //     fields
-    //         .iter()
-    //         .enumerate()
-    //         .map(|(index, _)| format!("${}", index + base + 1))
-    //         .collect()
-    // }
-    // fn gen_marks(&self, fields: &[FieldDef]) -> String;
 }
 
 #[derive(Default)]
@@ -168,9 +99,6 @@ impl FieldProcessor for MySqlFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
-    //     self.gen_plain_marks(fields)
-    // }
 }
 
 #[derive(Default)]
@@ -182,20 +110,18 @@ impl FieldProcessor for PostgresFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
-    //     self.gen_indexed_marks(fields, 0)
-    // }
 
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
-        if is_all_not_optional(fields) {
+        let field_group_list = FieldGroupList::from(fields);
+        if field_group_list.is_all_required {
             let list_string = FieldMapper::gen_plain_marks(fields);
             return quote! {
                 String::from(#list_string)
             };
         }
         let mut stream = TokenStream::new();
-        let groups = split_fields(fields);
-        let first_required_index = first_required(&groups);
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Optional(field) => {
@@ -235,9 +161,6 @@ impl FieldProcessor for SqliteFieldProcessor {
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
-    // fn gen_marks(&self, fields: &[FieldDef]) -> String {
-    //     self.gen_plain_marks(fields)
-    // }
 }
 
 #[cfg(test)]
@@ -273,7 +196,7 @@ mod test {
             field_def1, field_def2, field_def3, field_def4, field_def5, field_def6, field_def7,
             field_def8,
         ];
-        let fields_group = split_fields(&fields);
+        let fields_group = FieldGroupList::from(fields.as_slice()).groups;
         assert_eq!(fields_group.len(), 5);
         assert_eq!(fields_group[0].len(), 3);
         assert_eq!(fields_group[0].is_optional(), false);

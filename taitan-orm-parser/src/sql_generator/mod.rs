@@ -1,8 +1,12 @@
 mod field_processor;
 mod keywords_escaper;
+mod field_group_list;
 
 use crate::sql_generator::field_processor::FieldProcessor;
 use crate::TableDef;
+
+pub use field_group_list::FieldGroup;
+pub use field_group_list::FieldGroupList;
 
 pub use keywords_escaper::KeywordsEscaper;
 pub use keywords_escaper::MySqlKeywordEscaper;
