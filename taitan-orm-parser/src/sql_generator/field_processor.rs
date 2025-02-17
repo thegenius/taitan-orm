@@ -1,24 +1,20 @@
-use crate::field_mapper::{CommaType, FieldMapper};
+use crate::field_mapper::{CommaType, NameMapper};
 use crate::sql_generator::keywords_escaper::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use crate::FieldDef;
+use crate::{FieldDef, FieldWrapper, MarkMapper};
 use proc_macro2::TokenStream;
-use quote::{quote};
+use quote::quote;
 use std::borrow::Cow;
 
 use super::FieldGroup;
 use super::FieldGroupList;
 
-
-pub trait FieldProcessor {
-    type Escaper: KeywordsEscaper;
-    fn get_escaper(&self) -> &Self::Escaper;
-
+pub trait FieldProcessor: FieldWrapper + NameMapper + MarkMapper {
     fn gen_list_stream(&self, fields: &[FieldDef]) -> TokenStream {
         let field_group_list = FieldGroupList::from(fields);
         if field_group_list.is_all_required {
-            let list_string = FieldMapper::gen_names_string(fields, self.get_escaper());
+            let list_string = self.gen_names_string(fields);
             return quote! {
                 let fields = String::from(#list_string);
             };
@@ -30,18 +26,12 @@ pub trait FieldProcessor {
             let comma_type = CommaType::parse(index, first_required_index);
             match group {
                 FieldGroup::Optional(field) => {
-                    stream.extend(FieldMapper::add_name(
-                        field,
-                        self.get_escaper(),
-                        &comma_type,
-                        true
-                    ));
+                    stream.extend(self.add_field_name(field, &comma_type));
                 }
                 FieldGroup::Required(fields) => {
-                    stream.extend(FieldMapper::add_names(
+                    stream.extend(self.add_fields_names(
                         fields,
-                        self.get_escaper(),
-                        &comma_type,
+                        &comma_type
                     ));
                 }
             }
@@ -59,7 +49,7 @@ pub trait FieldProcessor {
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
         let field_group_list = FieldGroupList::from(fields);
         if field_group_list.is_all_required {
-            let list_string = FieldMapper::gen_plain_marks(fields);
+            let list_string = Self::gen_plain_marks(fields);
             return quote! {
                 let marks = String::from(#list_string);
             };
@@ -71,11 +61,11 @@ pub trait FieldProcessor {
             match group {
                 FieldGroup::Optional(field) => {
                     let comma_type = CommaType::parse(index, first_required_index);
-                    stream.extend(FieldMapper::add_mark(field, &comma_type, true));
+                    stream.extend(Self::add_field_mark(field, &comma_type));
                 }
                 FieldGroup::Required(fields) => {
                     let comma_type = CommaType::parse(index, first_required_index);
-                    stream.extend(FieldMapper::add_marks(fields, &comma_type, false));
+                    stream.extend(Self::add_fields_marks(fields, &comma_type, false));
                 }
             }
         }
@@ -94,27 +84,39 @@ pub trait FieldProcessor {
 pub struct MySqlFieldProcessor {
     escaper: MySqlKeywordEscaper,
 }
-impl FieldProcessor for MySqlFieldProcessor {
+
+impl FieldWrapper for MySqlFieldProcessor {
     type Escaper = MySqlKeywordEscaper;
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
 }
+impl NameMapper for MySqlFieldProcessor {}
+impl MarkMapper for MySqlFieldProcessor {}
+impl FieldProcessor for MySqlFieldProcessor {}
 
 #[derive(Default)]
 pub struct PostgresFieldProcessor {
     escaper: PostgresKeywordEscaper,
 }
-impl FieldProcessor for PostgresFieldProcessor {
+
+
+
+impl FieldWrapper for PostgresFieldProcessor {
     type Escaper = PostgresKeywordEscaper;
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
+}
 
+impl NameMapper for PostgresFieldProcessor {}
+impl MarkMapper for PostgresFieldProcessor {}
+
+impl FieldProcessor for PostgresFieldProcessor {
     fn gen_marks_stream(&self, fields: &[FieldDef]) -> TokenStream {
         let field_group_list = FieldGroupList::from(fields);
         if field_group_list.is_all_required {
-            let list_string = FieldMapper::gen_plain_marks(fields);
+            let list_string = Self::gen_plain_marks(fields);
             return quote! {
                 String::from(#list_string)
             };
@@ -126,15 +128,15 @@ impl FieldProcessor for PostgresFieldProcessor {
             match group {
                 FieldGroup::Optional(field) => {
                     let comma_type = CommaType::parse(index, first_required_index);
-                    stream.extend(FieldMapper::add_indexed_mark(field, &comma_type, true));
+                    stream.extend(Self::add_field_indexed_mark(field, &comma_type));
                 }
                 FieldGroup::Required(fields) => {
                     let comma_type = CommaType::parse(index, first_required_index);
                     if index == first_required_index {
-                        stream.extend(FieldMapper::add_marks(fields, &comma_type, true));
+                        stream.extend(Self::add_fields_marks(fields, &comma_type, true));
                     } else {
                         for field in fields {
-                            stream.extend(FieldMapper::add_indexed_mark(field, &comma_type, false));
+                            stream.extend(Self::add_field_indexed_mark(field, &comma_type));
                         }
                     }
                 }
@@ -156,12 +158,16 @@ impl FieldProcessor for PostgresFieldProcessor {
 pub struct SqliteFieldProcessor {
     escaper: SqliteKeywordEscaper,
 }
-impl FieldProcessor for SqliteFieldProcessor {
+
+impl FieldWrapper for SqliteFieldProcessor {
     type Escaper = SqliteKeywordEscaper;
     fn get_escaper(&self) -> &Self::Escaper {
         &self.escaper
     }
 }
+impl NameMapper for SqliteFieldProcessor {}
+impl MarkMapper for SqliteFieldProcessor {}
+impl FieldProcessor for SqliteFieldProcessor {}
 
 #[cfg(test)]
 mod test {
@@ -228,7 +234,9 @@ mod test {
         };
 
         let table_def = TableDef::parse(&input);
-        let field_list = FieldMapper::gen_names_string(&table_def.fields, &MySqlKeywordEscaper::default()).to_string();
+        let processor = MySqlFieldProcessor::default();
+        let field_list =
+            processor.gen_names_string(&table_def.fields).to_string();
         assert_eq!(field_list, "a,b,c,d,e");
     }
 

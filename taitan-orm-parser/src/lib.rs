@@ -22,3 +22,8 @@ pub use info_parser::InputParser;
 pub use info_parser::FieldParser;
 pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;
+
+pub use field_mapper::KeywordsEscaper;
+pub use field_mapper::MarkMapper;
+pub use field_mapper::NameMapper;
+pub use field_mapper::FieldWrapper;
