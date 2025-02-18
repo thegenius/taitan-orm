@@ -18,6 +18,19 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         }
     }
 
+    fn map_indexed(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+        let stream = fields
+            .iter().enumerate()
+            .map(|(index, field)| {
+                let name = SingleFieldMapper::map_indexed(self, field, escaper, index);
+                name
+            })
+            .collect::<Vec<Cow<'_, str>>>().join(",");
+        quote! {
+            #stream
+        }
+    }
+
     fn map_with_leading_comma(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
         let stream = fields
             .iter()
@@ -31,39 +44,20 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         }
     }
 
-    fn map_indexed_static(
-        &self,
-        fields: &[FieldDef],
-        escaper: &dyn KeywordsEscaper,
-    ) -> TokenStream {
+    fn map_indexed_with_leading_comma(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
         let stream = fields
-            .iter()
-            .enumerate()
+            .iter().enumerate()
             .map(|(index, field)| {
-                SingleFieldMapper::map_indexed_static(self, field, index, escaper)
+                let name = SingleFieldMapper::map_indexed_with_leading_comma(self, field, escaper, index);
+                name
             })
-            .collect::<Vec<TokenStream>>();
+            .collect::<Vec<Cow<'_, str>>>().join("");
         quote! {
-            #(#stream)*
+            #stream
         }
     }
 
-    fn map_indexed_dynamic(
-        &self,
-        fields: &[FieldDef],
-        escaper: &dyn KeywordsEscaper,
-    ) -> TokenStream {
-        let stream = fields
-            .iter()
-            .enumerate()
-            .map(|(index, field)| {
-                SingleFieldMapper::map_indexed_dynamic(self, field, escaper)
-            })
-            .collect::<Vec<TokenStream>>();
-        quote! {
-            #(#stream)*
-        }
-    }
+
 }
 
 impl<T: SingleFieldMapper> MultiFieldMapper for T {}

@@ -118,6 +118,76 @@ pub trait Connector: MultiFieldMapper {
             s
         } }
     }
+
+    fn connect_indexed(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+        let field_group_list = FieldGroupList::from(fields);
+        let mut stream = TokenStream::new();
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
+
+        for (index, group) in groups.iter().enumerate() {
+            match group {
+                FieldGroup::Required(fields) => {
+                    if index == first_required_index {
+                        let literal_payload = MultiFieldMapper::map_indexed(self, fields, escaper);
+                        let len = fields.len();
+                        stream.extend(quote! {
+                            s.push_str(#literal_payload);
+                            has_prev = true;
+                            index = index + #len;
+                        })
+                    } else {
+                        for field in fields {
+                            let literal_payload =
+                                SingleFieldMapper::map_indexed_dynamic_with_leading_comma(
+                                    self, field, escaper,
+                                );
+                            stream.extend(quote! {
+                                s.push_str(#literal_payload.as_ref());
+                                index = index + 1;
+                            })
+                        }
+                    };
+                }
+
+                FieldGroup::Optional(field) => {
+                    let field_ident = format_ident!("{}", field.struct_field.name);
+
+                    if index < first_required_index {
+                        let field_stream =
+                            SingleFieldMapper::map_indexed_dynamic(self, field, escaper);
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                if has_prev {
+                                    value_ident.push(',');
+                                }
+                                s.push_str(#field_stream.as_ref());
+                                has_prev = true;
+                            }
+                        });
+                    } else {
+                        let field_stream =
+                            SingleFieldMapper::map_indexed_dynamic_with_leading_comma(
+                                self, field, escaper,
+                            );
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                s.push_str(#field_stream.as_ref());
+                            }
+                        });
+                    };
+                }
+            }
+        }
+
+        quote! { {
+            let mut s = String::default();
+            let mut has_prev = false;
+            let mut index = 1;
+            #stream;
+            s
+        } }
+    }
 }
 
 impl<T: MultiFieldMapper> Connector for T {}
