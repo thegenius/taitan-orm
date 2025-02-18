@@ -1,10 +1,12 @@
+use std::borrow::Cow;
 use crate::{FieldDef, KeywordsEscaper};
 use proc_macro2::TokenStream;
 use quote::quote;
 
 pub trait SingleFieldMapper {
     fn get_value_name(&self) -> &'static str;
-    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream;
+    fn map<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>;
+    fn map_with_leading_comma<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>;
     fn map_indexed_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream;
     fn map_indexed_static(
         &self,
@@ -22,13 +24,22 @@ impl SingleFieldMapper for NamesMapper {
         "names"
     }
 
-    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
-        let column_name = field.column_name(escaper);
-        quote! { #column_name }
+    // fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
+    //     let column_name = field.column_name(escaper);
+    //     quote! { #column_name }
+    // }
+
+    fn map<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+       field.column_name(escaper)
+    }
+
+    fn map_with_leading_comma<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        Cow::Owned(format!(",{}", field.column_name(escaper)))
     }
 
     fn map_indexed_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
-        self.map(field, escaper)
+        let name = field.column_name(escaper);
+        quote! { #name }
     }
 
     fn map_indexed_static(
@@ -37,7 +48,8 @@ impl SingleFieldMapper for NamesMapper {
         index: usize,
         escaper: &dyn KeywordsEscaper,
     ) -> TokenStream {
-        self.map(field, escaper)
+        let name = field.column_name(escaper);
+        quote! { #name }
     }
 }
 
@@ -49,8 +61,16 @@ impl SingleFieldMapper for MarksMapper {
         "marks"
     }
 
-    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
-        quote! { '?' }
+    // fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
+    //     quote! { '?' }
+    // }
+
+    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> Cow<'_, str> {
+        Cow::Borrowed("?")
+    }
+
+    fn map_with_leading_comma<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        Cow::Borrowed(",?")
     }
 
     fn map_indexed_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {

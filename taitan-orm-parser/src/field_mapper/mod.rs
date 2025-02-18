@@ -16,6 +16,7 @@ pub use crate::field_mapper::single_field_mapper::SingleFieldMapper;
 pub use crate::field_mapper::multi_field_mapper::MultiFieldMapper;
 pub use crate::field_mapper::single_field_mapper::NamesMapper;
 pub use crate::field_mapper::single_field_mapper::MarksMapper;
+pub use connector::Connector;
 
 
 pub enum CommaType {

@@ -35,3 +35,4 @@ pub use field_mapper::NamesMapper;
 pub use field_mapper::MarksMapper;
 pub use field_mapper::MultiFieldMapper;
 pub use field_mapper::SingleFieldMapper;
+pub use field_mapper::Connector;
