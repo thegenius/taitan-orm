@@ -69,11 +69,22 @@ pub trait Connector: MultiFieldMapper {
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
-                    if index == first_required_index {
+                    if index == 0 {
                         let literal_payload = MultiFieldMapper::map(self, fields, escaper);
                         stream.extend(quote! {
                             s.push_str(#literal_payload);
                             has_prev = true;
+                        })
+                    } else if index == first_required_index {
+                        // 因为index != 0，所以前面一定有optional的字段
+                        let literal_payload = MultiFieldMapper::map(self, fields, escaper);
+                        stream.extend(quote! {
+                            if has_prev {
+                                s.push(',')
+                            } else {
+                                has_prev = true;
+                            }
+                            s.push_str(#literal_payload);
                         })
                     } else {
                         let literal_payload =
@@ -92,10 +103,11 @@ pub trait Connector: MultiFieldMapper {
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 if has_prev {
-                                    value_ident.push(',');
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
                                 }
                                 s.push_str(#field_stream);
-                                has_prev = true;
                             }
                         });
                     } else {
@@ -128,7 +140,7 @@ pub trait Connector: MultiFieldMapper {
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
-                    if index == first_required_index {
+                    if index == 0 {
                         let literal_payload = MultiFieldMapper::map_indexed(self, fields, escaper);
                         let len = fields.len();
                         stream.extend(quote! {
@@ -136,10 +148,27 @@ pub trait Connector: MultiFieldMapper {
                             has_prev = true;
                             index = index + #len;
                         })
+                    } else if index == first_required_index {
+                        // 前面有optional字段
+                        for field in fields {
+                            let literal_payload =
+                                SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
+                                    self, field, escaper,
+                                );
+                            stream.extend(quote! {
+                                if has_prev {
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
+                                }
+                                s.push_str(#literal_payload.as_ref());
+                                index = index + 1;
+                            })
+                        }
                     } else {
                         for field in fields {
                             let literal_payload =
-                                SingleFieldMapper::map_indexed_dynamic_with_leading_comma(
+                                SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
                                     self, field, escaper,
                                 );
                             stream.extend(quote! {
@@ -155,24 +184,27 @@ pub trait Connector: MultiFieldMapper {
 
                     if index < first_required_index {
                         let field_stream =
-                            SingleFieldMapper::map_indexed_dynamic(self, field, escaper);
+                            SingleFieldMapper::map_dynamic_indexed(self, field, escaper);
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 if has_prev {
-                                    value_ident.push(',');
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
                                 }
                                 s.push_str(#field_stream.as_ref());
-                                has_prev = true;
+                                index = index + 1;
                             }
                         });
                     } else {
                         let field_stream =
-                            SingleFieldMapper::map_indexed_dynamic_with_leading_comma(
+                            SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
                                 self, field, escaper,
                             );
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 s.push_str(#field_stream.as_ref());
+                                index = index + 1;
                             }
                         });
                     };
@@ -188,6 +220,183 @@ pub trait Connector: MultiFieldMapper {
             s
         } }
     }
+
+    fn connect_dynamic(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+        let field_group_list = FieldGroupList::from(fields);
+        let mut stream = TokenStream::new();
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
+
+        for (index, group) in groups.iter().enumerate() {
+            match group {
+                FieldGroup::Required(fields) => {
+                   if index == first_required_index {
+                        let s = fields
+                            .iter().enumerate()
+                            .map(|(idx, f)| {
+                                if idx == 0 {
+                                    let d = SingleFieldMapper::map_dynamic(self, f, escaper);
+                                    quote! { s.push_str(#d.as_ref()); }
+                                } else {
+                                    let d = SingleFieldMapper::map_dynamic_with_leading_comma(self, f, escaper);
+                                    quote! { s.push_str(#d.as_ref()); }
+                                }
+                            })
+                            .collect::<Vec<_>>();
+                        if index == 0 {
+                            stream.extend(quote! {
+                                #(#s)*
+                                has_prev = true;
+                            })
+                        } else {
+                            // 前面有optional字段
+                            stream.extend(quote! {
+                                if has_prev {
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
+                                }
+                                #(#s)*
+                            })
+                        }
+                    } else {
+                       let s = fields
+                           .iter().enumerate()
+                           .map(|(idx, f)| {
+                               let d = SingleFieldMapper::map_dynamic_with_leading_comma(self, f, escaper);
+                               quote! { s.push_str(#d.as_ref()); }
+                           })
+                           .collect::<Vec<_>>();
+                        stream.extend(quote! {
+                            #(#s)*
+                        })
+                    };
+                }
+
+                FieldGroup::Optional(field) => {
+                    let field_ident = format_ident!("{}", field.struct_field.name);
+                    if index < first_required_index {
+                        let field_stream =
+                            SingleFieldMapper::map_dynamic(self, field, escaper);
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                if has_prev {
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
+                                }
+                                s.push_str(#field_stream.as_ref());
+                            }
+                        });
+                    } else {
+                        let field_stream =
+                            SingleFieldMapper::map_dynamic_with_leading_comma(
+                                self, field, escaper,
+                            );
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                s.push_str(#field_stream.as_ref());
+                            }
+                        });
+                    };
+                }
+            }
+        }
+
+        quote! { {
+            let mut s = String::default();
+            let mut has_prev = false;
+            #stream;
+            s
+        } }
+    }
+
+    fn connect_dynamic_indexed(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+        let field_group_list = FieldGroupList::from(fields);
+        let mut stream = TokenStream::new();
+        let groups = field_group_list.groups;
+        let first_required_index = field_group_list.first_required;
+
+        for (index, group) in groups.iter().enumerate() {
+            match group {
+                FieldGroup::Required(fields) => {
+                    let len = fields.len();
+                    let s = fields
+                        .iter().enumerate()
+                        .map(|(idx, f)| {
+                            if idx == 0 {
+                                let d = SingleFieldMapper::map_dynamic_indexed(self, f, escaper);
+                                quote! { s.push_str(#d.as_ref()); }
+                            } else {
+                                let d = SingleFieldMapper::map_dynamic_indexed_with_leading_comma(self, f, escaper);
+                                quote! { s.push_str(#d.as_ref()); }
+                            }
+                        })
+                        .collect::<Vec<_>>();
+
+                    if index == 0 {
+                        stream.extend(quote! {
+                            #(#s)*
+                            has_prev = true;
+                        })
+                    } else if index == first_required_index {
+                        // 前面有optional字段
+                        stream.extend(quote! {
+                            if has_prev {
+                                s.push(',');
+                            } else {
+                                has_prev = true;
+                            }
+                            #(#s)*
+                        })
+                    } else {
+                        stream.extend(quote! {
+                            #(#s)*
+                        })
+                    };
+                }
+
+                FieldGroup::Optional(field) => {
+                    let field_ident = format_ident!("{}", field.struct_field.name);
+                    if index < first_required_index {
+                        let field_stream =
+                            SingleFieldMapper::map_dynamic_indexed(self, field, escaper);
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                if has_prev {
+                                    s.push(',');
+                                } else {
+                                    has_prev = true;
+                                }
+                                s.push_str(#field_stream.as_ref());
+                            }
+                        });
+                    } else {
+                        let field_stream =
+                            SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
+                                self, field, escaper,
+                            );
+                        stream.extend(quote! {
+                            if self.#field_ident.is_some() {
+                                s.push_str(#field_stream.as_ref());
+                                index = index + 1;
+                            }
+                        });
+                    };
+                }
+            }
+        }
+
+        quote! { {
+            let mut s = String::default();
+            let mut has_prev = false;
+            let mut index = 1;
+            #stream;
+            s
+        } }
+    }
+
+
 }
 
 impl<T: MultiFieldMapper> Connector for T {}

@@ -36,3 +36,5 @@ pub use field_mapper::MarksMapper;
 pub use field_mapper::MultiFieldMapper;
 pub use field_mapper::SingleFieldMapper;
 pub use field_mapper::Connector;
+pub use field_mapper::SetsMapper;
+pub use field_mapper::ConditionsMapper;

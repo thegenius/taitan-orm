@@ -3,7 +3,7 @@ use syn::{parse_quote, DeriveInput};
 use taitan_orm_parser::MultiFieldMapper;
 use taitan_orm_parser::MySqlKeywordEscaper;
 use taitan_orm_parser::{Connector, MarksMapper};
-use taitan_orm_parser::{NamesMapper, TableDef};
+use taitan_orm_parser::{TableDef};
 
 #[test]
 fn name_mapper_spec() {
@@ -36,7 +36,7 @@ fn name_mapper_spec() {
     let marks = marks_mapper
         .connect_indexed(&table_def.fields, &escaper)
         .to_string();
-    assert_eq!(marks, "{ let mut s = String :: default () ; let mut has_prev = false ; let mut index = 1 ; s . push_str (\"$1,$2,$3\") ; has_prev = true ; index = index + 3usize ; if self . d . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; } if self . e . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; if self . h . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; ; s }");
+    assert_eq!(marks, "{ let mut s = String :: default () ; let mut has_prev = false ; let mut index = 1 ; s . push_str (\"$1,$2,$3\") ; has_prev = true ; index = index + 3usize ; if self . d . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } if self . e . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; if self . h . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; ; s }");
 }
 
 struct Foo<'a, 'b> {
@@ -80,9 +80,11 @@ impl<'a, 'b> Foo<'a, 'b> {
             index = index + 3usize;
             if self.d.is_some() {
                 s.push_str(format!(",${}", index).as_ref());
+                index = index + 1;
             }
             if self.e.is_some() {
                 s.push_str(format!(",${}", index).as_ref());
+                index = index + 1;
             }
             s.push_str(format!(",${}", index).as_ref());
             index = index + 1;
@@ -90,6 +92,7 @@ impl<'a, 'b> Foo<'a, 'b> {
             index = index + 1;
             if self.h.is_some() {
                 s.push_str(format!(",${}", index).as_ref());
+                index = index + 1;
             }
             s.push_str(format!(",${}", index).as_ref());
             index = index + 1;

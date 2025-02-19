@@ -17,7 +17,8 @@ pub use crate::field_mapper::multi_field_mapper::MultiFieldMapper;
 pub use crate::field_mapper::single_field_mapper::NamesMapper;
 pub use crate::field_mapper::single_field_mapper::MarksMapper;
 pub use connector::Connector;
-
+pub use crate::field_mapper::single_field_mapper::SetsMapper;
+pub use crate::field_mapper::single_field_mapper::ConditionsMapper;
 
 pub enum CommaType {
     NoComma,
