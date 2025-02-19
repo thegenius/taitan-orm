@@ -1,34 +1,23 @@
-mod name_mapper;
-mod mark_mapper;
-mod set_mapper;
-mod condition_mapper;
+
 mod connector;
-mod field_wrapper;
 mod single_field_mapper;
 mod multi_field_mapper;
+mod mappers;
+mod keywords_escaper;
+mod field_group_list;
 
-pub use crate::sql_generator::KeywordsEscaper;
-pub use crate::field_mapper::single_field_mapper::SingleFieldMapper;
-pub use crate::field_mapper::multi_field_mapper::MultiFieldMapper;
-pub use crate::field_mapper::single_field_mapper::NamesMapper;
-pub use crate::field_mapper::single_field_mapper::MarksMapper;
+pub use keywords_escaper::KeywordsEscaper;
+pub use keywords_escaper::MySqlKeywordEscaper;
+pub use keywords_escaper::PostgresKeywordEscaper;
+pub use keywords_escaper::SqliteKeywordEscaper;
+
+pub use single_field_mapper::SingleFieldMapper;
+pub use multi_field_mapper::MultiFieldMapper;
 pub use connector::Connector;
-pub use crate::field_mapper::single_field_mapper::SetsMapper;
-pub use crate::field_mapper::single_field_mapper::ConditionsMapper;
 
-// pub enum CommaType {
-//     NoComma,
-//     LeadingComma,
-//     CheckedComma,
-// }
-// impl CommaType {
-//     pub fn parse(index: usize, first_required_index: usize) -> Self {
-//         if index == first_required_index {
-//             CommaType::NoComma
-//         } else if index < first_required_index {
-//             CommaType::CheckedComma
-//         } else {
-//             CommaType::LeadingComma
-//         }
-//     }
-// }
+pub use mappers::names_mapper::NamesMapper;
+pub use mappers::marks_mapper::MarksMapper;
+pub use mappers::sets_mapper::SetsMapper;
+pub use mappers::conditions_mapper::ConditionsMapper;
+
+

@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use serde::{Deserialize, Serialize};
-use crate::sql_generator::KeywordsEscaper;
+use crate::KeywordsEscaper;
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | lifetime
 //  -------------------------------------------------------------

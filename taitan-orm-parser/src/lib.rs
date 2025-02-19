@@ -24,10 +24,9 @@ pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;
 
 pub use field_mapper::KeywordsEscaper;
-pub use sql_generator::MySqlKeywordEscaper;
-pub use sql_generator::PostgresKeywordEscaper;
-pub use sql_generator::SqliteKeywordEscaper;
-
+pub use field_mapper::MySqlKeywordEscaper;
+pub use field_mapper::PostgresKeywordEscaper;
+pub use field_mapper::SqliteKeywordEscaper;
 
 pub use field_mapper::SingleFieldMapper;
 pub use field_mapper::MultiFieldMapper;
