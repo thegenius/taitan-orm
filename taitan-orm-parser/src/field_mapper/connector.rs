@@ -229,15 +229,18 @@ pub trait Connector: MultiFieldMapper {
         for (index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
-                   if index == first_required_index {
+                    if index == first_required_index {
                         let s = fields
-                            .iter().enumerate()
+                            .iter()
+                            .enumerate()
                             .map(|(idx, f)| {
                                 if idx == 0 {
                                     let d = SingleFieldMapper::map_dynamic(self, f, escaper);
                                     quote! { s.push_str(#d.as_ref()); }
                                 } else {
-                                    let d = SingleFieldMapper::map_dynamic_with_leading_comma(self, f, escaper);
+                                    let d = SingleFieldMapper::map_dynamic_with_leading_comma(
+                                        self, f, escaper,
+                                    );
                                     quote! { s.push_str(#d.as_ref()); }
                                 }
                             })
@@ -259,13 +262,15 @@ pub trait Connector: MultiFieldMapper {
                             })
                         }
                     } else {
-                       let s = fields
-                           .iter().enumerate()
-                           .map(|(idx, f)| {
-                               let d = SingleFieldMapper::map_dynamic_with_leading_comma(self, f, escaper);
-                               quote! { s.push_str(#d.as_ref()); }
-                           })
-                           .collect::<Vec<_>>();
+                        let s = fields
+                            .iter()
+                            .map(|f| {
+                                let d = SingleFieldMapper::map_dynamic_with_leading_comma(
+                                    self, f, escaper,
+                                );
+                                quote! { s.push_str(#d.as_ref()); }
+                            })
+                            .collect::<Vec<_>>();
                         stream.extend(quote! {
                             #(#s)*
                         })
@@ -275,8 +280,7 @@ pub trait Connector: MultiFieldMapper {
                 FieldGroup::Optional(field) => {
                     let field_ident = format_ident!("{}", field.struct_field.name);
                     if index < first_required_index {
-                        let field_stream =
-                            SingleFieldMapper::map_dynamic(self, field, escaper);
+                        let field_stream = SingleFieldMapper::map_dynamic(self, field, escaper);
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 if has_prev {
@@ -289,9 +293,7 @@ pub trait Connector: MultiFieldMapper {
                         });
                     } else {
                         let field_stream =
-                            SingleFieldMapper::map_dynamic_with_leading_comma(
-                                self, field, escaper,
-                            );
+                            SingleFieldMapper::map_dynamic_with_leading_comma(self, field, escaper);
                         stream.extend(quote! {
                             if self.#field_ident.is_some() {
                                 s.push_str(#field_stream.as_ref());
@@ -310,7 +312,11 @@ pub trait Connector: MultiFieldMapper {
         } }
     }
 
-    fn connect_dynamic_indexed(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+    fn connect_dynamic_indexed(
+        &self,
+        fields: &[FieldDef],
+        escaper: &dyn KeywordsEscaper,
+    ) -> TokenStream {
         let field_group_list = FieldGroupList::from(fields);
         let mut stream = TokenStream::new();
         let groups = field_group_list.groups;
@@ -321,13 +327,16 @@ pub trait Connector: MultiFieldMapper {
                 FieldGroup::Required(fields) => {
                     let len = fields.len();
                     let s = fields
-                        .iter().enumerate()
+                        .iter()
+                        .enumerate()
                         .map(|(idx, f)| {
                             if idx == 0 {
                                 let d = SingleFieldMapper::map_dynamic_indexed(self, f, escaper);
                                 quote! { s.push_str(#d.as_ref()); index = index + 1; }
                             } else {
-                                let d = SingleFieldMapper::map_dynamic_indexed_with_leading_comma(self, f, escaper);
+                                let d = SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
+                                    self, f, escaper,
+                                );
                                 quote! { s.push_str(#d.as_ref()); index = index + 1; }
                             }
                         })
@@ -395,8 +404,6 @@ pub trait Connector: MultiFieldMapper {
             s
         } }
     }
-
-
 }
 
 impl<T: MultiFieldMapper> Connector for T {}
