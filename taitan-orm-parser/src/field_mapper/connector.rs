@@ -326,10 +326,10 @@ pub trait Connector: MultiFieldMapper {
                         .map(|(idx, f)| {
                             if idx == 0 {
                                 let d = SingleFieldMapper::map_dynamic_indexed(self, f, escaper);
-                                quote! { s.push_str(#d.as_ref()); }
+                                quote! { s.push_str(#d.as_ref()); index = index + 1; }
                             } else {
                                 let d = SingleFieldMapper::map_dynamic_indexed_with_leading_comma(self, f, escaper);
-                                quote! { s.push_str(#d.as_ref()); }
+                                quote! { s.push_str(#d.as_ref()); index = index + 1; }
                             }
                         })
                         .collect::<Vec<_>>();
@@ -369,6 +369,7 @@ pub trait Connector: MultiFieldMapper {
                                     has_prev = true;
                                 }
                                 s.push_str(#field_stream.as_ref());
+                                index = index + 1;
                             }
                         });
                     } else {
