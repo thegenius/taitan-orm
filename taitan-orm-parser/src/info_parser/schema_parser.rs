@@ -1,4 +1,4 @@
-use std::borrow::{Borrow, Cow};
+use std::borrow::Cow;
 use case::CaseExt;
 use syn::DeriveInput;
 use crate::attr_parser::{AttrParser, NamedAttribute};

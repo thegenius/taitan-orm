@@ -8,7 +8,6 @@ mod index_parser;
 
 pub use lifetime_parser::LifetimeParser;
 pub use input_parser::InputParser;
-pub use index_parser::IndexParser;
 pub use field_parser::FieldParser;
 pub use field_parser::FieldAttrParser;
 pub use input_parser::NamedVariant;

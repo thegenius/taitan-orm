@@ -1,4 +1,4 @@
-use crate::attr_parser::{AttrParser, NamedAttribute};
+use crate::attr_parser::AttrParser;
 use crate::field_def::{FieldDef, StructFieldDef, TableColumnDef};
 use crate::info_parser::type_parser::TypeParser;
 use crate::LifetimeParser;

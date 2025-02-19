@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use proc_macro2::Span;
 use quote::quote;
-use syn::{token, Data, DataEnum, DataStruct, DataUnion, Error, Field, Fields, FieldsNamed};
+use syn::{Data, DataEnum, DataStruct, Error, Field, Fields, FieldsNamed};
 pub struct InputParser;
 
 

@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-use std::fmt::Debug;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use crate::TableDef;

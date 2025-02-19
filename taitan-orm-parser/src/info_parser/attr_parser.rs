@@ -1,7 +1,7 @@
 use quote::ToTokens;
 use std::borrow::Cow;
 use syn::punctuated::Punctuated;
-use syn::{Attribute, Expr, ExprCall, Lit, Meta, Path, Token};
+use syn::{Attribute, Expr, Lit, Meta, Path, Token};
 
 // is_attr  (&attr, name) -> bool
 // has_attr (&[attrs], name) -> bool

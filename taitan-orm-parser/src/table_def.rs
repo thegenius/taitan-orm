@@ -1,9 +1,6 @@
-use crate::attr_parser::{AttrParser, NamedAttribute, NamedAttributes};
+use crate::attr_parser::{NamedAttribute, NamedAttributes};
 use crate::field_def::FieldDef;
-use crate::{FieldParser, InputParser};
-use case::CaseExt;
-use serde::de::SeqAccess;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use syn::DeriveInput;
 use crate::info_parser::schema_parser::SchemaParser;

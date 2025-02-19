@@ -1,7 +1,5 @@
 use std::borrow::Cow;
-use std::marker::PhantomData;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde::de::{SeqAccess, Visitor};
+use serde::{Deserialize, Serialize};
 use crate::sql_generator::KeywordsEscaper;
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | lifetime

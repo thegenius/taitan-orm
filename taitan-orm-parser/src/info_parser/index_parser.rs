@@ -1,7 +1,3 @@
-use syn::Attribute;
-use crate::attr_parser::{AttrParser, NamedAttribute, NamedAttributes};
-use crate::table_def::NamedFieldsGroup;
-use crate::FieldDef;
 
 pub struct IndexParser;
 
