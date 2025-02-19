@@ -2,7 +2,6 @@ mod field_processor;
 mod keywords_escaper;
 mod field_group_list;
 
-use crate::sql_generator::field_processor::FieldProcessor;
 use crate::TableDef;
 
 pub use field_group_list::FieldGroup;
@@ -14,9 +13,8 @@ pub use keywords_escaper::SqliteKeywordEscaper;
 pub use keywords_escaper::PostgresKeywordEscaper;
 
 pub trait SqlGenerator {
-    type FieldProcessor: FieldProcessor;
 
-    fn get_field_processor(&self) -> &Self::FieldProcessor;
+
 
     // if all fields are not optional
     fn gen_insert_sql(&self, table_def: TableDef) -> String {

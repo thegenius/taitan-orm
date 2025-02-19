@@ -1,4 +1,3 @@
-use crate::field_mapper::CommaType;
 use crate::sql_generator::{FieldGroup, FieldGroupList};
 use crate::{FieldDef, KeywordsEscaper, MultiFieldMapper, SingleFieldMapper};
 use proc_macro2::TokenStream;
@@ -29,15 +28,15 @@ use quote::{format_ident, quote};
 // 1.3 不需要添加has_prev和判断has_prev
 // 1.4 单独处理时，每个字段添加 index = index + 1
 
-pub enum MapType {
-    Name,
-    Mark,
-    MarkIndexed,
-    Set,
-    SetIndexed,
-    Condition,
-    ConditionIndexed,
-}
+// pub enum MapType {
+//     Name,
+//     Mark,
+//     MarkIndexed,
+//     Set,
+//     SetIndexed,
+//     Condition,
+//     ConditionIndexed,
+// }
 
 // fn gen_comma(&self, map_type: &MapType) -> TokenStream {
 //     match map_type {
