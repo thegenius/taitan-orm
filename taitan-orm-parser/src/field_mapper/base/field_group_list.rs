@@ -9,6 +9,11 @@ use crate::FieldDef;
 // (5) FollowingOptional，非第一个optional字段，且前面没有required字段
 // (6) TrailingOptional，optional字段，无论是否是第一个，只有前面有Required字段，就是TrailingOptional
 
+// ___________________________________________________________
+//
+//
+
+
 // pub enum FieldGroup<'a> {
 //     LeadingRequired(Vec<FieldDef<'a>>),
 //     LeadingFailRequired(Vec<FieldDef<'a>>),
