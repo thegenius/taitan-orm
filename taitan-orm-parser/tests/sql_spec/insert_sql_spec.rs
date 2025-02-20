@@ -1,8 +1,5 @@
-use taitan_orm_parser::{DatabaseType, SqlGenerator};
-
-
 use crate::common::TableDefGenerator;
-use crate::common::ExpectSql;
+use taitan_orm_parser::{DatabaseType, SqlType};
 
 fn get_expected_sql() -> &'static [&'static str] {
     &[
@@ -12,11 +9,6 @@ fn get_expected_sql() -> &'static [&'static str] {
 }
 #[test]
 fn insert_sql_spec() {
-    let table_def_generator = TableDefGenerator::new();
-    let generator = SqlGenerator::default();
-    let expected_sql = ExpectSql::new(get_expected_sql());
-    for (index, table_def) in table_def_generator.iter().enumerate() {
-        let insert_sql = generator.gen_insert_sql(&table_def, &DatabaseType::MySql).to_string();
-        expected_sql.expect(&insert_sql, index);
-    }
+    let g = TableDefGenerator::new();
+    g.validate(DatabaseType::MySql, SqlType::Insert, get_expected_sql());
 }

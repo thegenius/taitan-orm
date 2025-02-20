@@ -1,11 +1,11 @@
-use std::borrow::Cow;
 use super::base::{
     Connector, KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{ConditionsMapper, MarksMapper, NamesMapper, SetsMapper};
+use super::mappers::{ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper};
 use crate::DatabaseType;
 use crate::FieldDef;
 use proc_macro2::TokenStream;
+use std::borrow::Cow;
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -13,6 +13,7 @@ pub struct FieldMapper {
     marks_mapper: MarksMapper,
     sets_mapper: SetsMapper,
     conditions_mapper: ConditionsMapper,
+    upsert_sets_mapper: UpsertSetsMapper,
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
@@ -35,39 +36,66 @@ impl FieldMapper {
         self.get_escaper(db_type).escape(word)
     }
 
-    pub fn gen_names(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_names<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         self.names_mapper.connect(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_marks(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_upsert_sets<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        self.upsert_sets_mapper.connect(fields, self.get_escaper(db_type))
+    }
+
+    pub fn gen_marks<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,{
         self.marks_mapper.connect(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_marks_indexed(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_marks_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,{
         self.marks_mapper
             .connect_indexed(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_sets(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_sets<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         self.sets_mapper.connect(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_sets_indexed(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_sets_indexed<'a, T>(
+        &self,
+        fields: T,
+        db_type: &DatabaseType,
+    ) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         self.sets_mapper
             .connect_indexed(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_conditions(&self, fields: &[FieldDef], db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_conditions<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         self.conditions_mapper
             .connect_dynamic(fields, self.get_escaper(db_type))
     }
 
-    pub fn gen_conditions_indexed(
-        &self,
-        fields: &[FieldDef],
-        db_type: &DatabaseType,
-    ) -> TokenStream {
+    pub fn gen_conditions_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         self.conditions_mapper
             .connect_dynamic_indexed(fields, self.get_escaper(db_type))
     }
+
 }

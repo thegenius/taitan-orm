@@ -33,6 +33,12 @@ pub struct FieldDef<'a> {
     pub table_column: TableColumnDef<'a>,
 }
 
+impl<'a> AsRef<FieldDef<'a>> for FieldDef<'a> {
+    fn as_ref(&self) -> &FieldDef<'a> {
+        self
+    }
+}
+
 impl FieldDef<'_> {
 
     pub fn origin_column_name(&self) -> &Cow<'_, str> {

@@ -12,6 +12,6 @@ impl ExpectSql {
     }
 
     pub fn expect(&self, sql: &str, index: usize) {
-        assert_eq!(self.get(index), sql);
+        assert_eq!(sql, self.get(index));
     }
 }

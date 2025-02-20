@@ -1,8 +1,10 @@
 use super::field_group_list::{FieldGroup, FieldGroupList};
-use crate::{FieldDef};
 use super::{KeywordsEscaper, MultiFieldMapper, SingleFieldMapper};
+use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::borrow::Cow;
+use std::os::unix::raw::mode_t;
 
 // field 支持3中映射
 // (1) leading required group 映射
@@ -50,6 +52,40 @@ use quote::{format_ident, quote};
 //         MapType::ConditionIndexed => quote! { conditions.push(',') },
 //     }
 // }
+
+enum StreamType {
+    Required,
+    RequiredCheckPrev,
+    RequiredLeadingComma,
+    Optional,
+    OptionalLeadingComma,
+}
+
+impl StreamType {
+    pub fn parse(required: bool, group_index: usize, index: usize, first_required_group_index: usize) -> Self {
+        if required {
+            if index == 0 && group_index == 0 {
+                assert_eq!(first_required_group_index, 0);
+                return StreamType::Required;
+            }
+            if index == 0 && group_index <= first_required_group_index  {
+                assert_eq!(group_index, first_required_group_index);
+                assert_ne!(group_index, 0);
+                return StreamType::RequiredCheckPrev;
+            }
+            StreamType::RequiredLeadingComma
+        } else {
+            if group_index < first_required_group_index {
+                StreamType::Optional
+            } else {
+                StreamType::OptionalLeadingComma
+            }
+        }
+    }
+}
+
+
+
 pub trait Connector: MultiFieldMapper {
     fn check_optional<T: AsRef<str>>(field_name: T, origin: TokenStream) -> TokenStream {
         let field_ident = format_ident!("{}", field_name.as_ref());
@@ -60,7 +96,60 @@ pub trait Connector: MultiFieldMapper {
         }
     }
 
-    fn connect(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+    fn gen_stream<T: AsRef<str>>(
+        field_name: T,
+        origin: TokenStream,
+        check_optional: bool,
+        indexed: bool,
+        leading_comma: bool,
+    ) -> TokenStream {
+        if check_optional {
+            if indexed {
+
+            } else {
+                if leading_comma {
+
+                } else {
+
+                }
+            }
+        } else {
+            if indexed {
+
+            } else {
+                if leading_comma {
+
+                } else {
+
+                }
+            }
+        }
+        let field_ident = format_ident!("{}", field_name.as_ref());
+        quote! {
+            if self.#field_ident.is_some() {
+                    #origin
+            }
+        }
+    }
+
+    // fn extend_stream<T: AsRef<str>>(dest: &mut TokenStream, field_name: T, check_optional: bool, origin: TokenStream) {
+    //
+    //     let s = if check_optional {
+    //         let field_ident = format_ident!("{}", field_name.as_ref());
+    //         quote! {
+    //             if self.#field_ident.is_some() {
+    //                 s.push_str(#origin.as_ref());
+    //             }
+    //         }
+    //     } else {
+    //         origin
+    //     };
+    // }
+
+    fn connect<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         let field_group_list = FieldGroupList::from(fields);
         let mut stream = TokenStream::new();
         let groups = field_group_list.groups;
@@ -131,7 +220,10 @@ pub trait Connector: MultiFieldMapper {
         } }
     }
 
-    fn connect_indexed(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+    fn connect_indexed<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         let field_group_list = FieldGroupList::from(fields);
         let mut stream = TokenStream::new();
         let groups = field_group_list.groups;
@@ -221,7 +313,10 @@ pub trait Connector: MultiFieldMapper {
         } }
     }
 
-    fn connect_dynamic(&self, fields: &[FieldDef], escaper: &dyn KeywordsEscaper) -> TokenStream {
+    fn connect_dynamic<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         let field_group_list = FieldGroupList::from(fields);
         let mut stream = TokenStream::new();
         let groups = field_group_list.groups;
@@ -313,11 +408,14 @@ pub trait Connector: MultiFieldMapper {
         } }
     }
 
-    fn connect_dynamic_indexed(
+    fn connect_dynamic_indexed<'a, T>(
         &self,
-        fields: &[FieldDef],
+        fields: T,
         escaper: &dyn KeywordsEscaper,
-    ) -> TokenStream {
+    ) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
         let field_group_list = FieldGroupList::from(fields);
         let mut stream = TokenStream::new();
         let groups = field_group_list.groups;

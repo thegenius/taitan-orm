@@ -5,9 +5,9 @@ use quote::quote;
 use std::borrow::Cow;
 
 #[derive(Default, Debug, Clone)]
-pub struct UpsertNamesMapper;
+pub struct UpsertSetsMapper;
 
-impl SingleFieldMapper for UpsertNamesMapper {
+impl SingleFieldMapper for UpsertSetsMapper {
     fn get_value_name(&self) -> &'static str {
         "upsert_names"
     }

@@ -8,7 +8,7 @@ pub mod utils;
 mod sql_generator;
 mod field_mapper;
 mod db_type;
-
+mod sql_type;
 
 // pub use info_parser::schema_parser::extract_table_def;
 pub use info_parser::attr_parser;
@@ -41,3 +41,4 @@ pub use db_type::DatabaseType;
 pub use field_mapper::FieldMapper;
 pub use field_mapper::KeywordsEscaper;
 pub use sql_generator::SqlGenerator;
+pub use sql_type::SqlType;

@@ -11,36 +11,49 @@ field parser
 
 
 # Field Mapper
-(1) name: `field`  
-(2) mark: `?`  
-(3) indexed mark: `$1`  
-(4) set statement: `field` = `?`  
-(5) set indexed: `field`=`$1`
-(6) condition: `field` > `?`
-(7) condition indexed: `field` <= `$1`
+```
+(1) name              : `field`
+(2) upsert            : `field`=VALUES(field)
+(3) mark              : `?`  
+(4) mark indexed      : `$1`  
+(5) set               : `field`=? 
+(6) set indexed       : `field`=$1
+(7) condition         : `field`>? 
+(8) condition indexed : `field`<$1
+```
 
 # Connector：本质上就是为了生成逗号
-负责连接 , 的生成
-将field list切割为3个区间  
-(1) leading required是开头处的required字段  
+field分为2个类型  
+(1) required字段，可以聚集为一组  
 这部分单独出来是因为可以进行非常多的compile time优化
-1.1 这个区间可以视为一个整体，内部用逗号连接，编译期完成  
-1.2 整个区间结束，添加has_prev = true  
-1.3 整个区间结束，添加index = index + len  
+```
+1.1 一组required字段位于头部，可能编译期完成连接
+    整组直接用逗号连接，添加has_prev = true  
+1.2 一组required字段不位于头部，是第一组required字段组
+    组内第一个字段需要判断has_prev来确定是否添加逗号，需要添加has_prev=true
+    组内后续字段不需要判断has_prev，直接添加前置逗号，不添加has_prev=true  
+1.3 一组required字段不位于头部，不是第一组required字段组
+    组内字段不需要判断has_prev，直接添加前置逗号，不添加has_prev=true  
+```
 
-(2) optional区间
-1.1 每个字段单独处理  
-1.2 如果小于first_required，判断has_prev，添加has_prev=true  
-1.3 如果大于first_required，不判断has_prev，不添加has_prev  
-1.4 每个字段添加 index = index + 1  
+(2) optional字段，必须单独处理
+```
+2.1 前面没有required字段组
+    需要判断has_prev来确定是否添加逗号，需要添加has_prev=true
+2.2 前面有required字段组
+    直接添加前置逗号，不需要has_prev=true
+```
 
-(3) 后续的required
-1.1 不需要index的情况下，可以区间一起处理
-1.2 需要index的情况下，需要单独处理
-1.3 不需要添加has_prev和判断has_prev
-1.4 单独处理时，每个字段添加 index = index + 1
+
 
 ```
 [ leading required ] { [ optional ] [ required ] } *
 
 ```
+
+
+# SQL 参数化测试验证系统
+```text
+[DeriveInput, DatabaseType, SqlType, ExpectedSql]
+```
+

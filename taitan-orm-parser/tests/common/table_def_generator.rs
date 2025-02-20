@@ -1,6 +1,7 @@
 use crate::common::input_spec::input_spec;
+use crate::common::ExpectSql;
 use syn::DeriveInput;
-use taitan_orm_parser::TableDef;
+use taitan_orm_parser::{DatabaseType, SqlGenerator, SqlType, TableDef};
 
 pub struct TableDefGenerator<'a> {
     derive_inputs: Vec<DeriveInput>,
@@ -14,6 +15,22 @@ impl<'a> TableDefGenerator<'a> {
             table_defs: Vec::new(),
         };
         generator
+    }
+
+    pub fn validate(
+        &self,
+        db_type: DatabaseType,
+        sql_type: SqlType,
+        expect_sql: &'static [&'static str],
+    ) {
+        let generator = SqlGenerator::default();
+        let expected_sql = ExpectSql::new(expect_sql);
+        for (index, table_def) in self.iter().enumerate() {
+            let insert_sql = generator
+                .gen_sql(&sql_type, &table_def, &db_type)
+                .to_string();
+            expected_sql.expect(&insert_sql, index);
+        }
     }
 
     pub fn get_def(&'a self, index: usize) -> TableDef<'a> {
