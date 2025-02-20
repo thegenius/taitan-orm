@@ -48,4 +48,9 @@ impl FieldDef<'_> {
         };
         escaper.escape(origin)
     }
+
+    pub fn column_name_upsert(&self, escaper: &dyn KeywordsEscaper) -> String {
+        let column_name = self.column_name(escaper);
+        escaper.gen_upsert_name(&column_name)
+    }
 }

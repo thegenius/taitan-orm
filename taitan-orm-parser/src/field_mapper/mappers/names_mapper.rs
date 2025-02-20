@@ -1,10 +1,10 @@
 use std::borrow::Cow;
 use proc_macro2::TokenStream;
 use quote::quote;
-use crate::{FieldDef, KeywordsEscaper, SingleFieldMapper};
-
-#[derive(Default)]
-pub struct NamesMapper {}
+use crate::{FieldDef};
+use super::super::base::{KeywordsEscaper, SingleFieldMapper};
+#[derive(Default, Debug, Clone)]
+pub struct NamesMapper;
 
 impl SingleFieldMapper for NamesMapper {
     fn get_value_name(&self) -> &'static str {

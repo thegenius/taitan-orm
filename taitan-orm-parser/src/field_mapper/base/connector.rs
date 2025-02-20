@@ -1,5 +1,6 @@
 use super::field_group_list::{FieldGroup, FieldGroupList};
-use crate::{FieldDef, KeywordsEscaper, MultiFieldMapper, SingleFieldMapper};
+use crate::{FieldDef};
+use super::{KeywordsEscaper, MultiFieldMapper, SingleFieldMapper};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 

@@ -1,6 +1,13 @@
-pub mod names_mapper;
-pub mod marks_mapper;
+mod marks_mapper;
+mod names_mapper;
 
-pub mod sets_mapper;
+mod sets_mapper;
 
-pub mod conditions_mapper;
+mod conditions_mapper;
+mod upsert_names_mapper;
+
+pub use conditions_mapper::ConditionsMapper;
+pub use marks_mapper::MarksMapper;
+pub use names_mapper::NamesMapper;
+pub use sets_mapper::SetsMapper;
+pub use upsert_names_mapper::UpsertNamesMapper;

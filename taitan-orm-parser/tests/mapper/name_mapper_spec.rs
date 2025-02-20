@@ -1,9 +1,7 @@
 use std::borrow::Cow;
 use syn::{parse_quote, DeriveInput};
-use taitan_orm_parser::Connector;
-use taitan_orm_parser::MultiFieldMapper;
-use taitan_orm_parser::MySqlKeywordEscaper;
-use taitan_orm_parser::{NamesMapper, TableDef};
+
+use taitan_orm_parser::{DatabaseType, FieldMapper, TableDef};
 
 #[test]
 fn name_mapper_spec() {
@@ -23,14 +21,8 @@ fn name_mapper_spec() {
     };
 
     let table_def = TableDef::parse(&input);
-    let names_mapper = NamesMapper::default();
-    let escaper = MySqlKeywordEscaper::default();
-    let names = names_mapper.map(&table_def.fields, &escaper).to_string();
-    assert_eq!(names, r#""a,b,c,d,e,f,g,h,i""#);
-
-    let names = names_mapper
-        .connect(&table_def.fields, &escaper)
-        .to_string();
+    let names_mapper = FieldMapper::default();
+    let names = names_mapper.gen_names(&table_def.fields, &DatabaseType::MySql).to_string();
     assert_eq!(names, "{ let mut s = String :: default () ; let mut has_prev = false ; s . push_str (\"a,b,c\") ; has_prev = true ; if self . d . is_some () { s . push_str (\",d\") ; } if self . e . is_some () { s . push_str (\",e\") ; } s . push_str (\",f,g\") ; if self . h . is_some () { s . push_str (\",h\") ; } s . push_str (\",i\") ; ; s }");
 }
 

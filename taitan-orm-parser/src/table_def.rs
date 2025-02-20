@@ -18,7 +18,7 @@ pub struct TableDef<'a> {
 
 impl<'a> TableDef<'a> {
     pub fn parse(input: &'a DeriveInput) -> TableDef<'a> {
-        SchemaParser::parse(input)
+        SchemaParser::parse(&input)
     }
 
     pub fn get_primary_fields(&'a self) -> Vec<&'a FieldDef<'a>> {

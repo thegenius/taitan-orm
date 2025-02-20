@@ -1,10 +1,11 @@
 use std::borrow::Cow;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use crate::{FieldDef, KeywordsEscaper, SingleFieldMapper};
+use crate::{FieldDef};
+use super::super::base::{KeywordsEscaper, SingleFieldMapper};
 
-#[derive(Default)]
-pub struct ConditionsMapper {}
+#[derive(Default, Debug, Clone)]
+pub struct ConditionsMapper;
 
 impl SingleFieldMapper for ConditionsMapper {
     fn get_value_name(&self) -> &'static str {
@@ -16,7 +17,7 @@ impl SingleFieldMapper for ConditionsMapper {
     }
 
     fn map_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
-        Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+        panic!("condition can not be mapped at compile time")
     }
 
     fn map_with_leading_comma<'a>(
@@ -24,11 +25,11 @@ impl SingleFieldMapper for ConditionsMapper {
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
     ) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=?", field.column_name(escaper)))
+        panic!("condition can not be mapped at compile time")
     }
 
     fn map_indexed_with_leading_comma<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
+        panic!("condition can not be mapped at compile time")
     }
 
     fn map_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {

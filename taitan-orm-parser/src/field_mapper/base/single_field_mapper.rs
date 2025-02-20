@@ -1,4 +1,5 @@
-use crate::{FieldDef, KeywordsEscaper};
+use crate::{FieldDef};
+use super::KeywordsEscaper;
 use proc_macro2::TokenStream;
 use std::borrow::Cow;
 

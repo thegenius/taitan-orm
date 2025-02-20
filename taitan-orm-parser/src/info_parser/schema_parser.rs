@@ -8,13 +8,13 @@ use crate::table_def::{NamedFieldsGroup, TableDef};
 pub struct SchemaParser;
 
 impl SchemaParser {
-    pub fn parse(input: &DeriveInput) -> TableDef {
+    pub fn parse<'a>(input: &'a DeriveInput) -> TableDef<'a> {
         let struct_name = input.ident.to_string();
         let table_name_attr: Option<NamedAttribute> = AttrParser::extract(&input.attrs, "table");
         let table_name = if let Some(attr) = &table_name_attr {
-            attr.get_single_value()
+            attr.get_single_value().to_owned()
         } else {
-            &Cow::Owned(struct_name.to_snake())
+            Cow::Owned(struct_name.to_snake())
         };
         let serde_attr: Option<NamedAttribute> = AttrParser::extract(&input.attrs, "serde_struct");
         let serde_structs = serde_attr.map(|attr| attr.values).unwrap_or_default();
@@ -37,7 +37,7 @@ impl SchemaParser {
         TableDef {
             struct_name: Cow::Owned(struct_name),
             table_name: table_name.clone(),
-            serde_structs,
+            serde_structs: serde_structs.clone(),
             fields: fields_def,
             primary_fields: primary_attr.values,
             uniques,

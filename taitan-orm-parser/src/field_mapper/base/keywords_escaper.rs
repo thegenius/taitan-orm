@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use crate::DatabaseType;
 
 pub const MYSQL_KEYWORDS: &[&str] = &[
     "ACCESSIBLE", "ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC",
@@ -77,6 +78,7 @@ fn contains_ignore_case<T: AsRef<str>>(haystack: &[T], needle: &str) -> bool {
 
 pub trait KeywordsEscaper {
 
+    fn gen_upsert_name(&self, word: &str) -> String;
     fn is_keyword(&self, word: &str) -> bool;
     fn escape_word(&self, word: &str) -> String;
     fn escape<'a>(&self, word: &'a str) -> Cow<'a, str> {
@@ -89,9 +91,13 @@ pub trait KeywordsEscaper {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct MySqlKeywordEscaper;
 impl KeywordsEscaper for MySqlKeywordEscaper {
+    fn gen_upsert_name(&self, word: &str) -> String {
+        format!("VALUES({})", word)
+    }
+
     fn is_keyword(&self, word: &str) -> bool {
         contains_ignore_case(MYSQL_KEYWORDS, word)
     }
@@ -100,9 +106,13 @@ impl KeywordsEscaper for MySqlKeywordEscaper {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct PostgresKeywordEscaper;
 impl KeywordsEscaper for PostgresKeywordEscaper {
+
+    fn gen_upsert_name(&self, word: &str) -> String {
+        format!("EXCLUDED.{}", word)
+    }
     fn is_keyword(&self, word: &str) -> bool {
         contains_ignore_case(POSTGRES_KEYWORDS, word)
     }
@@ -111,9 +121,13 @@ impl KeywordsEscaper for PostgresKeywordEscaper {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct SqliteKeywordEscaper;
 impl KeywordsEscaper for SqliteKeywordEscaper {
+
+    fn gen_upsert_name(&self, word: &str) -> String {
+        format!("EXCLUDED.{}", word)
+    }
     fn is_keyword(&self, word: &str) -> bool {
         contains_ignore_case(SQLITE_KEYWORDS, word)
     }

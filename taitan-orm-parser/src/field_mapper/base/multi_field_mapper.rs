@@ -1,6 +1,6 @@
 use std::borrow::Cow;
-use crate::field_mapper::single_field_mapper::SingleFieldMapper;
-use crate::{FieldDef, KeywordsEscaper};
+use super::{SingleFieldMapper, KeywordsEscaper};
+use crate::{FieldDef};
 use proc_macro2::TokenStream;
 use quote::quote;
 

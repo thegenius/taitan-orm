@@ -5,15 +5,17 @@ use quote::quote;
 use std::borrow::Cow;
 
 #[derive(Default, Debug, Clone)]
-pub struct SetsMapper;
+pub struct UpsertNamesMapper;
 
-impl SingleFieldMapper for SetsMapper {
+impl SingleFieldMapper for UpsertNamesMapper {
     fn get_value_name(&self) -> &'static str {
-        "sets"
+        "upsert_names"
     }
 
     fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> Cow<'_, str> {
-        Cow::Owned(format!("{}=?", field.column_name(escaper)))
+        let name = field.column_name(escaper);
+        let upsert_name = field.column_name_upsert(escaper);
+        Cow::Owned(format!("{}={}", name, upsert_name))
     }
 
     fn map_indexed<'a>(
@@ -22,7 +24,9 @@ impl SingleFieldMapper for SetsMapper {
         escaper: &dyn KeywordsEscaper,
         index: usize,
     ) -> Cow<'a, str> {
-        Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+        let name = field.column_name(escaper);
+        let upsert_name = field.column_name_upsert(escaper);
+        Cow::Owned(format!("{}={}", name, upsert_name))
     }
 
     fn map_with_leading_comma<'a>(
@@ -30,7 +34,9 @@ impl SingleFieldMapper for SetsMapper {
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
     ) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=?", field.column_name(escaper)))
+        let name = field.column_name(escaper);
+        let upsert_name = field.column_name_upsert(escaper);
+        Cow::Owned(format!(",{}={}", name, upsert_name))
     }
 
     fn map_indexed_with_leading_comma<'a>(
@@ -39,12 +45,15 @@ impl SingleFieldMapper for SetsMapper {
         escaper: &dyn KeywordsEscaper,
         index: usize,
     ) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
+        let name = field.column_name(escaper);
+        let upsert_name = field.column_name_upsert(escaper);
+        Cow::Owned(format!(",{}={}", name, upsert_name))
     }
 
     fn map_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
         let name = field.column_name(escaper);
-        let format_str = format!("{}=?", name);
+        let upsert_name = field.column_name_upsert(escaper);
+        let format_str = format!("{}={}", name, upsert_name);
         quote! { #format_str }
     }
 
@@ -54,14 +63,16 @@ impl SingleFieldMapper for SetsMapper {
         escaper: &dyn KeywordsEscaper,
     ) -> TokenStream {
         let name = field.column_name(escaper);
-        let format_str = format!(",{}=?", name);
+        let upsert_name = field.column_name_upsert(escaper);
+        let format_str = format!(",{}={}", name, upsert_name);
         quote! { #format_str }
     }
 
     fn map_dynamic_indexed(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
         let name = field.column_name(escaper);
-        let format_str = format!("{}=${{}}", name);
-        quote! {format!(#format_str, index)}
+        let upsert_name = field.column_name_upsert(escaper);
+        let format_str = format!("{}={}", name, upsert_name);
+        quote! { #format_str }
     }
 
     fn map_dynamic_indexed_with_leading_comma(
@@ -70,7 +81,8 @@ impl SingleFieldMapper for SetsMapper {
         escaper: &dyn KeywordsEscaper,
     ) -> TokenStream {
         let name = field.column_name(escaper);
-        let format_str = format!(",{}=${{}}", name);
-        quote! {format!(#format_str, index)}
+        let upsert_name = field.column_name_upsert(escaper);
+        let format_str = format!(",{}={}", name, upsert_name);
+        quote! { #format_str }
     }
 }

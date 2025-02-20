@@ -7,6 +7,8 @@ mod impl_generator;
 pub mod utils;
 mod sql_generator;
 mod field_mapper;
+mod db_type;
+
 
 // pub use info_parser::schema_parser::extract_table_def;
 pub use info_parser::attr_parser;
@@ -23,15 +25,19 @@ pub use info_parser::FieldParser;
 pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;
 
+// pub use field_mapper::KeywordsEscaper;
+// pub use field_mapper::MySqlKeywordEscaper;
+// pub use field_mapper::PostgresKeywordEscaper;
+// pub use field_mapper::SqliteKeywordEscaper;
+//
+// pub use field_mapper::SingleFieldMapper;
+// pub use field_mapper::MultiFieldMapper;
+// pub use field_mapper::Connector;
+// pub use field_mapper::NamesMapper;
+// pub use field_mapper::MarksMapper;
+// pub use field_mapper::SetsMapper;
+// pub use field_mapper::ConditionsMapper;
+pub use db_type::DatabaseType;
+pub use field_mapper::FieldMapper;
 pub use field_mapper::KeywordsEscaper;
-pub use field_mapper::MySqlKeywordEscaper;
-pub use field_mapper::PostgresKeywordEscaper;
-pub use field_mapper::SqliteKeywordEscaper;
-
-pub use field_mapper::SingleFieldMapper;
-pub use field_mapper::MultiFieldMapper;
-pub use field_mapper::Connector;
-pub use field_mapper::NamesMapper;
-pub use field_mapper::MarksMapper;
-pub use field_mapper::SetsMapper;
-pub use field_mapper::ConditionsMapper;
+pub use sql_generator::SqlGenerator;
