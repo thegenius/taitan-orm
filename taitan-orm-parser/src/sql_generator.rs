@@ -22,10 +22,23 @@ impl SqlGenerator {
         let table_name = field_mapper.escape(&table_def.table_name, db_type);
         let fields = field_mapper.gen_names(&table_def.fields, &db_type);
         let primary_fields = table_def.get_primary_fields();
-        
+        // let primary_fields_stream = field_mapper.gen_names(primary_fields.as_slice(), db_type);
+        // let non_primary_fields = table_def.get_not_primary_fields();
+
 
         let marks = field_mapper.gen_marks(&table_def.fields, &db_type);
-        let sql_template = format!("INSERT INTO {table_name} ({{}}) VALUES({{}})");
+        let sql_template = match db_type {
+            DatabaseType::MySql => {
+                format!("INSERT INTO {table_name} ({{}}) VALUES({{}}) ON DUPLICATE KEY UPDATE {{}}")
+            }
+            DatabaseType::Postgres => {
+                format!("INSERT INTO {table_name} ({{}}) VALUES({{}}) ON CONFLICT ({{}}) DO UPDATE SET {{}}")
+            }
+            DatabaseType::Sqlite => {
+                format!("INSERT INTO {table_name} ({{}}) VALUES({{}}) ON CONFLICT ({{}}) DO UPDATE SET {{}}")
+            }
+        };
+
         quote! {
             let fields = #fields;
             let marks = #marks;
