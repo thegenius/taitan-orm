@@ -58,33 +58,105 @@ enum StreamType {
     RequiredCheckPrev,
     RequiredLeadingComma,
     Optional,
+    OptionalCheckPrev,
     OptionalLeadingComma,
 }
 
 impl StreamType {
-    pub fn parse(required: bool, group_index: usize, index: usize, first_required_group_index: usize) -> Self {
-        if required {
+    pub fn parse_dynamic(
+        field: &FieldDef,
+        group_index: usize,
+        index: usize,
+        first_required_group_index: usize,
+    ) -> Self {
+        if !field.struct_field.is_optional {
             if index == 0 && group_index == 0 {
                 assert_eq!(first_required_group_index, 0);
                 return StreamType::Required;
             }
-            if index == 0 && group_index <= first_required_group_index  {
+            if index == 0 && group_index <= first_required_group_index {
                 assert_eq!(group_index, first_required_group_index);
                 assert_ne!(group_index, 0);
                 return StreamType::RequiredCheckPrev;
             }
             StreamType::RequiredLeadingComma
         } else {
+            if index == 0 && group_index == 0 {
+                assert_ne!(first_required_group_index, 0);
+                return StreamType::Optional;
+            }
             if group_index < first_required_group_index {
-                StreamType::Optional
+                StreamType::OptionalCheckPrev
             } else {
+                assert_ne!(group_index, first_required_group_index);
                 StreamType::OptionalLeadingComma
             }
         }
     }
+
+    pub fn parse_static(
+        field: &FieldDef,
+        group_index: usize,
+        index: usize,
+        first_required_group_index: usize,
+    ) -> Self {
+        assert!(!field.struct_field.is_optional);
+        assert_eq!(group_index, 0);
+        if index == 0 && group_index == 0 {
+            assert_eq!(first_required_group_index, 0);
+            return StreamType::Required;
+        }
+        if index == 0 && group_index <= first_required_group_index {
+            assert_eq!(group_index, first_required_group_index);
+            assert_ne!(group_index, 0);
+            return StreamType::RequiredCheckPrev;
+        }
+        StreamType::RequiredLeadingComma
+    }
+
+    // pub fn transform<T: AsRef<str>>(&self, field_name: T, origin: TokenStream, indexed: bool) -> TokenStream {
+    //     match self {
+    //         StreamType::Required => quote! {
+    //             s.push_str(#origin);
+    //         }
+    //         StreamType::RequiredCheckPrev => quote! {
+    //             if has_prev {
+    //                 s.push(',');
+    //             } else {
+    //                 has_prev = true;
+    //             }
+    //             s.push_str(#origin);
+    //         }
+    //         StreamType::RequiredLeadingComma => quote! {
+    //             s.push_str(#origin);
+    //         }
+    //         StreamType::Optional => {
+    //             let field_ident = format_ident!("{}", field_name.as_ref());
+    //             quote! {
+    //                 if self.#field_ident.is_some() {
+    //                     s.push_str(#origin);
+    //                 }
+    //             }
+    //         }
+    //         StreamType::OptionalCheckPrev => {
+    //             let field_ident = format_ident!("{}", field_name.as_ref());
+    //             quote! {
+    //                 if self.#field_ident.is_some() {
+    //                     s.push_str(#origin);
+    //                 }
+    //             }
+    //         }
+    //         StreamType::OptionalLeadingComma => {
+    //             let field_ident = format_ident!("{}", field_name.as_ref());
+    //             quote! {
+    //                 if self.#field_ident.is_some() {
+    //                     s.push_str(#origin);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
-
-
 
 pub trait Connector: MultiFieldMapper {
     fn check_optional<T: AsRef<str>>(field_name: T, origin: TokenStream) -> TokenStream {
@@ -105,22 +177,16 @@ pub trait Connector: MultiFieldMapper {
     ) -> TokenStream {
         if check_optional {
             if indexed {
-
             } else {
                 if leading_comma {
-
                 } else {
-
                 }
             }
         } else {
             if indexed {
-
             } else {
                 if leading_comma {
-
                 } else {
-
                 }
             }
         }
@@ -185,6 +251,7 @@ pub trait Connector: MultiFieldMapper {
                 }
 
                 FieldGroup::Optional(field) => {
+                    // stream.extend(self.parse_dynamic(field, escaper, false, 0, index, first_required_index));
                     let field_ident = format_ident!("{}", field.struct_field.name);
 
                     if index < first_required_index {
