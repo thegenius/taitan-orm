@@ -1,6 +1,7 @@
 use crate::common::named_input::{NamedDeriveInput};
 use std::sync::OnceLock;
 use crate::common::named_map::NamedMap;
+use crate::register::inputs::derive_input_sets;
 
 static INPUT_MAP: OnceLock<NamedMap<NamedDeriveInput>> = OnceLock::new();
 pub fn get_inputs<'a>() -> NamedMap<NamedDeriveInput> {
@@ -13,20 +14,5 @@ pub fn get_inputs<'a>() -> NamedMap<NamedDeriveInput> {
     });
     input_map.clone()
 }
-fn derive_input_sets() -> Vec<NamedDeriveInput> {
-    vec![
-        {
-            NamedDeriveInput {
-                name: "001".to_string(),
-                input: syn::parse_str(include_str!("../specs/inputs/input_001.spec")).unwrap(),
-            }
-        },
-        {
-            NamedDeriveInput {
-                name: "002".to_string(),
-                input: syn::parse_str(include_str!("../specs/inputs/input_002.spec")).unwrap(),
-            }
-        },
-    ]
-}
+
 

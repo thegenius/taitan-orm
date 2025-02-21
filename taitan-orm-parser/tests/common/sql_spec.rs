@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::sync::OnceLock;
 use taitan_orm_parser::{DatabaseType, SqlType};
-use crate::common::sql_expects::sql_specs;
-use crate::register::inputs::test;
+
+use crate::register::sql_expects::sql_specs;
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SqlSpec {
