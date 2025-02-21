@@ -1,0 +1,4 @@
+input_name: 001
+db_type: Postgres
+sql_type: Insert
+expected: 'let fields = { let mut s = String :: default () ; let mut has_prev = false ; s . push_str ("a,b,c") ; has_prev = true ; if ! self . d . is_none () { s . push_str (",d" . as_ref ()) ; } if ! self . e . is_none () { s . push_str (",user_name" . as_ref ()) ; } ; s } ; let marks = { let mut s = String :: default () ; let mut has_prev = false ; let mut index = 1 ; s . push_str ("$1,$2,$3") ; has_prev = true ; index = index + 3usize ; if self . d . is_some () { s . push_str (format ! (",${}" , index) . as_ref ()) ; index = index + 1 ; } if self . e . is_some () { s . push_str (format ! (",${}" , index) . as_ref ()) ; index = index + 1 ; } ; s } ; format ! ("INSERT INTO \"user\" ({}) VALUES({})" , fields , marks)'

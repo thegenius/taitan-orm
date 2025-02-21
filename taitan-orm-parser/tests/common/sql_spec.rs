@@ -24,7 +24,7 @@ impl Named for SqlSpec {
 
 static EXPECT_SQL_MAP: OnceLock<NamedMap<SqlSpec>> = OnceLock::new();
 
-pub fn get_sql_specs<'a>() -> &'a NamedMap<SqlSpec> {
+pub fn get_sql_specs<'a>() -> NamedMap<SqlSpec> {
     let input_map = EXPECT_SQL_MAP.get_or_init(|| {
         let mut inputs = NamedMap::new();
         sql_specs()
@@ -32,12 +32,14 @@ pub fn get_sql_specs<'a>() -> &'a NamedMap<SqlSpec> {
             .for_each(|n| inputs.insert(n));
         inputs
     });
-    input_map
+    input_map.clone()
 }
 fn sql_specs() -> Vec<SqlSpec> {
     vec![
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/inserts/sql_insert_001.spec")).unwrap(),
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/inserts/sql_insert_002.spec")).unwrap(),
+        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/mysql/insert_spec/insert_001.spec")).unwrap(),
+        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/mysql/insert_spec/insert_002.spec")).unwrap(),
+        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/postgres/insert_spec/insert_001.spec")).unwrap(),
+        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/postgres/insert_spec/insert_002.spec")).unwrap(),
     ]
 }
 

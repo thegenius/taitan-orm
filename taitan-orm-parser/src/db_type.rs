@@ -11,9 +11,9 @@ pub enum DatabaseType {
 impl Display for DatabaseType {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DatabaseType::MySql => write!(fmt, "MySQL"),
-            DatabaseType::Postgres => write!(fmt, "PostgreSQL"),
-            DatabaseType::Sqlite => write!(fmt, "SQLite"),
+            DatabaseType::MySql => write!(fmt, "MySql"),
+            DatabaseType::Postgres => write!(fmt, "Postgres"),
+            DatabaseType::Sqlite => write!(fmt, "Sqlite"),
         }
     }
 }

@@ -8,7 +8,7 @@ pub trait Named {
 
 
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct NamedMap<T: Named> {
     inputs: HashMap<String, T>,
 }
@@ -54,3 +54,5 @@ impl <T: Named>IntoIterator for NamedMap<T> {
         }
     }
 }
+
+

@@ -47,55 +47,64 @@ impl FieldMapper {
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
-        self.upsert_sets_mapper.connect(fields, self.get_escaper(db_type))
+        self.upsert_sets_mapper
+            .connect(fields, self.get_escaper(db_type))
     }
 
     pub fn gen_marks<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
     where
-        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,{
-        self.marks_mapper.connect(fields, self.get_escaper(db_type))
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        match db_type {
+            DatabaseType::MySql => self.marks_mapper.connect(fields, self.get_escaper(db_type)),
+            _ => self
+                .marks_mapper
+                .connect_indexed(fields, self.get_escaper(db_type)),
+        }
     }
 
-    pub fn gen_marks_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,{
-        self.marks_mapper
-            .connect_indexed(fields, self.get_escaper(db_type))
-    }
+    // pub fn gen_marks_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,{
+    //     self.marks_mapper
+    //         .connect_indexed(fields, self.get_escaper(db_type))
+    // }
 
     pub fn gen_sets<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
-        self.sets_mapper.connect(fields, self.get_escaper(db_type))
+        match db_type {
+            DatabaseType::MySql => self.sets_mapper.connect(fields, self.get_escaper(db_type)),
+            _ => self
+                .sets_mapper
+                .connect_indexed(fields, self.get_escaper(db_type)),
+        }
     }
 
-    pub fn gen_sets_indexed<'a, T>(
-        &self,
-        fields: T,
-        db_type: &DatabaseType,
-    ) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
-    {
-        self.sets_mapper
-            .connect_indexed(fields, self.get_escaper(db_type))
-    }
+    // pub fn gen_sets_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    // {
+    //     self.sets_mapper
+    //         .connect_indexed(fields, self.get_escaper(db_type))
+    // }
 
     pub fn gen_conditions<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
-        self.conditions_mapper
-            .connect_dynamic(fields, self.get_escaper(db_type))
+        match db_type {
+            DatabaseType::MySql => self.conditions_mapper.connect_dynamic(fields, self.get_escaper(db_type)),
+            _=> self.conditions_mapper.connect_dynamic_indexed(fields, self.get_escaper(db_type)),
+        }
     }
 
-    pub fn gen_conditions_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
-    {
-        self.conditions_mapper
-            .connect_dynamic_indexed(fields, self.get_escaper(db_type))
-    }
-
+    // pub fn gen_conditions_indexed<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    // {
+    //     self.conditions_mapper
+    //         .connect_dynamic_indexed(fields, self.get_escaper(db_type))
+    // }
 }

@@ -7,7 +7,7 @@ use quote::quote;
 pub struct SqlGenerator;
 impl SqlGenerator {
 
-    pub fn gen_sql(&self, sql_type: &SqlType, table: &TableDef, db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_sql(&self, db_type: &DatabaseType, sql_type: &SqlType, table: &TableDef) -> TokenStream {
         match sql_type {
             SqlType::Insert => {
                 self.gen_insert_sql(table, db_type)
@@ -22,7 +22,7 @@ impl SqlGenerator {
         let field_mapper = FieldMapper::new();
         let table_name = field_mapper.escape(&table_def.table_name, db_type);
         let fields = field_mapper.gen_names(&table_def.fields, &db_type);
-        let marks = field_mapper.gen_marks(&table_def.fields, &db_type);
+        let marks =  field_mapper.gen_marks(&table_def.fields, &db_type);
         let sql_template = format!("INSERT INTO {table_name} ({{}}) VALUES({{}})");
         quote! {
             let fields = #fields;

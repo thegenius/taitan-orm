@@ -6,7 +6,7 @@ mod named_input;
 mod input_dataset;
 mod named_map;
 
-pub use table_def_generator::TableDefGenerator;
+// pub use table_def_generator::TableDefGenerator;
 pub use expect_sql::ExpectSql;
 
 pub use sql_spec::SqlSpec;
