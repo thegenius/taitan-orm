@@ -39,7 +39,8 @@ impl SingleFieldMapper for NamesMapper {
 
     fn map_dynamic_with_leading_comma(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
         let name = field.column_name(escaper);
-        quote! { #name }
+        let name_with_comma = format!(",{}", name);
+        quote! { #name_with_comma }
     }
 
 

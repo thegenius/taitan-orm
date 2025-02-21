@@ -44,6 +44,18 @@ sets_indexed  |    Y      |    N      |     N      |      N      |
 condition(*)  |    N      |    N      |     N      |      N      |
 ------------------------------------------------------------------
 
+map_group_fields
+map_group_indexed_fields
+map_dynamic
+
+
+connect algorithm: [names, upserts, marks, sets]
+
+connect indexed algorithm: [marks_indexed, sets_indexed]
+
+connect dynamic: [condition, condition_indexed]
+
+
 
 ```
 field分为2个类型  
@@ -77,6 +89,7 @@ field分为2个类型
 
 # SQL 参数化测试验证系统
 ```text
-[DeriveInput, DatabaseType, SqlType, ExpectedSql]
+{ input_name: DeriveInput } 
+[ input_name, DatabaseType, SqlType, ExpectedSql ]
 ```
 

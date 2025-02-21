@@ -1,3 +1,5 @@
+use taitan_orm_parser::DatabaseType;
+
 pub struct ExpectSql {
     sql_list: &'static [&'static str]
 }
@@ -11,7 +13,9 @@ impl ExpectSql {
         self.sql_list[index]
     }
 
-    pub fn expect(&self, sql: &str, index: usize) {
-        assert_eq!(sql, self.get(index));
+    pub fn expect(&self,  sql: &str, index: usize) {
+        if sql != self.get(index) {
+            panic!("{}", format!("sql mismatch: \nactual: {:?}, \n\nexpect: {:?}", sql, self.get(index)));
+        }
     }
 }

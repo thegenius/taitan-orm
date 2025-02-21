@@ -168,35 +168,6 @@ pub trait Connector: MultiFieldMapper {
         }
     }
 
-    fn gen_stream<T: AsRef<str>>(
-        field_name: T,
-        origin: TokenStream,
-        check_optional: bool,
-        indexed: bool,
-        leading_comma: bool,
-    ) -> TokenStream {
-        if check_optional {
-            if indexed {
-            } else {
-                if leading_comma {
-                } else {
-                }
-            }
-        } else {
-            if indexed {
-            } else {
-                if leading_comma {
-                } else {
-                }
-            }
-        }
-        let field_ident = format_ident!("{}", field_name.as_ref());
-        quote! {
-            if self.#field_ident.is_some() {
-                    #origin
-            }
-        }
-    }
 
     // fn extend_stream<T: AsRef<str>>(dest: &mut TokenStream, field_name: T, check_optional: bool, origin: TokenStream) {
     //
@@ -221,16 +192,16 @@ pub trait Connector: MultiFieldMapper {
         let groups = field_group_list.groups;
         let first_required_index = field_group_list.first_required;
 
-        for (index, group) in groups.iter().enumerate() {
+        for (group_index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
-                    if index == 0 {
+                    if group_index == 0 {
                         let literal_payload = MultiFieldMapper::map(self, fields, escaper);
                         stream.extend(quote! {
                             s.push_str(#literal_payload);
                             has_prev = true;
                         })
-                    } else if index == first_required_index {
+                    } else if group_index == first_required_index {
                         // 因为index != 0，所以前面一定有optional的字段
                         let literal_payload = MultiFieldMapper::map(self, fields, escaper);
                         stream.extend(quote! {
@@ -251,30 +222,30 @@ pub trait Connector: MultiFieldMapper {
                 }
 
                 FieldGroup::Optional(field) => {
-                    // stream.extend(self.parse_dynamic(field, escaper, false, 0, index, first_required_index));
-                    let field_ident = format_ident!("{}", field.struct_field.name);
-
-                    if index < first_required_index {
-                        let field_stream = SingleFieldMapper::map(self, field, escaper);
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    s.push(',');
-                                } else {
-                                    has_prev = true;
-                                }
-                                s.push_str(#field_stream);
-                            }
-                        });
-                    } else {
-                        let field_stream =
-                            SingleFieldMapper::map_with_leading_comma(self, field, escaper);
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                s.push_str(#field_stream);
-                            }
-                        });
-                    };
+                    stream.extend(self.transform_dynamic(field, escaper, false, 0, group_index, first_required_index));
+                    // let field_ident = format_ident!("{}", field.struct_field.name);
+                    //
+                    // if index < first_required_index {
+                    //     let field_stream = SingleFieldMapper::map(self, field, escaper);
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             if has_prev {
+                    //                 s.push(',');
+                    //             } else {
+                    //                 has_prev = true;
+                    //             }
+                    //             s.push_str(#field_stream);
+                    //         }
+                    //     });
+                    // } else {
+                    //     let field_stream =
+                    //         SingleFieldMapper::map_with_leading_comma(self, field, escaper);
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             s.push_str(#field_stream);
+                    //         }
+                    //     });
+                    // };
                 }
             }
         }

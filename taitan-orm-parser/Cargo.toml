@@ -11,4 +11,5 @@ proc-macro2 = "1.0"
 case = "1.0"
 darling = "0.20.10"
 serde= { workspace = true, features = ["derive"] }
+serde_yaml = {version = "0.9.33"}
 serde_json = {workspace = true}
