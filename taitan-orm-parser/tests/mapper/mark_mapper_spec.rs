@@ -32,7 +32,7 @@ fn name_mapper_spec() {
     assert_eq!(marks, "{ let mut s = String :: default () ; let mut has_prev = false ; s . push_str (\"?,?,?\") ; has_prev = true ; if self . d . is_some () { s . push_str (\",?\") ; } if self . e . is_some () { s . push_str (\",?\") ; } s . push_str (\",?,?\") ; if self . h . is_some () { s . push_str (\",?\") ; } s . push_str (\",?\") ; ; s }");
 
     let marks = marks_mapper
-        .gen_marks_indexed(&table_def.fields, &DatabaseType::MySql)
+        .gen_marks(&table_def.fields, &DatabaseType::MySql)
         .to_string();
     assert_eq!(marks, "{ let mut s = String :: default () ; let mut has_prev = false ; let mut index = 1 ; s . push_str (\"$1,$2,$3\") ; has_prev = true ; index = index + 3usize ; if self . d . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } if self . e . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; if self . h . is_some () { s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",${}\" , index) . as_ref ()) ; index = index + 1 ; ; s }");
 }

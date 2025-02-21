@@ -1,9 +1,10 @@
-use crate::common::named_input::NamedDeriveInput;
 use crate::common::named_map::{Named, NamedMap};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::sync::OnceLock;
 use taitan_orm_parser::{DatabaseType, SqlType};
+use crate::common::sql_expects::sql_specs;
+use crate::register::inputs::test;
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 pub struct SqlSpec {
@@ -34,13 +35,6 @@ pub fn get_sql_specs<'a>() -> NamedMap<SqlSpec> {
     });
     input_map.clone()
 }
-fn sql_specs() -> Vec<SqlSpec> {
-    vec![
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/mysql/insert_spec/insert_001.spec")).unwrap(),
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/mysql/insert_spec/insert_002.spec")).unwrap(),
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/postgres/insert_spec/insert_001.spec")).unwrap(),
-        serde_yaml::from_str::<SqlSpec>(include_str!("../specs/sqls/postgres/insert_spec/insert_002.spec")).unwrap(),
-    ]
-}
+
 
 

@@ -26,7 +26,7 @@ fn set_mapper_spec() {
     assert_eq!(sets, "{ let mut s = String :: default () ; let mut has_prev = false ; s . push_str (\"a=?,b=?,c=?\") ; has_prev = true ; if self . d . is_some () { s . push_str (\",d=?\") ; } if self . e . is_some () { s . push_str (\",e=?\") ; } s . push_str (\",f=?,g=?\") ; if self . h . is_some () { s . push_str (\",h=?\") ; } s . push_str (\",i=?\") ; ; s }");
 
     let sets = mapper
-        .gen_sets_indexed(&table_def.fields, &DatabaseType::MySql)
+        .gen_sets(&table_def.fields, &DatabaseType::MySql)
         .to_string();
     assert_eq!(sets, "{ let mut s = String :: default () ; let mut has_prev = false ; let mut index = 1 ; s . push_str (\"a=$1,b=$2,c=$3\") ; has_prev = true ; index = index + 3usize ; if self . d . is_some () { s . push_str (format ! (\",d=${}\" , index) . as_ref ()) ; index = index + 1 ; } if self . e . is_some () { s . push_str (format ! (\",e=${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",f=${}\" , index) . as_ref ()) ; index = index + 1 ; s . push_str (format ! (\",g=${}\" , index) . as_ref ()) ; index = index + 1 ; if self . h . is_some () { s . push_str (format ! (\",h=${}\" , index) . as_ref ()) ; index = index + 1 ; } s . push_str (format ! (\",i=${}\" , index) . as_ref ()) ; index = index + 1 ; ; s }");
 }

@@ -1,6 +1,6 @@
-mod common;
-use common::get_inputs;
-use common::get_sql_specs;
+
+use crate::common::get_inputs;
+use crate::common::get_sql_specs;
 use taitan_orm_parser::{SqlGenerator, TableDef};
 
 #[test]
