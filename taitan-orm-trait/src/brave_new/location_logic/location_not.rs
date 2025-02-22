@@ -1,4 +1,5 @@
 use crate::brave_new::location::{Location, LocationKind};
+use crate::brave_new::param::Parameter;
 use sqlx::Database;
 use std::borrow::Cow;
 use std::fmt::{Debug, Display, Formatter};
@@ -36,6 +37,22 @@ where
     }
 }
 
+impl<DB, T> Parameter<DB> for Not<DB, T>
+where
+    DB: Database,
+    T: Location<DB> + Debug,
+{
+    fn add_to_args<'a, 'b>(
+        &'a self,
+        args: &'b mut <DB as Database>::Arguments<'a>,
+    ) -> crate::brave_new::result::Result<()> {
+        if !self.expr.all_none() {
+            self.expr.add_to_args(args)?;
+        }
+        Ok(())
+    }
+}
+
 impl<DB, T> Location<DB> for Not<DB, T>
 where
     DB: Database,
@@ -51,23 +68,19 @@ where
         if self.expr.all_none() {
             self.expr.gen_where_sql()
         } else {
-            format!(
-                "(NOT {})",
-                self.expr.gen_where_sql(),
-            )
-            .into()
+            format!("(NOT {})", self.expr.gen_where_sql(),).into()
         }
     }
 
-    fn add_where_args<'a>(
-        &'a self,
-        args: &mut DB::Arguments<'a>,
-    ) -> crate::brave_new::result::Result<()> {
-        if !self.expr.all_none() {
-            self.expr.add_where_args(args)?;
-        }
-        Ok(())
-    }
+    // fn add_to_args<'a, 'b>(
+    //     &'a self,
+    //     args: &'b mut DB::Arguments<'a>,
+    // ) -> crate::brave_new::result::Result<()> {
+    //     if !self.expr.all_none() {
+    //         self.expr.add_args(args)?;
+    //     }
+    //     Ok(())
+    // }
 
     fn all_none(&self) -> bool {
         self.expr.all_none()

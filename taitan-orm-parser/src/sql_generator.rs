@@ -2,19 +2,18 @@ use crate::{DatabaseType, FieldMapper, SqlType, TableDef};
 use proc_macro2::TokenStream;
 use quote::quote;
 
-
 #[derive(Debug, Default)]
 pub struct SqlGenerator;
 impl SqlGenerator {
-
-    pub fn gen_sql(&self, db_type: &DatabaseType, sql_type: &SqlType, table: &TableDef) -> TokenStream {
+    pub fn gen_sql(
+        &self,
+        db_type: &DatabaseType,
+        sql_type: &SqlType,
+        table: &TableDef,
+    ) -> TokenStream {
         match sql_type {
-            SqlType::Insert => {
-                self.gen_insert_sql(table, db_type)
-            }
-            SqlType::Upsert => {
-                self.gen_upsert_sql(table, db_type)
-            }
+            SqlType::Insert => self.gen_insert_sql(table, db_type),
+            SqlType::Upsert => self.gen_upsert_sql(table, db_type),
         }
     }
 
@@ -22,7 +21,7 @@ impl SqlGenerator {
         let field_mapper = FieldMapper::new();
         let table_name = field_mapper.escape(&table_def.table_name, db_type);
         let fields = field_mapper.gen_names(&table_def.fields, &db_type);
-        let marks =  field_mapper.gen_marks(&table_def.fields, &db_type);
+        let marks = field_mapper.gen_marks(&table_def.fields, &db_type);
         let sql_template = format!("INSERT INTO {table_name} ({{}}) VALUES({{}})");
         quote! {
             let fields = #fields;
@@ -40,9 +39,11 @@ impl SqlGenerator {
         let upsert_sets_stream = field_mapper.gen_upsert_sets(non_primary_fields, db_type);
 
         let marks = field_mapper.gen_marks(&table_def.fields, db_type);
-        match db_type {
+        return match db_type {
             DatabaseType::MySql => {
-                let sql= format!("INSERT INTO {table_name} ({{}}) VALUES({{}}) ON DUPLICATE KEY UPDATE {{}}");
+                let sql = format!(
+                    "INSERT INTO {table_name} ({{}}) VALUES({{}}) ON DUPLICATE KEY UPDATE {{}}"
+                );
                 quote! {
                     let fields = #fields;
                     let marks = #marks;
@@ -70,8 +71,21 @@ impl SqlGenerator {
                     format!(#sql, fields, marks, primarys, upsert_sets)
                 }
             }
-        }
+        };
+    }
 
+    pub fn gen_update_set_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
+        let field_mapper = FieldMapper::new();
+        field_mapper.gen_sets(&table_def.fields, db_type)
+    }
 
+    pub fn gen_where_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
+        let field_mapper = FieldMapper::new();
+        field_mapper.gen_conditions(&table_def.fields, db_type)
+    }
+
+    pub fn gen_select_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
+        let field_mapper = FieldMapper::new();
+        field_mapper.gen_names(&table_def.fields, db_type)
     }
 }

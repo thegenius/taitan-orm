@@ -39,6 +39,16 @@ impl TypeParser {
         )
     }
 
+    pub fn is_location_expr(ty: &Type) -> bool {
+        Self::has_one_of_names(
+            ty,
+            &[
+                "LocationExpr",
+                "taitan_orm::traits::LocationExpr",
+            ],
+        )
+    }
+
     pub fn get_path(ty: &Type) -> Option<&Path> {
         match *ty {
             Type::Path(ref type_path) if type_path.qself.is_none() => Some(&type_path.path),

@@ -7,6 +7,7 @@ use taitan_orm_trait::brave_new::location::Location;
 use time::macros::datetime;
 use time::PrimitiveDateTime;
 use taitan_orm_trait::brave_new::error::wrap_encode;
+use taitan_orm_trait::brave_new::param::Parameter;
 
 #[derive(Debug)]
 struct UserLocation {
@@ -14,6 +15,18 @@ struct UserLocation {
     created: Optional<LocationExpr<PrimitiveDateTime>>,
 }
 
+
+impl Parameter<MySql> for UserLocation {
+    fn add_to_args<'a, 'b>(&'a self, args: &'b mut <MySql as Database>::Arguments<'a>) -> Result<()> {
+        if let Optional::Some(name) =  &self.name {
+            wrap_encode(args.add(&name.val))?;
+        }
+        if let Optional::Some(created) = &self.created {
+            wrap_encode(args.add(&created.val))?;
+        }
+        Ok(())
+    }
+}
 impl Location<MySql> for UserLocation {
     fn table_name(&self) -> Cow<'static, str> {
         Cow::Borrowed("user")
@@ -29,15 +42,6 @@ impl Location<MySql> for UserLocation {
         Cow::from(sql)
     }
 
-    fn add_where_args<'a>(&'a self, args: &mut <MySql as Database>::Arguments<'a>) -> Result<()> {
-        if let Optional::Some(name) =  &self.name {
-            wrap_encode(args.add(&name.val))?;
-        }
-        if let Optional::Some(created) = &self.created {
-            wrap_encode(args.add(&created.val))?;
-        }
-        Ok(())
-    }
 
     fn all_none(&self) -> bool {
         self.name.is_none() && self.created.is_none()
@@ -52,5 +56,5 @@ fn location_trait_spec() {
     };
     let update_set_sql = user.gen_where_sql();
     let mut args = MySqlArguments::default();
-    let update_set_args = user.add_where_args(&mut args).unwrap();
+    let update_set_args = user.add_to_args(&mut args).unwrap();
 }

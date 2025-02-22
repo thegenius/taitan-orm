@@ -12,33 +12,33 @@ pub trait ArgsExtractor: SqlGenericExecutor {
         unique: &dyn Unique<Self::DB, Mutation = M>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        unique.add_where_args(&mut args)?;
+        unique.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_location_arguments(
         location: &dyn Location<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        location.add_where_args(&mut args)?;
+        location.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_insert_arguments(
         entity: &dyn Entity<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        entity.gen_insert_args()
+        entity.gen_args()
     }
     fn extract_upsert_arguments(
         entity: &dyn Entity<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        entity.gen_upsert_args()
+        entity.gen_args()
     }
     fn extract_update_arguments<'a, M: Mutation<Self::DB>>(
         mutation: &'a M,
         unique: &'a dyn Unique<Self::DB, Mutation = M>,
     ) -> Result<<Self::DB as Database>::Arguments<'a>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        mutation.add_update_set_args(&mut args)?;
-        unique.add_where_args(&mut args)?;
+        mutation.add_to_args(&mut args)?;
+        unique.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_change_arguments<'a>(
@@ -46,22 +46,22 @@ pub trait ArgsExtractor: SqlGenericExecutor {
         location: &'a dyn Location<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'a>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        location.add_where_args(&mut args)?;
-        mutation.add_update_set_args(&mut args)?;
+        mutation.add_to_args(&mut args)?;
+        location.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_delete_arguments<M: Mutation<Self::DB>>(
         unique: &dyn Unique<Self::DB, Mutation = M>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        unique.add_where_args(&mut args)?;
+        unique.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_purify_arguments(
         location: &dyn Location<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
         let mut args = <Self::DB as Database>::Arguments::default();
-        location.add_where_args(&mut args)?;
+        location.add_to_args(&mut args)?;
         Ok(args)
     }
     fn extract_template_arguments(

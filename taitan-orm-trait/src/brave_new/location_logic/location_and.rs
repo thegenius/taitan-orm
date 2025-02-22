@@ -3,6 +3,7 @@ use sqlx::Database;
 use std::borrow::Cow;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
+use crate::brave_new::param::Parameter;
 
 pub struct And<DB, L, R>
 where
@@ -41,6 +42,25 @@ where
     }
 }
 
+impl<DB, L, R> Parameter<DB> for And<DB, L, R>
+where
+    DB: Database,
+    L: Location<DB> + Debug,
+    R: Location<DB> + Debug,
+{
+    fn add_to_args<'a, 'b>(&'a self, args: &'b mut <DB as Database>::Arguments<'a>) -> crate::brave_new::result::Result<()> {
+        if self.left.all_none() {
+            self.right.add_to_args(args)?;
+        } else if self.right.all_none() {
+            self.left.add_to_args(args)?;
+        } else {
+            self.left.add_to_args(args)?;
+            self.right.add_to_args(args)?;
+        }
+        Ok(())
+    }
+}
+
 impl<DB, L, R> Location<DB> for And<DB, L, R>
 where
     DB: Database,
@@ -74,20 +94,20 @@ where
         }
     }
 
-    fn add_where_args<'a>(
-        &'a self,
-        args: &mut DB::Arguments<'a>,
-    ) -> crate::brave_new::result::Result<()> {
-        if self.left.all_none() {
-            self.right.add_where_args(args)?;
-        } else if self.right.all_none() {
-            self.left.add_where_args(args)?;
-        } else {
-            self.left.add_where_args(args)?;
-            self.right.add_where_args(args)?;
-        }
-        Ok(())
-    }
+    // fn add_where_args<'a>(
+    //     &'a self,
+    //     args: &mut DB::Arguments<'a>,
+    // ) -> crate::brave_new::result::Result<()> {
+    //     if self.left.all_none() {
+    //         self.right.add_where_args(args)?;
+    //     } else if self.right.all_none() {
+    //         self.left.add_where_args(args)?;
+    //     } else {
+    //         self.left.add_where_args(args)?;
+    //         self.right.add_where_args(args)?;
+    //     }
+    //     Ok(())
+    // }
 
     fn all_none(&self) -> bool {
         self.left.all_none() && self.right.all_none()

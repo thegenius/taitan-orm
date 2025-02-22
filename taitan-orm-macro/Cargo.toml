@@ -21,4 +21,8 @@ serde= { workspace = true, features = ["derive"] }
 serde_json = {workspace = true}
 
 taitan-orm-trait = { path = "../taitan-orm-trait" }
+taitan-orm-parser = {path = "../taitan-orm-parser"}
 #taitan-orm-trait = { version = "0.1.9" }
+
+[dev-dependencies]
+sqlx = {workspace = true}

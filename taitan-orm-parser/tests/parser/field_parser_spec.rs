@@ -25,6 +25,7 @@ pub fn field_parser_spec_struct() {
         name: Cow::Borrowed("a"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     check_expected(&fields, 0, &expect_struct_field);
@@ -33,6 +34,7 @@ pub fn field_parser_spec_struct() {
         name: Cow::Borrowed("b"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: false,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 1, &expect_struct_field);
@@ -41,6 +43,7 @@ pub fn field_parser_spec_struct() {
         name: Cow::Borrowed("c"),
         rust_type: Cow::Borrowed("String"),
         is_optional: false,
+        is_location_expr: false,
         lifetime: None,
     };
     check_expected(&fields, 2, &expect_struct_field);
@@ -49,6 +52,7 @@ pub fn field_parser_spec_struct() {
         name: Cow::Borrowed("d"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 3, &expect_struct_field);
@@ -57,6 +61,7 @@ pub fn field_parser_spec_struct() {
         name: Cow::Borrowed("e"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 4, &expect_struct_field);
@@ -78,6 +83,7 @@ pub fn field_parser_spec_with_attr() {
         name: Cow::Borrowed("e"),
         rust_type: Cow::Borrowed("Cow < 'a , str >"),
         is_optional: true,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     let expect_column_def = TableColumnDef {
@@ -109,6 +115,7 @@ pub fn field_parser_spec_enum() {
         name: Cow::Borrowed("field1"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     check_expected(fields, 0, &expect_struct_field);
@@ -116,6 +123,7 @@ pub fn field_parser_spec_enum() {
         name: Cow::Borrowed("field2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
+        is_location_expr: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(fields, 1, &expect_struct_field);

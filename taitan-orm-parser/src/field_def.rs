@@ -13,6 +13,7 @@ pub struct StructFieldDef<'a> {
     pub name: Cow<'a, str>,
     pub rust_type: Cow<'a, str>,
     pub is_optional: bool,
+    pub is_location_expr: bool,
     pub lifetime: Option<Cow<'a, str>>,
 }
 

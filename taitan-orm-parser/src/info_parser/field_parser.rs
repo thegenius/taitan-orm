@@ -11,8 +11,10 @@ pub struct FieldParser;
 impl FieldParser {
     pub fn parse(field: &Field) -> FieldDef {
         let field_name = field.clone().ident.unwrap().to_string();
-        let field_type = TypeParser::get_inner_type(&field.ty);
+        let field_type = TypeParser::get_inner_type(&field.ty).expect("can not parse field type");
         let field_type_str = field_type.to_token_stream().to_string();
+        let is_location_expr = TypeParser::is_location_expr(&field_type);
+
         let is_optional = TypeParser::is_option(&field.ty);
         let lifetime = LifetimeParser::get_lifetime(&field.ty).map(|l| Cow::Owned(l.to_string()));
 
@@ -20,6 +22,7 @@ impl FieldParser {
             name: Cow::Owned(field_name.clone()),
             rust_type: Cow::Owned(field_type_str.clone()),
             is_optional,
+            is_location_expr,
             lifetime,
         };
 

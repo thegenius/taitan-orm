@@ -8,6 +8,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
+use taitan_orm_parser::{DatabaseType, ParameterTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -70,6 +71,20 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
 
     TokenStream::new()
 }
+
+
+
+#[proc_macro_derive(
+    Param
+)]
+pub fn expand_param_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def =  TableDef::parse(&derive_input);
+    let generator = ParameterTraitImplGenerator::default();
+    generator.gen_add_to_args(&DatabaseType::MySql, &table_def).into()
+}
+
+
 
 #[proc_macro_derive(
     Schema,

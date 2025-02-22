@@ -1,11 +1,12 @@
 use super::base::{
     Connector, KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper};
+use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper};
 use crate::DatabaseType;
 use crate::FieldDef;
 use proc_macro2::TokenStream;
 use std::borrow::Cow;
+use quote::quote;
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -14,6 +15,7 @@ pub struct FieldMapper {
     sets_mapper: SetsMapper,
     conditions_mapper: ConditionsMapper,
     upsert_sets_mapper: UpsertSetsMapper,
+    args_mapper: ArgsMapper,
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
@@ -34,6 +36,18 @@ impl FieldMapper {
 
     pub fn escape<'a>(&'a self, word: &'a str, db_type: &DatabaseType) -> Cow<'a, str> {
         self.get_escaper(db_type).escape(word)
+    }
+
+    pub fn gen_add_to_args<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields.into_iter().map(|def| {
+            self.args_mapper.map_add_to_args(def)
+        }).collect::<Vec<_>>();
+        quote! {
+            #( #streams )*
+        }
     }
 
     pub fn gen_names<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
