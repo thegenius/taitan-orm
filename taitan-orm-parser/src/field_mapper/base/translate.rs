@@ -81,3 +81,33 @@ pub fn translate(
         origin
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::borrow::Cow;
+    use quote::format_ident;
+    use crate::field_mapper::base::LeadingCommaType;
+    use crate::field_mapper::base::single_field_mapper::FieldSeg;
+    use super::translate;
+
+    #[test]
+    fn test_translate() {
+        // there is 12-Cases
+        // TODO: check all 12 cases
+        let field_seg = FieldSeg::Seg(Cow::Borrowed("hello"));
+        let stream = translate(&field_seg, LeadingCommaType::Leading, None).to_string();
+        assert_eq!(stream, r#"",hello" . to_string ()"#);
+
+        let field_seg = FieldSeg::IndexedSeg(Cow::Borrowed("hello=${}"));
+        let stream = translate(&field_seg, LeadingCommaType::Leading, None).to_string();
+        assert_eq!(stream, r#"{ index += 1 ; format ! (",hello=${}" , index) }"#);
+
+        let field_seg = FieldSeg::IndexedSeg(Cow::Borrowed("name=${}"));
+        let field_ident = format_ident!("{}", "name");
+        let stream = translate(&field_seg, LeadingCommaType::Leading, Some(field_ident.clone())).to_string();
+        assert_eq!(stream, r#"if ! self . name . is_none () { { index += 1 ; format ! (",name=${}" , index) } } else { "" . to_string () }"#);
+
+        let stream = translate(&field_seg, LeadingCommaType::CheckedLeading, Some(field_ident)).to_string();
+        assert_eq!(stream, r#"if ! self . name . is_none () { { if has_prev { index += 1 ; format ! (",name=${}" , index) } else { has_next = true ; index += 1 ; format ! ("name=${}" , index) } } } else { "" . to_string () }"#);
+    }
+}
