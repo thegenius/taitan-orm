@@ -73,18 +73,11 @@ impl SingleFieldMapper for ConditionsMapper {
         }
         let column_name = field.column_name(escaper);
         let field_ident = format_ident!("{}", &field.struct_field.name);
-        let index_add_stream = if indexed {
-            quote! { index += 1; }
-        } else {
-            quote! {}
-        };
 
         let normal_condition_stream = match leading_comma_type {
             LeadingCommaType::NoLeading => {
                 let format_str = format!("{}{{}}?", column_name);
-                quote! {
-                    format!(#format_str, self.#field_ident.get_cmp_sql())
-                }
+                quote! { format!(#format_str, self.#field_ident.get_cmp_sql()) }
             }
             LeadingCommaType::Leading => {
                 let format_str = format!(",{}{{}}?", column_name);
@@ -105,8 +98,18 @@ impl SingleFieldMapper for ConditionsMapper {
                 }
             }
         };
+
+        let index_add_stream = if indexed {
+            quote! { index += 1; }
+        } else {
+            quote! {}
+        };
+
         if field.is_required() {
-            return normal_condition_stream;
+            return quote! {
+                #normal_condition_stream
+                #index_add_stream
+            };
         }
 
         let null_condition_stream = match leading_comma_type {

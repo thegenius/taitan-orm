@@ -110,6 +110,7 @@ pub trait SingleFieldMapper {
             }
         }
     }
+
     fn transform_dynamic<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
