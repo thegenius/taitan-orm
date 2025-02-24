@@ -6,6 +6,7 @@ mod keywords_escaper;
 mod single_field_mapper;
 
 mod multi_field_mapper;
+mod translate;
 
 pub use single_field_mapper::LeadingCommaType;
 pub use connector::Connector;

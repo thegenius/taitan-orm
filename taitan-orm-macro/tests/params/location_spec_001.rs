@@ -1,11 +1,11 @@
 use taitan_orm_macro::{LocationNew, Parameter};
 use taitan_orm_trait::{LocationExpr, Optional};
 
-#[derive(Debug, Parameter, LocationNew)]
-struct ParamSpec001 {
-    a: LocationExpr<String>,
-    b: Optional<LocationExpr<i64>>,
-}
+// #[derive(Debug, Parameter, LocationNew)]
+// struct ParamSpec001 {
+//     a: LocationExpr<String>,
+//     b: Optional<LocationExpr<i64>>,
+// }
 
 // impl taitan_orm_trait::brave_new::location::Location<sqlx::Sqlite> for ParamSpec001 {
 //     fn table_name(&self) -> std::borrow::Cow<'static, str> {

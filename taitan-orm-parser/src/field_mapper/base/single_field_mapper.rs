@@ -1,6 +1,6 @@
 use super::KeywordsEscaper;
 use crate::FieldDef;
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::borrow::Cow;
 
@@ -9,6 +9,13 @@ pub enum LeadingCommaType {
     Leading,
     NoLeading,
     CheckedLeading,
+}
+
+pub enum FieldSeg<'a> {
+    // name, name=VALUES(name), ?, name=?, name{}?
+    Seg(Cow<'a, str>),
+    // ${}, name=${}, name{}${}
+    IndexedSeg(Cow<'a, str>),
 }
 
 pub trait SingleFieldMapper {
@@ -174,6 +181,8 @@ pub trait SingleFieldMapper {
             }
         }
     }
+
+
 
     fn map<'a>(
         &'a self,
