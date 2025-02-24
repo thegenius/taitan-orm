@@ -6,19 +6,19 @@ use std::str::Chars;
 
 
 
-
+// if val == None, sqlx will treat it as null
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct LocationExpr<T> {
     pub val: Option<T>,
     pub cmp: CmpOperator,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub enum LogicalOperator {
-    And,
-    Or,
-    Not,
-}
+// #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+// pub enum LogicalOperator {
+//     And,
+//     Or,
+//     Not,
+// }
 
 impl<T> LocationExpr<T> {
     pub fn new(cmp: CmpOperator, val: T) -> Self {
