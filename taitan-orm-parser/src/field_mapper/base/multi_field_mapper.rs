@@ -1,4 +1,4 @@
-use super::{KeywordsEscaper, SingleFieldMapper};
+use super::{KeywordsEscaper, LeadingCommaType, SingleFieldMapper};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{quote};
@@ -39,7 +39,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         let stream = fields
             .into_iter()
             .enumerate()
-            .map(|(index, field)| SingleFieldMapper::map(self, field.as_ref(), escaper))
+            .map(|(index, field)| SingleFieldMapper::map(self, field.as_ref(), escaper, LeadingCommaType::NoLeading))
             .collect::<Vec<Cow<'_, str>>>()
             .join(",");
         quote! {
@@ -55,7 +55,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
             .into_iter()
             .enumerate()
             .map(|(index, field)| {
-                let name = SingleFieldMapper::map_indexed(self, field, escaper, index);
+                let name = SingleFieldMapper::map_indexed(self, field, escaper, LeadingCommaType::NoLeading, index);
                 name
             })
             .collect::<Vec<Cow<'_, str>>>()
@@ -72,7 +72,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         let stream = fields
             .into_iter()
             .map(|field| {
-                let name = SingleFieldMapper::map_with_leading_comma(self, field, escaper);
+                let name = SingleFieldMapper::map(self, field, escaper, LeadingCommaType::Leading);
                 name
             })
             .collect::<Vec<Cow<'_, str>>>()
@@ -95,7 +95,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
             .enumerate()
             .map(|(index, field)| {
                 let name =
-                    SingleFieldMapper::map_indexed_with_leading_comma(self, field, escaper, index);
+                    SingleFieldMapper::map_indexed(self, field, escaper, LeadingCommaType::Leading, index);
                 name
             })
             .collect::<Vec<Cow<'_, str>>>()

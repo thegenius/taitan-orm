@@ -8,7 +8,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{DatabaseType, ParameterTraitImplGenerator, TableDef};
+use taitan_orm_parser::{DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, ParameterTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -75,13 +75,39 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
 
 
 #[proc_macro_derive(
-    Param
+    Parameter
 )]
 pub fn expand_param_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def =  TableDef::parse(&derive_input);
     let generator = ParameterTraitImplGenerator::default();
-    generator.gen_add_to_args(&DatabaseType::MySql, &table_def).into()
+    let stream = generator.gen_add_to_args(&DatabaseType::Sqlite, &table_def);
+    // panic!("{}", stream);
+    stream.into()
+}
+
+#[proc_macro_derive(
+    EntityNew
+)]
+pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def =  TableDef::parse(&derive_input);
+    let generator = EntityTraitImplGenerator::default();
+    let stream = generator.generate(&DatabaseType::Sqlite, &table_def);
+    // panic!("{}", stream);
+    stream.into()
+}
+
+#[proc_macro_derive(
+    LocationNew
+)]
+pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def =  TableDef::parse(&derive_input);
+    let generator = LocationTraitImplGenerator::default();
+    let stream = generator.generate(&DatabaseType::Sqlite, &table_def);
+    panic!("{}", stream);
+    stream.into()
 }
 
 

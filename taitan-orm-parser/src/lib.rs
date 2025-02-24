@@ -44,3 +44,5 @@ pub use field_mapper::KeywordsEscaper;
 pub use sql_generator::SqlGenerator;
 pub use sql_type::SqlType;
 pub use impl_generator::ParameterTraitImplGenerator;
+pub use impl_generator::EntityTraitImplGenerator;
+pub use impl_generator::LocationTraitImplGenerator;

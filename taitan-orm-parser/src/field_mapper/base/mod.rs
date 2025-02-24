@@ -7,7 +7,7 @@ mod single_field_mapper;
 
 mod multi_field_mapper;
 
-
+pub use single_field_mapper::LeadingCommaType;
 pub use connector::Connector;
 pub use multi_field_mapper::MultiFieldMapper;
 pub use single_field_mapper::SingleFieldMapper;

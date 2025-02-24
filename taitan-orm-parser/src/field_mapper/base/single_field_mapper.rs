@@ -1,8 +1,15 @@
 use super::KeywordsEscaper;
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use std::borrow::Cow;
 use quote::{format_ident, quote};
+use std::borrow::Cow;
+
+#[derive(Clone, Debug, Copy)]
+pub enum LeadingCommaType {
+    Leading,
+    NoLeading,
+    CheckedLeading,
+}
 
 pub trait SingleFieldMapper {
     fn get_value_name(&self) -> &'static str;
@@ -16,15 +23,15 @@ pub trait SingleFieldMapper {
     ) -> Cow<'a, str> {
         if let Some(index) = index {
             if leading_comma {
-                self.map_indexed_with_leading_comma(field, escaper, index)
+                self.map_indexed(field, escaper, LeadingCommaType::Leading, index)
             } else {
-                self.map_indexed(field, escaper, index)
+                self.map_indexed(field, escaper, LeadingCommaType::NoLeading, index)
             }
         } else {
             if leading_comma {
-                self.map_with_leading_comma(field, escaper)
+                self.map(field, escaper, LeadingCommaType::Leading)
             } else {
-                self.map(field, escaper)
+                self.map(field, escaper, LeadingCommaType::NoLeading)
             }
         }
     }
@@ -44,13 +51,12 @@ pub trait SingleFieldMapper {
             }
         } else {
             if leading_comma {
-                self.map_dynamic_with_leading_comma(field, escaper)
+                self.map_dynamic(field, escaper, LeadingCommaType::Leading, false)
             } else {
-                self.map_dynamic(field, escaper)
+                self.map_dynamic(field, escaper, LeadingCommaType::NoLeading, false)
             }
         }
     }
-
 
     fn transform(
         &self,
@@ -168,29 +174,41 @@ pub trait SingleFieldMapper {
         }
     }
 
+    fn map<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+        leading_comma: LeadingCommaType,
+    ) -> Cow<'a, str>;
 
-    fn map<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>;
     fn map_indexed<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
+        leading_comma: LeadingCommaType,
         index: usize,
     ) -> Cow<'a, str>;
 
-    fn map_with_leading_comma<'a>(
-        &'a self,
-        field: &'a FieldDef<'a>,
-        escaper: &dyn KeywordsEscaper,
-    ) -> Cow<'a, str>;
+    // fn map_with_leading_comma<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    // ) -> Cow<'a, str>;
 
-    fn map_indexed_with_leading_comma<'a>(
-        &'a self,
-        field: &'a FieldDef<'a>,
-        escaper: &dyn KeywordsEscaper,
-        index: usize,
-    ) -> Cow<'a, str>;
+    // fn map_indexed_with_leading_comma<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     index: usize,
+    // ) -> Cow<'a, str>;
 
-    fn map_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream;
+    fn map_dynamic(
+        &self,
+        field: &FieldDef,
+        escaper: &dyn KeywordsEscaper,
+        leading_comma_type: LeadingCommaType,
+        indexed: bool,
+    ) -> TokenStream;
 
     fn map_dynamic_with_leading_comma(
         &self,

@@ -1,7 +1,6 @@
-use taitan_orm_macro::Param;
-
-// #[derive(Param)]
-// struct ParamSpec001 {
-//     a: String,
-//     b: usize,
-// }
+use taitan_orm_macro::Parameter;
+#[derive(Parameter)]
+struct ParamSpec001 {
+    a: String,
+    b: i64,
+}

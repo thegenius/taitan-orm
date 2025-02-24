@@ -23,7 +23,13 @@ impl SchemaParser {
         let attrs = &input.attrs;
 
         let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldParser::parse(f)).collect();
-        let primary_attr = AttrParser::extract(attrs, "primary").expect("primary attribute missing");
+        let primary_attr = AttrParser::extract(attrs, "primary");
+        let primary_fields = if let Some(attr) = &primary_attr {
+            attr.values.clone()
+        } else {
+            Vec::new()
+        };
+
         let uniques_attrs = AttrParser::extract_multi_list(attrs, "unique");
         let uniques = uniques_attrs
             .into_iter()
@@ -39,7 +45,7 @@ impl SchemaParser {
             table_name: table_name.clone(),
             serde_structs: serde_structs.clone(),
             fields: fields_def,
-            primary_fields: primary_attr.values,
+            primary_fields,
             uniques,
             indexes,
         }

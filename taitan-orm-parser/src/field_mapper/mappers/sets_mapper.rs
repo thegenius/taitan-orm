@@ -1,4 +1,5 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
+use crate::field_mapper::base::LeadingCommaType;
 use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::quote;
@@ -12,37 +13,65 @@ impl SingleFieldMapper for SetsMapper {
         "sets"
     }
 
-    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> Cow<'_, str> {
-        Cow::Owned(format!("{}=?", field.column_name(escaper)))
+    fn map(
+        &self,
+        field: &FieldDef,
+        escaper: &dyn KeywordsEscaper,
+        leading_comma_type: LeadingCommaType,
+    ) -> Cow<'_, str> {
+        match leading_comma_type {
+            LeadingCommaType::Leading => Cow::Owned(format!(",{}=?", field.column_name(escaper))),
+            LeadingCommaType::NoLeading => Cow::Owned(format!("{}=?", field.column_name(escaper))),
+            LeadingCommaType::CheckedLeading => {
+                panic!("can not generate checked leading comma in compile time")
+            }
+        }
     }
 
     fn map_indexed<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
+        leading_comma_type: LeadingCommaType,
         index: usize,
     ) -> Cow<'a, str> {
-        Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+        match leading_comma_type {
+            LeadingCommaType::NoLeading => {
+                Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+            }
+            LeadingCommaType::Leading => {
+                Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
+            }
+            LeadingCommaType::CheckedLeading => {
+                panic!("can not generate checked leading comma in compile time")
+            }
+        }
     }
 
-    fn map_with_leading_comma<'a>(
-        &'a self,
-        field: &'a FieldDef<'a>,
+    // fn map_with_leading_comma<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    // ) -> Cow<'a, str> {
+    //     Cow::Owned(format!(",{}=?", field.column_name(escaper)))
+    // }
+
+    // fn map_indexed_with_leading_comma<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     index: usize,
+    // ) -> Cow<'a, str> {
+    //     Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
+    // }
+
+    fn map_dynamic(
+        &self,
+        field: &FieldDef,
         escaper: &dyn KeywordsEscaper,
-    ) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=?", field.column_name(escaper)))
-    }
-
-    fn map_indexed_with_leading_comma<'a>(
-        &'a self,
-        field: &'a FieldDef<'a>,
-        escaper: &dyn KeywordsEscaper,
-        index: usize,
-    ) -> Cow<'a, str> {
-        Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
-    }
-
-    fn map_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
+        leading_comma_type: LeadingCommaType,
+        indexed: bool,
+    ) -> TokenStream {
         let name = field.column_name(escaper);
         let format_str = format!("{}=?", name);
         quote! { #format_str }

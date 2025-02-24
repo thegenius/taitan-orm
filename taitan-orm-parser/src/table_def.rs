@@ -9,8 +9,8 @@ use crate::info_parser::schema_parser::SchemaParser;
 pub struct TableDef<'a> {
     pub struct_name: Cow<'a, str>,
     pub table_name: Cow<'a, str>,
-    pub serde_structs: Vec<Cow<'a, str>>,
     pub fields: Vec<FieldDef<'a>>,
+    pub serde_structs: Vec<Cow<'a, str>>,
     pub primary_fields: Vec<Cow<'a, str>>,
     pub uniques: Vec<NamedFieldsGroup<'a>>,
     pub indexes: Vec<NamedFieldsGroup<'a>>,

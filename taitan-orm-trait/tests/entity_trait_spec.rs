@@ -6,6 +6,9 @@ use taitan_orm_trait::brave_new::entity::{Entity, SqliteEntity};
 use taitan_orm_trait::brave_new::error::wrap_encode;
 use taitan_orm_trait::brave_new::param::Parameter;
 use taitan_orm_trait::brave_new::result::Result;
+use sqlx::mysql::MySqlArguments;
+use sqlx::sqlite::SqliteArguments;
+use sqlx::postgres::PgArguments;
 
 
 fn call_entity(entity: &dyn SqliteEntity) -> Cow<'_, str> {

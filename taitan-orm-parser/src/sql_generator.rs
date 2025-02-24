@@ -26,7 +26,7 @@ impl SqlGenerator {
         quote! {
             let fields = #fields;
             let marks = #marks;
-            format!(#sql_template, fields, marks)
+            std::borrow::Cow::Owned(format!(#sql_template, fields, marks))
         }
     }
     pub fn gen_upsert_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
@@ -48,7 +48,7 @@ impl SqlGenerator {
                     let fields = #fields;
                     let marks = #marks;
                     let upsert_sets = #upsert_sets_stream;
-                    format!(#sql, fields, marks, upsert_sets)
+                    std::borrow::Cow::Owned(format!(#sql, fields, marks, upsert_sets))
                 }
             }
             DatabaseType::Postgres => {
@@ -58,7 +58,7 @@ impl SqlGenerator {
                     let marks = #marks;
                     let primarys = #primary_fields_stream;
                     let upsert_sets = #upsert_sets_stream;
-                    format!(#sql, fields, marks, primarys, upsert_sets)
+                    std::borrow::Cow::Owned(format!(#sql, fields, marks, primarys, upsert_sets))
                 }
             }
             DatabaseType::Sqlite => {
@@ -68,7 +68,7 @@ impl SqlGenerator {
                     let marks = #marks;
                     let primarys = #primary_fields_stream;
                     let upsert_sets = #upsert_sets_stream;
-                    format!(#sql, fields, marks, primarys, upsert_sets)
+                    std::borrow::Cow::Owned(format!(#sql, fields, marks, primarys, upsert_sets))
                 }
             }
         };
@@ -81,7 +81,11 @@ impl SqlGenerator {
 
     pub fn gen_where_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
         let field_mapper = FieldMapper::new();
-        field_mapper.gen_conditions(&table_def.fields, db_type)
+        let stream = field_mapper.gen_conditions(&table_def.fields, db_type);
+        quote! {
+            let s = #stream;
+            std::borrow::Cow::Owned(s)
+        }
     }
 
     pub fn gen_select_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {

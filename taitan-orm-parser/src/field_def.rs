@@ -42,6 +42,18 @@ impl<'a> AsRef<FieldDef<'a>> for FieldDef<'a> {
 
 impl FieldDef<'_> {
 
+    pub fn is_optional(&self) -> bool {
+        self.struct_field.is_optional
+    }
+
+    pub fn is_required(&self) -> bool {
+        !self.struct_field.is_optional
+    }
+
+    pub fn is_location_expr(&self) -> bool {
+        self.struct_field.is_location_expr
+    }
+
     pub fn origin_column_name(&self) -> &Cow<'_, str> {
         match &self.table_column.name {
             Some(column_name) => column_name,

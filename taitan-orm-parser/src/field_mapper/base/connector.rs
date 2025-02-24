@@ -1,5 +1,5 @@
 use super::field_group_list::{FieldGroup, FieldGroupList};
-use super::{KeywordsEscaper, MultiFieldMapper, SingleFieldMapper};
+use super::{KeywordsEscaper, LeadingCommaType, MultiFieldMapper, SingleFieldMapper};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -360,16 +360,16 @@ pub trait Connector: MultiFieldMapper {
         let groups = field_group_list.groups;
         let first_required_index = field_group_list.first_required;
 
-        for (index, group) in groups.iter().enumerate() {
+        for (group_index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
-                    if index == first_required_index {
+                    if group_index == first_required_index {
                         let s = fields
                             .iter()
                             .enumerate()
                             .map(|(idx, f)| {
                                 if idx == 0 {
-                                    let d = SingleFieldMapper::map_dynamic(self, f, escaper);
+                                    let d = SingleFieldMapper::map_dynamic(self, f, escaper, LeadingCommaType::NoLeading,false);
                                     quote! { s.push_str(#d.as_ref()); }
                                 } else {
                                     let d = SingleFieldMapper::map_dynamic_with_leading_comma(
@@ -379,7 +379,7 @@ pub trait Connector: MultiFieldMapper {
                                 }
                             })
                             .collect::<Vec<_>>();
-                        if index == 0 {
+                        if group_index == 0 {
                             stream.extend(quote! {
                                 #(#s)*
                                 has_prev = true;
@@ -412,28 +412,29 @@ pub trait Connector: MultiFieldMapper {
                 }
 
                 FieldGroup::Optional(field) => {
-                    let field_ident = format_ident!("{}", field.struct_field.name);
-                    if index < first_required_index {
-                        let field_stream = SingleFieldMapper::map_dynamic(self, field, escaper);
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    s.push(',');
-                                } else {
-                                    has_prev = true;
-                                }
-                                s.push_str(#field_stream.as_ref());
-                            }
-                        });
-                    } else {
-                        let field_stream =
-                            SingleFieldMapper::map_dynamic_with_leading_comma(self, field, escaper);
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                s.push_str(#field_stream.as_ref());
-                            }
-                        });
-                    };
+                    stream.extend(self.transform_dynamic(field, escaper, false, 0, group_index, first_required_index));
+                    // let field_ident = format_ident!("{}", field.struct_field.name);
+                    // if index < first_required_index {
+                    //     let field_stream = SingleFieldMapper::map_dynamic(self, field, escaper);
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             if has_prev {
+                    //                 s.push(',');
+                    //             } else {
+                    //                 has_prev = true;
+                    //             }
+                    //             s.push_str(#field_stream.as_ref());
+                    //         }
+                    //     });
+                    // } else {
+                    //     let field_stream =
+                    //         SingleFieldMapper::map_dynamic_with_leading_comma(self, field, escaper);
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             s.push_str(#field_stream.as_ref());
+                    //         }
+                    //     });
+                    // };
                 }
             }
         }
@@ -459,7 +460,7 @@ pub trait Connector: MultiFieldMapper {
         let groups = field_group_list.groups;
         let first_required_index = field_group_list.first_required;
 
-        for (index, group) in groups.iter().enumerate() {
+        for (group_index, group) in groups.iter().enumerate() {
             match group {
                 FieldGroup::Required(fields) => {
                     let len = fields.len();
@@ -479,12 +480,12 @@ pub trait Connector: MultiFieldMapper {
                         })
                         .collect::<Vec<_>>();
 
-                    if index == 0 {
+                    if group_index == 0 {
                         stream.extend(quote! {
                             #(#s)*
                             has_prev = true;
                         })
-                    } else if index == first_required_index {
+                    } else if group_index == first_required_index {
                         // 前面有optional字段
                         stream.extend(quote! {
                             if has_prev {
@@ -502,33 +503,34 @@ pub trait Connector: MultiFieldMapper {
                 }
 
                 FieldGroup::Optional(field) => {
-                    let field_ident = format_ident!("{}", field.struct_field.name);
-                    if index < first_required_index {
-                        let field_stream =
-                            SingleFieldMapper::map_dynamic_indexed(self, field, escaper);
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                if has_prev {
-                                    s.push(',');
-                                } else {
-                                    has_prev = true;
-                                }
-                                s.push_str(#field_stream.as_ref());
-                                index = index + 1;
-                            }
-                        });
-                    } else {
-                        let field_stream =
-                            SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
-                                self, field, escaper,
-                            );
-                        stream.extend(quote! {
-                            if self.#field_ident.is_some() {
-                                s.push_str(#field_stream.as_ref());
-                                index = index + 1;
-                            }
-                        });
-                    };
+                    stream.extend(self.transform_dynamic(field, escaper, true, 0, group_index, first_required_index));
+                    // let field_ident = format_ident!("{}", field.struct_field.name);
+                    // if group_index < first_required_index {
+                    //     let field_stream =
+                    //         SingleFieldMapper::map_dynamic_indexed(self, field, escaper);
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             if has_prev {
+                    //                 s.push(',');
+                    //             } else {
+                    //                 has_prev = true;
+                    //             }
+                    //             s.push_str(#field_stream.as_ref());
+                    //             index = index + 1;
+                    //         }
+                    //     });
+                    // } else {
+                    //     let field_stream =
+                    //         SingleFieldMapper::map_dynamic_indexed_with_leading_comma(
+                    //             self, field, escaper,
+                    //         );
+                    //     stream.extend(quote! {
+                    //         if self.#field_ident.is_some() {
+                    //             s.push_str(#field_stream.as_ref());
+                    //             index = index + 1;
+                    //         }
+                    //     });
+                    // };
                 }
             }
         }
