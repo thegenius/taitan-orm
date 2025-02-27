@@ -8,7 +8,7 @@ use std::borrow::Cow;
 pub struct NamesMapper;
 
 impl SingleFieldMapper for NamesMapper {
-    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+    fn map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
         field.column_name(escaper)
     }
 

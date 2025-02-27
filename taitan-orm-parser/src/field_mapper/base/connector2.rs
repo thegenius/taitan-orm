@@ -21,19 +21,19 @@ pub trait Connector2: MultiFieldMapper {
         for group in groups.iter() {
             match group {
                 FieldGroup::LeadingRequired { fields, comma_type } => {
-                    stream.extend(self._map_to_stream(fields, escaper, false, *comma_type));
+                    stream.extend(self.map_to_stream(fields, escaper, false, *comma_type));
                     stream.extend(quote! { has_prev = true; });
                 }
 
                 FieldGroup::LeadingFailRequired { fields, comma_type }
                 | FieldGroup::TrailingRequired { fields, comma_type } => {
-                    stream.extend(self._map_to_stream(fields, escaper, false, *comma_type));
+                    stream.extend(self.map_to_stream(fields, escaper, false, *comma_type));
                 }
 
                 FieldGroup::LeadingOptional { field, comma_type }
                 | FieldGroup::FollowingOptional { field, comma_type }
                 | FieldGroup::TrailingOptional { field, comma_type } => {
-                    stream.extend(self._map_single_optional(field, escaper, false, *comma_type));
+                    stream.extend(self.map_single_optional(field, escaper, false, *comma_type));
                 }
             }
         }
@@ -60,7 +60,7 @@ pub trait Connector2: MultiFieldMapper {
         for group in groups.iter() {
             match group {
                 FieldGroup::LeadingRequired { fields, comma_type } => {
-                    stream.extend(self._map_to_stream(fields, escaper, true, *comma_type));
+                    stream.extend(self.map_to_stream(fields, escaper, true, *comma_type));
                     stream.extend(quote! { has_prev = true; });
                     let len = fields.len();
                     stream.extend(quote! { index += #len; });
@@ -68,14 +68,14 @@ pub trait Connector2: MultiFieldMapper {
 
                 FieldGroup::LeadingFailRequired { fields, comma_type }
                 | FieldGroup::TrailingRequired { fields, comma_type } => {
-                    let s = self._map_dynamic_fields(fields, escaper, false, true, *comma_type);
+                    let s = self.map_dynamic_fields(fields, escaper, false, true, *comma_type);
                     stream.extend(s)
                 }
 
                 FieldGroup::LeadingOptional { field, comma_type }
                 | FieldGroup::FollowingOptional { field, comma_type }
                 | FieldGroup::TrailingOptional { field, comma_type } => {
-                    stream.extend(self._map_single_optional(field, escaper, true, *comma_type));
+                    stream.extend(self.map_single_optional(field, escaper, true, *comma_type));
                 }
             }
         }
@@ -109,21 +109,21 @@ pub trait Connector2: MultiFieldMapper {
         for group in groups.iter() {
             match group {
                 FieldGroup::LeadingRequired { fields, comma_type } => {
-                    let s = self._map_dynamic_fields(fields, escaper, false, indexed, *comma_type);
+                    let s = self.map_dynamic_fields(fields, escaper, false, indexed, *comma_type);
                     stream.extend(s);
                     stream.extend(quote! { has_prev = true; });
                 }
 
                 FieldGroup::LeadingFailRequired { fields, comma_type }
                 | FieldGroup::TrailingRequired { fields, comma_type } => {
-                    let s = self._map_dynamic_fields(fields, escaper, false, indexed, *comma_type);
+                    let s = self.map_dynamic_fields(fields, escaper, false, indexed, *comma_type);
                     stream.extend(s);
                 }
 
                 FieldGroup::LeadingOptional { field, comma_type }
                 | FieldGroup::FollowingOptional { field, comma_type }
                 | FieldGroup::TrailingOptional { field, comma_type } => {
-                    stream.extend(self._map_single_optional(field, escaper, false, *comma_type));
+                    stream.extend(self.map_single_optional(field, escaper, false, *comma_type));
                 }
             }
         }

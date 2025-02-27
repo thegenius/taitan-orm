@@ -13,7 +13,7 @@ pub enum LeadingCommaType {
 }
 
 pub trait SingleFieldMapper {
-    fn _map_static<'a>(
+    fn map_static<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
@@ -26,27 +26,27 @@ pub trait SingleFieldMapper {
         escaper: &dyn KeywordsEscaper,
         index: usize,
     ) -> Cow<'a, str> {
-        self._map_static(field, escaper)
+        self.map_static(field, escaper)
     }
-    fn _map_dynamic<'a>(
+    fn map_dynamic<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
     ) -> Cow<'a, str> {
-        self._map_static(field, escaper)
+        self.map_static(field, escaper)
     }
-    fn _map_dynamic_indexed<'a>(
+    fn map_dynamic_indexed<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
     ) -> Cow<'a, str> {
-        self._map_dynamic(field, escaper)
+        self.map_dynamic(field, escaper)
     }
 
-    fn _is_expr(&self) -> bool {
+    fn is_expr(&self) -> bool {
         false
     }
-    fn _map_single<'a>(
+    fn map_single<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
@@ -56,21 +56,21 @@ pub trait SingleFieldMapper {
     ) -> TokenStream {
         let ident = format_ident!("{}", field.struct_field.name);
         let seg = if indexed {
-            self._map_dynamic_indexed(field, escaper)
+            self.map_dynamic_indexed(field, escaper)
         } else {
-            self._map_dynamic(field, escaper)
+            self.map_dynamic(field, escaper)
         };
-        let seg = FieldSeg::from(seg, Some(ident), indexed, self._is_expr());
+        let seg = FieldSeg::from(seg, Some(ident), indexed, self.is_expr());
         seg.translate(leading_comma_type, is_optional)
     }
-    fn _map_single_optional<'a>(
+    fn map_single_optional<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
         indexed: bool,
         leading_comma_type: LeadingCommaType,
     ) -> TokenStream {
-        self._map_single(field, escaper, true, indexed, leading_comma_type)
+        self.map_single(field, escaper, true, indexed, leading_comma_type)
     }
 
     // fn get_value_name(&self) -> &'static str;

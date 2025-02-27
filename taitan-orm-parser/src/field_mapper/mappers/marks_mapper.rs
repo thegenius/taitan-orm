@@ -9,7 +9,7 @@ use std::borrow::Cow;
 pub struct MarksMapper;
 
 impl SingleFieldMapper for MarksMapper {
-    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+    fn map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
         Cow::Borrowed("?")
     }
 
@@ -17,7 +17,7 @@ impl SingleFieldMapper for MarksMapper {
         Cow::Owned(format!("${}", index + 1))
     }
 
-    fn _map_dynamic_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+    fn map_dynamic_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
         Cow::Borrowed("${}")
     }
 

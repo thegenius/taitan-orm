@@ -9,12 +9,16 @@ use std::borrow::Cow;
 pub struct SetsMapper;
 
 impl SingleFieldMapper for SetsMapper {
-    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+    fn map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
         Cow::Owned(format!("{}=?", field.column_name(escaper)))
     }
 
     fn _map_static_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
         Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+    }
+
+    fn map_dynamic_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        Cow::Owned(format!("{}=${{}}", field.column_name(escaper)))
     }
 
 

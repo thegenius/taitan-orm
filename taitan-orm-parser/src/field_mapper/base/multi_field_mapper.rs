@@ -6,7 +6,7 @@ use std::borrow::Cow;
 use crate::field_mapper::base::LeadingCommaType::Leading;
 
 pub trait MultiFieldMapper: SingleFieldMapper {
-    fn _map_to_stream<'a, T>(
+    fn map_to_stream<'a, T>(
         &self,
         fields: T,
         escaper: &dyn KeywordsEscaper,
@@ -17,27 +17,27 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>>,
     {
         let segments = if indexed {
-            MultiFieldMapper::_map_static_indexed_fields(self, fields, escaper)
+            MultiFieldMapper::map_static_indexed_fields(self, fields, escaper)
         } else {
-            MultiFieldMapper::_map_static_fields(self, fields, escaper)
+            MultiFieldMapper::map_static_fields(self, fields, escaper)
         };
         // treat as not indexed segment
         FieldSeg::from_seg(segments, false).translate(leading_comma_type, false)
     }
-    fn _map_static_fields<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>
+    fn map_static_fields<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>
     where
         T: IntoIterator<Item = &'a FieldDef<'a>>,
     {
         let s = fields
             .into_iter()
             .enumerate()
-            .map(|(index, field)| SingleFieldMapper::_map_static(self, field.as_ref(), escaper))
+            .map(|(index, field)| SingleFieldMapper::map_static(self, field.as_ref(), escaper))
             .collect::<Vec<Cow<'_, str>>>()
             .join(",");
         Cow::Owned(s)
     }
 
-    fn _map_static_indexed_fields<'a, T>(
+    fn map_static_indexed_fields<'a, T>(
         &self,
         fields: T,
         escaper: &dyn KeywordsEscaper,
@@ -56,7 +56,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         Cow::Owned(s)
     }
 
-    fn _map_dynamic_fields<'a, T>(
+    fn map_dynamic_fields<'a, T>(
         &self,
         fields: T,
         escaper: &dyn KeywordsEscaper,
@@ -69,9 +69,9 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         let mut stream = TokenStream::new();
         for (index, field) in fields.into_iter().enumerate() {
             if index == 0 {
-                stream.extend(self._map_single(field, escaper, is_optional, indexed, comma_type));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, comma_type));
             } else {
-                stream.extend(self._map_single(field, escaper, is_optional, indexed, Leading));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, Leading));
             }
         };
         stream

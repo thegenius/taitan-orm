@@ -9,7 +9,7 @@ use std::borrow::Cow;
 pub struct UpsertSetsMapper;
 
 impl SingleFieldMapper for UpsertSetsMapper {
-    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+    fn map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
         let name = field.column_name(escaper);
         let upsert_name = field.column_name_upsert(escaper);
         Cow::Owned(format!("{}={}", name, upsert_name))
