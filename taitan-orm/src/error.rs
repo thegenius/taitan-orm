@@ -1,3 +1,4 @@
+use std::error::Error;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -5,11 +6,8 @@ pub enum TaitanOrmError {
     #[error("databse init fail with args: `{0}`")]
     DatabaseInitFail(String),
 
-    #[error(transparent)]
-    SqlxError(#[from] sqlx::Error),
-
-    #[error(transparent)]
-    BoxDynError(#[from] Box<dyn std::error::Error + 'static + Send + Sync>),
+    #[error("sqlx error: `{0}`")]
+    SqlxError(String),
 
     #[error(transparent)]
     NotValidCmpErr(#[from] taitan_orm_trait::NotValidCmpError),
@@ -23,12 +21,8 @@ pub enum TaitanOrmError {
     #[error(transparent)]
     NotImplementTrait(#[from] taitan_orm_trait::NotImplementError),
 
-
-    // #[error(transparent)]
-    // BoxDynNoStaticError(#[from] Box<dyn std::error::Error + Send + Sync>),
-
-    #[error(transparent)]
-    BoxDynError2(#[from] Box<dyn std::error::Error>),
+    #[error("box dyn error: `{0}`")]
+    BoxDynError(String),
 
     #[error("execute template paged search must has count sql")]
     TemplatePagedNotHasCountSql,
@@ -50,6 +44,22 @@ pub enum TaitanOrmError {
 
     #[error("dynamic request parse error: {0}")]
     DynamicRequestParseError(String),
-
-
 }
+
+impl From<Box<dyn std::error::Error + Send + Sync>> for TaitanOrmError {
+    fn from(e: Box<dyn std::error::Error + Send + Sync>) -> Self {
+        TaitanOrmError::BoxDynError(e.to_string())
+    }
+}
+impl From<Box<dyn std::error::Error>> for TaitanOrmError {
+    fn from(value: Box<dyn Error>) -> Self {
+        TaitanOrmError::BoxDynError(value.to_string())
+    }
+}
+
+impl From<sqlx::Error> for TaitanOrmError {
+    fn from(value: sqlx::Error) -> Self {
+        TaitanOrmError::SqlxError(value.to_string())
+    }
+}
+

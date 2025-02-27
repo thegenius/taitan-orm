@@ -327,14 +327,14 @@ mod tests {
         let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, true).to_string();
         assert_eq!(
             stream,
-            r#"if ! self . name . is_none () { { index += 1 ; format ! (",name=${}" , index) } } else { "" . to_string () }"#
+            r#"if ! self . name . is_none () { { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) } }"#
         );
 
         let stream =
             translate_val_seg(&field_seg, LeadingCommaType::CheckedLeading, true).to_string();
         assert_eq!(
             stream,
-            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; format ! (",name=${}" , index) } else { has_next = true ; index += 1 ; format ! ("name=${}" , index) } } } else { "" . to_string () }"#
+            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) ; } else { has_next = true ; index += 1 ; s . s . push_str (format ! ("name=${}" , index) . as_ref ()) ; } } }"#
         );
     }
 }

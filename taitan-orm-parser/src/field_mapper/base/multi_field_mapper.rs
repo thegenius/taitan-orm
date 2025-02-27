@@ -21,7 +21,8 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         } else {
             MultiFieldMapper::_map_static_fields(self, fields, escaper)
         };
-        FieldSeg::from_seg(segments, indexed).translate(leading_comma_type, false)
+        // treat as not indexed segment
+        FieldSeg::from_seg(segments, false).translate(leading_comma_type, false)
     }
     fn _map_static_fields<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>
     where

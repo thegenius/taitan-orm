@@ -2,6 +2,7 @@ mod state;
 
 use crate::state::AppState;
 use axum::extract::{Path, Query, State};
+use axum::debug_handler;
 use axum::response::IntoResponse;
 use axum::routing::{delete, patch, post};
 use axum::{routing::get, Json, Router};
@@ -9,8 +10,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ops::DerefMut;
 use std::sync::Arc;
-use tracing::info;
 use taitan_orm::prelude::*;
+use tracing::info;
 
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table_name = "user"]
@@ -22,6 +23,12 @@ pub struct User {
     id: i32,
     name: String,
     age: Optional<i32>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Users {
+    user_a: User,
+    user_b: User,
 }
 
 #[tokio::main]
@@ -59,6 +66,7 @@ async fn main() {
         .route("/user", post(create_user))
         .route("/user", patch(update_user))
         .route("/user/{id}", delete(delete_user))
+        .route("/users", post(create_users))
         .with_state(shared_state.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
@@ -73,6 +81,18 @@ async fn create_user(
 ) -> impl IntoResponse {
     let success = state.insert(&entity).await.unwrap();
     format!("insert {}", success)
+}
+
+#[axum::debug_handler]
+async fn create_users(
+    State(state): State<Arc<AppState>>,
+    Json(entity): Json<Users>,
+) -> String {
+    let mut trx = state.transaction().await.unwrap();
+    // trx.insert(&entity.user_a).await.unwrap();
+    // trx.insert(&entity.user_b).await.unwrap();
+    trx.commit().await.unwrap();
+    "insert all users success".to_string()
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -91,15 +111,9 @@ async fn update_user(
     format!("update {}", success)
 }
 
-async fn delete_user(
-    State(state): State<Arc<AppState>>,
-    Path(id): Path<i32>,
-) -> impl IntoResponse {
-    let primary = UserPrimary {id};
-    let success = state
-        .delete(&primary)
-        .await
-        .unwrap();
+async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) -> impl IntoResponse {
+    let primary = UserPrimary { id };
+    let success = state.delete(&primary).await.unwrap();
     format!("update {}", success)
 }
 
