@@ -60,6 +60,13 @@ pub fn wrap_encode<T>(result: Result<T, BoxDynError>) -> Result<T, TaitanOrmErro
     }
 }
 
+impl From<BoxDynError> for TaitanOrmError {
+    fn from(e: BoxDynError) -> Self {
+        TaitanOrmError::EncodeError(e.to_string())
+    }
+}
+
+
 impl From<sqlx::Error> for TaitanOrmError {
     fn from(e: sqlx::Error) -> Self {
         match e {

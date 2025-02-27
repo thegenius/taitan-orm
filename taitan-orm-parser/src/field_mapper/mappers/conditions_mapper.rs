@@ -1,5 +1,5 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
-use crate::field_mapper::base::LeadingCommaType;
+use crate::field_mapper::base::{FieldExprSeg, FieldSeg, FieldValSeg, LeadingCommaType};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -9,9 +9,66 @@ use std::borrow::Cow;
 pub struct ConditionsMapper;
 
 impl SingleFieldMapper for ConditionsMapper {
+    fn _map_dynamic<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+    ) -> Cow<'a, str> {
+        let column_name = field.column_name(escaper);
+        Cow::Owned(format!("{}{{}}?", column_name))
+    }
+
+    fn _map_dynamic_indexed<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+    ) -> Cow<'a, str> {
+        let column_name = field.column_name(escaper);
+        Cow::Owned(format!("{}{{}}${{}}", column_name))
+    }
+
+    fn _is_expr(&self) -> bool {
+        true
+    }
+
     fn get_value_name(&self) -> &'static str {
         "conditions"
     }
+
+    // fn map_single<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    // ) -> FieldSeg<'a> {
+    //     let field_name = &field.struct_field.name;
+    //     let column_name = field.column_name(escaper);
+    //     let ident = format_ident!("{}", field_name);
+    //     if indexed {
+    //         FieldSeg::Expr(FieldExprSeg::IndexedSeg {
+    //             val: Cow::Owned(format!("{column_name}{{}}${{}}")),
+    //             ident,
+    //         })
+    //     } else {
+    //         FieldSeg::Expr(FieldExprSeg::Seg {
+    //             val: Cow::Owned(format!("{column_name}{{}}?")),
+    //             ident,
+    //         })
+    //     }
+    // }
+
+    // fn map_single<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    // ) -> FieldSeg<'a> {
+    //     if indexed {
+    //         FieldSeg::IndexedSeg(Cow::Owned(format!("{}{{}}?", name)))
+    //     } else {
+    //         FieldSeg::Seg(Cow::Owned(format!("{}{{}}?", name)))
+    //     }
+    // }
 
     fn map(
         &self,

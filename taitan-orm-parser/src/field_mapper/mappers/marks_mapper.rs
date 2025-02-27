@@ -1,17 +1,47 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
-use crate::field_mapper::base::LeadingCommaType;
+use crate::field_mapper::base::{FieldSeg, FieldValSeg, LeadingCommaType};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use std::borrow::Cow;
 
 #[derive(Default, Clone, Debug)]
 pub struct MarksMapper;
 
 impl SingleFieldMapper for MarksMapper {
+    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        Cow::Borrowed("?")
+    }
+
+    fn _map_static_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
+        Cow::Owned(format!("${}", index + 1))
+    }
+
+
     fn get_value_name(&self) -> &'static str {
         "marks"
     }
+
+    // fn map_single<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    // ) -> FieldSeg<'a> {
+    //     let ident = format_ident!("{}", field.struct_field.name);
+    //     if indexed {
+    //         FieldSeg::Val(FieldValSeg::IndexedSeg {
+    //             val: Cow::Borrowed("${}"),
+    //             ident,
+    //         })
+    //     } else {
+    //         FieldSeg::Val(FieldValSeg::Seg {
+    //             val: Cow::Borrowed("?"),
+    //             ident,
+    //         })
+    //     }
+    // }
+
     fn map(
         &self,
         field: &FieldDef,

@@ -1,31 +1,57 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
+use crate::field_mapper::base::{FieldSeg, FieldValSeg, LeadingCommaType};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use std::borrow::Cow;
-use crate::field_mapper::base::LeadingCommaType;
 
 #[derive(Default, Debug, Clone)]
 pub struct UpsertSetsMapper;
 
 impl SingleFieldMapper for UpsertSetsMapper {
+    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        let name = field.column_name(escaper);
+        let upsert_name = field.column_name_upsert(escaper);
+        Cow::Owned(format!("{}={}", name, upsert_name))
+    }
+
     fn get_value_name(&self) -> &'static str {
         "upsert_names"
     }
 
-    fn map(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper, leading_comma_type: LeadingCommaType) -> Cow<'_, str> {
+    // fn map_single<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    // ) -> FieldSeg<'a> {
+    //     let column_name = field.column_name(escaper);
+    //     let upsert_name = field.column_name_upsert(escaper);
+    //     let ident = format_ident!("{}", field.struct_field.name);
+    //     FieldSeg::Val(FieldValSeg::Seg {
+    //         val: Cow::Owned(format!("{column_name}={upsert_name}")),
+    //         ident,
+    //     })
+    // }
+
+    fn map(
+        &self,
+        field: &FieldDef,
+        escaper: &dyn KeywordsEscaper,
+        leading_comma_type: LeadingCommaType,
+    ) -> Cow<'_, str> {
         match leading_comma_type {
-            LeadingCommaType::NoLeading=> {
+            LeadingCommaType::NoLeading => {
                 let name = field.column_name(escaper);
                 let upsert_name = field.column_name_upsert(escaper);
                 Cow::Owned(format!("{}={}", name, upsert_name))
             }
-            LeadingCommaType::Leading=> {
+            LeadingCommaType::Leading => {
                 let name = field.column_name(escaper);
                 let upsert_name = field.column_name_upsert(escaper);
                 Cow::Owned(format!(",{}={}", name, upsert_name))
             }
-            LeadingCommaType::CheckedLeading=> {
+            LeadingCommaType::CheckedLeading => {
                 panic!("can not generate checked leading comma in compile time")
             }
         }
@@ -62,7 +88,13 @@ impl SingleFieldMapper for UpsertSetsMapper {
     //     Cow::Owned(format!(",{}={}", name, upsert_name))
     // }
 
-    fn map_dynamic(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper, leading_comma_type: LeadingCommaType, indexed: bool) -> TokenStream {
+    fn map_dynamic(
+        &self,
+        field: &FieldDef,
+        escaper: &dyn KeywordsEscaper,
+        leading_comma_type: LeadingCommaType,
+        indexed: bool,
+    ) -> TokenStream {
         let name = field.column_name(escaper);
         let upsert_name = field.column_name_upsert(escaper);
         let format_str = format!("{}={}", name, upsert_name);

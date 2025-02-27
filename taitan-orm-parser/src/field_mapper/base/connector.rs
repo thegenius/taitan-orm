@@ -196,14 +196,14 @@ pub trait Connector: MultiFieldMapper {
             match group {
                 FieldGroup::Required(fields) => {
                     if group_index == 0 {
-                        let literal_payload = MultiFieldMapper::map(self, fields, escaper);
+                        let literal_payload = MultiFieldMapper::map(self, fields, escaper, false);
                         stream.extend(quote! {
                             s.push_str(#literal_payload);
                             has_prev = true;
                         })
                     } else if group_index == first_required_index {
                         // 因为index != 0，所以前面一定有optional的字段
-                        let literal_payload = MultiFieldMapper::map(self, fields, escaper);
+                        let literal_payload = MultiFieldMapper::map(self, fields, escaper, false);
                         stream.extend(quote! {
                             if has_prev {
                                 s.push(',')
@@ -214,7 +214,7 @@ pub trait Connector: MultiFieldMapper {
                         })
                     } else {
                         let literal_payload =
-                            MultiFieldMapper::map_with_leading_comma(self, fields, escaper);
+                            MultiFieldMapper::map(self, fields, escaper, true);
                         stream.extend(quote! {
                             s.push_str(#literal_payload);
                         })
@@ -271,7 +271,7 @@ pub trait Connector: MultiFieldMapper {
             match group {
                 FieldGroup::Required(fields) => {
                     if index == 0 {
-                        let literal_payload = MultiFieldMapper::map_indexed(self, fields, escaper);
+                        let literal_payload = MultiFieldMapper::map_indexed(self, fields, escaper, false);
                         let len = fields.len();
                         stream.extend(quote! {
                             s.push_str(#literal_payload);

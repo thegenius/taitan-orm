@@ -1,4 +1,5 @@
 use super::KeywordsEscaper;
+use crate::field_mapper::base::field_seg::FieldSeg;
 use crate::FieldDef;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -11,14 +12,67 @@ pub enum LeadingCommaType {
     CheckedLeading,
 }
 
-pub enum FieldSeg<'a> {
-    // name, name=VALUES(name), ?, name=?, name{}?
-    Seg(Cow<'a, str>),
-    // ${}, name=${}, name{}${}
-    IndexedSeg(Cow<'a, str>),
-}
-
 pub trait SingleFieldMapper {
+    fn _map_static<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+    ) -> Cow<'a, str> {
+        panic!("_map_static is not implemented")
+    }
+    fn _map_static_indexed<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+        index: usize,
+    ) -> Cow<'a, str> {
+        self._map_static(field, escaper)
+    }
+    fn _map_dynamic<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+    ) -> Cow<'a, str> {
+        self._map_static(field, escaper)
+    }
+    fn _map_dynamic_indexed<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+    ) -> Cow<'a, str> {
+        self._map_dynamic(field, escaper)
+    }
+
+    fn _is_expr(&self) -> bool {
+        false
+    }
+    fn _map_single<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+        is_optional: bool,
+        indexed: bool,
+        leading_comma_type: LeadingCommaType,
+    ) -> TokenStream {
+        let ident = format_ident!("{}", field.struct_field.name);
+        let seg = if indexed {
+            self._map_dynamic_indexed(field, escaper)
+        } else {
+            self._map_dynamic(field, escaper)
+        };
+        let seg = FieldSeg::from(seg, Some(ident), indexed, self._is_expr());
+        seg.translate(leading_comma_type, is_optional)
+    }
+    fn _map_single_optional<'a>(
+        &'a self,
+        field: &'a FieldDef<'a>,
+        escaper: &dyn KeywordsEscaper,
+        indexed: bool,
+        leading_comma_type: LeadingCommaType,
+    ) -> TokenStream {
+        self._map_single(field, escaper, true, indexed, leading_comma_type)
+    }
+
     fn get_value_name(&self) -> &'static str;
 
     fn map_compile_time<'a>(
@@ -182,7 +236,31 @@ pub trait SingleFieldMapper {
         }
     }
 
+    // fn map_single_compiled<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     index: Option<usize>,
+    // ) -> Cow<'a, str> {
+    //     if let Some(idx) = index {
+    //         let field_seg = self.map_single(field, escaper, true);
+    //         assert_eq!(field_seg.is_expr(), false);
+    //         assert_eq!(field_seg.is_indexed(), true);
+    //         Cow::Owned(format!(field_seg.get_value())
+    //     } else {
+    //         let field_seg = self.map_single(field, escaper, false);
+    //         assert_eq!(field_seg.is_expr(), false);
+    //         assert_eq!(field_seg.is_indexed(), false);
+    //         Cow::Borrowed(field_seg.get_value())
+    //     }
+    // }
 
+    // fn map_single<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    // ) -> FieldSeg<'a>;
 
     fn map<'a>(
         &'a self,
@@ -198,6 +276,17 @@ pub trait SingleFieldMapper {
         leading_comma: LeadingCommaType,
         index: usize,
     ) -> Cow<'a, str>;
+
+    // fn translate_dynamic<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma: LeadingCommaType,
+    //     indexed: bool,
+    // ) -> TokenStream {
+    //     let ident = format_ident!("{}", field.struct_field.name);
+    //     let field_seg = FieldSeg::from_str()
+    // }
 
     // fn map_with_leading_comma<'a>(
     //     &'a self,

@@ -1,16 +1,31 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
-use crate::field_mapper::base::LeadingCommaType;
+use crate::field_mapper::base::{FieldSeg, FieldValSeg, LeadingCommaType};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use std::borrow::Cow;
 #[derive(Default, Debug, Clone)]
 pub struct NamesMapper;
 
 impl SingleFieldMapper for NamesMapper {
+    fn _map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        field.column_name(escaper)
+    }
+
+
     fn get_value_name(&self) -> &'static str {
         "names"
     }
+
+    // fn map_single<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, indexed: bool) -> FieldSeg<'a> {
+    //     let column_name = field.column_name(escaper);
+    //     let ident = format_ident!("{}", field.struct_field.name);
+    //     FieldSeg::Val(FieldValSeg::Seg {
+    //         val: column_name,
+    //         ident,
+    //     })
+    // }
+
 
     fn map<'a>(
         &'a self,

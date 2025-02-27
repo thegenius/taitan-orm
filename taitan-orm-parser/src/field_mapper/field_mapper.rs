@@ -1,12 +1,15 @@
 use super::base::{
-    Connector, KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
+    KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper};
+use super::mappers::{
+    ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper,
+};
+use crate::field_mapper::base::Connector2;
 use crate::DatabaseType;
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use std::borrow::Cow;
 use quote::quote;
+use std::borrow::Cow;
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -42,9 +45,10 @@ impl FieldMapper {
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
-        let streams = fields.into_iter().map(|def| {
-            self.args_mapper.map_add_to_args(def)
-        }).collect::<Vec<_>>();
+        let streams = fields
+            .into_iter()
+            .map(|def| self.args_mapper.map_add_to_args(def))
+            .collect::<Vec<_>>();
         quote! {
             #( #streams )*
         }
@@ -54,7 +58,8 @@ impl FieldMapper {
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
-        self.names_mapper.connect(fields, self.get_escaper(db_type))
+        self.names_mapper
+            ._connect(fields, self.get_escaper(db_type))
     }
 
     pub fn gen_upsert_sets<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
@@ -62,7 +67,7 @@ impl FieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         self.upsert_sets_mapper
-            .connect(fields, self.get_escaper(db_type))
+            ._connect(fields, self.get_escaper(db_type))
     }
 
     pub fn gen_marks<'a, T>(&self, fields: T, db_type: &DatabaseType) -> TokenStream
@@ -70,10 +75,12 @@ impl FieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         match db_type {
-            DatabaseType::MySql => self.marks_mapper.connect(fields, self.get_escaper(db_type)),
+            DatabaseType::MySql => self
+                .marks_mapper
+                ._connect(fields, self.get_escaper(db_type)),
             _ => self
                 .marks_mapper
-                .connect_indexed(fields, self.get_escaper(db_type)),
+                ._connect_indexed(fields, self.get_escaper(db_type)),
         }
     }
 
@@ -89,10 +96,10 @@ impl FieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         match db_type {
-            DatabaseType::MySql => self.sets_mapper.connect(fields, self.get_escaper(db_type)),
+            DatabaseType::MySql => self.sets_mapper._connect(fields, self.get_escaper(db_type)),
             _ => self
                 .sets_mapper
-                .connect_indexed(fields, self.get_escaper(db_type)),
+                ._connect_indexed(fields, self.get_escaper(db_type)),
         }
     }
 
@@ -109,8 +116,13 @@ impl FieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         match db_type {
-            DatabaseType::MySql => self.conditions_mapper.connect_dynamic(fields, self.get_escaper(db_type)),
-            _=> self.conditions_mapper.connect_dynamic_indexed(fields, self.get_escaper(db_type)),
+            DatabaseType::MySql => {
+                self.conditions_mapper
+                    ._connect_expr(fields, self.get_escaper(db_type), false)
+            }
+            _ => self
+                .conditions_mapper
+                ._connect_expr(fields, self.get_escaper(db_type), true),
         }
     }
 
