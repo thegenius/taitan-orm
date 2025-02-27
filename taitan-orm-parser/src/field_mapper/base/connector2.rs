@@ -1,12 +1,10 @@
 use crate::field_mapper::base::field_group_list2::{FieldGroup, FieldGroupList};
-use crate::field_mapper::base::LeadingCommaType::Leading;
-use crate::field_mapper::base::{Connector, SingleFieldMapper};
-use crate::field_mapper::base::{LeadingCommaType, MultiFieldMapper};
+
+use crate::field_mapper::base::MultiFieldMapper;
+use crate::field_mapper::base::SingleFieldMapper;
 use crate::{FieldDef, KeywordsEscaper};
 use proc_macro2::TokenStream;
 use quote::quote;
-// connect(fields, escaper): [names, upserts, marks, sets]
-// groups = fields.split_into_group
 
 pub trait Connector2: MultiFieldMapper {
     fn _connect<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> TokenStream

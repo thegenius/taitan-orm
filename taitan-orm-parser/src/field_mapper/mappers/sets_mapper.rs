@@ -18,9 +18,9 @@ impl SingleFieldMapper for SetsMapper {
     }
 
 
-    fn get_value_name(&self) -> &'static str {
-        "sets"
-    }
+    // fn get_value_name(&self) -> &'static str {
+    //     "sets"
+    // }
 
     // fn map_single<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, indexed: bool) -> FieldSeg<'a> {
     //     let ident = format_ident!("{}", field.struct_field.name);
@@ -39,40 +39,40 @@ impl SingleFieldMapper for SetsMapper {
     // }
 
 
-    fn map(
-        &self,
-        field: &FieldDef,
-        escaper: &dyn KeywordsEscaper,
-        leading_comma_type: LeadingCommaType,
-    ) -> Cow<'_, str> {
-        match leading_comma_type {
-            LeadingCommaType::Leading => Cow::Owned(format!(",{}=?", field.column_name(escaper))),
-            LeadingCommaType::NoLeading => Cow::Owned(format!("{}=?", field.column_name(escaper))),
-            LeadingCommaType::CheckedLeading => {
-                panic!("can not generate checked leading comma in compile time")
-            }
-        }
-    }
-
-    fn map_indexed<'a>(
-        &'a self,
-        field: &'a FieldDef<'a>,
-        escaper: &dyn KeywordsEscaper,
-        leading_comma_type: LeadingCommaType,
-        index: usize,
-    ) -> Cow<'a, str> {
-        match leading_comma_type {
-            LeadingCommaType::NoLeading => {
-                Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
-            }
-            LeadingCommaType::Leading => {
-                Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
-            }
-            LeadingCommaType::CheckedLeading => {
-                panic!("can not generate checked leading comma in compile time")
-            }
-        }
-    }
+    // fn map(
+    //     &self,
+    //     field: &FieldDef,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma_type: LeadingCommaType,
+    // ) -> Cow<'_, str> {
+    //     match leading_comma_type {
+    //         LeadingCommaType::Leading => Cow::Owned(format!(",{}=?", field.column_name(escaper))),
+    //         LeadingCommaType::NoLeading => Cow::Owned(format!("{}=?", field.column_name(escaper))),
+    //         LeadingCommaType::CheckedLeading => {
+    //             panic!("can not generate checked leading comma in compile time")
+    //         }
+    //     }
+    // }
+    //
+    // fn map_indexed<'a>(
+    //     &'a self,
+    //     field: &'a FieldDef<'a>,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma_type: LeadingCommaType,
+    //     index: usize,
+    // ) -> Cow<'a, str> {
+    //     match leading_comma_type {
+    //         LeadingCommaType::NoLeading => {
+    //             Cow::Owned(format!("{}=${}", field.column_name(escaper), index + 1))
+    //         }
+    //         LeadingCommaType::Leading => {
+    //             Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
+    //         }
+    //         LeadingCommaType::CheckedLeading => {
+    //             panic!("can not generate checked leading comma in compile time")
+    //         }
+    //     }
+    // }
 
     // fn map_with_leading_comma<'a>(
     //     &'a self,
@@ -91,41 +91,41 @@ impl SingleFieldMapper for SetsMapper {
     //     Cow::Owned(format!(",{}=${}", field.column_name(escaper), index + 1))
     // }
 
-    fn map_dynamic(
-        &self,
-        field: &FieldDef,
-        escaper: &dyn KeywordsEscaper,
-        leading_comma_type: LeadingCommaType,
-        indexed: bool,
-    ) -> TokenStream {
-        let name = field.column_name(escaper);
-        let format_str = format!("{}=?", name);
-        quote! { #format_str }
-    }
-
-    fn map_dynamic_with_leading_comma(
-        &self,
-        field: &FieldDef,
-        escaper: &dyn KeywordsEscaper,
-    ) -> TokenStream {
-        let name = field.column_name(escaper);
-        let format_str = format!(",{}=?", name);
-        quote! { #format_str }
-    }
-
-    fn map_dynamic_indexed(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
-        let name = field.column_name(escaper);
-        let format_str = format!("{}=${{}}", name);
-        quote! {format!(#format_str, index)}
-    }
-
-    fn map_dynamic_indexed_with_leading_comma(
-        &self,
-        field: &FieldDef,
-        escaper: &dyn KeywordsEscaper,
-    ) -> TokenStream {
-        let name = field.column_name(escaper);
-        let format_str = format!(",{}=${{}}", name);
-        quote! {format!(#format_str, index)}
-    }
+    // fn map_dynamic(
+    //     &self,
+    //     field: &FieldDef,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma_type: LeadingCommaType,
+    //     indexed: bool,
+    // ) -> TokenStream {
+    //     let name = field.column_name(escaper);
+    //     let format_str = format!("{}=?", name);
+    //     quote! { #format_str }
+    // }
+    //
+    // fn map_dynamic_with_leading_comma(
+    //     &self,
+    //     field: &FieldDef,
+    //     escaper: &dyn KeywordsEscaper,
+    // ) -> TokenStream {
+    //     let name = field.column_name(escaper);
+    //     let format_str = format!(",{}=?", name);
+    //     quote! { #format_str }
+    // }
+    //
+    // fn map_dynamic_indexed(&self, field: &FieldDef, escaper: &dyn KeywordsEscaper) -> TokenStream {
+    //     let name = field.column_name(escaper);
+    //     let format_str = format!("{}=${{}}", name);
+    //     quote! {format!(#format_str, index)}
+    // }
+    //
+    // fn map_dynamic_indexed_with_leading_comma(
+    //     &self,
+    //     field: &FieldDef,
+    //     escaper: &dyn KeywordsEscaper,
+    // ) -> TokenStream {
+    //     let name = field.column_name(escaper);
+    //     let format_str = format!(",{}=${{}}", name);
+    //     quote! {format!(#format_str, index)}
+    // }
 }

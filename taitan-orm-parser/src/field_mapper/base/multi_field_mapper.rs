@@ -77,83 +77,83 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         stream
     }
 
-    fn map_group<'a, T>(
-        &self,
-        fields: T,
-        escaper: &dyn KeywordsEscaper,
-        indexed: bool,
-        leading_comma: bool,
-    ) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>>,
-    {
-        if indexed {
-            MultiFieldMapper::map_indexed(self, fields, escaper, leading_comma)
-        } else {
-            MultiFieldMapper::map(self, fields, escaper, leading_comma)
-        }
-    }
-
-    fn map<'a, T>(
-        &self,
-        fields: T,
-        escaper: &dyn KeywordsEscaper,
-        leading_comma: bool,
-    ) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>>,
-    {
-        let origin = fields
-            .into_iter()
-            .enumerate()
-            .map(|(index, field)| {
-                SingleFieldMapper::map(self, field.as_ref(), escaper, LeadingCommaType::NoLeading)
-            })
-            .collect::<Vec<Cow<'_, str>>>()
-            .join(",");
-        let stream = if leading_comma {
-            format!(",{}", origin)
-        } else {
-            origin
-        };
-        quote! {
-            #stream
-        }
-    }
-
-    fn map_indexed<'a, T>(
-        &self,
-        fields: T,
-        escaper: &dyn KeywordsEscaper,
-        leading_comma: bool,
-    ) -> TokenStream
-    where
-        T: IntoIterator<Item = &'a FieldDef<'a>>,
-    {
-        let origin = fields
-            .into_iter()
-            .enumerate()
-            .map(|(index, field)| {
-                let name = SingleFieldMapper::map_indexed(
-                    self,
-                    field,
-                    escaper,
-                    LeadingCommaType::NoLeading,
-                    index,
-                );
-                name
-            })
-            .collect::<Vec<Cow<'_, str>>>()
-            .join(",");
-        let stream = if leading_comma {
-            format!(",{}", origin)
-        } else {
-            origin
-        };
-        quote! {
-            #stream
-        }
-    }
+    // fn map_group<'a, T>(
+    //     &self,
+    //     fields: T,
+    //     escaper: &dyn KeywordsEscaper,
+    //     indexed: bool,
+    //     leading_comma: bool,
+    // ) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>>,
+    // {
+    //     if indexed {
+    //         MultiFieldMapper::map_indexed(self, fields, escaper, leading_comma)
+    //     } else {
+    //         MultiFieldMapper::map(self, fields, escaper, leading_comma)
+    //     }
+    // }
+    //
+    // fn map<'a, T>(
+    //     &self,
+    //     fields: T,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma: bool,
+    // ) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>>,
+    // {
+    //     let origin = fields
+    //         .into_iter()
+    //         .enumerate()
+    //         .map(|(index, field)| {
+    //             SingleFieldMapper::map(self, field.as_ref(), escaper, LeadingCommaType::NoLeading)
+    //         })
+    //         .collect::<Vec<Cow<'_, str>>>()
+    //         .join(",");
+    //     let stream = if leading_comma {
+    //         format!(",{}", origin)
+    //     } else {
+    //         origin
+    //     };
+    //     quote! {
+    //         #stream
+    //     }
+    // }
+    //
+    // fn map_indexed<'a, T>(
+    //     &self,
+    //     fields: T,
+    //     escaper: &dyn KeywordsEscaper,
+    //     leading_comma: bool,
+    // ) -> TokenStream
+    // where
+    //     T: IntoIterator<Item = &'a FieldDef<'a>>,
+    // {
+    //     let origin = fields
+    //         .into_iter()
+    //         .enumerate()
+    //         .map(|(index, field)| {
+    //             let name = SingleFieldMapper::map_indexed(
+    //                 self,
+    //                 field,
+    //                 escaper,
+    //                 LeadingCommaType::NoLeading,
+    //                 index,
+    //             );
+    //             name
+    //         })
+    //         .collect::<Vec<Cow<'_, str>>>()
+    //         .join(",");
+    //     let stream = if leading_comma {
+    //         format!(",{}", origin)
+    //     } else {
+    //         origin
+    //     };
+    //     quote! {
+    //         #stream
+    //     }
+    // }
 
     // fn map_with_leading_comma<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> TokenStream
     // where
