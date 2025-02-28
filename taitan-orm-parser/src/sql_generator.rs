@@ -1,6 +1,7 @@
 use crate::{DatabaseType, FieldMapper, SqlType, TableDef};
 use proc_macro2::TokenStream;
 use quote::quote;
+use crate::condition_def::ConditionDef;
 
 #[derive(Debug, Default)]
 pub struct SqlGenerator;
@@ -79,9 +80,14 @@ impl SqlGenerator {
         field_mapper.gen_sets(&table_def.fields, db_type)
     }
 
-    pub fn gen_where_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
+    pub fn gen_where_sql(&self, condition_def: &ConditionDef, db_type: &DatabaseType) -> TokenStream {
         let field_mapper = FieldMapper::new();
-        let stream = field_mapper.gen_conditions(&table_def.fields, db_type);
+        let mut stream = TokenStream::new();
+        for variant in &condition_def.variants {
+            let s = field_mapper.gen_conditions(&variant.fields, db_type);
+            stream.extend(s);
+        }
+
         quote! {
             let s = #stream;
             std::borrow::Cow::Owned(s)

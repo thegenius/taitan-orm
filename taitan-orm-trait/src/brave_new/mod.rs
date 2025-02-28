@@ -14,6 +14,7 @@ mod paged_info;
 mod paged_list;
 pub mod param;
 
+pub use location::LogicOp;
 pub use entity::Entity;
 pub use location::Location;
 pub use unique::Unique;

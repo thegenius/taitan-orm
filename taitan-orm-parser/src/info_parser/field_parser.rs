@@ -1,5 +1,5 @@
 use crate::attr_parser::AttrParser;
-use crate::field_def::{FieldDef, StructFieldDef, TableColumnDef};
+use crate::field_def::{FieldDef, FieldName, StructFieldDef, TableColumnDef};
 use crate::info_parser::type_parser::TypeParser;
 use crate::LifetimeParser;
 use quote::ToTokens;
@@ -9,8 +9,12 @@ use syn::{Attribute, Field};
 
 pub struct FieldParser;
 impl FieldParser {
-    pub fn parse(field: &Field) -> FieldDef {
-        let field_name = field.clone().ident.unwrap().to_string();
+    pub fn parse(field: &Field, is_enum_variant: bool) -> FieldDef<'_> {
+        let field_name = if let Some(ident) = field.clone().ident {
+            FieldName::Named(Cow::Owned(ident.to_string()))
+        } else {
+            FieldName::default()
+        };
         let field_type = TypeParser::get_inner_type(&field.ty).expect("can not parse field type");
         let field_type_str = field_type.to_token_stream().to_string();
         let is_location_expr = TypeParser::is_location_expr(&field_type);
@@ -19,9 +23,10 @@ impl FieldParser {
         let lifetime = LifetimeParser::get_lifetime(&field.ty).map(|l| Cow::Owned(l.to_string()));
 
         let struct_field = StructFieldDef {
-            name: Cow::Owned(field_name.clone()),
+            name: field_name.clone(),
             rust_type: Cow::Owned(field_type_str.clone()),
             is_optional,
+            is_enum_variant,
             is_location_expr,
             lifetime,
         };
@@ -36,7 +41,7 @@ impl FieldParser {
 
         FieldDef {
             struct_field,
-            table_column
+            table_column,
         }
     }
 }

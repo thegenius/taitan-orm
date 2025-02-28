@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use crate::condition_def::ConditionDef;
 
 #[derive(Debug, Default)]
 pub struct LocationTraitImplGenerator;
@@ -30,17 +31,17 @@ impl LocationTraitImplGenerator {
     pub fn generate(
         &self,
         db_type: &DatabaseType,
-        table_def: &TableDef,
+        condition_def: &ConditionDef,
     ) -> TokenStream {
 
-        let struct_name = &table_def.struct_name;
+        let struct_name = &condition_def.struct_name;
         let struct_ident = format_ident!("{}", &struct_name);
 
 
         let field_mapper = FieldMapper::new();
-        let table_name =  field_mapper.escape(&table_def.table_name, db_type);
+        let table_name =  field_mapper.escape(&condition_def.table_name, db_type);
         let sql_generator = SqlGenerator::default();
-        let stream = sql_generator.gen_where_sql(table_def, db_type);
+        let stream = sql_generator.gen_where_sql(condition_def, db_type);
         let db_ident = db_type.gen_ident();
         quote! {
             impl taitan_orm_trait::brave_new::location::Location<sqlx::#db_ident> for #struct_ident {

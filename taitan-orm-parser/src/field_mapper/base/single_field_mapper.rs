@@ -54,7 +54,7 @@ pub trait SingleFieldMapper {
         indexed: bool,
         leading_comma_type: LeadingCommaType,
     ) -> TokenStream {
-        let ident = format_ident!("{}", field.struct_field.name);
+        let ident = format_ident!("{}", field.struct_field.get_name());
         let seg = if indexed {
             self.map_dynamic_indexed(field, escaper)
         } else {

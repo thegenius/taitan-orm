@@ -1,4 +1,4 @@
- # [table(user)]
+# [table(user)]
 # [primary(a, b, c)]
 # [serde_struct(entity, location)]
 # [unique(name = uk1, fields = (f1, f2))]

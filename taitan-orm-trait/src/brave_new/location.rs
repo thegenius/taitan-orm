@@ -10,6 +10,12 @@ pub enum LocationKind {
     Or
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum LogicOp {
+    And,
+    Or
+}
+
 pub trait Location<DB: Database>: Parameter<DB> +  Debug {
     fn table_name(&self) -> Cow<'static, str>;
     fn gen_where_sql<'a>(&self) -> Cow<'a, str>;

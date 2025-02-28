@@ -106,7 +106,7 @@ pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     let table_def =  TableDef::parse(&derive_input);
     let generator = LocationTraitImplGenerator::default();
     let stream = generator.generate(&DatabaseType::Sqlite, &table_def);
-    panic!("{}", stream);
+    // panic!("{}", stream);
     stream.into()
 }
 

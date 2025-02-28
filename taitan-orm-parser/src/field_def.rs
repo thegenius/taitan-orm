@@ -1,6 +1,24 @@
-use std::borrow::Cow;
-use serde::{Deserialize, Serialize};
+use crate::field_def::FieldName::Named;
 use crate::KeywordsEscaper;
+use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+
+// struct $Ident {
+//   name: FieldType
+// }
+
+// condition
+// enum $Ident {
+//   A(Expr<Cow<'a, str>>)
+//   B(Option<Expr<i64>>)
+// }
+
+// index
+// enum $Ident {
+//    IdxName{ name: Cow<'a, str> }
+//    IdxNameAge{ name: String, age: i64 }
+// }
+
 //  _____________________________________________________________
 // | struct-field-name | inner rust type | is optional | lifetime
 //  -------------------------------------------------------------
@@ -8,13 +26,48 @@ use crate::KeywordsEscaper;
 //  ------------------------------------------------------------------------------------------------------------
 //
 
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+pub enum FieldName<'a> {
+    Named(Cow<'a, str>),
+    Unnamed { idx: usize, name: Cow<'a, str> },
+}
+
+impl<'a> Default for FieldName<'a> {
+    fn default() -> Self {
+        FieldName::Unnamed {
+            idx: 0,
+            name: Cow::Borrowed("0"),
+        }
+    }
+}
+
+impl<'a> FieldName<'a> {
+    pub fn named<T: Into<Cow<'a, str>>>(name: T) -> Self {
+        FieldName::Named(name.into())
+    }
+    pub fn unnamed<T: Into<Cow<'a, str>>>(idx: usize) -> Self {
+        FieldName::Unnamed { idx, name: Cow::Borrowed("0") }
+    }
+}
+
+
 #[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
 pub struct StructFieldDef<'a> {
-    pub name: Cow<'a, str>,
+    pub name: FieldName<'a>,
     pub rust_type: Cow<'a, str>,
     pub is_optional: bool,
     pub is_location_expr: bool,
+    pub is_enum_variant: bool,
     pub lifetime: Option<Cow<'a, str>>,
+}
+
+impl<'a> StructFieldDef<'a> {
+    pub fn get_name(&self) -> Cow<'a, str> {
+        match &self.name {
+            FieldName::Named(n) => n.clone(),
+            FieldName::Unnamed { idx: _, name } => name.clone(),
+        }
+    }
 }
 
 // #[field(name = r_id, type = BIGINT, nullable = true, auto_inc = true)]
@@ -41,7 +94,6 @@ impl<'a> AsRef<FieldDef<'a>> for FieldDef<'a> {
 }
 
 impl FieldDef<'_> {
-
     pub fn is_optional(&self) -> bool {
         self.struct_field.is_optional
     }
@@ -57,15 +109,21 @@ impl FieldDef<'_> {
     pub fn origin_column_name(&self) -> &Cow<'_, str> {
         match &self.table_column.name {
             Some(column_name) => column_name,
-            None => &self.struct_field.name,
+            None => match &self.struct_field.name {
+                FieldName::Named(name) => name,
+                FieldName::Unnamed { name, .. } => name,
+            },
         }
     }
     pub fn column_name(&self, escaper: &dyn KeywordsEscaper) -> Cow<'_, str> {
         let origin = match &self.table_column.name {
             Some(column_name) => column_name,
-            None => &self.struct_field.name,
+            None => match &self.struct_field.name {
+                FieldName::Named(name) => name,
+                FieldName::Unnamed { name, .. } => name,
+            },
         };
-        escaper.escape(origin)
+        escaper.escape(&origin)
     }
 
     pub fn column_name_upsert(&self, escaper: &dyn KeywordsEscaper) -> String {

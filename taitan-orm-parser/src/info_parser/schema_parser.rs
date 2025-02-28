@@ -22,7 +22,7 @@ impl SchemaParser {
         let fields = InputParser::get_fields(&input.data);
         let attrs = &input.attrs;
 
-        let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldParser::parse(f)).collect();
+        let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldParser::parse(f, false)).collect();
         let primary_attr = AttrParser::extract(attrs, "primary");
         let primary_fields = if let Some(attr) = &primary_attr {
             attr.values.clone()

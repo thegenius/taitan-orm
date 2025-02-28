@@ -1,10 +1,10 @@
 use std::borrow::{Borrow, Cow};
 use syn::{parse_quote, DeriveInput, Field};
-use taitan_orm_parser::{InputParser, NamedVariant, StructFieldDef, TableColumnDef};
+use taitan_orm_parser::{FieldName, InputParser, NamedVariant, StructFieldDef, TableColumnDef};
 use taitan_orm_parser::FieldParser;
 
 fn check_expected<T>(fields: &[T], index: usize, expected: &StructFieldDef) where T: Borrow<Field> {
-    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow());
+    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow(), false);
     assert_eq!(&field_def.struct_field, expected);
 }
 
@@ -22,46 +22,51 @@ pub fn field_parser_spec_struct() {
     let fields = InputParser::get_fields(&input.data);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("a"),
+        name: FieldName::named("a"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     check_expected(&fields, 0, &expect_struct_field);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("b"),
+        name: FieldName::named("b"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: false,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 1, &expect_struct_field);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("c"),
+        name: FieldName::named("c"),
         rust_type: Cow::Borrowed("String"),
         is_optional: false,
+        is_enum_variant: false,
         is_location_expr: false,
         lifetime: None,
     };
     check_expected(&fields, 2, &expect_struct_field);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("d"),
+        name: FieldName::named("d"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 3, &expect_struct_field);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("e"),
+        name: FieldName::named("e"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(&fields, 4, &expect_struct_field);
@@ -77,13 +82,14 @@ pub fn field_parser_spec_with_attr() {
     };
     let fields = InputParser::get_fields(&input.data);
     let field = fields.get(0).unwrap();
-    let field_def = FieldParser::parse(field);
+    let field_def = FieldParser::parse(field, false);
 
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("e"),
+        name: FieldName::named("e"),
         rust_type: Cow::Borrowed("Cow < 'a , str >"),
         is_optional: true,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     let expect_column_def = TableColumnDef {
@@ -112,18 +118,20 @@ pub fn field_parser_spec_enum() {
 
     let fields = &variants[0].fields;
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("field1"),
+        name: FieldName::named("field1"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
     };
     check_expected(fields, 0, &expect_struct_field);
     let expect_struct_field = StructFieldDef {
-        name: Cow::Borrowed("field2"),
+        name: FieldName::named("field2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: true,
         is_location_expr: false,
+        is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
     };
     check_expected(fields, 1, &expect_struct_field);

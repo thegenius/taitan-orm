@@ -2,7 +2,7 @@ mod state;
 
 use crate::state::AppState;
 use axum::extract::{Path, Query, State};
-use axum::debug_handler;
+// use axum::debug_handler;
 use axum::response::IntoResponse;
 use axum::routing::{delete, patch, post};
 use axum::{routing::get, Json, Router};
@@ -83,7 +83,7 @@ async fn create_user(
     format!("insert {}", success)
 }
 
-#[axum::debug_handler]
+// #[axum::debug_handler]
 async fn create_users(
     State(state): State<Arc<AppState>>,
     Json(entity): Json<Users>,
