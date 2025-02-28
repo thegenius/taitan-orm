@@ -1,6 +1,6 @@
 use crate::{DatabaseType, FieldMapper, SqlType, TableDef};
 use proc_macro2::TokenStream;
-use quote::quote;
+use quote::{format_ident, quote};
 use crate::condition_def::ConditionDef;
 
 #[derive(Debug, Default)]
@@ -84,12 +84,29 @@ impl SqlGenerator {
         let field_mapper = FieldMapper::new();
         let mut stream = TokenStream::new();
         for variant in &condition_def.variants {
-            let s = field_mapper.gen_conditions(&variant.fields, db_type);
-            stream.extend(s);
+            let variant_name = format_ident!("{}", &variant.name);
+            let idents = field_mapper.gen_idents(&variant.fields);
+            // panic!("idents: {}", idents);
+            let s = field_mapper.gen_conditions(&variant.fields, db_type, true);
+            if variant.named {
+                stream.extend(quote! {
+                    Self::#variant_name{ #idents }=> {
+                        #s
+                    }
+                });
+            } else {
+                stream.extend(quote! {
+                    Self::#variant_name( #idents )=> {
+                        #s
+                    }
+                });
+            }
         }
 
         quote! {
-            let s = #stream;
+            let s = match self {
+                #stream
+            };
             std::borrow::Cow::Owned(s)
         }
     }

@@ -1,3 +1,4 @@
+use crate::field_mapper::base::single_field_mapper::ConnectOp;
 use crate::field_mapper::base::LeadingCommaType;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -118,10 +119,18 @@ impl<'a> FieldSeg<'a> {
             FieldSeg::Expr(expr) => expr.get_value(),
         }
     }
-    pub fn translate(&self, leading_comma_type: LeadingCommaType, is_option: bool) -> TokenStream {
+    pub fn translate(
+        &self,
+        leading_comma_type: LeadingCommaType,
+        connect_op: ConnectOp,
+        is_option: bool,
+        is_enum: bool,
+    ) -> TokenStream {
         match self {
             FieldSeg::Val(seg) => translate_val_seg(seg, leading_comma_type, is_option),
-            FieldSeg::Expr(expr) => translate_expr_seg(expr, leading_comma_type, is_option),
+            FieldSeg::Expr(expr) => {
+                translate_expr_seg(expr, leading_comma_type, connect_op, is_option, is_enum)
+            }
         }
     }
 }
@@ -207,10 +216,12 @@ fn translate_val_seg(
 fn translate_expr_seg(
     field_seg: &FieldExprSeg,
     leading_comma_type: LeadingCommaType,
+    connect_op: ConnectOp,
     is_option: bool,
+    is_enum: bool,
 ) -> TokenStream {
     let field_ident = field_seg.get_ident();
-    let cmp_stream = if is_option {
+    let cmp_stream = if is_option || is_enum {
         quote! { #field_ident.get_cmp_sql() }
     } else {
         quote! { self.#field_ident.get_cmp_sql() }
@@ -224,13 +235,13 @@ fn translate_expr_seg(
                 }
             }
             LeadingCommaType::Leading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     s.push_str(format!(#comma_seg, #cmp_stream).as_ref());
                 }
             }
             LeadingCommaType::CheckedLeading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     if has_prev {
                         s.push_str(format!(#comma_seg, #cmp_stream).as_ref());
@@ -251,7 +262,7 @@ fn translate_expr_seg(
                 }
             }
             LeadingCommaType::Leading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     {
                         index += 1;
@@ -260,7 +271,7 @@ fn translate_expr_seg(
                 }
             }
             LeadingCommaType::CheckedLeading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     {
                         if has_prev {

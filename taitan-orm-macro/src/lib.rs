@@ -8,7 +8,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, ParameterTraitImplGenerator, TableDef};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, ParameterTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -99,13 +99,14 @@ pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_derive(
-    LocationNew
+    LocationNew,
+    attributes(field)
 )]
 pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
-    let table_def =  TableDef::parse(&derive_input);
+    let condition_def =  ConditionDef::parse(&derive_input);
     let generator = LocationTraitImplGenerator::default();
-    let stream = generator.generate(&DatabaseType::Sqlite, &table_def);
+    let stream = generator.generate(&DatabaseType::Sqlite, &condition_def);
     // panic!("{}", stream);
     stream.into()
 }

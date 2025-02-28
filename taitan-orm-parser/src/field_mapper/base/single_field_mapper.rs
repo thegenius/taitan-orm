@@ -1,9 +1,31 @@
 use super::KeywordsEscaper;
 use crate::field_mapper::base::field_seg::FieldSeg;
-use crate::FieldDef;
+use crate::{FieldDef};
 use proc_macro2::TokenStream;
 use quote::format_ident;
 use std::borrow::Cow;
+
+
+#[derive(Clone, Copy)]
+pub enum ConnectOp {
+    Comma,
+    And,
+    Or,
+}
+impl Default for ConnectOp {
+    fn default() -> Self {
+        ConnectOp::Comma
+    }
+}
+impl ConnectOp {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            ConnectOp::Comma => ",",
+            ConnectOp::And => " AND ",
+            ConnectOp::Or => " OR ",
+        }
+    }
+}
 
 #[derive(Clone, Debug, Copy)]
 pub enum LeadingCommaType {
@@ -11,6 +33,7 @@ pub enum LeadingCommaType {
     NoLeading,
     CheckedLeading,
 }
+
 
 pub trait SingleFieldMapper {
     fn map_static<'a>(
@@ -53,6 +76,8 @@ pub trait SingleFieldMapper {
         is_optional: bool,
         indexed: bool,
         leading_comma_type: LeadingCommaType,
+        connect_op: ConnectOp,
+        is_enum: bool,
     ) -> TokenStream {
         let ident = format_ident!("{}", field.struct_field.get_name());
         let seg = if indexed {
@@ -61,7 +86,7 @@ pub trait SingleFieldMapper {
             self.map_dynamic(field, escaper)
         };
         let seg = FieldSeg::from(seg, Some(ident), indexed, self.is_expr());
-        seg.translate(leading_comma_type, is_optional)
+        seg.translate(leading_comma_type, connect_op, is_optional, is_enum)
     }
     fn map_single_optional<'a>(
         &'a self,
@@ -69,8 +94,10 @@ pub trait SingleFieldMapper {
         escaper: &dyn KeywordsEscaper,
         indexed: bool,
         leading_comma_type: LeadingCommaType,
+        connect_op: ConnectOp,
+        is_enum: bool,
     ) -> TokenStream {
-        self.map_single(field, escaper, true, indexed, leading_comma_type)
+        self.map_single(field, escaper, true, indexed, leading_comma_type, connect_op, is_enum)
     }
 
     // fn get_value_name(&self) -> &'static str;

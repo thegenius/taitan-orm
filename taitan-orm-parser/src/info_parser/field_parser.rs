@@ -9,11 +9,11 @@ use syn::{Attribute, Field};
 
 pub struct FieldParser;
 impl FieldParser {
-    pub fn parse(field: &Field, is_enum_variant: bool) -> FieldDef<'_> {
+    pub fn parse(field: &Field, is_enum_variant: bool, unnamed_idx: Option<usize>, column_name: Option<String>) -> FieldDef<'_> {
         let field_name = if let Some(ident) = field.clone().ident {
             FieldName::Named(Cow::Owned(ident.to_string()))
         } else {
-            FieldName::default()
+            FieldName::unnamed(unnamed_idx.unwrap())
         };
         let field_type = TypeParser::get_inner_type(&field.ty).expect("can not parse field type");
         let field_type_str = field_type.to_token_stream().to_string();
@@ -36,7 +36,14 @@ impl FieldParser {
         let table_column = if let Some(attr) = field_attr {
             FieldAttrParser::parse(&attr)
         } else {
-            TableColumnDef::default()
+            if let Some(column_name) = column_name {
+                TableColumnDef {
+                    name: Some(Cow::Owned(column_name)),
+                   ..Default::default()
+                }
+            } else {
+                TableColumnDef::default()
+            }
         };
 
         FieldDef {

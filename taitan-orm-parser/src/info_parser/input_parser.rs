@@ -2,6 +2,7 @@ use crate::{FieldDef, FieldParser};
 use proc_macro2::Span;
 use quote::quote;
 use std::borrow::Cow;
+use case::CaseExt;
 use serde::{Deserialize, Serialize};
 use syn::{Data, DataEnum, DataStruct, Error, Field, Fields, FieldsNamed};
 
@@ -10,12 +11,14 @@ pub struct InputParser;
 #[derive(Debug, Clone)]
 pub struct NamedVariant {
     pub name: String,
+    pub named: bool,
     pub fields: Vec<Field>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct NamedVariantDef<'a> {
     pub name: String,
+    pub named: bool,
     pub fields: Vec<FieldDef<'a>>,
 }
 
@@ -98,18 +101,21 @@ impl InputParser {
                 Fields::Named(fields_named) => {
                     named_variants.push(NamedVariant {
                         name: variant.ident.to_string(),
+                        named: true,
                         fields: fields_named.clone().named.into_iter().collect(),
                     });
                 }
                 Fields::Unnamed(fields_unnamed) => {
                     named_variants.push(NamedVariant {
                         name: variant.ident.to_string(),
+                        named: false,
                         fields: fields_unnamed.clone().unnamed.into_iter().collect(),
                     });
                 }
                 Fields::Unit => {
                     named_variants.push(NamedVariant {
                         name: variant.ident.to_string(),
+                        named: false,
                         fields: Vec::new(),
                     });
                 }
@@ -137,26 +143,30 @@ impl InputParser {
                 Fields::Named(fields_named) => {
                     named_variants.push(NamedVariantDef {
                         name: variant.ident.to_string(),
+                        named: true,
                         fields: fields_named
                             .named
                             .iter()
-                            .map(|f| FieldParser::parse(f, true))
+                            .map(|f| FieldParser::parse(f, true, None, None))
                             .collect(),
                     });
                 }
                 Fields::Unnamed(fields_unnamed) => {
+                    let column_name = variant.ident.to_string().to_snake();
                     named_variants.push(NamedVariantDef {
                         name: variant.ident.to_string(),
+                        named: false,
                         fields: fields_unnamed
                             .unnamed
-                            .iter()
-                            .map(|f| FieldParser::parse(f, true))
+                            .iter().enumerate()
+                            .map(|(idx, f)| FieldParser::parse(f, true, Some(idx), Some(column_name.clone())))
                             .collect(),
                     });
                 }
                 Fields::Unit => {
                     named_variants.push(NamedVariantDef {
                         name: variant.ident.to_string(),
+                        named: false,
                         fields: Vec::new(),
                     });
                 }

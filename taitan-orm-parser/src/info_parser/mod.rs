@@ -7,6 +7,7 @@ mod input_parser;
 mod index_parser;
 mod condition_parser;
 
+pub use condition_parser::ConditionParser;
 pub use lifetime_parser::LifetimeParser;
 pub use input_parser::InputParser;
 pub use field_parser::FieldParser;

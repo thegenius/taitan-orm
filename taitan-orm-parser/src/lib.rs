@@ -21,6 +21,7 @@ pub use field_def::TableColumnDef;
 pub use table_def::TableDef;
 pub use field_def::FieldDef;
 pub use field_def::FieldName;
+pub use condition_def::ConditionDef;
 
 pub use info_parser::LifetimeParser;
 pub use info_parser::InputParser;
@@ -28,6 +29,7 @@ pub use info_parser::FieldParser;
 pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;
 pub use info_parser::NamedVariantDef;
+pub use info_parser::ConditionParser;
 
 // pub use field_mapper::KeywordsEscaper;
 // pub use field_mapper::MySqlKeywordEscaper;

@@ -17,7 +17,7 @@ pub fn enum_parser_spec_001() {
     let fields = InputParser::get_enum_variant(&input.data).unwrap();
 
     let expect_struct_field = StructFieldDef {
-        name: FieldName::default(),
+        name: FieldName::unnamed(0),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
         is_location_expr: false,
@@ -26,12 +26,12 @@ pub fn enum_parser_spec_001() {
     };
 
     let field = fields.get(0).unwrap();
-    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(0), None);
     assert_eq!(field.name, "A");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
     let expect_struct_field = StructFieldDef {
-        name: FieldName::default(),
+        name: FieldName::unnamed(1),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
         is_optional: false,
         is_location_expr: false,
@@ -39,14 +39,14 @@ pub fn enum_parser_spec_001() {
         lifetime: Some(Cow::Borrowed("'b")),
     };
     let field = fields.get(1).unwrap();
-    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(1), None);
     assert_eq!(field.name, "B");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
     let field = fields.get(2).unwrap();
-    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(2), None);
     let expect_struct_field = StructFieldDef {
-        name: FieldName::default(),
+        name: FieldName::unnamed(2),
         rust_type: Cow::Borrowed("Expr < Cow < 'b , str > >"),
         is_optional: true,
         is_location_expr: false,
@@ -57,9 +57,9 @@ pub fn enum_parser_spec_001() {
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
     let field = fields.get(3).unwrap();
-    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(3), None);
     let expect_struct_field = StructFieldDef {
-        name: FieldName::default(),
+        name: FieldName::unnamed(3),
         rust_type: Cow::Borrowed("Uuid"),
         is_optional: false,
         is_location_expr: false,
@@ -82,7 +82,7 @@ pub fn enum_parser_spec_002() {
     let field = fields.get(0).unwrap();
     assert_eq!(field.name, "A");
 
-    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f1"),
         rust_type: Cow::Borrowed("& 'a str"),
@@ -93,7 +93,7 @@ pub fn enum_parser_spec_002() {
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
-    let actual_field_def = FieldParser::parse(field.fields.get(1).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(1).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
@@ -104,7 +104,7 @@ pub fn enum_parser_spec_002() {
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
-    let actual_field_def = FieldParser::parse(field.fields.get(2).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(2).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f3"),
         rust_type: Cow::Borrowed("String"),
@@ -137,7 +137,7 @@ pub fn enum_parser_spec_003() {
     let field = fields.get(0).unwrap();
     assert_eq!(field.name, "A");
 
-    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f1"),
         rust_type: Cow::Borrowed("& 'a str"),
@@ -157,7 +157,7 @@ pub fn enum_parser_spec_003() {
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
     assert_eq!(actual_field_def.table_column, expect_column_field);
 
-    let actual_field_def = FieldParser::parse(field.fields.get(1).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(1).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
@@ -168,7 +168,7 @@ pub fn enum_parser_spec_003() {
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
-    let actual_field_def = FieldParser::parse(field.fields.get(2).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(2).unwrap(), true, None, None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("f3"),
         rust_type: Cow::Borrowed("String"),
@@ -196,7 +196,7 @@ pub fn enum_parser_spec_004() {
     let field = fields.get(0).unwrap();
     assert_eq!(field.name, "A");
 
-    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true);
+    let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, Some(0), None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::default(),
         rust_type: Cow::Borrowed("& 'a str"),

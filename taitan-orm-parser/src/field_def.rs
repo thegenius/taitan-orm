@@ -36,7 +36,7 @@ impl<'a> Default for FieldName<'a> {
     fn default() -> Self {
         FieldName::Unnamed {
             idx: 0,
-            name: Cow::Borrowed("0"),
+            name: Cow::Borrowed("e0"),
         }
     }
 }
@@ -45,8 +45,8 @@ impl<'a> FieldName<'a> {
     pub fn named<T: Into<Cow<'a, str>>>(name: T) -> Self {
         FieldName::Named(name.into())
     }
-    pub fn unnamed<T: Into<Cow<'a, str>>>(idx: usize) -> Self {
-        FieldName::Unnamed { idx, name: Cow::Borrowed("0") }
+    pub fn unnamed(idx: usize) -> Self {
+        FieldName::Unnamed { idx, name: Cow::Owned(format!("e{}", idx)) }
     }
 }
 

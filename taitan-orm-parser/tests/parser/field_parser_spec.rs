@@ -4,7 +4,7 @@ use taitan_orm_parser::{FieldName, InputParser, NamedVariant, StructFieldDef, Ta
 use taitan_orm_parser::FieldParser;
 
 fn check_expected<T>(fields: &[T], index: usize, expected: &StructFieldDef) where T: Borrow<Field> {
-    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow(), false);
+    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow(), false, None, None);
     assert_eq!(&field_def.struct_field, expected);
 }
 
@@ -82,7 +82,7 @@ pub fn field_parser_spec_with_attr() {
     };
     let fields = InputParser::get_fields(&input.data);
     let field = fields.get(0).unwrap();
-    let field_def = FieldParser::parse(field, false);
+    let field_def = FieldParser::parse(field, false, None, None);
 
     let expect_struct_field = StructFieldDef {
         name: FieldName::named("e"),

@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use std::borrow::Cow;
 use crate::field_mapper::base::LeadingCommaType::Leading;
+use crate::field_mapper::base::single_field_mapper::ConnectOp;
 
 pub trait MultiFieldMapper: SingleFieldMapper {
     fn map_to_stream<'a, T>(
@@ -12,6 +13,8 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         escaper: &dyn KeywordsEscaper,
         indexed: bool,
         leading_comma_type: LeadingCommaType,
+        connect_op: ConnectOp,
+        is_enum: bool,
     ) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>>,
@@ -22,7 +25,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
             MultiFieldMapper::map_static_fields(self, fields, escaper)
         };
         // treat as not indexed segment
-        FieldSeg::from_seg(segments, false).translate(leading_comma_type, false)
+        FieldSeg::from_seg(segments, false).translate(leading_comma_type, connect_op, false, is_enum)
     }
     fn map_static_fields<'a, T>(&self, fields: T, escaper: &dyn KeywordsEscaper) -> Cow<'a, str>
     where
@@ -63,15 +66,17 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         is_optional: bool,
         indexed: bool,
         comma_type: LeadingCommaType,
+        connect_op: ConnectOp,
+        is_enum: bool,
     ) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>>, {
         let mut stream = TokenStream::new();
         for (index, field) in fields.into_iter().enumerate() {
             if index == 0 {
-                stream.extend(self.map_single(field, escaper, is_optional, indexed, comma_type));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, comma_type, connect_op, is_enum));
             } else {
-                stream.extend(self.map_single(field, escaper, is_optional, indexed, Leading));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, Leading, connect_op, is_enum));
             }
         };
         stream
