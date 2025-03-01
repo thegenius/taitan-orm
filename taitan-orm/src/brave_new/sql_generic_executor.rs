@@ -102,7 +102,7 @@ pub trait SqlGenericExecutor
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
         let result_opt: Option<<Self::DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(row) = result_opt {
-            Ok(Self::CountType::from_row_full(row)?)
+            Ok(Self::CountType::from_row(&Self::CountType::default(), row)?)
         } else {
             Ok(Default::default())
         }
@@ -418,7 +418,7 @@ pub trait SqlGenericExecutor
         let result_vec: Vec<<Self::DB as Database>::Row> = query.fetch_all(ex).await?;
         let mut result: Vec<SE> = Vec::new();
         for row in result_vec {
-            result.push(SE::from_row_full(row)?);
+            result.push(SE::from_row(&SE::default(), row)?);
         }
         Ok(result)
     }
@@ -513,7 +513,7 @@ pub trait SqlGenericExecutor
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
         let result_opt: Option<<Self::DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(result) = result_opt {
-            Ok(Some(SE::from_row_full(result)?))
+            Ok(Some(SE::from_row(&SE::default(), result)?))
         } else {
             Ok(None)
         }

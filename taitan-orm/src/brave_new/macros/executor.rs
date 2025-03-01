@@ -30,7 +30,7 @@ macro_rules! new_executor_impl {
         {
             let ex = self.get_pool()?;
             let result = Self::generic_count(ex, stmt, args).await?;
-            Ok(result.count.unwrap())
+            Ok(result.count)
         }
 
         async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> taitan_orm_trait::brave_new::result::Result<u64> {
@@ -38,7 +38,7 @@ macro_rules! new_executor_impl {
                 std::marker::PhantomData::default();
             let ex = self.get_pool()?;
             let result = Self::generic_count_plain(ex, stmt, args).await?;
-            Ok(result.count.unwrap())
+            Ok(result.count)
         }
 
         async fn fetch_exists<'a>(

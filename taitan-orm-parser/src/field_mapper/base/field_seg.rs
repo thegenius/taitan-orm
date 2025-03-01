@@ -145,6 +145,7 @@ fn translate_val_seg(
             LeadingCommaType::NoLeading => {
                 quote! {
                     s.push_str(#val);
+                    has_prev = true;
                 }
             }
             LeadingCommaType::Leading => {
@@ -159,7 +160,7 @@ fn translate_val_seg(
                     if has_prev {
                         s.push_str(#comma_seg);
                     } else {
-                        has_next = true;
+                        has_prev = true;
                         s.push_str(#val);
                     }
                 }
@@ -191,7 +192,7 @@ fn translate_val_seg(
                             index += 1;
                             s.push_str(format!(#comma_seg, index).as_ref());
                         } else {
-                            has_next = true;
+                            has_prev = true;
                             index += 1;
                             s.s.push_str(format!(#val, index).as_ref());
                         }
@@ -232,6 +233,7 @@ fn translate_expr_seg(
             LeadingCommaType::NoLeading => {
                 quote! {
                     s.push_str(format!(#val, #cmp_stream).as_ref());
+                    has_prev = true;
                 }
             }
             LeadingCommaType::Leading => {
@@ -246,7 +248,7 @@ fn translate_expr_seg(
                     if has_prev {
                         s.push_str(format!(#comma_seg, #cmp_stream).as_ref());
                     } else {
-                        has_next = true;
+                        has_prev = true;
                         s.push_str(format!(#val, #cmp_stream).as_ref());
                     }
                 }
@@ -278,7 +280,7 @@ fn translate_expr_seg(
                             index += 1;
                             s.push_str(format!(#comma_seg, #cmp_stream, index).as_ref());
                         } else {
-                            has_next = true;
+                            has_prev = true;
                             index += 1;
                             s.push_str(format!(#val, #cmp_stream, index).as_ref());
                         }
@@ -345,7 +347,7 @@ mod tests {
             translate_val_seg(&field_seg, LeadingCommaType::CheckedLeading, true).to_string();
         assert_eq!(
             stream,
-            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) ; } else { has_next = true ; index += 1 ; s . s . push_str (format ! ("name=${}" , index) . as_ref ()) ; } } }"#
+            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) ; } else { has_prev = true ; index += 1 ; s . s . push_str (format ! ("name=${}" , index) . as_ref ()) ; } } }"#
         );
     }
 }

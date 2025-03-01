@@ -9,10 +9,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{
-    ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator,
-    MutationTraitImplGenerator, ParameterTraitImplGenerator, TableDef,
-};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -150,6 +147,25 @@ pub fn expand_mutation_new_macro(input: TokenStream) -> TokenStream {
         let s: TokenStream = generator.generate(&database_type, &table_def).into();
         stream.extend(s);
     }
+    // panic!("{}", stream);
+    stream.into()
+}
+
+#[proc_macro_derive(SelectedNew, attributes(field))]
+pub fn expand_selected_new_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def = TableDef::parse(&derive_input);
+    let generator = SelectedTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    let mut stream = TokenStream::new();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &table_def).into();
+        stream.extend(s);
+    }
+    let default_generator = SelectedDefaultImplGenerator::default();
+    let default_stream: TokenStream = default_generator.generate(&table_def).into();
+    stream.extend(default_stream);
+
     // panic!("{}", stream);
     stream.into()
 }

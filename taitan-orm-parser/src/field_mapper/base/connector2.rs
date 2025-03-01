@@ -181,8 +181,17 @@ pub trait Connector2: MultiFieldMapper {
                     stream.extend(s);
                 }
 
-                FieldGroup::LeadingOptional { field, comma_type }
-                | FieldGroup::FollowingOptional { field, comma_type }
+                FieldGroup::LeadingOptional { field, comma_type } => {
+                    stream.extend(self.map_single_optional(
+                        field,
+                        escaper,
+                        false,
+                        *comma_type,
+                        ConnectOp::And,
+                        is_enum
+                    ));
+                }
+                FieldGroup::FollowingOptional { field, comma_type }
                 | FieldGroup::TrailingOptional { field, comma_type } => {
                     stream.extend(self.map_single_optional(
                         field,

@@ -163,7 +163,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "select_full", primary = ?unique);
-        let selection = SE::full_fields();
+        let selection = SE::default();
         let sql = self.gen_select_sql(&selection, unique);
         tracing::debug!(target: "taitan_orm", command = "select_full", sql = sql);
         let args = Self::extract_unique_arguments(unique)?;
@@ -182,7 +182,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search_full", location = ?location, order_by = ?order_by);
-        let selection = SE::full_fields();
+        let selection = SE::default();
         let sql =
             self.gen_search_sql(&selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search_full", sql = sql);
@@ -201,7 +201,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search_full_all", location = ?location, order_by = ?order_by);
-        let selection = SE::full_fields();
+        let selection = SE::default();
         let sql =
             self.gen_search_all_sql(&selection, location, order_by);
         tracing::debug!(target: "taitan_orm", command = "search_full_all", sql = sql);
@@ -221,7 +221,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search_full_paged", location = ?location, order_by = ?order_by, page = ?page);
-        let selection = SE::full_fields();
+        let selection = SE::default();
         let record_count = self.count(location).await?;
         if record_count <= 0 {
             return Ok(PagedList::empty(page.page_size, page.page_num));

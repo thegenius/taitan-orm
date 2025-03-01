@@ -26,3 +26,4 @@ pub use pagination::Pagination;
 pub use paged_info::PagedInfo;
 pub use paged_list::PagedList;
 pub use paged_list::build_paged_list;
+pub use selected::selected;

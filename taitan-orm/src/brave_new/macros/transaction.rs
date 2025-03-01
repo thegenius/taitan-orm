@@ -30,7 +30,7 @@ macro_rules! new_transaction_impl {
         {
             let ex = &mut *self.transaction;
             let result = Self::generic_count(ex, stmt, args).await?;
-            Ok(result.count.unwrap())
+            Ok(result.count)
         }
 
         async fn fetch_count_plain<'a>(&'a mut self, stmt: &'a str) -> taitan_orm_trait::brave_new::result::Result<u64> {
@@ -38,7 +38,7 @@ macro_rules! new_transaction_impl {
                 std::marker::PhantomData::default();
             let ex = &mut *self.transaction;
             let result = Self::generic_count_plain(ex, stmt, args).await?;
-            Ok(result.count.unwrap())
+            Ok(result.count)
         }
 
         async fn fetch_exists<'a>(

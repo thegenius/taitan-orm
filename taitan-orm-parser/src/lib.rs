@@ -52,3 +52,5 @@ pub use impl_generator::ParameterTraitImplGenerator;
 pub use impl_generator::EntityTraitImplGenerator;
 pub use impl_generator::LocationTraitImplGenerator;
 pub use impl_generator::MutationTraitImplGenerator;
+pub use impl_generator::SelectedTraitImplGenerator;
+pub use impl_generator::SelectedDefaultImplGenerator;

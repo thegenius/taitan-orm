@@ -1,9 +1,7 @@
 use super::base::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{
-    ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, SetsMapper, UpsertSetsMapper,
-};
+use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, RowMapper, SetsMapper, UpsertSetsMapper};
 use crate::field_mapper::base::Connector2;
 use crate::{DatabaseType, FieldName};
 use crate::FieldDef;
@@ -19,6 +17,7 @@ pub struct FieldMapper {
     conditions_mapper: ConditionsMapper,
     upsert_sets_mapper: UpsertSetsMapper,
     args_mapper: ArgsMapper,
+    row_mapper: RowMapper,
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
@@ -48,6 +47,32 @@ impl FieldMapper {
         let streams = fields
             .into_iter()
             .map(|def| self.args_mapper.map_add_to_args(def))
+            .collect::<Vec<_>>();
+        quote! {
+            #( #streams )*
+        }
+    }
+
+    pub fn gen_row_try_get<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def| self.row_mapper.map_row_try_get(def))
+            .collect::<Vec<_>>();
+        quote! {
+            #( #streams )*
+        }
+    }
+
+    pub fn gen_selected_default<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def| self.row_mapper.map_selected_default(def))
             .collect::<Vec<_>>();
         quote! {
             #( #streams )*
