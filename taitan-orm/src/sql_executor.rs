@@ -62,11 +62,11 @@ pub trait SqlExecutor: SqlGenericExecutor {
         stmt: &'a str,
     ) -> Result<bool>;
 
-    async fn fetch_count<'s, 'a>(
-        &'a self,
-        stmt: &'s str,
-        args: <Self::DB as sqlx::Database>::Arguments<'a>,
-    ) -> crate::result::Result<u64> where 'a: 's;
+    async fn fetch_count(
+        &self,
+        stmt: &str,
+        args: <Self::DB as sqlx::Database>::Arguments<'_>,
+    ) -> crate::result::Result<u64>;
 
     async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64>;
 

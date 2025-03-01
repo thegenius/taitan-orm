@@ -18,13 +18,11 @@ macro_rules! executor_impl {
             Self::generic_execute_plain(ex, stmt, args).await
         }
 
-        async fn fetch_count<'s, 'a>(
-            &'a self,
-            stmt: &'s str,
-            args: <Self::DB as sqlx::Database>::Arguments<'a>,
+        async fn fetch_count(
+            & self,
+            stmt: &str,
+            args: <Self::DB as sqlx::Database>::Arguments<'_>,
         ) -> crate::result::Result<u64>
-        where
-            'a: 's,
         {
             let ex = self.get_pool()?;
             let result = Self::generic_count(ex, stmt, args).await?;

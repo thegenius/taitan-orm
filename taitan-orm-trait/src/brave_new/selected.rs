@@ -8,18 +8,13 @@ pub fn selected<T>()-> Option<Option<T>> {
 }
 
 pub trait Selected<DB: Database>: Sized + Default + Debug {
-
     fn gen_select_sql<'a>(&self) -> Cow<'a, str>;
-
-    // fn gen_select_full_sql<'a>(&self) -> Cow<'a, str>;
 
     fn from_row(selection: &Self, row: DB::Row) -> Result<Self>;
 
     fn from_row_full(row: DB::Row) -> Result<Self> {
         Self::from_row(&Self::default(), row)
     }
-
-    // fn full_fields() -> Self;
 }
 
 pub trait MysqlSelected: Selected<MySql> {}

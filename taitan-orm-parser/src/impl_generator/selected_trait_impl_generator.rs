@@ -55,9 +55,6 @@ impl SelectedTraitImplGenerator {
                     let s = #select_stream;
                     std::borrow::Cow::Owned(s)
                 }
-                fn gen_select_full_sql<'a>(&self) -> std::borrow::Cow<'a, str> {
-                    todo!()
-                }
 
                 fn from_row(selection: &Self, row: <sqlx::#db_ident as sqlx::Database>::Row)
                     -> taitan_orm_trait::brave_new::result::Result<Self> {
@@ -65,15 +62,6 @@ impl SelectedTraitImplGenerator {
                     let mut i = 0;
                     #row_get_stream
                     Ok(selected)
-                }
-
-                fn from_row_full(row: <sqlx::#db_ident as sqlx::Database>::Row)
-                    -> taitan_orm_trait::brave_new::result::Result<Self> {
-                    todo!()
-                }
-
-                fn full_fields() -> Self {
-                    todo!()
                 }
             }
         }
