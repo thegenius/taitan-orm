@@ -16,18 +16,18 @@ enum LocationSpec002 {
 #[test]
 fn location_spec_002() {
     let location = LocationSpec002::A(LocationExpr::new(CmpOperator::Eq, "a".to_string()));
-    let where_sql = location.gen_where_sql();
+    let where_sql = Location::<sqlx::Sqlite>::gen_where_sql(&location);
     assert_eq!(where_sql, "a=?");
 
     let location = LocationSpec002::UserName(LocationExpr::new(CmpOperator::Eq, "t".to_string()));
-    let where_sql = location.gen_where_sql();
+    let where_sql = Location::<sqlx::Sqlite>::gen_where_sql(&location);
     assert_eq!(where_sql, "user_name=?");
 
     let location = LocationSpec002::Select(LocationExpr::new(CmpOperator::GreaterThan, "t".to_string()));
-    let where_sql = location.gen_where_sql();
+    let where_sql = Location::<sqlx::Sqlite>::gen_where_sql(&location);
     assert_eq!(where_sql, "\"select\">?");
 
     let location = LocationSpec002::Insert(LocationExpr::new(CmpOperator::GreaterThan, "t".to_string()));
-    let where_sql = location.gen_where_sql();
+    let where_sql = Location::<sqlx::Sqlite>::gen_where_sql(&location);
     assert_eq!(where_sql, "c_name>?");
 }

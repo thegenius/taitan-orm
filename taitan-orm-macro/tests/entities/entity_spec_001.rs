@@ -10,6 +10,6 @@ struct EntitySpec001 {
 #[test]
 fn test_entity_spec_001() {
     let entity = EntitySpec001{a: "hello".to_owned(), b: 123};
-    let insert_sql = entity.gen_insert_sql();
+    let insert_sql =  Entity::<sqlx::MySql>::gen_insert_sql(&entity);
     assert_eq!(insert_sql, "INSERT INTO entity_spec001 (a,b) VALUES(?,?)".to_string())
 }

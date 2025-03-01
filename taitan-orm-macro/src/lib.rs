@@ -1,26 +1,47 @@
 #![allow(dead_code)]
 #![forbid(unsafe_code)]
+use crate::db_type::parse_database_type;
 use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
-use proc_macro::{TokenStream};
+use proc_macro::TokenStream;
 use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, ParameterTraitImplGenerator, TableDef};
+use taitan_orm_parser::{
+    ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator,
+    MutationTraitImplGenerator, ParameterTraitImplGenerator, TableDef,
+};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
 mod attrs;
+mod db_type;
 mod expands;
 mod fields;
+mod location;
 mod schema;
 mod selected;
 mod template;
 mod types;
 mod util;
-mod location;
+
+fn get_supported_database_types() -> Vec<DatabaseType> {
+    let mut supported_database_types: Vec<DatabaseType> = Vec::new();
+    #[cfg(feature = "sqlite")]
+    supported_database_types.push(DatabaseType::Sqlite);
+    #[cfg(feature = "mysql")]
+    supported_database_types.push(DatabaseType::MySql);
+    #[cfg(feature = "postgres")]
+    supported_database_types.push(DatabaseType::Postgres);
+
+    if supported_database_types.is_empty() {
+        panic!("The database type is empty, you should set features");
+    }
+
+    supported_database_types
+}
 
 fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> {
     // match env::current_dir() {
@@ -72,46 +93,66 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     TokenStream::new()
 }
 
-
-
-#[proc_macro_derive(
-    Parameter
-)]
+#[proc_macro_derive(Parameter, attributes(field))]
 pub fn expand_param_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
-    let table_def =  TableDef::parse(&derive_input);
+    let table_def = TableDef::parse(&derive_input);
+    // let db_type = parse_database_type(&derive_input);
     let generator = ParameterTraitImplGenerator::default();
-    let stream = generator.gen_add_to_args(&DatabaseType::Sqlite, &table_def);
+    let supported_database_types = get_supported_database_types();
+    let mut stream = TokenStream::new();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.gen_add_to_args(&database_type, &table_def).into();
+        stream.extend(s);
+    }
     // panic!("{}", stream);
     stream.into()
 }
 
-#[proc_macro_derive(
-    EntityNew
-)]
+#[proc_macro_derive(EntityNew, attributes(field))]
 pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
-    let table_def =  TableDef::parse(&derive_input);
+    let table_def = TableDef::parse(&derive_input);
     let generator = EntityTraitImplGenerator::default();
-    let stream = generator.generate(&DatabaseType::Sqlite, &table_def);
+    let supported_database_types = get_supported_database_types();
+    let mut stream = TokenStream::new();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &table_def).into();
+        stream.extend(s);
+    }
     // panic!("{}", stream);
     stream.into()
 }
 
-#[proc_macro_derive(
-    LocationNew,
-    attributes(field)
-)]
+#[proc_macro_derive(LocationNew, attributes(field))]
 pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
-    let condition_def =  ConditionDef::parse(&derive_input);
+    let condition_def = ConditionDef::parse(&derive_input);
     let generator = LocationTraitImplGenerator::default();
-    let stream = generator.generate(&DatabaseType::Sqlite, &condition_def);
+    let supported_database_types = get_supported_database_types();
+    let mut stream = TokenStream::new();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &condition_def).into();
+        stream.extend(s);
+    }
     // panic!("{}", stream);
     stream.into()
 }
 
-
+#[proc_macro_derive(MutationNew, attributes(field))]
+pub fn expand_mutation_new_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def = TableDef::parse(&derive_input);
+    let generator = MutationTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    let mut stream = TokenStream::new();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &table_def).into();
+        stream.extend(s);
+    }
+    // panic!("{}", stream);
+    stream.into()
+}
 
 #[proc_macro_derive(
     Schema,

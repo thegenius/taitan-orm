@@ -116,10 +116,10 @@ impl FieldMapper {
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         match db_type {
-            DatabaseType::MySql => self.sets_mapper._connect(fields, self.get_escaper(db_type)),
+            DatabaseType::Postgres => self.sets_mapper._connect_indexed(fields, self.get_escaper(db_type)),
             _ => self
                 .sets_mapper
-                ._connect_indexed(fields, self.get_escaper(db_type)),
+                ._connect(fields, self.get_escaper(db_type)),
         }
     }
 

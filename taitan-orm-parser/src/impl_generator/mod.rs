@@ -1,7 +1,9 @@
 mod entity_trait_impl_generator;
 mod param_trait_impl_generator;
 mod location_trait_impl_generator;
+mod mutation_trait_impl_generator;
 
 pub use param_trait_impl_generator::ParameterTraitImplGenerator;
 pub use entity_trait_impl_generator::EntityTraitImplGenerator;
 pub use location_trait_impl_generator::LocationTraitImplGenerator;
+pub use mutation_trait_impl_generator::MutationTraitImplGenerator;

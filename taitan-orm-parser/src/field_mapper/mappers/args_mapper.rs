@@ -18,7 +18,7 @@ impl ArgsMapper {
                 }
             } else {
                 quote! {
-                    if let Optional::Some(f) =  &self.#field_ident {
+                    if let Some(f) =  &self.#field_ident {
                         sqlx::Arguments::add(args, f)?;
                     }
                 }

@@ -23,6 +23,8 @@ pub trait Entity<DB: Database>: Parameter<DB> + Debug {
     // }
 }
 
+
+
 pub trait MysqlEntity: Entity<MySql> {}
 impl<T: Entity<MySql>> MysqlEntity for T {}
 
