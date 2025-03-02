@@ -113,8 +113,13 @@ impl SqlGenerator {
                 }
             }
             VariantsOrFields::Fields(fields) => {
-                let s = field_mapper.gen_conditions(fields, db_type, true);
-                s
+                let stream = field_mapper.gen_conditions(fields, db_type, false);
+                quote! {
+                    let s =  {
+                        #stream
+                    };
+                    std::borrow::Cow::Owned(s)
+                }
             }
         }
 
