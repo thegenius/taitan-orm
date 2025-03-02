@@ -38,25 +38,36 @@ impl IndexStructGenerator {
             IndexEnum::Index{name} => {format_ident!("{}Index{}", struct_name, name.to_camel())},
         };
 
-        let fields = match index_enum {
+        let fields_stream = match index_enum {
             IndexEnum::Primary => {
-                table_def.get_primary_fields()
+                let fields = table_def.get_primary_fields();
+                let fields_stream = field_mapper.gen_struct_fields(fields);
+                quote! {
+                    pub struct #struct_ident {
+                        #fields_stream
+                    }
+                }
             }
             IndexEnum::Unique {name} => {
-                table_def.get_unique_fields(name)
+                let fields = table_def.get_unique_fields(name);
+                let fields_stream = field_mapper.gen_struct_fields(fields);
+                quote! {
+                    pub struct #struct_ident {
+                        #fields_stream
+                    }
+                }
             }
             IndexEnum::Index {name} => {
-                table_def.get_index_fields(name)
+                let fields = table_def.get_index_fields(name);
+                let fields_stream = field_mapper.gen_enum_variants( fields);
+                quote! {
+                    pub enum #struct_ident {
+                        #fields_stream
+                    }
+                }
             }
         };
 
-        let fields_stream = field_mapper.gen_struct_fields(fields);
-
-
-        quote! {
-            pub struct #struct_ident {
-                #fields_stream
-            }
-        }
+        fields_stream
     }
 }

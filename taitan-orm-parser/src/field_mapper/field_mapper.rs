@@ -8,6 +8,7 @@ use crate::FieldDef;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::borrow::Cow;
+use case::CaseExt;
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -22,6 +23,13 @@ pub struct FieldMapper {
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
+}
+
+fn generate_nested_vec<'a>(input: Vec<&'a FieldDef<'a>>) -> Vec<Vec<&'a FieldDef<'a>>> {
+    input.iter().enumerate().fold(Vec::new(), |mut acc, (i, _)| {
+        acc.push(input[..=i].to_vec());
+        acc
+    })
 }
 
 impl FieldMapper {
@@ -78,6 +86,29 @@ impl FieldMapper {
         quote! {
             #( #streams,)*
         }
+    }
+
+    pub fn gen_enum_variants<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let mut streams :TokenStream = TokenStream::new();
+        let fields: Vec<&FieldDef> = fields.into_iter().collect();
+        // panic!("{:?}", fields);
+        let groups = generate_nested_vec(fields.clone());
+
+        for group in groups {
+            let name:String = group.iter().map(|def| {def.struct_field.name.get_name().to_camel()}).collect();
+            let variant_name = format_ident!("{}", name);
+            let stream = group
+                .iter()
+                .map(|def| self.struct_field_mapper.map_to_field(def))
+                .collect::<Vec<_>>();
+            streams.extend(quote! {
+                 #variant_name{  #( #stream, )* },
+            })
+        }
+        streams
     }
 
 

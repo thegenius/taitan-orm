@@ -48,6 +48,12 @@ impl<'a> FieldName<'a> {
     pub fn unnamed(idx: usize) -> Self {
         FieldName::Unnamed { idx, name: Cow::Owned(format!("e{}", idx)) }
     }
+    pub fn get_name(&self) -> &str {
+        match self {
+            FieldName::Named(name) => name,
+            FieldName::Unnamed { name, .. } => name,
+        }
+    }
 }
 
 
