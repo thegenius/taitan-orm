@@ -1,8 +1,9 @@
 use crate::attr_parser::{AttrParser, NamedAttribute};
-use crate::condition_def::ConditionDef;
-use crate::{FieldDef, InputParser};
+use crate::condition_def::{ConditionDef, VariantsOrFields};
+use crate::{FieldDef, FieldParser, InputParser};
 use case::CaseExt;
 use std::borrow::Cow;
+use syn::parse::Parser;
 use syn::DeriveInput;
 
 #[derive(PartialEq, Clone, Copy, Default)]
@@ -20,12 +21,23 @@ impl ConditionParser {
         let serde_attr: Option<NamedAttribute> = AttrParser::extract(&input.attrs, "serde_struct");
         let serde_structs = serde_attr.map(|attr| attr.values).unwrap_or_default();
 
-        let variants = InputParser::get_enum_variant_defs(&input.data).unwrap();
+        let is_enum = InputParser::is_enum(&input.data);
+        let variants_or_fields = if is_enum {
+            let variants = InputParser::get_enum_variant_defs(&input.data).unwrap();
+            VariantsOrFields::Variants(variants)
+        } else {
+            let fields = InputParser::get_fields(&input.data);
+            let defs = fields
+                .iter()
+                .map(|v| FieldParser::parse(v, false, None, None))
+                .collect();
+            VariantsOrFields::Fields(defs)
+        };
 
         ConditionDef {
             struct_name: Cow::Owned(struct_name),
             table_name,
-            variants,
+            variants_or_fields,
         }
     }
 }
@@ -43,33 +55,47 @@ mod test {
                 A{name: LocationExpr<String>},
             }
         };
+
         let cond_def = ConditionParser::parse(&input);
+        let field = match &cond_def.variants_or_fields {
+            VariantsOrFields::Variants(v) => v
+                .first()
+                .unwrap()
+                .fields
+                .first()
+                .unwrap()
+                .struct_field
+                .field
+                .clone(),
+            _ => unreachable!(),
+        };
+        let variant = NamedVariantDef {
+            name: "A".to_owned(),
+            named: true,
+            fields: vec![FieldDef {
+                struct_field: StructFieldDef {
+                    name: FieldName::named("name"),
+                    rust_type: Cow::Borrowed("LocationExpr < String >"),
+                    is_optional: false,
+                    is_location_expr: true,
+                    is_enum_variant: true,
+                    lifetime: None,
+                    field,
+                },
+                table_column: TableColumnDef {
+                    name: None,
+                    column_type: None,
+                    default_value: None,
+                    generated: None,
+                    nullable: false,
+                    auto_inc: false,
+                },
+            }],
+        };
         let expected_def = ConditionDef {
             struct_name: Cow::Borrowed("LocationSpec001"),
             table_name: Cow::Borrowed("location_spec001"),
-            variants: vec![NamedVariantDef {
-                name: "A".to_owned(),
-                named: true,
-                fields: vec![FieldDef {
-                    struct_field: StructFieldDef {
-                        name: FieldName::named("name"),
-                        rust_type: Cow::Borrowed("LocationExpr < String >"),
-                        is_optional: false,
-                        is_location_expr: true,
-                        is_enum_variant: true,
-                        lifetime: None,
-                        field: cond_def.variants.first().unwrap().fields.first().unwrap().struct_field.field.clone(),
-                    },
-                    table_column: TableColumnDef {
-                        name: None,
-                        column_type: None,
-                        default_value: None,
-                        generated: None,
-                        nullable: false,
-                        auto_inc: false,
-                    },
-                }],
-            }],
+            variants_or_fields: VariantsOrFields::Variants(vec![variant]),
         };
         assert_eq!(cond_def, expected_def);
     }
@@ -82,53 +108,81 @@ mod test {
             }
         };
         let cond_def = ConditionParser::parse(&input);
+
+        let field = match &cond_def.variants_or_fields {
+            VariantsOrFields::Variants(v) => v
+                .first()
+                .unwrap()
+                .fields
+                .first()
+                .unwrap()
+                .struct_field
+                .field
+                .clone(),
+            _ => unreachable!(),
+        };
+        let field2 = match &cond_def.variants_or_fields {
+            VariantsOrFields::Variants(v) => v
+                .first()
+                .unwrap()
+                .fields
+                .get(1)
+                .unwrap()
+                .struct_field
+                .field
+                .clone(),
+            _ => unreachable!(),
+        };
+        let variant1 = NamedVariantDef {
+            name: "A".to_owned(),
+            named: false,
+            fields: vec![
+                FieldDef {
+                    struct_field: StructFieldDef {
+                        name: FieldName::unnamed(0),
+                        rust_type: Cow::Borrowed("LocationExpr < String >"),
+                        is_optional: false,
+                        is_location_expr: true,
+                        is_enum_variant: true,
+                        lifetime: None,
+                        field,
+                    },
+                    table_column: TableColumnDef {
+                        name: Some(Cow::Borrowed("a")),
+                        column_type: None,
+                        default_value: None,
+                        generated: None,
+                        nullable: false,
+                        auto_inc: false,
+                    },
+                },
+                FieldDef {
+                    struct_field: StructFieldDef {
+                        name: FieldName::unnamed(1),
+                        rust_type: Cow::Borrowed("LocationExpr < String >"),
+                        is_optional: false,
+                        is_location_expr: true,
+                        is_enum_variant: true,
+                        lifetime: None,
+                        field: field2,
+                    },
+                    table_column: TableColumnDef {
+                        name: Some(Cow::Borrowed("a")),
+                        column_type: None,
+                        default_value: None,
+                        generated: None,
+                        nullable: false,
+                        auto_inc: false,
+                    },
+                },
+            ],
+        };
+
+
         let expected_def = ConditionDef {
             struct_name: Cow::Borrowed("LocationSpec002"),
             table_name: Cow::Borrowed("location_spec002"),
-            variants: vec![NamedVariantDef {
-                name: "A".to_owned(),
-                named: false,
-                fields: vec![
-                    FieldDef {
-                        struct_field: StructFieldDef {
-                            name: FieldName::unnamed(0),
-                            rust_type: Cow::Borrowed("LocationExpr < String >"),
-                            is_optional: false,
-                            is_location_expr: true,
-                            is_enum_variant: true,
-                            lifetime: None,
-                            field: cond_def.variants.first().unwrap().fields.first().unwrap().struct_field.field.clone(),
-                        },
-                        table_column: TableColumnDef {
-                            name: Some(Cow::Borrowed("a")),
-                            column_type: None,
-                            default_value: None,
-                            generated: None,
-                            nullable: false,
-                            auto_inc: false,
-                        },
-                    },
-                    FieldDef {
-                        struct_field: StructFieldDef {
-                            name: FieldName::unnamed(1),
-                            rust_type: Cow::Borrowed("LocationExpr < String >"),
-                            is_optional: false,
-                            is_location_expr: true,
-                            is_enum_variant: true,
-                            lifetime: None,
-                            field: cond_def.variants.first().unwrap().fields.get(1).unwrap().struct_field.field.clone(),
-                        },
-                        table_column: TableColumnDef {
-                            name: Some(Cow::Borrowed("a")),
-                            column_type: None,
-                            default_value: None,
-                            generated: None,
-                            nullable: false,
-                            auto_inc: false,
-                        },
-                    },
-                ],
-            }],
+            variants_or_fields: VariantsOrFields::Variants(vec![variant1]),
         };
         assert_eq!(cond_def, expected_def);
     }

@@ -3,7 +3,7 @@ use taitan_orm_macro::Parameter;
 use taitan_orm_trait::brave_new::param::Parameter;
 use taitan_orm_trait::Optional;
 
-#[derive(Parameter)]
+#[derive(taitan_orm_macro::Parameter)]
 struct ParamSpec002 {
     a: Option<String>,
     b: Option<i64>,

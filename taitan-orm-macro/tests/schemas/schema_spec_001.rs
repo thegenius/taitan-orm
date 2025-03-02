@@ -13,3 +13,4 @@ struct SchemaSpec001 {
     c: bool,
     d: u64,
 }
+

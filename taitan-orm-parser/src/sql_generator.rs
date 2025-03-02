@@ -1,7 +1,7 @@
 use crate::{DatabaseType, FieldMapper, SqlType, TableDef};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use crate::condition_def::ConditionDef;
+use crate::condition_def::{ConditionDef, VariantsOrFields};
 
 #[derive(Debug, Default)]
 pub struct SqlGenerator;
@@ -83,32 +83,42 @@ impl SqlGenerator {
     pub fn gen_where_sql(&self, condition_def: &ConditionDef, db_type: &DatabaseType) -> TokenStream {
         let field_mapper = FieldMapper::new();
         let mut stream = TokenStream::new();
-        for variant in &condition_def.variants {
-            let variant_name = format_ident!("{}", &variant.name);
-            let idents = field_mapper.gen_idents(&variant.fields);
-            // panic!("idents: {}", idents);
-            let s = field_mapper.gen_conditions(&variant.fields, db_type, true);
-            if variant.named {
-                stream.extend(quote! {
-                    Self::#variant_name{ #idents }=> {
-                        #s
-                    }
-                });
-            } else {
-                stream.extend(quote! {
+        match &condition_def.variants_or_fields {
+            VariantsOrFields::Variants(variants) => {
+                for variant in variants {
+                    let variant_name = format_ident!("{}", &variant.name);
+                    let idents = field_mapper.gen_idents(&variant.fields);
+                    // panic!("idents: {}", idents);
+                    let s = field_mapper.gen_conditions(&variant.fields, db_type, true);
+                    if variant.named {
+                        stream.extend(quote! {
+                            Self::#variant_name{ #idents }=> {
+                                #s
+                            }
+                        });
+                    } else {
+                        stream.extend(quote! {
                     Self::#variant_name( #idents )=> {
                         #s
                     }
                 });
+                    }
+                }
+
+                quote! {
+                    let s = match self {
+                        #stream
+                    };
+                    std::borrow::Cow::Owned(s)
+                }
+            }
+            VariantsOrFields::Fields(fields) => {
+                let s = field_mapper.gen_conditions(fields, db_type, true);
+                s
             }
         }
 
-        quote! {
-            let s = match self {
-                #stream
-            };
-            std::borrow::Cow::Owned(s)
-        }
+
     }
 
     pub fn gen_select_sql(&self, table_def: &TableDef, db_type: &DatabaseType) -> TokenStream {
