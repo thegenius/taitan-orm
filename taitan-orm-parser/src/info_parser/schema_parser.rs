@@ -3,7 +3,7 @@ use case::CaseExt;
 use syn::DeriveInput;
 use crate::attr_parser::{AttrParser, NamedAttribute};
 use crate::{FieldDef, FieldParser, InputParser};
-use crate::table_def::{NamedFieldsGroup, TableDef};
+use crate::table_def::{translate_attr_groups, NamedFieldsGroup, TableDef};
 
 pub struct SchemaParser;
 
@@ -33,12 +33,12 @@ impl SchemaParser {
         let uniques_attrs = AttrParser::extract_multi_list(attrs, "unique");
         let uniques = uniques_attrs
             .into_iter()
-            .map(NamedFieldsGroup::from)
+            .flat_map(translate_attr_groups)
             .collect();
         let index_attrs = AttrParser::extract_multi_list(attrs, "index");
         let indexes = index_attrs
             .into_iter()
-            .map(NamedFieldsGroup::from)
+            .flat_map(translate_attr_groups)
             .collect();
         TableDef {
             struct_name: Cow::Owned(struct_name),

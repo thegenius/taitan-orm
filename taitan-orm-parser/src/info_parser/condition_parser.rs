@@ -58,6 +58,7 @@ mod test {
                         is_location_expr: true,
                         is_enum_variant: true,
                         lifetime: None,
+                        field: cond_def.variants.first().unwrap().fields.first().unwrap().struct_field.field.clone(),
                     },
                     table_column: TableColumnDef {
                         name: None,
@@ -96,6 +97,7 @@ mod test {
                             is_location_expr: true,
                             is_enum_variant: true,
                             lifetime: None,
+                            field: cond_def.variants.first().unwrap().fields.first().unwrap().struct_field.field.clone(),
                         },
                         table_column: TableColumnDef {
                             name: Some(Cow::Borrowed("a")),
@@ -114,6 +116,7 @@ mod test {
                             is_location_expr: true,
                             is_enum_variant: true,
                             lifetime: None,
+                            field: cond_def.variants.first().unwrap().fields.get(1).unwrap().struct_field.field.clone(),
                         },
                         table_column: TableColumnDef {
                             name: Some(Cow::Borrowed("a")),

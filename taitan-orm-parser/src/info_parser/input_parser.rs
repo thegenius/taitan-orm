@@ -15,7 +15,7 @@ pub struct NamedVariant {
     pub fields: Vec<Field>,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct NamedVariantDef<'a> {
     pub name: String,
     pub named: bool,

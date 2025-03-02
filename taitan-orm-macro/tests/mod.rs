@@ -5,3 +5,4 @@ mod params;
 
 mod mutations;
 mod selected;
+mod schemas;

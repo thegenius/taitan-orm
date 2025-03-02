@@ -2,7 +2,7 @@ use crate::field_def::FieldName::Named;
 use crate::KeywordsEscaper;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-
+use syn::Field;
 // struct $Ident {
 //   name: FieldType
 // }
@@ -51,7 +51,7 @@ impl<'a> FieldName<'a> {
 }
 
 
-#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct StructFieldDef<'a> {
     pub name: FieldName<'a>,
     pub rust_type: Cow<'a, str>,
@@ -59,6 +59,7 @@ pub struct StructFieldDef<'a> {
     pub is_location_expr: bool,
     pub is_enum_variant: bool,
     pub lifetime: Option<Cow<'a, str>>,
+    pub field: Option<Field>, // struct字段还原的时候Field最为方便
 }
 
 impl<'a> StructFieldDef<'a> {
@@ -71,7 +72,7 @@ impl<'a> StructFieldDef<'a> {
 }
 
 // #[field(name = r_id, type = BIGINT, nullable = true, auto_inc = true)]
-#[derive(Debug, PartialEq, Clone, Default, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct TableColumnDef<'a> {
     pub name: Option<Cow<'a, str>>,
     pub column_type: Option<Cow<'a, str>>,
@@ -81,7 +82,7 @@ pub struct TableColumnDef<'a> {
     pub auto_inc: bool,
 }
 
-#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct FieldDef<'a> {
     pub struct_field: StructFieldDef<'a>,
     pub table_column: TableColumnDef<'a>,

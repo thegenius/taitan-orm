@@ -1,11 +1,11 @@
 use crate::attr_parser::{NamedAttribute, NamedAttributes};
 use crate::field_def::FieldDef;
+use crate::info_parser::schema_parser::SchemaParser;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use syn::DeriveInput;
-use crate::info_parser::schema_parser::SchemaParser;
 
-#[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Default)]
 pub struct TableDef<'a> {
     pub struct_name: Cow<'a, str>,
     pub table_name: Cow<'a, str>,
@@ -76,20 +76,15 @@ pub struct NamedFieldsGroup<'a> {
     pub fields: Vec<Cow<'a, str>>,
 }
 
-impl<'a> From<NamedAttributes<'a>> for NamedFieldsGroup<'a> {
-    fn from(attrs: NamedAttributes<'a>) -> NamedFieldsGroup<'a> {
+pub fn translate_attr_groups(attrs: NamedAttributes) -> Vec<NamedFieldsGroup> {
+    let mut groups: Vec<NamedFieldsGroup> = vec![];
+    for attr in attrs.attrs.iter() {
         let mut named = NamedFieldsGroup::default();
-        for attr in attrs.attrs.iter() {
-            if attr.name == "name" {
-                named.name = attr.values.get(0).unwrap().clone();
-            }
-            if attr.name == "fields" {
-                let fields = &attr.values;
-                named.fields = fields.clone();
-            }
-        }
-        named
+        named.name = attr.name.clone();
+        named.fields = attr.values.clone();
+        groups.push(named);
     }
+    groups
 }
 
 impl<'a> From<NamedAttribute<'a>> for NamedFieldsGroup<'a> {

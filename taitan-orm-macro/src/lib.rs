@@ -8,8 +8,9 @@ use proc_macro::TokenStream;
 use std::env;
 use std::io::Write;
 use std::process::id;
+use case::CaseExt;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, LocationTraitImplGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationTraitImplGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -58,36 +59,39 @@ fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> 
     SchemaNew,
     attributes(
         debug,
-        table_name,
-        primary_key,
-        unique_key,
+        table,
+        primary,
+        unique,
         auto_increment,
         generated,
-        field_name,
+        field,
         serde_struct,
         index
     )
 )]
 pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
-    let DeriveInput {
-        attrs, ident, data, ..
-    } = parse_macro_input!(input);
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def = TableDef::parse(&derive_input);
 
-    // let debugs= brave_new::attr_parser::extract_named_attrs_val(&attrs, "debug");
-    // if debugs.len() > 1 {
-    //     panic!("cannot use more than one debug attribute");
-    // }
-    // let table_def = extract_table_def(&ident.to_string(), &attrs, &data);
-    //
-    // if debugs.len() == 1 {
-    //     let debug_file = debugs.first().unwrap();
-    //     let table_def_json = serde_json::to_string(&table_def);
-    //     if let Err(err) = write_content_to_file(table_def_json.as_ref().unwrap(), &debug_file) {
-    //         panic!("cannot write to file: {}", err);
-    //     }
-    // }
+    // panic!("{:?}", table_def);
 
-    TokenStream::new()
+    let generator = IndexStructGenerator::default();
+    let mut stream = TokenStream::new();
+    let primary_stream: TokenStream = generator.generate(&table_def, &IndexEnum::Primary).into();
+    stream.extend(primary_stream.clone());
+    for unique in &table_def.uniques {
+        let index_type = IndexEnum::Unique {name: unique.name.to_string()};
+        let index_stream: TokenStream = generator.generate(&table_def, &index_type).into();
+        stream.extend(index_stream);
+    }
+    for index in &table_def.indexes {
+        let index_type = IndexEnum::Index {name: index.name.to_string()};
+        let index_stream: TokenStream = generator.generate(&table_def, &index_type).into();
+        stream.extend(index_stream);
+    }
+
+    // panic!("{}", stream);
+    stream.into()
 }
 
 #[proc_macro_derive(Parameter, attributes(field))]

@@ -7,6 +7,7 @@ pub fn selected<T>()-> Option<Option<T>> {
     Some(None)
 }
 
+
 pub trait Selected<DB: Database>: Sized + Default + Debug {
     fn gen_select_sql<'a>(&self) -> Cow<'a, str>;
 

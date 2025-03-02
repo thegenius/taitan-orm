@@ -28,6 +28,7 @@ pub fn field_parser_spec_struct() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: fields.get(0).map(|f|f.clone().clone()),
     };
     check_expected(&fields, 0, &expect_struct_field);
 
@@ -38,6 +39,7 @@ pub fn field_parser_spec_struct() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: fields.get(1).map(|f|f.clone().clone())
     };
     check_expected(&fields, 1, &expect_struct_field);
 
@@ -48,6 +50,7 @@ pub fn field_parser_spec_struct() {
         is_enum_variant: false,
         is_location_expr: false,
         lifetime: None,
+        field: fields.get(2).map(|f|f.clone().clone())
     };
     check_expected(&fields, 2, &expect_struct_field);
 
@@ -58,6 +61,7 @@ pub fn field_parser_spec_struct() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: fields.get(3).map(|f|f.clone().clone())
     };
     check_expected(&fields, 3, &expect_struct_field);
 
@@ -68,6 +72,7 @@ pub fn field_parser_spec_struct() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: fields.get(4).map(|f|f.clone().clone())
     };
     check_expected(&fields, 4, &expect_struct_field);
 }
@@ -91,6 +96,7 @@ pub fn field_parser_spec_with_attr() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: fields.get(0).map(|f|f.clone().clone())
     };
     let expect_column_def = TableColumnDef {
         name: Some(Cow::Borrowed("user_name")),
@@ -124,6 +130,7 @@ pub fn field_parser_spec_enum() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: variants.first().unwrap().fields.get(0).map(|f|f.clone().clone()),
     };
     check_expected(fields, 0, &expect_struct_field);
     let expect_struct_field = StructFieldDef {
@@ -133,6 +140,7 @@ pub fn field_parser_spec_enum() {
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: variants.first().unwrap().fields.get(1).map(|f|f.clone().clone()),
     };
     check_expected(fields, 1, &expect_struct_field);
 }

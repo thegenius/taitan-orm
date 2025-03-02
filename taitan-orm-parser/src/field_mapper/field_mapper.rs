@@ -1,7 +1,7 @@
 use super::base::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, RowMapper, SetsMapper, UpsertSetsMapper};
+use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, RowMapper, SetsMapper, StructFieldMapper, UpsertSetsMapper};
 use crate::field_mapper::base::Connector2;
 use crate::{DatabaseType, FieldName};
 use crate::FieldDef;
@@ -18,6 +18,7 @@ pub struct FieldMapper {
     upsert_sets_mapper: UpsertSetsMapper,
     args_mapper: ArgsMapper,
     row_mapper: RowMapper,
+    struct_field_mapper: StructFieldMapper,
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
@@ -65,6 +66,21 @@ impl FieldMapper {
             #( #streams )*
         }
     }
+
+    pub fn gen_struct_fields<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def| self.struct_field_mapper.map_to_field(def))
+            .collect::<Vec<_>>();
+        quote! {
+            #( #streams,)*
+        }
+    }
+
+
 
     pub fn gen_selected_default<'a, T>(&self, fields: T) -> TokenStream
     where

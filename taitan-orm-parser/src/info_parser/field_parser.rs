@@ -29,6 +29,7 @@ impl FieldParser {
             is_enum_variant,
             is_location_expr,
             lifetime,
+            field: Some(field.clone())
         };
 
         let attrs = &field.attrs;

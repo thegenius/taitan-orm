@@ -14,7 +14,7 @@ pub fn enum_parser_spec_001() {
             D(Uuid)
         }
     };
-    let fields = InputParser::get_enum_variant(&input.data).unwrap();
+    let variants = InputParser::get_enum_variant(&input.data).unwrap();
 
     let expect_struct_field = StructFieldDef {
         name: FieldName::unnamed(0),
@@ -23,9 +23,10 @@ pub fn enum_parser_spec_001() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: Some(variants.get(0).unwrap().fields.first().unwrap().clone())
     };
 
-    let field = fields.get(0).unwrap();
+    let field = variants.get(0).unwrap();
     let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(0), None);
     assert_eq!(field.name, "A");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
@@ -37,13 +38,14 @@ pub fn enum_parser_spec_001() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: Some(variants.get(1).unwrap().fields.first().unwrap().clone())
     };
-    let field = fields.get(1).unwrap();
+    let field = variants.get(1).unwrap();
     let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(1), None);
     assert_eq!(field.name, "B");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
-    let field = fields.get(2).unwrap();
+    let field = variants.get(2).unwrap();
     let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(2), None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::unnamed(2),
@@ -52,11 +54,12 @@ pub fn enum_parser_spec_001() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: Some(variants.get(2).unwrap().fields.first().unwrap().clone())
     };
     assert_eq!(field.name, "C");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
-    let field = fields.get(3).unwrap();
+    let field = variants.get(3).unwrap();
     let actual_field_def = FieldParser::parse(field.fields.first().unwrap(), true, Some(3), None);
     let expect_struct_field = StructFieldDef {
         name: FieldName::unnamed(3),
@@ -65,6 +68,7 @@ pub fn enum_parser_spec_001() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: None,
+        field: Some(variants.get(3).unwrap().fields.first().unwrap().clone())
     };
     assert_eq!(field.name, "D");
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
@@ -77,9 +81,9 @@ pub fn enum_parser_spec_002() {
             A { f1: &'a str, f2: Cow<'b, str>, f3: String },
         }
     };
-    let fields = InputParser::get_enum_variant(&input.data).unwrap();
+    let variants = InputParser::get_enum_variant(&input.data).unwrap();
 
-    let field = fields.get(0).unwrap();
+    let field = variants.get(0).unwrap();
     assert_eq!(field.name, "A");
 
     let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, None, None);
@@ -90,6 +94,7 @@ pub fn enum_parser_spec_002() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: variants.first().unwrap().fields.get(0).cloned()
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
@@ -101,6 +106,7 @@ pub fn enum_parser_spec_002() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: variants.first().unwrap().fields.get(1).cloned()
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
@@ -112,6 +118,7 @@ pub fn enum_parser_spec_002() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: None,
+        field: variants.first().unwrap().fields.get(2).cloned()
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
@@ -132,9 +139,9 @@ pub fn enum_parser_spec_003() {
             },
         }
     };
-    let fields = InputParser::get_enum_variant(&input.data).unwrap();
+    let variants = InputParser::get_enum_variant(&input.data).unwrap();
 
-    let field = fields.get(0).unwrap();
+    let field = variants.get(0).unwrap();
     assert_eq!(field.name, "A");
 
     let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, None, None);
@@ -145,6 +152,7 @@ pub fn enum_parser_spec_003() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: variants.first().unwrap().fields.get(0).cloned()
     };
     let expect_column_field = TableColumnDef {
         name: Some(Cow::Borrowed("user_name1")),
@@ -165,6 +173,7 @@ pub fn enum_parser_spec_003() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'b")),
+        field: variants.first().unwrap().fields.get(1).cloned()
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
@@ -176,6 +185,7 @@ pub fn enum_parser_spec_003() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: None,
+        field: variants.first().unwrap().fields.get(2).cloned()
     };
     assert_eq!(actual_field_def.struct_field, expect_struct_field);
 
@@ -191,9 +201,9 @@ pub fn enum_parser_spec_004() {
             )
         }
     };
-    let fields = InputParser::get_enum_variant(&input.data).unwrap();
+    let variants = InputParser::get_enum_variant(&input.data).unwrap();
 
-    let field = fields.get(0).unwrap();
+    let field = variants.get(0).unwrap();
     assert_eq!(field.name, "A");
 
     let actual_field_def = FieldParser::parse(field.fields.get(0).unwrap(), true, Some(0), None);
@@ -204,6 +214,7 @@ pub fn enum_parser_spec_004() {
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'a")),
+        field: variants.first().unwrap().fields.get(0).cloned()
     };
     let expect_column_field = TableColumnDef {
         name: Some(Cow::Borrowed("user_name1")),
