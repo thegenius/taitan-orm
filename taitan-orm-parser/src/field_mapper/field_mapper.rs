@@ -75,13 +75,13 @@ impl FieldMapper {
         }
     }
 
-    pub fn gen_struct_fields<'a, T>(&self, fields: T) -> TokenStream
+    pub fn gen_struct_fields<'a, T>(&self, fields: T, force_to_option: bool) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
         let streams = fields
             .into_iter()
-            .map(|def| self.struct_field_mapper.map_to_field(def))
+            .map(|def| self.struct_field_mapper.map_to_field(def, force_to_option))
             .collect::<Vec<_>>();
         quote! {
             #( #streams,)*
@@ -102,7 +102,7 @@ impl FieldMapper {
             let variant_name = format_ident!("{}", name);
             let stream = group
                 .iter()
-                .map(|def| self.struct_field_mapper.map_to_field(def))
+                .map(|def| self.struct_field_mapper.map_to_field(def, false))
                 .collect::<Vec<_>>();
             streams.extend(quote! {
                  #variant_name{  #( #stream, )* },

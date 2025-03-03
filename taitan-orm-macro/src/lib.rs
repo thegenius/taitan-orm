@@ -4,13 +4,18 @@ use crate::db_type::parse_database_type;
 use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
+use case::CaseExt;
 use proc_macro::TokenStream;
 use std::env;
 use std::io::Write;
 use std::process::id;
-use case::CaseExt;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationTraitImplGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
+use taitan_orm_parser::{
+    ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator,
+    LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator,
+    ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator,
+    TableDef,
+};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -75,52 +80,71 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
 
     // panic!("{:?}", table_def);
 
-    let generator = IndexStructGenerator::default();
+    let index_generator = IndexStructGenerator::default();
     let mut stream = TokenStream::new();
-    let primary_stream: TokenStream = generator.generate(&table_def, &IndexEnum::Primary).into();
+    generate_param_impl(&mut stream, &table_def);
+    generate_entity_impl(&mut stream, &table_def);
+
+    let primary_stream: TokenStream = index_generator
+        .generate(&table_def, &IndexEnum::Primary)
+        .into();
     stream.extend(primary_stream.clone());
     for unique in &table_def.uniques {
-        let index_type = IndexEnum::Unique {name: unique.name.to_string()};
-        let index_stream: TokenStream = generator.generate(&table_def, &index_type).into();
+        let index_type = IndexEnum::Unique {
+            name: unique.name.to_string(),
+        };
+        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type).into();
         stream.extend(index_stream);
     }
     for index in &table_def.indexes {
-        let index_type = IndexEnum::Index {name: index.name.to_string()};
-        let index_stream: TokenStream = generator.generate(&table_def, &index_type).into();
+        let index_type = IndexEnum::Index {
+            name: index.name.to_string(),
+        };
+        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type).into();
         stream.extend(index_stream);
     }
+    let mutation_generator = MutationStructGenerator::default();
+    let mutation_struct_stream: TokenStream = mutation_generator.generate(&table_def).into();
+    stream.extend(mutation_struct_stream);
 
     // panic!("{}", stream);
     stream.into()
+}
+
+fn generate_param_impl(stream: &mut TokenStream, table_def: &TableDef) {
+    let generator = ParameterTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.gen_add_to_args(&database_type, &table_def).into();
+        stream.extend(s);
+    }
 }
 
 #[proc_macro_derive(Parameter, attributes(field))]
 pub fn expand_param_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);
-    // let db_type = parse_database_type(&derive_input);
-    let generator = ParameterTraitImplGenerator::default();
-    let supported_database_types = get_supported_database_types();
     let mut stream = TokenStream::new();
-    for database_type in supported_database_types {
-        let s: TokenStream = generator.gen_add_to_args(&database_type, &table_def).into();
-        stream.extend(s);
-    }
+    generate_param_impl(&mut stream, &table_def);
     // panic!("{}", stream);
     stream.into()
+}
+
+fn generate_entity_impl(stream: &mut TokenStream, table_def: &TableDef) {
+    let generator = EntityTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &table_def).into();
+        stream.extend(s);
+    }
 }
 
 #[proc_macro_derive(EntityNew, attributes(field))]
 pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);
-    let generator = EntityTraitImplGenerator::default();
-    let supported_database_types = get_supported_database_types();
     let mut stream = TokenStream::new();
-    for database_type in supported_database_types {
-        let s: TokenStream = generator.generate(&database_type, &table_def).into();
-        stream.extend(s);
-    }
+    generate_entity_impl(&mut stream, &table_def);
     // panic!("{}", stream);
     stream.into()
 }

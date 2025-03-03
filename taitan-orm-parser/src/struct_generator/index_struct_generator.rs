@@ -41,7 +41,7 @@ impl IndexStructGenerator {
         let fields_stream = match index_enum {
             IndexEnum::Primary => {
                 let fields = table_def.get_primary_fields();
-                let fields_stream = field_mapper.gen_struct_fields(fields);
+                let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 quote! {
                     pub struct #struct_ident {
                         #fields_stream
@@ -50,7 +50,7 @@ impl IndexStructGenerator {
             }
             IndexEnum::Unique {name} => {
                 let fields = table_def.get_unique_fields(name);
-                let fields_stream = field_mapper.gen_struct_fields(fields);
+                let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 quote! {
                     pub struct #struct_ident {
                         #fields_stream

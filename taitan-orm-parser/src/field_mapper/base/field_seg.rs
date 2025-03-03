@@ -194,7 +194,7 @@ fn translate_val_seg(
                         } else {
                             has_prev = true;
                             index += 1;
-                            s.s.push_str(format!(#val, index).as_ref());
+                            s.push_str(format!(#val, index).as_ref());
                         }
                     }
                 }

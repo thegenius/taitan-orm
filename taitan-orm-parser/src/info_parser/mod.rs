@@ -14,3 +14,4 @@ pub use field_parser::FieldParser;
 pub use field_parser::FieldAttrParser;
 pub use input_parser::NamedVariant;
 pub use input_parser::NamedVariantDef;
+pub use type_parser::TypeParser;
