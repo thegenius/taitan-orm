@@ -10,12 +10,7 @@ use std::env;
 use std::io::Write;
 use std::process::id;
 use syn::{parse_macro_input, Attribute, DeriveInput};
-use taitan_orm_parser::{
-    ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator,
-    LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator,
-    ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator,
-    TableDef,
-};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -108,6 +103,10 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     let mutation_generator = MutationStructGenerator::default();
     let mutation_struct_stream: TokenStream = mutation_generator.generate(&table_def).into();
     stream.extend(mutation_struct_stream);
+
+    let location_generator = LocationEnumGenerator::default();
+    let location_stream: TokenStream = location_generator.generate(&table_def).into();
+    stream.extend(location_stream);
 
     // panic!("{}", stream);
     stream.into()

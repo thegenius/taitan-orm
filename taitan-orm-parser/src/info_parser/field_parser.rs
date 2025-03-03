@@ -15,7 +15,7 @@ impl FieldParser {
         } else {
             FieldName::unnamed(unnamed_idx.unwrap())
         };
-        let field_type = TypeParser::get_inner_type(&field.ty).expect("can not parse field type");
+        let field_type = TypeParser::get_inner_type(&field.ty);
         let field_type_str = field_type.to_token_stream().to_string();
         let is_location_expr = TypeParser::is_location_expr(&field_type);
 

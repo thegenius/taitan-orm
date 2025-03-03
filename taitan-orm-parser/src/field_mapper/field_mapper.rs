@@ -88,6 +88,19 @@ impl FieldMapper {
         }
     }
 
+    pub fn gen_enum_expr_variants<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def| self.struct_field_mapper.map_to_enum_expr(def))
+            .collect::<Vec<_>>();
+        quote! {
+            #( #streams,)*
+        }
+    }
+
     pub fn gen_enum_variants<'a, T>(&self, fields: T) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,

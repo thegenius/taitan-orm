@@ -57,3 +57,4 @@ pub use impl_generator::SelectedTraitImplGenerator;
 pub use impl_generator::SelectedDefaultImplGenerator;
 pub use struct_generator::IndexStructGenerator;
 pub use struct_generator::MutationStructGenerator;
+pub use struct_generator::LocationEnumGenerator;

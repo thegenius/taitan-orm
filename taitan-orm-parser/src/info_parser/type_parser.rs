@@ -114,11 +114,12 @@ impl TypeParser {
         }
         false
     }
-    pub fn get_inner_type(ty: &Type) -> Option<&Type> {
-        if !Self::is_option(ty) {
-            return Some(ty);
+    pub fn get_inner_type(ty: &Type) -> Type {
+        if !Self::is_option_type(ty) {
+            return ty.clone();
+        } else {
+            Self::get_option_inner_type(ty).unwrap().clone()
         }
-        Self::get_option_inner_type(ty)
     }
 
 }
