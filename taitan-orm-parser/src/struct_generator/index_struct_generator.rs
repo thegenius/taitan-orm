@@ -43,6 +43,7 @@ impl IndexStructGenerator {
                 let fields = table_def.get_primary_fields();
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 quote! {
+                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -52,6 +53,7 @@ impl IndexStructGenerator {
                 let fields = table_def.get_unique_fields(name);
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 quote! {
+                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -61,6 +63,7 @@ impl IndexStructGenerator {
                 let fields = table_def.get_index_fields(name);
                 let fields_stream = field_mapper.gen_enum_variants( fields);
                 quote! {
+                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
                     pub enum #struct_ident {
                         #fields_stream
                     }
