@@ -76,16 +76,17 @@ impl TypeParser {
     }
 
     pub fn get_option_inner_type(ty: &Type) -> Option<&Type> {
-        if !Self::is_option(ty) {
+        if !Self::is_option_type(ty) {
             return None;
         }
 
-        let Type::Path(ty) = ty else { return None };
-        if ty.qself.is_some() {
+        // 解析 Option 内部的类型
+        let Type::Path(type_path) = ty else { return None };
+        if type_path.qself.is_some() {
             return None;
         }
 
-        let last_segment = ty.path.segments.last().unwrap();
+        let last_segment = type_path.path.segments.last().unwrap();
         let PathArguments::AngleBracketed(generics) = &last_segment.arguments else {
             return None;
         };
@@ -96,9 +97,23 @@ impl TypeParser {
             return None;
         };
 
+        // 递归解析嵌套的 Option
+        if Self::is_option_type(inner_type) {
+            return Self::get_option_inner_type(inner_type);
+        }
+
+        // 返回最内层的类型
         Some(inner_type)
     }
 
+    fn is_option_type(ty: &Type) -> bool {
+        if let Type::Path(type_path) = ty {
+            if let Some(segment) = type_path.path.segments.last() {
+                return segment.ident == "Option";
+            }
+        }
+        false
+    }
     pub fn get_inner_type(ty: &Type) -> Option<&Type> {
         if !Self::is_option(ty) {
             return Some(ty);
