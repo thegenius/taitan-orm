@@ -9,6 +9,16 @@ use std::borrow::Cow;
 pub struct ConditionsMapper;
 
 impl SingleFieldMapper for ConditionsMapper {
+    fn map_static<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper) -> Cow<'a, str> {
+        let column_name = field.column_name(escaper);
+        Cow::Owned(format!("{column_name}=?"))
+    }
+
+    fn map_static_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
+        let column_name = field.column_name(escaper);
+        Cow::Owned(format!("{column_name}=${{}}"))
+    }
+
     fn map_dynamic<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
@@ -27,9 +37,6 @@ impl SingleFieldMapper for ConditionsMapper {
         Cow::Owned(format!("{}{{}}${{}}", column_name))
     }
 
-    fn is_expr(&self) -> bool {
-        true
-    }
 
     // fn get_value_name(&self) -> &'static str {
     //     "conditions"

@@ -107,7 +107,7 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     let mutation_struct_stream: TokenStream = mutation_generator.generate(&table_def).into();
     stream.extend(mutation_struct_stream);
 
-    // panic!("{}", stream);
+    panic!("{}", stream);
     stream.into()
 }
 

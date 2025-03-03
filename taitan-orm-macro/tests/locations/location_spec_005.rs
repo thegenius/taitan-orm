@@ -4,15 +4,17 @@
 // use taitan_orm_trait::{CmpOperator, LocationExpr};
 //
 // #[derive(Debug, Parameter, LocationNew)]
-// struct LocationSpec003 {
-//     a: LocationExpr<String>,
-//     # [field(name = c_name, db_type = BIGINT, nullable = true, auto_inc = true)]
-//     b: LocationExpr<String>,
+// enum LocationSpec005 {
+//     A(String),
+//     B {
+//         # [field(name = c_name, db_type = BIGINT, nullable = true, auto_inc = true)]
+//         name: LocationExpr<String>,
+//     },
 // }
 //
 // #[test]
-// fn location_spec_003() {
-//     let location = LocationSpec003 {
+// fn location_spec_005() {
+//     let location = LocationSpec005 {
 //         a: LocationExpr::new(CmpOperator::Eq, "a".to_string()),
 //         b: LocationExpr::new(CmpOperator::LessOrEq, "b".to_string()),
 //     };

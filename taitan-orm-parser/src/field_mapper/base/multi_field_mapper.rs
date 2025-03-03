@@ -52,7 +52,7 @@ pub trait MultiFieldMapper: SingleFieldMapper {
             .into_iter()
             .enumerate()
             .map(|(index, field)| {
-                SingleFieldMapper::_map_static_indexed(self, field.as_ref(), escaper, index)
+                SingleFieldMapper::map_static_indexed(self, field.as_ref(), escaper, index)
             })
             .collect::<Vec<Cow<'_, str>>>()
             .join(",");
@@ -68,15 +68,16 @@ pub trait MultiFieldMapper: SingleFieldMapper {
         comma_type: LeadingCommaType,
         connect_op: ConnectOp,
         is_enum: bool,
+        static_cond: bool
     ) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>>, {
         let mut stream = TokenStream::new();
         for (index, field) in fields.into_iter().enumerate() {
             if index == 0 {
-                stream.extend(self.map_single(field, escaper, is_optional, indexed, comma_type, connect_op, is_enum));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, comma_type, connect_op, is_enum, static_cond));
             } else {
-                stream.extend(self.map_single(field, escaper, is_optional, indexed, Leading, connect_op, is_enum));
+                stream.extend(self.map_single(field, escaper, is_optional, indexed, Leading, connect_op, is_enum, static_cond));
             }
         };
         stream

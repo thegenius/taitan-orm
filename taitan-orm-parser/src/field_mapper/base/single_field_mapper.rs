@@ -43,7 +43,7 @@ pub trait SingleFieldMapper {
     ) -> Cow<'a, str> {
         panic!("_map_static is not implemented")
     }
-    fn _map_static_indexed<'a>(
+    fn map_static_indexed<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
         escaper: &dyn KeywordsEscaper,
@@ -66,9 +66,6 @@ pub trait SingleFieldMapper {
         self.map_dynamic(field, escaper)
     }
 
-    fn is_expr(&self) -> bool {
-        false
-    }
     fn map_single<'a>(
         &'a self,
         field: &'a FieldDef<'a>,
@@ -78,14 +75,23 @@ pub trait SingleFieldMapper {
         leading_comma_type: LeadingCommaType,
         connect_op: ConnectOp,
         is_enum: bool,
+        is_cond: bool,
     ) -> TokenStream {
         let ident = format_ident!("{}", field.struct_field.get_name());
         let seg = if indexed {
-            self.map_dynamic_indexed(field, escaper)
+            if is_cond && !is_enum {
+                self.map_static_indexed(field, escaper, 0)
+            } else {
+                self.map_dynamic_indexed(field, escaper)
+            }
         } else {
-            self.map_dynamic(field, escaper)
+            if is_cond && !is_enum {
+                self.map_static(field, escaper)
+            } else {
+                self.map_dynamic(field, escaper)
+            }
         };
-        let seg = FieldSeg::from(seg, Some(ident), indexed, self.is_expr());
+        let seg = FieldSeg::from(seg, Some(ident), indexed, field.is_location_expr());
         seg.translate(leading_comma_type, connect_op, is_optional, is_enum)
     }
     fn map_single_optional<'a>(
@@ -96,8 +102,9 @@ pub trait SingleFieldMapper {
         leading_comma_type: LeadingCommaType,
         connect_op: ConnectOp,
         is_enum: bool,
+        static_cond: bool,
     ) -> TokenStream {
-        self.map_single(field, escaper, true, indexed, leading_comma_type, connect_op, is_enum)
+        self.map_single(field, escaper, true, indexed, leading_comma_type, connect_op, is_enum, static_cond)
     }
 
     // fn get_value_name(&self) -> &'static str;

@@ -13,7 +13,7 @@ impl SingleFieldMapper for MarksMapper {
         Cow::Borrowed("?")
     }
 
-    fn _map_static_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
+    fn map_static_indexed<'a>(&'a self, field: &'a FieldDef<'a>, escaper: &dyn KeywordsEscaper, index: usize) -> Cow<'a, str> {
         Cow::Owned(format!("${}", index + 1))
     }
 

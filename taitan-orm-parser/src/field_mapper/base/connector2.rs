@@ -54,6 +54,7 @@ pub trait Connector2: MultiFieldMapper {
                         false,
                         *comma_type,
                         ConnectOp::Comma,
+                        false,
                         false
                     ));
                 }
@@ -104,6 +105,7 @@ pub trait Connector2: MultiFieldMapper {
                         true,
                         *comma_type,
                         ConnectOp::Comma,
+                        false,
                         false
                     );
                     stream.extend(s)
@@ -118,6 +120,7 @@ pub trait Connector2: MultiFieldMapper {
                         true,
                         *comma_type,
                         ConnectOp::Comma,
+                        false,
                         false
                     ));
                 }
@@ -162,6 +165,7 @@ pub trait Connector2: MultiFieldMapper {
                         *comma_type,
                         ConnectOp::And,
                         is_enum,
+                        true
                     );
                     stream.extend(s);
                     stream.extend(quote! { has_prev = true; });
@@ -176,7 +180,8 @@ pub trait Connector2: MultiFieldMapper {
                         indexed,
                         *comma_type,
                         ConnectOp::And,
-                        is_enum
+                        is_enum,
+                        true
                     );
                     stream.extend(s);
                 }
@@ -188,7 +193,8 @@ pub trait Connector2: MultiFieldMapper {
                         false,
                         *comma_type,
                         ConnectOp::And,
-                        is_enum
+                        is_enum,
+                        true
                     ));
                 }
                 FieldGroup::FollowingOptional { field, comma_type }
@@ -199,7 +205,8 @@ pub trait Connector2: MultiFieldMapper {
                         false,
                         *comma_type,
                         ConnectOp::And,
-                        is_enum
+                        is_enum,
+                        true
                     ));
                 }
             }
