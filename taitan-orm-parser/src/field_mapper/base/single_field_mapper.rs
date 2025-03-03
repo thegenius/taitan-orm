@@ -79,13 +79,13 @@ pub trait SingleFieldMapper {
     ) -> TokenStream {
         let ident = format_ident!("{}", field.struct_field.get_name());
         let seg = if indexed {
-            if is_cond && !is_enum {
+            if is_cond && !field.is_location_expr() {
                 self.map_static_indexed(field, escaper, 0)
             } else {
                 self.map_dynamic_indexed(field, escaper)
             }
         } else {
-            if is_cond && !is_enum {
+            if is_cond && !field.is_location_expr() {
                 self.map_static(field, escaper)
             } else {
                 self.map_dynamic(field, escaper)

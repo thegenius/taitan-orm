@@ -127,7 +127,7 @@ impl<'a> FieldSeg<'a> {
         is_enum: bool,
     ) -> TokenStream {
         match self {
-            FieldSeg::Val(seg) => translate_val_seg(seg, leading_comma_type, is_option),
+            FieldSeg::Val(seg) => translate_val_seg(seg, leading_comma_type, connect_op, is_option),
             FieldSeg::Expr(expr) => {
                 translate_expr_seg(expr, leading_comma_type, connect_op, is_option, is_enum)
             }
@@ -138,6 +138,7 @@ impl<'a> FieldSeg<'a> {
 fn translate_val_seg(
     field_seg: &FieldValSeg,
     leading_comma_type: LeadingCommaType,
+    connect_op: ConnectOp,
     is_option: bool,
 ) -> TokenStream {
     let origin = match field_seg {
@@ -149,13 +150,13 @@ fn translate_val_seg(
                 }
             }
             LeadingCommaType::Leading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     s.push_str(#comma_seg);
                 }
             }
             LeadingCommaType::CheckedLeading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     if has_prev {
                         s.push_str(#comma_seg);
@@ -176,7 +177,7 @@ fn translate_val_seg(
                 }
             }
             LeadingCommaType::Leading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}",connect_op.as_str(), val);
                 quote! {
                     {
                         index += 1;
@@ -185,7 +186,7 @@ fn translate_val_seg(
                 }
             }
             LeadingCommaType::CheckedLeading => {
-                let comma_seg = format!(",{}", val);
+                let comma_seg = format!("{}{}", connect_op.as_str(), val);
                 quote! {
                     {
                         if has_prev {

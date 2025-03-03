@@ -18,5 +18,5 @@ fn location_spec_004() {
         b: "b".to_string(),
     };
     let where_sql = Location::<sqlx::Sqlite>::gen_where_sql(&location);
-    assert_eq!(where_sql, "a=? AND c_name<=?");
+    assert_eq!(where_sql, "a=? AND c_name=?");
 }
