@@ -17,7 +17,9 @@ struct SchemaSpec001 {
     c: bool,
     d: i64,
 }
-
+impl Unique<sqlx::Sqlite> for SchemaSpec001UniqueUk01 {
+    type Mutation = SchemaSpec001Mutation;
+}
 
 #[test]
 fn schema_spec_001() {

@@ -47,6 +47,7 @@ impl IndexStructGenerator {
                     pub struct #struct_ident {
                         #fields_stream
                     }
+
                 }
             }
             IndexEnum::Unique {name} => {
