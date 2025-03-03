@@ -3,23 +3,21 @@ use taitan_orm_macro::MutationNew;
 use taitan_orm_macro::Parameter;
 use taitan_orm_macro::SchemaNew;
 use taitan_orm_trait::brave_new::Unique;
-#[derive(Debug, SchemaNew)]
+#[derive(SchemaNew)]
 #[primary(a)]
 #[unique(uk_01 = (a, b))]
 #[index(
    idx_01 = (a, b, c),
    idx_02 = (a, b, c,d),
 )]
-// #[derive(Debug)]
+#[derive(Debug)]
 struct SchemaSpec001 {
     a: String,
     b: i64,
     c: bool,
     d: i64,
 }
-impl Unique<sqlx::Sqlite> for SchemaSpec001UniqueUk01 {
-    type Mutation = SchemaSpec001Mutation;
-}
+
 
 #[test]
 fn schema_spec_001() {

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::fmt::Debug;
 use case::CaseExt;
 use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use crate::condition_def::ConditionDef;
 
@@ -18,12 +18,28 @@ pub enum IndexEnum {
 }
 
 
+
 impl IndexStructGenerator {
+
+    fn impl_unique<'a>(db_types: &[DatabaseType], struct_name: &Cow<'a, str>,  struct_ident: &Ident) -> TokenStream {
+        let mut stream = TokenStream::new();
+        for db_type in db_types {
+            let mutation_ident = format_ident!("{}Mutation", struct_name);
+            let db_ident = db_type.gen_ident();
+            stream.extend(quote! {
+                impl Unique<sqlx::#db_ident> for #struct_ident {
+                    type Mutation = #mutation_ident;
+                }
+            });
+        }
+        stream
+    }
 
     pub fn generate(
         &self,
         table_def: &TableDef,
-        index_enum: &IndexEnum
+        index_enum: &IndexEnum,
+        db_types: &[DatabaseType]
     ) -> TokenStream {
 
         let struct_name = &table_def.struct_name;
@@ -42,22 +58,25 @@ impl IndexStructGenerator {
             IndexEnum::Primary => {
                 let fields = table_def.get_primary_fields();
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
+                let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
                     #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
-
+                    #impl_unique
                 }
             }
             IndexEnum::Unique {name} => {
                 let fields = table_def.get_unique_fields(name);
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
+                let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
                     #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
+                    #impl_unique
                 }
             }
             IndexEnum::Index {name} => {

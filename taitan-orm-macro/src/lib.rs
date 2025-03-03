@@ -85,22 +85,24 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     generate_param_impl(&mut stream, &table_def);
     generate_entity_impl(&mut stream, &table_def);
 
+    let supported_database_types = get_supported_database_types();
     let primary_stream: TokenStream = index_generator
-        .generate(&table_def, &IndexEnum::Primary)
+        .generate(&table_def, &IndexEnum::Primary, &supported_database_types)
         .into();
     stream.extend(primary_stream.clone());
+
     for unique in &table_def.uniques {
         let index_type = IndexEnum::Unique {
             name: unique.name.to_string(),
         };
-        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type).into();
+        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type, &supported_database_types).into();
         stream.extend(index_stream);
     }
     for index in &table_def.indexes {
         let index_type = IndexEnum::Index {
             name: index.name.to_string(),
         };
-        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type).into();
+        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type, &supported_database_types).into();
         stream.extend(index_stream);
     }
     let mutation_generator = MutationStructGenerator::default();
