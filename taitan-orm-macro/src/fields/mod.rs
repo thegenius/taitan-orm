@@ -28,7 +28,6 @@ pub use mappers::NamesConstructor;
 pub use mappers::NamesAddConstructor;
 pub use mappers::StructConstructor;
 pub use mappers::SqlConstructors;
-pub use mappers::SqlConstructor;
 pub use mappers::ArgsConstructorPostgres;
 pub use mappers::ArgsConstructorMySql;
 pub use mappers::ArgsConstructorSqlite;

@@ -1,7 +1,7 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::fields::{FieldsFilter, FieldsParser, NamesConstructor, RowConstructor, StructConstructor};
 use case::CaseExt;
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{Attribute, FieldsNamed};
 

@@ -1,5 +1,5 @@
 use crate::attrs::{AttrParser, DefaultAttrParser};
-use crate::fields::{DefaultFieldMapper, FieldsContainer, FieldsParser};
+use crate::fields::{FieldsContainer, FieldsParser};
 use syn::Field;
 use crate::types::{DefaultTypeChecker, TypeChecker};
 

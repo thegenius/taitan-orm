@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote_spanned;
 // use syn::spanned::Spanned;
-use syn::{Field, LitStr};
+use syn::Field;
 use crate::types::{DefaultTypeChecker, TypeChecker};
 
 pub trait RowGetConstructor {

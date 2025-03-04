@@ -1,4 +1,4 @@
-use syn::{DeriveInput, Meta};
+use syn::DeriveInput;
 use taitan_orm_parser::attr_parser::AttrParser;
 use taitan_orm_parser::DatabaseType;
 

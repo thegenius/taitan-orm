@@ -1,7 +1,5 @@
-use crate::attrs::{AttrParser, DefaultAttrParser};
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Attribute};
 use crate::fields::{FieldsContainer};
 use crate::fields::mappers::names_add_constructor::NamesAddConstructor;
 

@@ -1,7 +1,7 @@
-use crate::expands::{generate_entity_impl, generate_index_struct, generate_location_expr_enum_and_impl, generate_location_struct, generate_location_struct_and_impl, generate_mutation_struct_and_impl, generate_ordering_struct_and_impl, generate_selected_struct, generate_selection_struct_and_impl, generate_unique_structs_and_impls};
+use crate::expands::{generate_entity_impl, generate_index_struct, generate_location_expr_enum_and_impl, generate_location_struct, generate_mutation_struct_and_impl, generate_ordering_struct_and_impl, generate_selected_struct, generate_selection_struct_and_impl, generate_unique_structs_and_impls};
 use crate::util::extract_fields;
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, DeriveInput, Error, MetaList};
+use syn::{parse_macro_input, DeriveInput};
 use crate::attrs::{AttrParser, DefaultAttrParser};
 
 

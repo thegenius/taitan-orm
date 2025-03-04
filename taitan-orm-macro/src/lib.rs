@@ -1,15 +1,11 @@
 #![allow(dead_code)]
 #![forbid(unsafe_code)]
-use crate::db_type::parse_database_type;
 use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
-use case::CaseExt;
 use proc_macro::TokenStream;
-use std::env;
 use std::io::Write;
-use std::process::id;
-use syn::{parse_macro_input, Attribute, DeriveInput};
+use syn::{parse_macro_input, DeriveInput};
 use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;

@@ -2,9 +2,8 @@ use crate::attrs::{AttrParser, DefaultAttrParser};
 use crate::expands::struct_generator::generate_location_struct;
 use crate::fields::{FieldsFilter, FieldsParser};
 use crate::fields::LocationParser;
-use crate::fields::StructConstructor;
 use case::CaseExt;
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::{Attribute, FieldsNamed};
 

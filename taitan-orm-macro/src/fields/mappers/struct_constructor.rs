@@ -1,5 +1,5 @@
 use crate::fields::mappers::StructFieldConstructor;
-use crate::fields::{FieldsContainer, FieldsParser};
+use crate::fields::FieldsContainer;
 use case::CaseExt;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};

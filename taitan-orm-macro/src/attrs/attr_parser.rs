@@ -1,8 +1,7 @@
 use case::CaseExt;
-use darling::ast::NestedMeta;
 use proc_macro2::{Ident, TokenTree};
 use quote::__private::ext::RepToTokensExt;
-use syn::{parse_macro_input, Attribute, DeriveInput, Expr, Field, Lit, Meta, Path};
+use syn::{Attribute, Expr, Field, Lit, Meta, Path};
 use quote::format_ident;
 
 pub trait AttrParser {
@@ -52,7 +51,7 @@ impl AttrParser for DefaultAttrParser {
         let mut fields = Vec::new();
         match &attr.meta {
             Meta::List(meta_list) => {
-                let mut token_stream: proc_macro2::TokenStream = meta_list.clone().tokens;
+                let token_stream: proc_macro2::TokenStream = meta_list.clone().tokens;
                 let mut tokens = token_stream.into_iter();
                 while let Some(token) = tokens.next() {
                     match token {

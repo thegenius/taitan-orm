@@ -6,7 +6,7 @@ use crate::util::{extract_fields};
 
 pub fn impl_selected_macro(input: TokenStream) -> TokenStream {
     let DeriveInput {
-        attrs, ident, data, generics, ..
+        attrs, ident, data,  ..
     } = parse_macro_input!(input);
 
     let fields = extract_fields(&data).unwrap();

@@ -1,9 +1,7 @@
-use std::fmt::format;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Field, LitStr};
 use syn::spanned::Spanned;
-use crate::types::{DefaultTypeChecker, DefaultTypeExtractor};
 
 pub trait SqlConstructor {
 
