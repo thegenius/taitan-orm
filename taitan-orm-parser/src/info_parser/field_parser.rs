@@ -43,7 +43,9 @@ impl FieldAttrParser {
             TableColumnDef::default()
         };
         if let Some(column_name) = external_column_name {
-            table_column_def.name = Some(Cow::Owned(column_name));
+            if table_column_def.name.is_none() {
+                table_column_def.name = Some(Cow::Owned(column_name));
+            }
         }
         table_column_def
     }
