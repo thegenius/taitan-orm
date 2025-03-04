@@ -2,11 +2,10 @@
 use nom::bytes::complete::tag_no_case;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, char, digit1, multispace0, space0},
-    combinator::{map, opt, recognize, value},
-    multi::many0,
-    sequence::{delimited, preceded, tuple},
+    bytes::complete::tag,
+    character::complete::multispace0,
+    combinator::map,
+    sequence::preceded,
     IResult,
 };
 use crate::template_parser::{TemplateConnective, TemplateSqlValue};

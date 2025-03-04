@@ -1,12 +1,6 @@
 use crate::attr_parser::AttrParser;
-use crate::field_def::{FieldDef, TableColumnDef};
-use crate::info_parser::type_parser::TypeParser;
-use crate::LifetimeParser;
-use quote::ToTokens;
+use crate::field_def::TableColumnDef;
 
-use crate::info_parser::option_parser::OptionParser;
-use crate::info_parser::ParsedField;
-use case::CaseExt;
 use std::borrow::Cow;
 use syn::{Attribute, Field};
 

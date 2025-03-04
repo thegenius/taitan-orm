@@ -3,7 +3,7 @@ use case::CaseExt;
 use syn::DeriveInput;
 use crate::attr_parser::{AttrParser, NamedAttribute};
 use crate::{FieldDef, InputParser};
-use crate::table_def::{translate_attr_groups, NamedFieldsGroup, TableDef};
+use crate::table_def::{translate_attr_groups, TableDef};
 
 pub struct SchemaParser;
 

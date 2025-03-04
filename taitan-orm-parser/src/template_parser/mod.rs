@@ -17,7 +17,6 @@ pub use structs::TemplateSqlValue;
 pub use structs::TemplateExprFirstPart;
 pub use structs::TemplateExprSecondPart;
 pub use structs::OptionalVariable;
-pub use structs::OptionalContext;
 pub use structs::UnitOptionalContext;
 pub use structs::PairOptionalContext;
 
@@ -25,4 +24,3 @@ pub use structs::PairOptionalContext;
 
 
 
-pub use parsed_template_sql::ParsedTemplateSql;

@@ -1,12 +1,10 @@
-use crate::template_parser::parsers::{parse_expr_as_value, parse_operator, parse_placeholder, parse_segment, parse_string};
+use crate::template_parser::parsers::parse_expr_as_value;
 use nom::branch::alt;
-use nom::bytes::streaming::tag;
-use nom::character::complete::{multispace0, multispace1};
+use nom::character::complete::multispace1;
 use nom::multi::separated_list1;
 use nom::IResult;
 
 
-use nom::sequence::tuple;
 use crate::template_parser::parsers::number_parser::parse_number_as_value;
 use crate::template_parser::parsers::operator_parser::parse_operator_as_value;
 use crate::template_parser::parsers::placeholder_parser::parse_placeholder_as_value;

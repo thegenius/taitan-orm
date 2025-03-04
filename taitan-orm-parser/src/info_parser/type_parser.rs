@@ -1,5 +1,4 @@
-use syn::{GenericArgument, Path, PathArguments, Type};
-use crate::info_parser::option_parser::OptionParser;
+use syn::{Path, Type};
 
 pub struct TypeParser;
 

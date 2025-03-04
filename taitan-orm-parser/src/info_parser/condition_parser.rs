@@ -5,7 +5,6 @@ use case::CaseExt;
 use std::borrow::Cow;
 use syn::parse::Parser;
 use syn::DeriveInput;
-use crate::info_parser::ParsedField;
 
 #[derive(PartialEq, Clone, Copy, Default)]
 pub struct ConditionParser;

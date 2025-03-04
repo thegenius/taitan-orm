@@ -1,15 +1,12 @@
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, space0},
-    combinator::{map, recognize},
-    multi::many0,
-    sequence::{delimited, pair, preceded, tuple},
+    bytes::complete::tag,
+    combinator::map,
+    sequence::{preceded, tuple},
     IResult,
 };
 use nom::bytes::complete::tag_no_case;
 use nom::character::complete::multispace0;
-use nom::error::ParseError;
 use crate::template_parser::TemplateSqlValue;
 
 pub fn parse_operator(

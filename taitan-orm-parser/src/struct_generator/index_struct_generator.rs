@@ -4,7 +4,6 @@ use case::CaseExt;
 use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
-use crate::condition_def::ConditionDef;
 
 #[derive(Debug, Default)]
 pub struct IndexStructGenerator;

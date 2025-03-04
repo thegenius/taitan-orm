@@ -1,9 +1,7 @@
-use std::borrow::Cow;
 use std::fmt::Debug;
 use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use crate::condition_def::ConditionDef;
 
 #[derive(Debug, Default)]
 pub struct SelectedTraitImplGenerator;

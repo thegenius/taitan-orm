@@ -1,9 +1,6 @@
-use crate::condition_def::ConditionDef;
-use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
-use case::CaseExt;
+use crate::{FieldMapper, SqlGenerator, TableDef};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use std::borrow::Cow;
 use std::fmt::Debug;
 
 #[derive(Debug, Default)]

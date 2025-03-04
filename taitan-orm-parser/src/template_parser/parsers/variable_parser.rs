@@ -1,8 +1,8 @@
 use nom::character::complete::multispace0;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, space0},
+    bytes::complete::tag,
+    character::complete::{alpha1, alphanumeric1},
     combinator::{map, recognize},
     multi::many0,
     sequence::{delimited, pair, preceded, tuple},

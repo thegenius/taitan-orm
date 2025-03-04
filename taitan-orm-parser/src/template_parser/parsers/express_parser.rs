@@ -1,18 +1,14 @@
 
 use nom::bytes::complete::tag_no_case;
-use nom::character::complete::multispace0;
-use nom::combinator::opt;
-use nom::error::{Error, ParseError};
+use nom::error::Error;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, space0},
-    combinator::{map, recognize},
-    multi::many0,
-    sequence::{delimited, pair, preceded, tuple},
+    bytes::complete::tag,
+    character::complete::space0,
+    combinator::map,
+    sequence::{delimited, preceded, tuple},
     IResult,
 };
-use rinja::filters::e;
 use crate::template_parser::parsers::{parse_number, parse_operator, parse_variable_chain};
 use crate::template_parser::parsers::placeholder_parser::{parse_dollar_placeholder, parse_hash_placeholder, parse_percent_placeholder};
 use crate::template_parser::{OptionalVariable, PairOptionalContext, TemplateExpr, TemplateExprFirstPart, TemplateExprSecondPart, TemplateSqlValue, UnitOptionalContext};
@@ -105,7 +101,7 @@ fn parse_primary_expr(input: &str) -> ParseResult<TemplateExpr> {
 fn parse_and_expr(input: &str) -> ParseResult<TemplateExpr> {
     let (mut remaining, mut expr) = parse_primary_expr(input)?;
 
-    while let Ok((new_remaining, mut next_expr)) = preceded(
+    while let Ok((new_remaining, next_expr)) = preceded(
         tuple((space0, tag_no_case("and"), space0)),
         parse_primary_expr,
     )(remaining)

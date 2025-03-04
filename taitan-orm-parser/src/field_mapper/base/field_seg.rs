@@ -1,7 +1,7 @@
 use crate::field_mapper::base::single_field_mapper::ConnectOp;
 use crate::field_mapper::base::LeadingCommaType;
 use proc_macro2::{Ident, TokenStream};
-use quote::{format_ident, quote};
+use quote::quote;
 use std::borrow::Cow;
 
 pub enum FieldValSeg<'a> {

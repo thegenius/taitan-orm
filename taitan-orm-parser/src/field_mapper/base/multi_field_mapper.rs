@@ -1,7 +1,6 @@
 use super::{FieldSeg, KeywordsEscaper, LeadingCommaType, SingleFieldMapper};
 use crate::FieldDef;
 use proc_macro2::TokenStream;
-use quote::quote;
 use std::borrow::Cow;
 use crate::field_mapper::base::LeadingCommaType::Leading;
 use crate::field_mapper::base::single_field_mapper::ConnectOp;

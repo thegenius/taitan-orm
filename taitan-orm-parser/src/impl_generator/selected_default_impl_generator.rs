@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use crate::{DatabaseType, FieldMapper, SqlGenerator, TableDef};
+use crate::{FieldMapper, TableDef};
 
 #[derive(Debug, Default)]
 pub struct SelectedDefaultImplGenerator;

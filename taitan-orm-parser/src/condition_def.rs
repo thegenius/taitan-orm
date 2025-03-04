@@ -1,8 +1,6 @@
-use crate::{ConditionParser, FieldDef, NamedVariantDef, TableDef};
-use serde::{Deserialize, Serialize};
+use crate::{ConditionParser, FieldDef, NamedVariantDef};
 use std::borrow::Cow;
-use syn::{DeriveInput, Variant};
-use crate::info_parser::schema_parser::SchemaParser;
+use syn::DeriveInput;
 
 
 #[derive(Debug, PartialEq, Clone)]

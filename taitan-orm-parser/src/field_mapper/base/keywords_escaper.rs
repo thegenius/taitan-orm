@@ -1,5 +1,4 @@
 use std::borrow::Cow;
-use crate::DatabaseType;
 
 pub const MYSQL_KEYWORDS: &[&str] = &[
     "ACCESSIBLE", "ADD", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC",

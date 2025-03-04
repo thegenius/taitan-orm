@@ -1,8 +1,7 @@
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::{alphanumeric1, multispace0};
-use nom::error::ParseError;
+use nom::character::complete::multispace0;
 use nom::sequence::preceded;
 use nom::IResult;
 use crate::template_parser::TemplateSqlValue;

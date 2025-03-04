@@ -1,4 +1,3 @@
-use crate::field_def::FieldName::Named;
 use crate::{FieldAttrParser, KeywordsEscaper};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;

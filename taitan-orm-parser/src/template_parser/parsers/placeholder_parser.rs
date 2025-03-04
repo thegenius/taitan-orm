@@ -1,12 +1,9 @@
 use nom::character::complete::multispace0;
-use nom::error::ParseError;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, space0},
-    combinator::{map, recognize},
-    multi::many0,
-    sequence::{delimited, pair, preceded, tuple},
+    bytes::complete::tag,
+    combinator::map,
+    sequence::{delimited, preceded, tuple},
     IResult,
 };
 use crate::template_parser::{TemplatePlaceholder, TemplateSqlValue};

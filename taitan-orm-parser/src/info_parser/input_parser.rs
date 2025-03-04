@@ -1,9 +1,7 @@
 use crate::{FieldDef};
 use proc_macro2::Span;
 use quote::quote;
-use std::borrow::Cow;
 use case::CaseExt;
-use serde::{Deserialize, Serialize};
 use syn::{Data, DataEnum, DataStruct, Error, Field, Fields, FieldsNamed};
 
 pub struct InputParser;

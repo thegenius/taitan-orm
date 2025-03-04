@@ -1,8 +1,5 @@
 use super::super::base::{KeywordsEscaper, SingleFieldMapper};
-use crate::field_mapper::base::{FieldExprSeg, FieldSeg, FieldValSeg, LeadingCommaType};
 use crate::FieldDef;
-use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
 use std::borrow::Cow;
 
 #[derive(Default, Debug, Clone)]

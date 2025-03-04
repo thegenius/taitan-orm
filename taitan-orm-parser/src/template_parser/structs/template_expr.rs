@@ -1,8 +1,5 @@
 
-use nom::sequence::pair;
-use rinja::filters::format;
 use std::fmt::{Display, Formatter};
-use std::ops::Deref;
 use crate::template_parser::{TemplateConnective, TemplatePlaceholder, TemplateVariableChain, ToSql};
 use crate::template_parser::structs::TemplateField;
 use crate::template_parser::to_sql::SqlTemplateSign;
@@ -395,7 +392,7 @@ impl SqlTemplateSign for TemplateExpr {
         match self {
             TemplateExpr::Simple {
                 first_part,
-                operator,
+                
                 second_part,
                 ..
             } => {
@@ -410,13 +407,13 @@ impl SqlTemplateSign for TemplateExpr {
             TemplateExpr::Parenthesized { expr, .. } => expr.get_template_signs(),
             TemplateExpr::And { left, right, .. } => {
                 let mut signs1 = left.get_template_signs();
-                let mut signs2 = right.get_template_signs();
+                let signs2 = right.get_template_signs();
                 signs1.extend(signs2);
                 signs1
             }
             TemplateExpr::Or { left, right, .. } => {
                 let mut signs1 = left.get_template_signs();
-                let mut signs2 = right.get_template_signs();
+                let signs2 = right.get_template_signs();
                 signs1.extend(signs2);
                 signs1
             }
@@ -427,7 +424,7 @@ impl SqlTemplateSign for TemplateExpr {
         match self {
             TemplateExpr::Simple {
                 first_part,
-                operator,
+                
                 second_part,
                 ..
             } => {
@@ -442,13 +439,13 @@ impl SqlTemplateSign for TemplateExpr {
             TemplateExpr::Parenthesized { expr, .. } => expr.get_argument_signs(),
             TemplateExpr::And { left, right, .. } => {
                 let mut signs1 = left.get_argument_signs();
-                let mut signs2 = right.get_argument_signs();
+                let signs2 = right.get_argument_signs();
                 signs1.extend(signs2);
                 signs1
             }
             TemplateExpr::Or { left, right, .. } => {
                 let mut signs1 = left.get_argument_signs();
-                let mut signs2 = right.get_argument_signs();
+                let signs2 = right.get_argument_signs();
                 signs1.extend(signs2);
                 signs1
             }
@@ -514,7 +511,7 @@ impl ToSql for TemplateExpr {
         match self {
             TemplateExpr::Simple {
                 first_part,
-                operator,
+                
                 second_part,
                 ..
             } => match second_part {
@@ -541,14 +538,14 @@ impl ToSql for TemplateExpr {
                 }
             },
             /// Not语句不能转化为set语句
-            TemplateExpr::Not { expr, .. } => "".to_string(),
+            TemplateExpr::Not {  .. } => "".to_string(),
             TemplateExpr::Parenthesized { expr, .. } => {
                 format!("({})", expr.to_set_sql())
             }
             /// And语句不能转化为set语句
-            TemplateExpr::And { left, right, .. } => "".to_string(),
+            TemplateExpr::And {   .. } => "".to_string(),
             /// Or语句不能转化为set语句
-            TemplateExpr::Or { left, right, .. } => "".to_string(),
+            TemplateExpr::Or {   .. } => "".to_string(),
         }
     }
 
@@ -696,8 +693,8 @@ impl ToSql for TemplateExpr {
                         )
                     }
                     TemplateExpr::Simple {
-                        first_part,
-                        second_part,
+                        
+                        
                         operator,
                         ..
                     } => {

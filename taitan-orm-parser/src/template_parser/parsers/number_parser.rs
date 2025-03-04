@@ -1,11 +1,8 @@
 
 use nom::{
-    branch::alt,
-    bytes::complete::{tag, take_while1},
-    character::complete::{alpha1, alphanumeric1, char, digit1, multispace0, space0},
-    combinator::{map, opt, recognize, value},
-    multi::many0,
-    sequence::{delimited, preceded, tuple},
+    character::complete::{char, digit1},
+    combinator::{map, opt, recognize},
+    sequence::{preceded, tuple},
     IResult,
 };
 use crate::template_parser::TemplateSqlValue;

@@ -1,19 +1,12 @@
 use nom::branch::alt;
-use nom::bytes::complete::escaped;
-use nom::bytes::complete::{tag, take_till, take_until, take_while};
+use nom::bytes::complete::take_until;
 use nom::character::complete::{
-    alpha0, alphanumeric0, alphanumeric1, char, multispace0, multispace1, one_of,
+    char, multispace0,
 };
-use nom::character::is_alphanumeric;
-use nom::combinator::{cut, iterator, map, opt, value};
-use nom::error::{context, ContextError, ParseError, VerboseError};
-use nom::multi::separated_list1;
-use nom::sequence::Tuple;
-use nom::sequence::{delimited, terminated};
-use nom::sequence::{preceded, tuple};
-use nom::Compare;
-use nom::InputLength;
-use nom::InputTake;
+use nom::combinator::cut;
+use nom::error::context;
+use nom::sequence::terminated;
+use nom::sequence::preceded;
 
 use nom::IResult;
 use crate::template_parser::{TemplateSqlValue, TemplateString};
