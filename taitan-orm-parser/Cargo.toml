@@ -9,7 +9,8 @@ quote = "1.0"
 syn = { version = "2.0.90", features = ["full", "visit", "visit-mut"] }
 proc-macro2 = "1.0"
 case = "1.0"
-darling = "0.20.10"
-serde= { workspace = true, features = ["derive"] }
-serde_yaml = {version = "0.9.33"}
-serde_json = {workspace = true}
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = { version = "0.9.33" }
+rinja = "0.3.5"
+serde_json = { workspace = true }
+nom = { workspace = true }

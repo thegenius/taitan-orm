@@ -11,6 +11,7 @@ mod db_type;
 mod sql_type;
 mod args_generator;
 mod condition_def;
+mod template_parser;
 
 // pub use info_parser::schema_parser::extract_table_def;
 pub use info_parser::attr_parser;
