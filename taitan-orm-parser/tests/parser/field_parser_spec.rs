@@ -23,44 +23,44 @@ pub fn field_parser_spec_struct() {
     let expect_struct_field = ParsedField {
         name: FieldName::named("a"),
         rust_type: Cow::Borrowed("& 'a str"),
-        is_optional: false,
+        option_nest_level: 0,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
-        field: fields.get(0).map(|f|f.clone().clone()),
+        origin_field: fields.get(0).map(|f|f.clone().clone()).unwrap(),
     };
     check_expected(&fields, 0, &expect_struct_field);
 
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("b"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
-        is_optional: false,
+          option_nest_level: 0,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
-        field: fields.get(1).map(|f|f.clone().clone())
+        origin_field: fields.get(1).map(|f|f.clone().clone()).unwrap()
     };
     check_expected(&fields, 1, &expect_struct_field);
 
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("c"),
         rust_type: Cow::Borrowed("String"),
-        is_optional: false,
+          option_nest_level: 0,
         is_enum_variant: false,
         is_location_expr: false,
         lifetime: None,
-        field: fields.get(2).map(|f|f.clone().clone())
+        origin_field: fields.get(2).map(|f|f.clone().clone()).unwrap()
     };
     check_expected(&fields, 2, &expect_struct_field);
 
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("d"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
-        is_optional: true,
+        option_nest_level: 1,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
-        field: fields.get(3).map(|f|f.clone().clone())
+        origin_field: fields.get(3).map(|f|f.clone().clone()).unwrap()
     };
     check_expected(&fields, 3, &expect_struct_field);
 }
@@ -75,16 +75,16 @@ pub fn field_parser_spec_with_attr() {
     };
     let fields = InputParser::get_fields(&input.data);
     let field = fields.get(0).unwrap();
-    let field_def = FieldParser::parse(field, false, None, None);
+    let field_def = FieldDef::parse(field, false, None, None);
 
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("e"),
         rust_type: Cow::Borrowed("Cow < 'a , str >"),
-        is_optional: true,
+        option_nest_level: 1,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
-        field: fields.get(0).map(|f|f.clone().clone())
+        origin_field: fields.get(0).map(|f|f.clone().clone()).unwrap(),
     };
     let expect_column_def = TableColumnDef {
         name: Some(Cow::Borrowed("user_name")),
@@ -111,24 +111,24 @@ pub fn field_parser_spec_enum() {
     assert_eq!(variants[0].name, Cow::Borrowed("A"));
 
     let fields = &variants[0].fields;
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("field1"),
         rust_type: Cow::Borrowed("& 'a str"),
-        is_optional: false,
+          option_nest_level: 0,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'a")),
-        field: variants.first().unwrap().fields.get(0).map(|f|f.clone().clone()),
+        origin_field: variants.first().unwrap().fields.get(0).map(|f|f.clone().clone()).unwrap(),
     };
     check_expected(fields, 0, &expect_struct_field);
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("field2"),
         rust_type: Cow::Borrowed("Cow < 'b , str >"),
-        is_optional: true,
+        option_nest_level: 1,
         is_location_expr: false,
         is_enum_variant: false,
         lifetime: Some(Cow::Borrowed("'b")),
-        field: variants.first().unwrap().fields.get(1).map(|f|f.clone().clone()),
+        origin_field: variants.first().unwrap().fields.get(1).map(|f|f.clone().clone()).unwrap(),
     };
     check_expected(fields, 1, &expect_struct_field);
 }

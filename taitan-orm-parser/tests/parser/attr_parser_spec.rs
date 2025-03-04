@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use syn::{parse_quote, Attribute, DeriveInput};
 use syn::Expr::Field;
 use taitan_orm_parser::attr_parser::{AttrParser, NamedAttribute};
-use taitan_orm_parser::{FieldParser, InputParser};
+use taitan_orm_parser::{InputParser};
 
 fn check_attr(attrs: &[Attribute], index: usize, name: &str, value_str: &str) {
     let value_opt = AttrParser::parse(&attrs[index]);

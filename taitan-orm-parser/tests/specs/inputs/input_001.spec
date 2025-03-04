@@ -12,5 +12,5 @@ struct Foo < 'a, 'b > {
      d: Option < Cow < 'b, str > >,
 
      # [field(name = user_name, db_type = BIGINT, nullable = true, auto_inc = true)]
-     e: Optional < Cow < 'b, str > >
+     e: Option < Cow < 'b, str > >
 }

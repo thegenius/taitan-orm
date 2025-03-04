@@ -50,7 +50,7 @@ pub fn enum_parser_spec_001() {
     let expect_struct_field = ParsedField {
         name: FieldName::unnamed(2),
         rust_type: Cow::Borrowed("Expr < Cow < 'b , str > >"),
-        option_nest_level: 0,
+        option_nest_level: 1,
         is_location_expr: false,
         is_enum_variant: true,
         lifetime: Some(Cow::Borrowed("'b")),
