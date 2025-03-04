@@ -45,7 +45,7 @@ impl ConditionParser {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{FieldName, NamedVariantDef, TableColumnDef};
+    use crate::{FieldName, NamedVariantDef, ParsedField, TableColumnDef};
     use syn::parse_quote;
 
     #[test]
