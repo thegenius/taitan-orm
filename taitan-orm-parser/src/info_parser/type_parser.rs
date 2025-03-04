@@ -1,4 +1,5 @@
 use syn::{GenericArgument, Path, PathArguments, Type};
+use crate::info_parser::option_parser::OptionParser;
 
 pub struct TypeParser;
 
@@ -75,55 +76,56 @@ impl TypeParser {
         }
     }
 
-    pub fn get_option_inner_type(ty: &Type) -> Option<&Type> {
-        if !Self::is_option_type(ty) {
-            return None;
-        }
-
-        // 解析 Option 内部的类型
-        let Type::Path(type_path) = ty else { return None };
-        if type_path.qself.is_some() {
-            return None;
-        }
-
-        let last_segment = type_path.path.segments.last().unwrap();
-        let PathArguments::AngleBracketed(generics) = &last_segment.arguments else {
-            return None;
-        };
-        if generics.args.len() != 1 {
-            return None;
-        }
-        let GenericArgument::Type(inner_type) = &generics.args[0] else {
-            return None;
-        };
-
-        // 递归解析嵌套的 Option
-        if Self::is_option_type(inner_type) {
-            return Self::get_option_inner_type(inner_type);
-        }
-
-        // 返回最内层的类型
-        Some(inner_type)
-    }
-
-    fn is_option_type(ty: &Type) -> bool {
-        if let Type::Path(type_path) = ty {
-            if let Some(segment) = type_path.path.segments.last() {
-                return segment.ident == "Option";
-            }
-        }
-        false
-    }
-    pub fn get_inner_type(ty: &Type) -> Type {
-        if !Self::is_option_type(ty) {
-            return ty.clone();
-        } else {
-            Self::get_option_inner_type(ty).unwrap().clone()
-        }
-    }
+    // pub fn get_option_inner_type(ty: &Type) -> Option<(&Type, usize)> {
+    //     if !Self::is_option_type(ty) {
+    //         return None;
+    //     }
+    //
+    //     // 解析 Option 内部的类型
+    //     let Type::Path(type_path) = ty else { return None };
+    //     if type_path.qself.is_some() {
+    //         return None;
+    //     }
+    //
+    //     let last_segment = type_path.path.segments.last().unwrap();
+    //     let PathArguments::AngleBracketed(generics) = &last_segment.arguments else {
+    //         return None;
+    //     };
+    //     if generics.args.len() != 1 {
+    //         return None;
+    //     }
+    //     let GenericArgument::Type(inner_type) = &generics.args[0] else {
+    //         return None;
+    //     };
+    //
+    //     // 递归解析嵌套的 Option
+    //     if Self::is_option_type(inner_type) {
+    //         let (inner_most_type, nesting_level) = Self::get_option_inner_type(inner_type)?;
+    //         return Some((inner_most_type, nesting_level + 1));
+    //     }
+    //
+    //     // 返回最内层的类型
+    //     Some((inner_type, 1))
+    // }
+    //
+    // fn is_option_type(ty: &Type) -> bool {
+    //     if let Type::Path(type_path) = ty {
+    //         if let Some(segment) = type_path.path.segments.last() {
+    //             return segment.ident == "Option";
+    //         }
+    //     }
+    //     false
+    // }
+    // pub fn get_inner_type(ty: &Type) -> (Type, usize) {
+    //     if !Self::is_option_type(ty) {
+    //         return (ty.clone(), 0);
+    //     } else {
+    //         let (inner_type, nest_level) = Self::get_option_inner_type(ty).unwrap().clone();
+    //         return (inner_type.clone(), nest_level);
+    //     }
+    // }
 
 }
-
 
 
 

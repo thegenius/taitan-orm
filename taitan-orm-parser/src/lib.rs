@@ -15,9 +15,9 @@ mod template_parser;
 
 // pub use info_parser::schema_parser::extract_table_def;
 pub use info_parser::attr_parser;
-
-pub use field_def::StructFieldDef;
 pub use field_def::TableColumnDef;
+pub use info_parser::FieldTokenType;
+pub use info_parser::ParsedField;
 
 pub use table_def::TableDef;
 pub use field_def::FieldDef;
@@ -26,7 +26,6 @@ pub use condition_def::ConditionDef;
 
 pub use info_parser::LifetimeParser;
 pub use info_parser::InputParser;
-pub use info_parser::FieldParser;
 pub use info_parser::FieldAttrParser;
 pub use info_parser::NamedVariant;
 pub use info_parser::NamedVariantDef;

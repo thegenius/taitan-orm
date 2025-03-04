@@ -1,4 +1,4 @@
-use crate::{FieldDef, FieldParser};
+use crate::{FieldDef};
 use proc_macro2::Span;
 use quote::quote;
 use std::borrow::Cow;
@@ -147,7 +147,7 @@ impl InputParser {
                         fields: fields_named
                             .named
                             .iter()
-                            .map(|f| FieldParser::parse(f, true, None, None))
+                            .map(|f| FieldDef::parse(f, true, None, None))
                             .collect(),
                     });
                 }
@@ -159,7 +159,7 @@ impl InputParser {
                         fields: fields_unnamed
                             .unnamed
                             .iter().enumerate()
-                            .map(|(idx, f)| FieldParser::parse(f, true, Some(idx), Some(column_name.clone())))
+                            .map(|(idx, f)| FieldDef::parse(f, true, Some(idx), Some(column_name.clone())))
                             .collect(),
                     });
                 }

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use case::CaseExt;
 use syn::DeriveInput;
 use crate::attr_parser::{AttrParser, NamedAttribute};
-use crate::{FieldDef, FieldParser, InputParser};
+use crate::{FieldDef, InputParser};
 use crate::table_def::{translate_attr_groups, NamedFieldsGroup, TableDef};
 
 pub struct SchemaParser;
@@ -22,7 +22,7 @@ impl SchemaParser {
         let fields = InputParser::get_fields(&input.data);
         let attrs = &input.attrs;
 
-        let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldParser::parse(f, false, None, None)).collect();
+        let fields_def: Vec<FieldDef> = fields.iter().map(|f| FieldDef::parse(f, false, None, None)).collect();
         let primary_attr = AttrParser::extract(attrs, "primary");
         let primary_fields = if let Some(attr) = &primary_attr {
             attr.values.clone()

@@ -1,14 +1,15 @@
 use super::base::{
     KeywordsEscaper, MySqlKeywordEscaper, PostgresKeywordEscaper, SqliteKeywordEscaper,
 };
-use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, RowMapper, SetsMapper, StructFieldMapper, UpsertSetsMapper};
+use super::mappers::{ArgsMapper, ConditionsMapper, MarksMapper, NamesMapper, RowMapper, SetsMapper, UpsertSetsMapper};
 use crate::field_mapper::base::Connector2;
-use crate::{DatabaseType, FieldName};
+use crate::{DatabaseType, FieldName, FieldTokenType};
 use crate::FieldDef;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::borrow::Cow;
 use case::CaseExt;
+use crate::FieldTokenType::InnerMostType;
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -19,7 +20,6 @@ pub struct FieldMapper {
     upsert_sets_mapper: UpsertSetsMapper,
     args_mapper: ArgsMapper,
     row_mapper: RowMapper,
-    struct_field_mapper: StructFieldMapper,
     mysql_escaper: MySqlKeywordEscaper,
     postgres_escaper: PostgresKeywordEscaper,
     sqlite_escaper: SqliteKeywordEscaper,
@@ -79,9 +79,16 @@ impl FieldMapper {
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
     {
+        let field_token_type = if force_to_option {
+            FieldTokenType::NestedOptionType
+        } else {
+            FieldTokenType::InnerMostType
+        };
         let streams = fields
             .into_iter()
-            .map(|def| self.struct_field_mapper.map_to_field(def, force_to_option))
+            .map(|def|
+
+                def.struct_field.to_token_stream(field_token_type))
             .collect::<Vec<_>>();
         quote! {
             #( #streams,)*
@@ -94,7 +101,7 @@ impl FieldMapper {
     {
         let streams = fields
             .into_iter()
-            .map(|def| self.struct_field_mapper.map_to_enum_expr(def))
+            .map(|def| def.struct_field.to_token_stream(FieldTokenType::VariantExpr))
             .collect::<Vec<_>>();
         quote! {
             #( #streams,)*
@@ -115,7 +122,7 @@ impl FieldMapper {
             let variant_name = format_ident!("{}", name);
             let stream = group
                 .iter()
-                .map(|def| self.struct_field_mapper.map_to_field(def, false))
+                .map(|def| def.struct_field.to_token_stream(InnerMostType))
                 .collect::<Vec<_>>();
             streams.extend(quote! {
                  #variant_name{  #( #stream, )* },

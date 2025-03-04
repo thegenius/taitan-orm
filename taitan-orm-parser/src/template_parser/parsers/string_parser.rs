@@ -67,9 +67,9 @@ pub fn parse_double_quote_string(
 mod test {
     use super::TemplateString;
     use super::*;
-    use crate::template::parsed_template_sql::ParsedTemplateSql;
+    // use crate::template::parsed_template_sql::ParsedTemplateSql;
     use nom::error::ErrorKind;
-    use crate::template::parsers::parse_string;
+    // use crate::template::parsers::parse_string;
 
     #[test]
     pub fn test_parse_string() {

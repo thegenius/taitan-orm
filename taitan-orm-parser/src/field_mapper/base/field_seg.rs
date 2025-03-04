@@ -309,6 +309,7 @@ mod tests {
     use crate::field_mapper::base::{FieldValSeg, LeadingCommaType};
     use quote::format_ident;
     use std::borrow::Cow;
+    use crate::field_mapper::base::single_field_mapper::ConnectOp::Comma;
 
     #[test]
     fn test_translate() {
@@ -320,14 +321,14 @@ mod tests {
             ident: Some(field_ident.clone()),
         };
 
-        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, false).to_string();
+        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, Comma, false ).to_string();
         assert_eq!(stream, r#"s . push_str (",hello") ;"#);
 
         let field_seg = FieldValSeg::IndexedSeg {
             val: Cow::Borrowed("hello=${}"),
             ident: Some(field_ident.clone()),
         };
-        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, false).to_string();
+        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, Comma,false).to_string();
         assert_eq!(
             stream,
             r#"{ index += 1 ; s . push_str (format ! (",hello=${}" , index) . as_ref ()) }"#
@@ -338,17 +339,17 @@ mod tests {
             val: Cow::Borrowed("name=${}"),
             ident: Some(field_ident.clone()),
         };
-        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, true).to_string();
+        let stream = translate_val_seg(&field_seg, LeadingCommaType::Leading, Comma,true).to_string();
         assert_eq!(
             stream,
             r#"if ! self . name . is_none () { { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) } }"#
         );
 
         let stream =
-            translate_val_seg(&field_seg, LeadingCommaType::CheckedLeading, true).to_string();
+            translate_val_seg(&field_seg, LeadingCommaType::CheckedLeading, Comma,true).to_string();
         assert_eq!(
             stream,
-            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) ; } else { has_prev = true ; index += 1 ; s . s . push_str (format ! ("name=${}" , index) . as_ref ()) ; } } }"#
+            r#"if ! self . name . is_none () { { if has_prev { index += 1 ; s . push_str (format ! (",name=${}" , index) . as_ref ()) ; } else { has_prev = true ; index += 1 ; s . push_str (format ! ("name=${}" , index) . as_ref ()) ; } } }"#
         );
     }
 }

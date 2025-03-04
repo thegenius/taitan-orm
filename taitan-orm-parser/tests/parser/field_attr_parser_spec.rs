@@ -14,7 +14,7 @@ pub fn field_parser_spec_column() {
     let fields = InputParser::get_fields(&input.data);
     let field = fields.first().unwrap();
     let attr = AttrParser::get_attr(&field.attrs, "field").unwrap();
-    let column_def = FieldAttrParser::parse(&attr);
+    let column_def = FieldAttrParser::parse_field_attr(&attr);
     let expect_column_def = TableColumnDef {
         name: Some(Cow::Borrowed("user_name")),
         column_type: Some(Cow::Borrowed("BIGINT")),

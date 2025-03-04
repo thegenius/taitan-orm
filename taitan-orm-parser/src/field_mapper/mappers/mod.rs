@@ -16,4 +16,3 @@ pub use sets_mapper::SetsMapper;
 pub use upsert_names_mapper::UpsertSetsMapper;
 pub use args_mapper::ArgsMapper;
 pub use row_mapper::RowMapper;
-pub use struct_field_mapper::StructFieldMapper;

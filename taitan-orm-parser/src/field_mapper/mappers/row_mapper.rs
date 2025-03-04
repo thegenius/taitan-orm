@@ -9,7 +9,7 @@ impl RowMapper {
     pub fn map_row_try_get(&self, field: &FieldDef) -> TokenStream {
         let field_name = &field.struct_field.get_name();
         let field_ident = format_ident!("{}", field_name);
-        if field.struct_field.is_optional {
+        if field.struct_field.is_option() {
             quote! {
                 if let Some(_) = &selection.#field_ident {
                     selected.#field_ident = Some(sqlx::Row::try_get(&row, i)?);

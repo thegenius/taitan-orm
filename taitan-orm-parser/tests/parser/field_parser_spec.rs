@@ -1,10 +1,10 @@
 use std::borrow::{Borrow, Cow};
 use syn::{parse_quote, DeriveInput, Field};
-use taitan_orm_parser::{FieldName, InputParser, NamedVariant, StructFieldDef, TableColumnDef};
-use taitan_orm_parser::FieldParser;
+use taitan_orm_parser::{FieldDef, FieldName, InputParser, NamedVariant, ParsedField, TableColumnDef};
 
-fn check_expected<T>(fields: &[T], index: usize, expected: &StructFieldDef) where T: Borrow<Field> {
-    let field_def = FieldParser::parse(fields.get(index).unwrap().borrow(), false, None, None);
+
+fn check_expected<T>(fields: &[T], index: usize, expected: &ParsedField) where T: Borrow<Field> {
+    let field_def = FieldDef::parse(fields.get(index).unwrap().borrow(), false, None, None);
     assert_eq!(&field_def.struct_field, expected);
 }
 
@@ -15,13 +15,12 @@ pub fn field_parser_spec_struct() {
             a: &'a str,
             b: Cow<'b, str>,
             c: String,
-            d: Option<Cow<'b, str>>,
-            e: Optional<Cow<'b, str>>
+            d: Option<Cow<'b, str>>
         }
     };
     let fields = InputParser::get_fields(&input.data);
 
-    let expect_struct_field = StructFieldDef {
+    let expect_struct_field = ParsedField {
         name: FieldName::named("a"),
         rust_type: Cow::Borrowed("& 'a str"),
         is_optional: false,
@@ -64,17 +63,6 @@ pub fn field_parser_spec_struct() {
         field: fields.get(3).map(|f|f.clone().clone())
     };
     check_expected(&fields, 3, &expect_struct_field);
-
-    let expect_struct_field = StructFieldDef {
-        name: FieldName::named("e"),
-        rust_type: Cow::Borrowed("Cow < 'b , str >"),
-        is_optional: true,
-        is_location_expr: false,
-        is_enum_variant: false,
-        lifetime: Some(Cow::Borrowed("'b")),
-        field: fields.get(4).map(|f|f.clone().clone())
-    };
-    check_expected(&fields, 4, &expect_struct_field);
 }
 
 #[test]
@@ -82,7 +70,7 @@ pub fn field_parser_spec_with_attr() {
     let input: DeriveInput = parse_quote! {
         struct Foo<'a> {
             #[field(name = user_name, column_type = BIGINT, nullable = true, auto_inc = true, generated = "CONCAT(first_name, ' ', last_name)")]
-            e: Optional<Cow<'a, str>>
+            e: Option<Cow<'a, str>>
         }
     };
     let fields = InputParser::get_fields(&input.data);

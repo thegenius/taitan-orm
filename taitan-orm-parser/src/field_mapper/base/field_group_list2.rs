@@ -76,7 +76,7 @@ impl<'a> FieldGroupList<'a> {
         let mut is_first_required_group = true; // 是否是第一组 required 字段
 
         for field in fields.clone().into_iter() {
-            if field.struct_field.is_optional {
+            if field.struct_field.is_option() {
                 // 如果当前组不为空，先将其加入结果
                 if !current_group.is_empty() {
                     if !has_required {
@@ -153,7 +153,7 @@ impl<'a> FieldGroupList<'a> {
             }
         }
 
-        let is_all_required = fields.into_iter().all(|f| !f.struct_field.is_optional);
+        let is_all_required = fields.into_iter().all(|f| !f.struct_field.is_option());
 
         let first_required = {
             let mut first_required_index = groups.len();

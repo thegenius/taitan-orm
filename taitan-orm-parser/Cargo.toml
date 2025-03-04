@@ -6,7 +6,7 @@ version.workspace = true
 
 [dependencies]
 quote = "1.0"
-syn = { version = "2.0.90", features = ["full", "visit", "visit-mut"] }
+syn = { version = "2.0.99", features = ["full", "visit", "visit-mut", "extra-traits"] }
 proc-macro2 = "1.0"
 case = "1.0"
 serde = { workspace = true, features = ["derive"] }

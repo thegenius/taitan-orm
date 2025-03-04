@@ -1,8 +1,9 @@
 use crate::field_def::FieldName::Named;
-use crate::KeywordsEscaper;
+use crate::{FieldAttrParser, KeywordsEscaper};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use syn::Field;
+use crate::info_parser::ParsedField;
 // struct $Ident {
 //   name: FieldType
 // }
@@ -57,25 +58,28 @@ impl<'a> FieldName<'a> {
 }
 
 
-#[derive(Debug, PartialEq, Clone, Default)]
-pub struct StructFieldDef<'a> {
-    pub name: FieldName<'a>,
-    pub rust_type: Cow<'a, str>,
-    pub is_optional: bool,
-    pub is_location_expr: bool,
-    pub is_enum_variant: bool,
-    pub lifetime: Option<Cow<'a, str>>,
-    pub field: Option<Field>, // struct字段还原的时候Field最为方便
-}
+// #[derive(Debug, PartialEq, Clone, Default)]
+// pub struct StructFieldDef<'a> {
+//     pub name: FieldName<'a>,
+//     pub rust_type: Cow<'a, str>,
+//     pub option_nest_level: usize,
+//     pub is_location_expr: bool,
+//     pub is_enum_variant: bool,
+//     pub lifetime: Option<Cow<'a, str>>,
+//     pub field: Option<Field>, // struct字段还原的时候Field最为方便
+// }
 
-impl<'a> StructFieldDef<'a> {
-    pub fn get_name(&self) -> Cow<'a, str> {
-        match &self.name {
-            FieldName::Named(n) => n.clone(),
-            FieldName::Unnamed { idx: _, name } => name.clone(),
-        }
-    }
-}
+// impl<'a> StructFieldDef<'a> {
+//     pub fn get_name(&self) -> Cow<'a, str> {
+//         match &self.name {
+//             FieldName::Named(n) => n.clone(),
+//             FieldName::Unnamed { idx: _, name } => name.clone(),
+//         }
+//     }
+//     pub fn is_option(&self) -> bool {
+//         self.option_nest_level > 0
+//     }
+// }
 
 // #[field(name = r_id, type = BIGINT, nullable = true, auto_inc = true)]
 #[derive(Debug, PartialEq, Clone, Default)]
@@ -88,9 +92,9 @@ pub struct TableColumnDef<'a> {
     pub auto_inc: bool,
 }
 
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FieldDef<'a> {
-    pub struct_field: StructFieldDef<'a>,
+    pub struct_field: ParsedField<'a>,
     pub table_column: TableColumnDef<'a>,
 }
 
@@ -101,12 +105,26 @@ impl<'a> AsRef<FieldDef<'a>> for FieldDef<'a> {
 }
 
 impl FieldDef<'_> {
+    pub fn parse(
+        field: &Field,
+        is_enum_variant: bool,
+        unnamed_idx: Option<usize>,
+        external_column_name: Option<String>,
+    ) -> FieldDef<'_> {
+        let struct_field = ParsedField::parse(field, is_enum_variant, unnamed_idx);
+        let table_column = FieldAttrParser::parse(field, external_column_name);
+        FieldDef {
+            struct_field,
+            table_column,
+        }
+    }
+
     pub fn is_optional(&self) -> bool {
-        self.struct_field.is_optional
+        self.struct_field.option_nest_level > 0
     }
 
     pub fn is_required(&self) -> bool {
-        !self.struct_field.is_optional
+        self.struct_field.option_nest_level <= 0
     }
 
     pub fn is_location_expr(&self) -> bool {

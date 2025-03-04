@@ -1,10 +1,11 @@
 use crate::attr_parser::{AttrParser, NamedAttribute};
 use crate::condition_def::{ConditionDef, VariantsOrFields};
-use crate::{FieldDef, FieldParser, InputParser};
+use crate::{FieldDef, InputParser};
 use case::CaseExt;
 use std::borrow::Cow;
 use syn::parse::Parser;
 use syn::DeriveInput;
+use crate::info_parser::ParsedField;
 
 #[derive(PartialEq, Clone, Copy, Default)]
 pub struct ConditionParser;
@@ -29,7 +30,7 @@ impl ConditionParser {
             let fields = InputParser::get_fields(&input.data);
             let defs = fields
                 .iter()
-                .map(|v| FieldParser::parse(v, false, None, None))
+                .map(|v| FieldDef::parse(v, false, None, None))
                 .collect();
             VariantsOrFields::Fields(defs)
         };
@@ -45,7 +46,7 @@ impl ConditionParser {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{FieldName, NamedVariantDef, StructFieldDef, TableColumnDef};
+    use crate::{FieldName, NamedVariantDef, TableColumnDef};
     use syn::parse_quote;
 
     #[test]
@@ -65,7 +66,7 @@ mod test {
                 .first()
                 .unwrap()
                 .struct_field
-                .field
+                .origin_field
                 .clone(),
             _ => unreachable!(),
         };
@@ -73,14 +74,14 @@ mod test {
             name: "A".to_owned(),
             named: true,
             fields: vec![FieldDef {
-                struct_field: StructFieldDef {
+                struct_field: ParsedField {
                     name: FieldName::named("name"),
                     rust_type: Cow::Borrowed("LocationExpr < String >"),
-                    is_optional: false,
+                    option_nest_level: 0,
                     is_location_expr: true,
                     is_enum_variant: true,
                     lifetime: None,
-                    field,
+                    origin_field: field,
                 },
                 table_column: TableColumnDef {
                     name: None,
@@ -117,7 +118,7 @@ mod test {
                 .first()
                 .unwrap()
                 .struct_field
-                .field
+                .origin_field
                 .clone(),
             _ => unreachable!(),
         };
@@ -129,7 +130,7 @@ mod test {
                 .get(1)
                 .unwrap()
                 .struct_field
-                .field
+                .origin_field
                 .clone(),
             _ => unreachable!(),
         };
@@ -138,14 +139,14 @@ mod test {
             named: false,
             fields: vec![
                 FieldDef {
-                    struct_field: StructFieldDef {
+                    struct_field: ParsedField {
                         name: FieldName::unnamed(0),
                         rust_type: Cow::Borrowed("LocationExpr < String >"),
-                        is_optional: false,
+                        option_nest_level: 0,
                         is_location_expr: true,
                         is_enum_variant: true,
                         lifetime: None,
-                        field,
+                        origin_field: field,
                     },
                     table_column: TableColumnDef {
                         name: Some(Cow::Borrowed("a")),
@@ -157,14 +158,14 @@ mod test {
                     },
                 },
                 FieldDef {
-                    struct_field: StructFieldDef {
+                    struct_field: ParsedField {
                         name: FieldName::unnamed(1),
                         rust_type: Cow::Borrowed("LocationExpr < String >"),
-                        is_optional: false,
+                        option_nest_level: 0,
                         is_location_expr: true,
                         is_enum_variant: true,
                         lifetime: None,
-                        field: field2,
+                        origin_field: field2,
                     },
                     table_column: TableColumnDef {
                         name: Some(Cow::Borrowed("a")),
