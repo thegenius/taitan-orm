@@ -87,6 +87,7 @@ impl SqlTemplateSign for TemplatePlaceholder {
 
 #[cfg(test)]
 mod tests {
+
     use crate::template_parser::{TemplatePlaceholder, TemplateVariable, TemplateVariableChain, ToSql};
 
     #[test]
