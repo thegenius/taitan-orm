@@ -10,8 +10,8 @@ use nom::{
 
 #[derive(Debug, PartialEq)]
 enum TemplatePart {
-    Expression(String), // 表达式及其过滤器
-    ControlBlock(String, String, String),            // 控制块
+    Expression(String),                      // {{ }} 表达式及其过滤器
+    ControlBlock(String, String, String),    // {% %} 控制块,包括macro
     Call(String),                            // call 语句
     Comment(String),                         // 注释块
 }
