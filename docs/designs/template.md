@@ -35,13 +35,41 @@ ________________________________________________
 | name = @{name}, age=@{age} |                 | 
 ------------------------------------------------
 ```
-解析成field list
-// (1) LeadingRequired，第一个的required字段，前面没有Option
-// (2) FailingRequired，第一个required字段，但是前面有option字段
-// (3) TrailingRequired，非第一个的required字段
-// (4) LeadingOptional，第一个optional字段，且前面没有required字段
-// (5) FollowingOptional，非第一个optional字段，且前面没有required字段
-// (6) TrailingOptional，optional字段，无论是否是第一个，只有前面有Required字段，就是TrailingOptional
+```
+Variable:
+   Literal
+   Hash
+   Dollar
+   At
+
+Comperator:
+   <=
+   >=
+   =
+   !=
+   
+Connective
+   Comma
+   And
+   Or
+   
+SimpleExpr:
+   Variable Comperator Variable   
+ 
+ConnectedExpr
+   CommaExpr
+   AndExpr
+   OrExpr
+   
+Decorator:
+   Not
+   Paren
+
+```
+
+
+
+
 ```rust
 fn gen_set_sql(&self)->Cow<'a, str>;
 ```
