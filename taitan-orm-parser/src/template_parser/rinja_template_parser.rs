@@ -11,7 +11,7 @@ use nom::{
 #[derive(Debug, PartialEq)]
 enum TemplatePart {
     Expression(String),                      // {{ }} 表达式及其过滤器
-    ControlBlock(String, String, String),    // {% %} 控制块,包括macro
+    ControlBlock(String, String, String, String),    // {% %} 控制块,包括macro
     Call(String),                            // call 语句
     Comment(String),                         // 注释块
 }
@@ -29,18 +29,32 @@ fn parse_expression(input: &str) -> IResult<&str, TemplatePart> {
 }
 
 fn parse_control_block(input: &str) -> IResult<&str, TemplatePart> {
-    let (input, _) = tag("{% ")(input)?;
+    // 解析 {% 和可选的 +、- 或 ~
+    let (input, _) = tag("{%")(input)?;
+    let (input, modifier) = opt(alt((tag("+"), tag("-"), tag("~"))))(input)?;
+    let (input, _) = multispace0(input)?; // 允许空格
+
+    // 解析控制块名称
     let (input, block_name) = alphanumeric1(input)?;
-    let (input, control_content) = take_until(" %}")(input)?;
-    let (input, _) = tag(" %}")(input)?;
+
+    // 解析控制块内容
+    let (input, control_content) = take_until("%}")(input)?;
+    let (input, _) = tag("%}")(input)?;
 
     // 使用 take_until 找到结束标记
     let end_tag = format!("{{% end{} %}}", block_name);
     let (input, content) = take_until(end_tag.as_str())(input)?;
     let (input, _) = tag(end_tag.as_str())(input)?;
+
+
     Ok((
         input,
-        TemplatePart::ControlBlock(block_name.to_string(), control_content.trim().to_string(), content.trim().to_string()),
+        TemplatePart::ControlBlock(
+            block_name.trim().to_string(),
+            modifier.to_string(),
+            control_content.trim().to_string(),
+            content.trim().to_string(),
+        ),
     ))
 }
 
@@ -91,7 +105,7 @@ mod tests {
         You are active.
     {% endif %}"#;
         let (remaining, parsed_template_parts) = parse_template_part(template).unwrap();
-        let expected = TemplatePart::ControlBlock("if".to_string(), "active".to_string(), "You are active.".to_string());
+        let expected = TemplatePart::ControlBlock("if".to_string(), "".to_string(),"active".to_string(), "You are active.".to_string());
         assert_eq!(parsed_template_parts, expected);
 
 
@@ -100,7 +114,7 @@ mod tests {
         Item: {{ item | upper }}
     {% endfor %}"#;
         let (remaining, parsed_template_parts) = parse_template_part(template).unwrap();
-        let expected = TemplatePart::ControlBlock("for".to_string(), "item in items".to_string(), "Item: {{ item | upper }}".to_string());
+        let expected = TemplatePart::ControlBlock("for".to_string(), "".to_string(), "item in items".to_string(), "Item: {{ item | upper }}".to_string());
         assert_eq!(parsed_template_parts, expected);
 
         let template = r#"{% call macro %}"#;
