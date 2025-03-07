@@ -9,6 +9,14 @@ use crate::template_parser::binary_op::BinaryOp;
 use crate::template_parser::placeholder::Placeholder;
 use crate::template_parser::segment::Segment;
 
+// simple expr: variable_chain {=} placeholder
+// not    expr: NOT expr
+// and    expr: expr_l AND expr_r
+// or     expr: expr_l OR  expr_r
+// ,      expr: expr_l , expr_r
+// nested expr: (expr)
+
+
 #[derive(Debug, PartialEq, Clone)]
 enum ExprPair {
     ExprAnd { left: Box<Expr>, right: Box<Expr> }, // AND 连接的表达式
