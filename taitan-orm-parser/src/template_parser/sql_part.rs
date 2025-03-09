@@ -1,5 +1,5 @@
 use crate::template_parser::expr::Expr;
-use crate::template_parser::template_part::TemplatePart;
+use crate::template_parser::structs::template_part::TemplatePart;
 use crate::template_parser::segment::Segment;
 use nom::{branch::alt, character::complete::multispace0, combinator::map, IResult};
 

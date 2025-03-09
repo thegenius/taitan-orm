@@ -3,8 +3,8 @@ use nom::bytes::complete::take_until;
 use nom::character::complete::{char, multispace0};
 use nom::combinator::cut;
 use nom::error::context;
-use nom::sequence::{preceded, terminated};
 use nom::IResult;
+use nom::sequence::{preceded, terminated};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Text {
@@ -19,13 +19,6 @@ impl Text {
         )(input)
     }
 }
-
-// pub fn parse_text(input: &str) -> IResult<&str, Text> {
-//     context(
-//         "text",
-//         alt((parse_single_quote_text, parse_double_quote_text)),
-//     )(input)
-// }
 
 fn parse_single_quote_text(input: &str) -> IResult<&str, Text> {
     let (remaining, parsed) = preceded(

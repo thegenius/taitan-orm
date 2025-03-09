@@ -5,9 +5,45 @@ use nom::combinator::map;
 use nom::IResult;
 use nom::multi::{many0, separated_list0};
 use nom::sequence::{delimited, preceded};
-use crate::template_parser::binary_op::BinaryOp;
-use crate::template_parser::placeholder::Placeholder;
+use crate::template_parser::structs::binary_op::BinaryOp;
+use crate::template_parser::structs::placeholder::Placeholder;
 use crate::template_parser::segment::Segment;
+
+// Keyword{val: String, is_mysql: bool, is_postgres: bool, is_sqlite: bool}
+//
+//
+
+// Variable:
+//    SimpleName : 字母开头的任意字符串，不能是关键字，不包含空格
+//    QuoteName  : PG中使用双引号"",MySql使用``,Sqlite中使用""或``或[]，然后以字母开头，不包含空格
+
+
+// VariableChain : 用.连接起来的Variable
+
+
+// Number
+// Text:
+//    SingleQuote
+//    DoubleQuote
+// Placeholder:
+//    Hash.  : #{VariableChain}
+//    At     : @{VariableChain}
+//    Dollar : ${VariableChain}
+
+// BinaryOp: in like > >= < <= = <> !=
+
+// Sign: * ( ) [ ] + - /
+
+// Atomic:
+//    Text
+//    Number
+//    VariableChain
+//    Placeholder
+//    BinaryOp
+//    Sign
+
+
+
 
 // simple expr: variable_chain {=} placeholder
 // not    expr: NOT expr
@@ -23,9 +59,18 @@ enum ExprPair {
     ExprOr { left: Box<Expr>, right: Box<Expr> },  // OR 连接的表达式
     ExprComma { left: Box<Expr>, right: Box<Expr> }, // 逗号连接的表达式
 }
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SimpleExpr {
+    left: Placeholder,
+    op: BinaryOp,
+    right: Placeholder,
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
     Placeholder(Placeholder), // (type, name)，支持#{name} ${name} @{name}
+    Simple(SimpleExpr),
     Segment(Segment),
     BinaryExpr {
         left: Box<Expr>,

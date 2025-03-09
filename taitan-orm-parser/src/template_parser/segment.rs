@@ -1,5 +1,5 @@
-use crate::template_parser::number::Number;
-use crate::template_parser::text::Text;
+use crate::template_parser::structs::number::Number;
+use crate::template_parser::structs::text::Text;
 use nom::branch::alt;
 use nom::bytes::complete::take_while1;
 use nom::character::complete::multispace0;

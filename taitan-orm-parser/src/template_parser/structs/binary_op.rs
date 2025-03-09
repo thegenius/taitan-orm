@@ -1,10 +1,9 @@
-use crate::template_parser::number::Number;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, tag_no_case};
 use nom::character::complete::multispace0;
 use nom::combinator::map;
-use nom::sequence::{preceded, tuple};
 use nom::IResult;
+use nom::sequence::{preceded, tuple};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BinaryOp {
@@ -59,18 +58,18 @@ impl BinaryOp {
             map(preceded(multispace0, tag("<")), |s: &str| BinaryOp::Less),
             map(preceded(multispace0, tag(">")), |s: &str| BinaryOp::Greater),
             // 确保单个符号也可以被解析
-            map(preceded(multispace0, tag(">=")), |s: &str| {
-                BinaryOp::GreaterEqual
-            }),
-            map(preceded(multispace0, tag("<=")), |s: &str| {
-                BinaryOp::LessEqual
-            }),
-            map(preceded(multispace0, tag("!=")), |s: &str| {
-                BinaryOp::NotEqual
-            }),
-            map(preceded(multispace0, tag("<>")), |s: &str| {
-                BinaryOp::NotEqual
-            }),
+            // map(preceded(multispace0, tag(">=")), |s: &str| {
+            //     BinaryOp::GreaterEqual
+            // }),
+            // map(preceded(multispace0, tag("<=")), |s: &str| {
+            //     BinaryOp::LessEqual
+            // }),
+            // map(preceded(multispace0, tag("!=")), |s: &str| {
+            //     BinaryOp::NotEqual
+            // }),
+            // map(preceded(multispace0, tag("<>")), |s: &str| {
+            //     BinaryOp::NotEqual
+            // }),
             map(preceded(multispace0, tag_no_case("like")), |_| {
                 BinaryOp::Like
             }),

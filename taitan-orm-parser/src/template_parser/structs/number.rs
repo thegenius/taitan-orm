@@ -1,10 +1,10 @@
 use nom::character::complete::{char, digit1};
 use nom::combinator::{map, opt, recognize};
-use nom::sequence::{preceded, tuple};
 use nom::IResult;
+use nom::sequence::{preceded, tuple};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Number(String);
+pub struct Number(pub String);
 
 impl Number {
     pub fn parse(input: &str) -> IResult<&str, Number> {
@@ -19,4 +19,3 @@ impl Number {
         )(input)
     }
 }
-

@@ -29,7 +29,7 @@ pub struct StartBlock {
     expr: String,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq,  Clone)]
 pub enum TemplatePart {
     Expression(String), // {{ }} 表达式及其过滤器
     ControlBlock {
