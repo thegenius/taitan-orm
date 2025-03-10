@@ -1,5 +1,5 @@
 // use crate::template_parser::segment::Segment;
-use crate::template_parser::simple_expr::SimpleExpr;
+use crate::template_parser::structs::simple_expr::SimpleExpr;
 use crate::template_parser::structs::atomic::Atomic;
 use crate::template_parser::structs::binary_op::BinaryOp;
 use crate::template_parser::structs::placeholder::Placeholder;

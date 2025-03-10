@@ -1,4 +1,4 @@
-use crate::template_parser::sql_part::SqlSegment;
+use crate::template_parser::structs::sql_part::SqlSegment;
 use rinja::filters::format;
 use tracing::debug;
 
@@ -37,6 +37,3 @@ impl SqlTemplate {
         Ok(SqlTemplate { parts })
     }
 }
-
-#[cfg(test)]
-mod sql_template_test {}
