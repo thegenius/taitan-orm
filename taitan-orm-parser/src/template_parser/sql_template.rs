@@ -1,36 +1,42 @@
-use crate::template_parser::sql_part::SqlPart;
+use crate::template_parser::sql_part::SqlSegment;
+use rinja::filters::format;
+use tracing::debug;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SqlTemplate {
-    pub parts: Vec<SqlPart>,
+    pub parts: Vec<SqlSegment>,
 }
 
 impl SqlTemplate {
-    pub fn parse(input: &str) -> SqlTemplate {
+    pub fn new<I>(parts: I) -> Self
+    where
+        I: IntoIterator<Item = SqlSegment>,
+    {
+        Self {
+            parts: parts.into_iter().collect(),
+        }
+    }
+    pub fn parse(input: &str) -> Result<SqlTemplate, String> {
+        debug!("SqlTemplate::parse({})", input);
         let mut parts = Vec::new();
         let mut remainder = input;
         loop {
-            let parse_result = SqlPart::parse(remainder);
+            let parse_result = SqlSegment::parse(remainder);
             if let Ok((remaining, part)) = parse_result {
                 parts.push(part);
                 remainder = remaining;
             } else {
-                panic!("Failed to parse sql template {}", remainder);
+                let err_msg = format!("failed to parse sql template: {}", input);
+                return Err(err_msg);
             }
 
             if remainder.is_empty() {
                 break;
             }
         }
-        SqlTemplate { parts }
+        Ok(SqlTemplate { parts })
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::template_parser::expr::Expr;
-    use crate::template_parser::segment::Segment;
-    use crate::template_parser::segment::Segment::{Text, Unknown};
-    use super::*;
-
-}
+mod sql_template_test {}

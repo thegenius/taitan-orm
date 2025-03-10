@@ -14,3 +14,7 @@ serde_yaml = { version = "0.9.33" }
 rinja = "0.3.5"
 serde_json = { workspace = true }
 nom = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }

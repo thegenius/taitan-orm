@@ -1,15 +1,16 @@
-use crate::template_parser::segment::Segment;
+// use crate::template_parser::segment::Segment;
 use crate::template_parser::simple_expr::SimpleExpr;
 use crate::template_parser::structs::atomic::Atomic;
 use crate::template_parser::structs::binary_op::BinaryOp;
 use crate::template_parser::structs::placeholder::Placeholder;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::{alpha1, multispace0};
+use nom::character::complete::{alpha1, multispace0, multispace1};
 use nom::combinator::map;
 use nom::multi::{many0, separated_list0};
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
+use tracing::debug;
 // Keyword{val: String, is_mysql: bool, is_postgres: bool, is_sqlite: bool}
 //
 //
@@ -41,17 +42,18 @@ use nom::IResult;
 //    BinaryOp
 //    Sign
 
-// simple expr: atomic op atomic
-// not       expr: NOT expr
+// simple expr: atomic operator atomic
+
 // and       expr: expr_l AND expr_r
 // or        expr: expr_l OR  expr_r
-// ,         expr: expr_l , expr_r
+// ,         expr: expr_l ,   expr_r
+
 // nested    expr: (expr)
+// not       expr: NOT expr
 // func call expr: fn_name(expr)
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
-    Atomic(Atomic),
     Simple(SimpleExpr),
     BinaryExpr {
         left: Box<Expr>,
@@ -76,43 +78,53 @@ enum ExprPair {
 
 impl Expr {
     pub fn parse(input: &str) -> IResult<&str, Expr> {
+        debug!("Expr parse({})", input);
         parse_expr(input)
     }
 }
 
-fn parse_atomic_expr(input: &str) -> IResult<&str, Expr> {
-    alt((
-        map(Atomic::parse, Expr::Atomic),
-        parse_function_call,
-        parse_not_expr,
-        parse_nested_expr,
-    ))(input)
-}
-fn parse_binary_expr(input: &str) -> IResult<&str, Expr> {
-    let (input, left) = parse_atomic_expr(input)?; // 解析左操作数
-    let (input, op) = preceded(multispace0, BinaryOp::parse)(input)?; // 解析操作符
-    let (input, right) = preceded(multispace0, parse_atomic_expr)(input)?; // 解析右操作数
-
-    Ok((
-        input,
-        Expr::BinaryExpr {
-            left: Box::new(left),
-            op,
-            right: Box::new(right),
-        },
-    ))
-}
+// fn parse_atomic_expr(input: &str) -> IResult<&str, Expr> {
+//     alt((
+//         parse_function_call,
+//         parse_not_expr,
+//         parse_nested_expr,
+//         map(Atomic::parse, Expr::Atomic),
+//     ))(input)
+// }
+// fn parse_binary_expr(input: &str) -> IResult<&str, Expr> {
+//     let (input, left) = parse_atomic_expr(input)?; // 解析左操作数
+//     let (input, op) = preceded(multispace0, BinaryOp::parse)(input)?; // 解析操作符
+//     let (input, right) = preceded(multispace0, parse_atomic_expr)(input)?; // 解析右操作数
+//
+//     Ok((
+//         input,
+//         Expr::BinaryExpr {
+//             left: Box::new(left),
+//             op,
+//             right: Box::new(right),
+//         },
+//     ))
+// }
 
 fn parse_not_expr(input: &str) -> IResult<&str, Expr> {
     let (input, _) = tag("NOT")(input)?;
-    let (input, expr) = preceded(multispace0, parse_atomic_expr)(input)?;
+    let (input, expr) = preceded(
+        multispace1,
+        alt((map(SimpleExpr::parse, Expr::Simple), parse_expr)),
+    )(input)?;
     Ok((input, Expr::Not(Box::new(expr))))
 }
 
 fn parse_function_call(input: &str) -> IResult<&str, Expr> {
     let (input, name) = alpha1(input)?; // 函数名
     let (input, _) = tag("(")(input)?;
-    let (input, args) = separated_list0(tag(","), preceded(multispace0, parse_atomic_expr))(input)?; // 参数列表
+    let (input, args) = separated_list0(
+        tag(","),
+        preceded(
+            multispace0,
+            parse_expr,
+        ),
+    )(input)?; // 参数列表
     let (input, _) = tag(")")(input)?;
     Ok((
         input,
@@ -125,16 +137,16 @@ fn parse_function_call(input: &str) -> IResult<&str, Expr> {
 fn parse_nested_expr(input: &str) -> IResult<&str, Expr> {
     delimited(
         tag("("),
-        alt((map(SimpleExpr::parse, Expr::Simple), parse_expr)), // 嵌套表达式可以包含逗号表达式
+        parse_expr,
         tag(")"),
     )(input)
 }
 
 fn parse_and_expr(input: &str) -> IResult<&str, Expr> {
-    let (input, first_expr) = parse_atomic_expr(input)?; // 解析原子表达式
+    let (input, first_expr) = parse_expr(input)?;
     let (input, rest_exprs) = many0(preceded(
-        preceded(multispace0, tag("AND")),
-        preceded(multispace0, parse_binary_expr),
+        preceded(multispace1, tag("AND")),
+        preceded(multispace1, parse_expr),
     ))(input)?;
 
     let folded_expr = rest_exprs.into_iter().fold(first_expr, |left, right| {
@@ -182,5 +194,11 @@ fn parse_comma_expr(input: &str) -> IResult<&str, Expr> {
 }
 
 fn parse_expr(input: &str) -> IResult<&str, Expr> {
-    alt((parse_comma_expr, parse_binary_expr, parse_atomic_expr))(input)
+    alt((
+        map(SimpleExpr::parse, Expr::Simple),
+        parse_comma_expr,
+        parse_not_expr,
+        parse_nested_expr,
+        parse_function_call,
+    ))(input)
 }

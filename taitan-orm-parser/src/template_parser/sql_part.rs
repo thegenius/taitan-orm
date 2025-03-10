@@ -1,21 +1,23 @@
 use crate::template_parser::expr::Expr;
+use crate::template_parser::structs::atomic::Atomic;
 use crate::template_parser::structs::template_part::TemplatePart;
-use crate::template_parser::segment::Segment;
 use nom::{branch::alt, character::complete::multispace0, combinator::map, IResult};
+use tracing::debug;
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum SqlPart {
+pub enum SqlSegment {
     Template(TemplatePart), // 模板部分
     Expr(Expr),             // 表达式
-    Segment(Segment),       // 普通文本
+    Atomic(Atomic),
 }
-impl SqlPart {
-    pub fn parse(input: &str) -> IResult<&str, SqlPart> {
+impl SqlSegment {
+    pub fn parse(input: &str) -> IResult<&str, SqlSegment> {
+        debug!("SqlSegment parse({}", input);
         let (input, _) = multispace0(input)?; // 跳过前导空格
         alt((
-            map(TemplatePart::parse, SqlPart::Template),
-            map(Expr::parse, SqlPart::Expr),
-            map(Segment::parse, SqlPart::Segment),
+            map(Expr::parse, SqlSegment::Expr),
+            map(TemplatePart::parse, SqlSegment::Template),
+            map(Atomic::parse, SqlSegment::Atomic),
         ))(input)
     }
 }

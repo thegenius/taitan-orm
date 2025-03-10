@@ -8,6 +8,7 @@ use crate::template_parser::structs::variable::VariableChain;
 use nom::branch::alt;
 use nom::combinator::{map};
 use nom::IResult;
+use tracing::debug;
 use crate::template_parser::structs::template_part::TemplatePart;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,7 +25,8 @@ pub enum Atomic {
 
 impl Atomic {
     pub fn parse(input: &str) -> IResult<&str, Atomic> {
-        alt((
+        debug!("Atomic parse({})", &input);
+        let (remaining, parsed)= alt((
             map(BoolValue::parse, Atomic::Bool),
             map(Text::parse, Atomic::Text),
             map(Number::parse, Atomic::Number),
@@ -33,7 +35,9 @@ impl Atomic {
             map(VariableChain::parse, Atomic::VariableChain),
             map(TemplatePart::parse, Atomic::Template),
             map(Sign::parse, Atomic::Sign),
-        ))(input)
+        ))(input)?;
+        debug!("Atomic parse -> {:?}", &parsed);
+        Ok((remaining, parsed))
     }
 }
 
