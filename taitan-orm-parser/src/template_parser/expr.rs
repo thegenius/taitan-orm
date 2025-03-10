@@ -1,14 +1,15 @@
+use crate::template_parser::segment::Segment;
+use crate::template_parser::simple_expr::SimpleExpr;
+use crate::template_parser::structs::atomic::Atomic;
+use crate::template_parser::structs::binary_op::BinaryOp;
+use crate::template_parser::structs::placeholder::Placeholder;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alpha1, multispace0};
 use nom::combinator::map;
-use nom::IResult;
 use nom::multi::{many0, separated_list0};
 use nom::sequence::{delimited, preceded};
-use crate::template_parser::structs::binary_op::BinaryOp;
-use crate::template_parser::structs::placeholder::Placeholder;
-use crate::template_parser::segment::Segment;
-
+use nom::IResult;
 // Keyword{val: String, is_mysql: bool, is_postgres: bool, is_sqlite: bool}
 //
 //
@@ -17,9 +18,7 @@ use crate::template_parser::segment::Segment;
 //    SimpleName : 字母开头的任意字符串，不能是关键字，不包含空格
 //    QuoteName  : PG中使用双引号"",MySql使用``,Sqlite中使用""或``或[]，然后以字母开头，不包含空格
 
-
 // VariableChain : 用.连接起来的Variable
-
 
 // Number
 // Text:
@@ -42,36 +41,18 @@ use crate::template_parser::segment::Segment;
 //    BinaryOp
 //    Sign
 
-
-
-
-// simple expr: variable_chain {=} placeholder
-// not    expr: NOT expr
-// and    expr: expr_l AND expr_r
-// or     expr: expr_l OR  expr_r
-// ,      expr: expr_l , expr_r
-// nested expr: (expr)
-
-
-#[derive(Debug, PartialEq, Clone)]
-enum ExprPair {
-    ExprAnd { left: Box<Expr>, right: Box<Expr> }, // AND 连接的表达式
-    ExprOr { left: Box<Expr>, right: Box<Expr> },  // OR 连接的表达式
-    ExprComma { left: Box<Expr>, right: Box<Expr> }, // 逗号连接的表达式
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct SimpleExpr {
-    left: Placeholder,
-    op: BinaryOp,
-    right: Placeholder,
-}
+// simple expr: atomic op atomic
+// not       expr: NOT expr
+// and       expr: expr_l AND expr_r
+// or        expr: expr_l OR  expr_r
+// ,         expr: expr_l , expr_r
+// nested    expr: (expr)
+// func call expr: fn_name(expr)
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr {
-    Placeholder(Placeholder), // (type, name)，支持#{name} ${name} @{name}
+    Atomic(Atomic),
     Simple(SimpleExpr),
-    Segment(Segment),
     BinaryExpr {
         left: Box<Expr>,
         op: BinaryOp,
@@ -85,17 +66,23 @@ pub enum Expr {
     Not(Box<Expr>),     // NOT 表达式
     ExprPair(ExprPair), // 表达式对
 }
+
+#[derive(Debug, PartialEq, Clone)]
+enum ExprPair {
+    ExprAnd { left: Box<Expr>, right: Box<Expr> }, // AND 连接的表达式
+    ExprOr { left: Box<Expr>, right: Box<Expr> },  // OR 连接的表达式
+    ExprComma { left: Box<Expr>, right: Box<Expr> }, // 逗号连接的表达式
+}
+
 impl Expr {
     pub fn parse(input: &str) -> IResult<&str, Expr> {
         parse_expr(input)
     }
 }
 
-
 fn parse_atomic_expr(input: &str) -> IResult<&str, Expr> {
     alt((
-        map(Placeholder::parse, Expr::Placeholder),
-        map(Segment::parse, Expr::Segment),
+        map(Atomic::parse, Expr::Atomic),
         parse_function_call,
         parse_not_expr,
         parse_nested_expr,
@@ -138,7 +125,7 @@ fn parse_function_call(input: &str) -> IResult<&str, Expr> {
 fn parse_nested_expr(input: &str) -> IResult<&str, Expr> {
     delimited(
         tag("("),
-        parse_expr, // 嵌套表达式可以包含逗号表达式
+        alt((map(SimpleExpr::parse, Expr::Simple), parse_expr)), // 嵌套表达式可以包含逗号表达式
         tag(")"),
     )(input)
 }
@@ -195,9 +182,5 @@ fn parse_comma_expr(input: &str) -> IResult<&str, Expr> {
 }
 
 fn parse_expr(input: &str) -> IResult<&str, Expr> {
-    alt((
-        parse_comma_expr,
-        parse_binary_expr,
-        parse_atomic_expr,
-    ))(input)
+    alt((parse_comma_expr, parse_binary_expr, parse_atomic_expr))(input)
 }

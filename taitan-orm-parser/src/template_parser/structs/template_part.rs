@@ -16,17 +16,17 @@ pub enum Modifier {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct EndBlock {
-    name: String,
-    start_modifier: Option<Modifier>,
-    end_modifier: Option<Modifier>,
+    pub name: String,
+    pub start_modifier: Option<Modifier>,
+    pub end_modifier: Option<Modifier>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct StartBlock {
-    name: String,
-    start_modifier: Option<Modifier>,
-    end_modifier: Option<Modifier>,
-    expr: String,
+    pub name: String,
+    pub start_modifier: Option<Modifier>,
+    pub end_modifier: Option<Modifier>,
+    pub expr: String,
 }
 
 #[derive(Debug, PartialEq,  Clone)]

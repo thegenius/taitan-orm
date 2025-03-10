@@ -32,34 +32,5 @@ mod tests {
     use crate::template_parser::segment::Segment;
     use crate::template_parser::segment::Segment::{Text, Unknown};
     use super::*;
-    #[test]
-    pub fn test_parse_sql_template_basic() {
-        let origin = "select * from users;";
-        let parsed = SqlTemplate::parse(origin);
-        let expected = SqlTemplate {
-            parts: vec![
-                SqlPart::Expr(Expr::Segment(Unknown("select".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("*".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("from".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("users;".to_string()))),
-            ]
-        };
-        assert_eq!(parsed, expected);
-    }
 
-    #[test]
-    pub fn test_parse_sql_template_spec_001() {
-        let origin = "select * from users where id=@{id}";
-        let parsed = SqlTemplate::parse(origin);
-        let expected = SqlTemplate {
-            parts: vec![
-                SqlPart::Expr(Expr::Segment(Unknown("select".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("*".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("from".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("users".to_string()))),
-                SqlPart::Expr(Expr::Segment(Unknown("where".to_string()))),
-            ]
-        };
-        assert_eq!(parsed, expected);
-    }
 }

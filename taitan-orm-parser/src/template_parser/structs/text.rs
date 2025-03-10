@@ -15,7 +15,9 @@ impl Text {
     pub fn parse(input: &str) -> IResult<&str, Text> {
         context(
             "text",
-            alt((parse_single_quote_text, parse_double_quote_text)),
+            alt((parse_single_quote_text,
+                 // parse_double_quote_text
+            )),
         )(input)
     }
 }
