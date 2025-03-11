@@ -1,8 +1,9 @@
 // use crate::template_parser::segment::Segment;
-use crate::template_parser::structs::simple_expr::SimpleExpr;
 use crate::template_parser::structs::atomic::Atomic;
 use crate::template_parser::structs::binary_op::BinaryOp;
 use crate::template_parser::structs::placeholder::Placeholder;
+use crate::template_parser::structs::simple_expr::SimpleExpr;
+use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alpha1, multispace0, multispace1};
@@ -83,6 +84,64 @@ impl Expr {
     }
 }
 
+impl ToSqlSegment for Expr {
+    fn gen_sql_segments(&self) -> Vec<SqlSegment> {
+        match self {
+            Expr::Simple(expr) => expr.gen_sql_segments(),
+            Expr::BinaryExpr { left, op, right } => {
+                let left_segments = left.gen_sql_segments();
+                let right_segments = right.gen_sql_segments();
+                let mut segments =
+                    Vec::with_capacity(left_segments.len() + right_segments.len() + 8);
+                segments.extend(left_segments);
+                segments.push(SqlSegment::Simple(op.to_string()));
+                segments.extend(right_segments);
+                segments
+            }
+            Expr::Nested(expr) => {
+                let expr_segments = expr.gen_sql_segments();
+                let mut segments = Vec::with_capacity(expr_segments.len() + 2);
+                segments.push(SqlSegment::Simple("(".to_string()));
+                segments.extend(expr_segments);
+                segments.push(SqlSegment::Simple(")".to_string()));
+                segments
+            }
+            Expr::Not(expr) => {
+                let expr_segments = expr.gen_sql_segments();
+                let mut segments = Vec::with_capacity(expr_segments.len() + 1);
+                segments.push(SqlSegment::Simple("NOT".to_string()));
+                segments.extend(expr_segments);
+                segments
+            }
+            Expr::FunctionCall { name, args } => {
+                let args_segments = args
+                    .iter()
+                    .map(|a| a.gen_sql_segments())
+                    .flatten()
+                    .collect::<Vec<_>>();
+                let mut segments = Vec::with_capacity(args_segments.len() + 2);
+                segments.push(SqlSegment::Simple(format!("{}(", name)));
+                segments.extend(args_segments);
+                segments.push(SqlSegment::Simple(")".to_string()));
+                segments
+            }
+            Expr::ExprPair(expr_pair) => match expr_pair {
+                ExprPair::ExprAnd { left, right }
+                | ExprPair::ExprOr { left, right }
+                | ExprPair::ExprComma { left, right } => {
+                    let left_segments = left.gen_sql_segments();
+                    let right_segments = right.gen_sql_segments();
+                    let mut segments =
+                        Vec::with_capacity(left_segments.len() + right_segments.len());
+                    segments.extend(left_segments);
+                    segments.extend(right_segments);
+                    segments
+                }
+            },
+        }
+    }
+}
+
 // fn parse_atomic_expr(input: &str) -> IResult<&str, Expr> {
 //     alt((
 //         parse_function_call,
@@ -118,13 +177,7 @@ fn parse_not_expr(input: &str) -> IResult<&str, Expr> {
 fn parse_function_call(input: &str) -> IResult<&str, Expr> {
     let (input, name) = alpha1(input)?; // 函数名
     let (input, _) = tag("(")(input)?;
-    let (input, args) = separated_list0(
-        tag(","),
-        preceded(
-            multispace0,
-            parse_expr,
-        ),
-    )(input)?; // 参数列表
+    let (input, args) = separated_list0(tag(","), preceded(multispace0, parse_expr))(input)?; // 参数列表
     let (input, _) = tag(")")(input)?;
     Ok((
         input,
@@ -135,11 +188,7 @@ fn parse_function_call(input: &str) -> IResult<&str, Expr> {
     ))
 }
 fn parse_nested_expr(input: &str) -> IResult<&str, Expr> {
-    delimited(
-        tag("("),
-        parse_expr,
-        tag(")"),
-    )(input)
+    delimited(tag("("), parse_expr, tag(")"))(input)
 }
 
 fn parse_and_expr(input: &str) -> IResult<&str, Expr> {

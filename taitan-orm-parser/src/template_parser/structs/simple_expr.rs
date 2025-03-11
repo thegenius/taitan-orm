@@ -1,5 +1,6 @@
 use crate::template_parser::structs::atomic::Atomic;
 use crate::template_parser::structs::binary_op::BinaryOp;
+use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
 use nom::character::complete::multispace0;
 use nom::combinator::{map, opt};
@@ -20,6 +21,22 @@ pub enum SimpleExpr {
 impl SimpleExpr {
     pub fn parse(input: &str) -> IResult<&str, SimpleExpr> {
         alt((parse_binary_expr, map(Atomic::parse, SimpleExpr::Single)))(input)
+    }
+}
+
+impl ToSqlSegment for SimpleExpr {
+    fn gen_sql_segments(&self) -> Vec<SqlSegment> {
+        match self {
+            SimpleExpr::Single(atomic) => vec![atomic.gen_sql_segment()],
+            SimpleExpr::Binary { left, op, right } => {
+                let segments = vec![
+                    left.gen_sql_segment(),
+                    SqlSegment::Simple(op.to_string()),
+                    right.gen_sql_segment(),
+                ];
+                segments
+            }
+        }
     }
 }
 
@@ -61,9 +78,13 @@ mod simple_expr_test {
         let (_, parsed) = SimpleExpr::parse(template).unwrap();
 
         let expected = SimpleExpr::Binary {
-            left: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple("a".to_string())])),
+            left: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
+                "a".to_string(),
+            )])),
             op: BinaryOp::Equal,
-            right: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple("b".to_string())]))
+            right: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
+                "b".to_string(),
+            )])),
         };
         // assert_eq!(remaining, "select * from users");
         assert_eq!(parsed, expected);

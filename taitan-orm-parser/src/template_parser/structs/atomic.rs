@@ -3,13 +3,15 @@ use crate::template_parser::structs::bool_value::BoolValue;
 use crate::template_parser::structs::number::Number;
 use crate::template_parser::structs::placeholder::Placeholder;
 use crate::template_parser::structs::sign::Sign;
+use crate::template_parser::structs::template_part::TemplatePart;
 use crate::template_parser::structs::text::Text;
 use crate::template_parser::structs::variable::VariableChain;
+use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
-use nom::combinator::{map};
+use nom::combinator::map;
 use nom::IResult;
+use std::fmt::{Display, Formatter};
 use tracing::debug;
-use crate::template_parser::structs::template_part::TemplatePart;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Atomic {
@@ -26,7 +28,7 @@ pub enum Atomic {
 impl Atomic {
     pub fn parse(input: &str) -> IResult<&str, Atomic> {
         debug!("Atomic parse({})", &input);
-        let (remaining, parsed)= alt((
+        let (remaining, parsed) = alt((
             map(BoolValue::parse, Atomic::Bool),
             map(Text::parse, Atomic::Text),
             map(Number::parse, Atomic::Number),
@@ -41,11 +43,26 @@ impl Atomic {
     }
 }
 
+impl ToSqlSegment for Atomic {
+    fn gen_sql_segment(&self) -> SqlSegment {
+        match self {
+            Atomic::Sign(s) => SqlSegment::Simple(s.to_string()),
+            Atomic::Text(t) => SqlSegment::Simple(t.to_string()),
+            Atomic::Bool(b) => SqlSegment::Simple(b.to_string()),
+            Atomic::Number(n) => SqlSegment::Simple(n.to_string()),
+            Atomic::BinaryOp(b) => SqlSegment::Simple(b.to_string()),
+            Atomic::Template(t) => SqlSegment::Simple(t.to_string()),
+            Atomic::VariableChain(v) => SqlSegment::Simple(v.to_string()),
+            Atomic::Placeholder(p) => p.gen_sql_segment(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod atomic_tests {
+    use super::*;
     use crate::template_parser::structs::template_part::{EndBlock, StartBlock};
     use crate::template_parser::structs::variable::Variable;
-    use super::*;
     #[test]
     fn atomic_parser_spec_001() {
         let template = "#{hello.`test`}";
@@ -54,18 +71,27 @@ mod atomic_tests {
             Variable::Simple("hello".to_string()),
             Variable::Backquote("test".to_string()),
         ];
-        assert_eq!(parsed, Atomic::Placeholder(Placeholder::Hash(VariableChain::new(variable_chain.clone()))));
+        assert_eq!(
+            parsed,
+            Atomic::Placeholder(Placeholder::Hash(VariableChain::new(
+                variable_chain.clone()
+            )))
+        );
 
         let template = "'hello.`test`'";
         let (_, parsed) = Atomic::parse(template).unwrap();
-        assert_eq!(parsed, Atomic::Text(Text::SingleQuote("'hello.`test`'".to_string())));
+        assert_eq!(
+            parsed,
+            Atomic::Text(Text::SingleQuote("'hello.`test`'".to_string()))
+        );
 
         let template = "\"hello\"";
         let (_, parsed) = Atomic::parse(template).unwrap();
-        let variable_chain = vec![
-            Variable::DoubleQuote("hello".to_string()),
-        ];
-        assert_eq!(parsed, Atomic::VariableChain(VariableChain::new(variable_chain.clone())));
+        let variable_chain = vec![Variable::DoubleQuote("hello".to_string())];
+        assert_eq!(
+            parsed,
+            Atomic::VariableChain(VariableChain::new(variable_chain.clone()))
+        );
 
         let template = r#"
         {% for item in items %}

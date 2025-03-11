@@ -1,3 +1,4 @@
+use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_until},
@@ -6,6 +7,7 @@ use nom::{
     sequence::delimited,
     IResult,
 };
+use std::fmt::Display;
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Modifier {
@@ -13,12 +15,41 @@ pub enum Modifier {
     Minus,
     Tilde,
 }
+impl Display for Modifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Modifier::Plus => write!(f, "+"),
+            Modifier::Minus => write!(f, "-"),
+            Modifier::Tilde => write!(f, "~"),
+        }
+    }
+}
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct EndBlock {
     pub name: String,
     pub start_modifier: Option<Modifier>,
     pub end_modifier: Option<Modifier>,
+}
+
+impl Display for EndBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let start_modifier_str = if let Some(start_modifier) = &self.start_modifier {
+            start_modifier.to_string()
+        } else {
+            "".to_string()
+        };
+        let end_modifier_str = if let Some(end_modifier) = &self.end_modifier {
+            end_modifier.to_string()
+        } else {
+            "".to_string()
+        };
+        write!(
+            f,
+            "{{%{} {} {}%}}",
+            start_modifier_str, self.name, end_modifier_str
+        )
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -29,7 +60,27 @@ pub struct StartBlock {
     pub expr: String,
 }
 
-#[derive(Debug, PartialEq,  Clone)]
+impl Display for StartBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let start_modifier_str = if let Some(start_modifier) = &self.start_modifier {
+            start_modifier.to_string()
+        } else {
+            "".to_string()
+        };
+        let end_modifier_str = if let Some(end_modifier) = &self.end_modifier {
+            end_modifier.to_string()
+        } else {
+            "".to_string()
+        };
+        write!(
+            f,
+            "{{%{} {} {} {}%}}",
+            start_modifier_str, self.name, self.expr, end_modifier_str
+        )
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum TemplatePart {
     Expression(String), // {{ }} 表达式及其过滤器
     ControlBlock {
@@ -39,6 +90,27 @@ pub enum TemplatePart {
     }, // {% %} 控制块,包括macro
     Call(String),       // {% call %} call 语句
     Comment(String),    // {# #}注释块
+}
+
+impl Display for TemplatePart {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TemplatePart::ControlBlock {
+                start_block,
+                content,
+                end_block,
+            } => {
+                write!(f, "{}{}{}", start_block, content, end_block)
+            }
+            TemplatePart::Expression(expression) => {
+                write!(f, "{{ {} }}", expression)
+            }
+            TemplatePart::Call(call_expr) => {
+                write!(f, "{{% call {} %}}", call_expr)
+            }
+            TemplatePart::Comment(comment) => write!(f, ""),
+        }
+    }
 }
 
 impl TemplatePart {

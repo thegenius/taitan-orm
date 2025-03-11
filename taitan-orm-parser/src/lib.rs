@@ -32,14 +32,16 @@ pub use info_parser::NamedVariantDef;
 pub use info_parser::ConditionParser;
 
 
-pub use template_parser::SqlTemplate;
-pub use template_parser::SqlSegment;
+
+pub use template_parser::SqlPart;
 pub use template_parser::Atomic;
 pub use template_parser::VariableChain;
 pub use template_parser::Variable;
 pub use template_parser::SimpleExpr;
 pub use template_parser::Expr;
 pub use template_parser::Sign;
+pub use template_parser::SqlTemplate;
+pub use template_parser::ToSqlSegment;
 
 // pub use field_mapper::KeywordsEscaper;
 // pub use field_mapper::MySqlKeywordEscaper;

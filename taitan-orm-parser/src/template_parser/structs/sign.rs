@@ -1,9 +1,9 @@
-use crate::template_parser::structs::number::Number;
 use nom::branch::alt;
-use nom::bytes::complete::{tag, take_while1};
+use nom::bytes::complete::tag;
 use nom::character::complete::satisfy;
-use nom::combinator::{map, recognize};
+use nom::combinator::map;
 use nom::IResult;
+use std::fmt::Display;
 
 // not alpha,  it is variable
 // not number, it is number
@@ -15,6 +15,7 @@ use nom::IResult;
 pub enum Sign {
     Star,
     Semicolon,
+    // Bracket(char),
     Unknown(char),
 }
 impl Sign {
@@ -24,6 +25,17 @@ impl Sign {
             map(tag(";"), |_| Sign::Semicolon),
             parse_unknown,
         ))(input)
+    }
+}
+
+impl Display for Sign {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Sign::Star => write!(fmt, "*"),
+            Sign::Semicolon => write!(fmt, ";"),
+            // Sign::Bracket(c) => write!(fmt, "{}", c),
+            Sign::Unknown(c) => write!(fmt, "{}", c),
+        }
     }
 }
 
@@ -72,7 +84,6 @@ mod tests {
         let template = ";";
         let (_, parsed) = Sign::parse(template).unwrap();
         assert_eq!(parsed, Sign::Semicolon);
-
     }
     #[test]
     fn sign_parser_spec_002() {

@@ -1,4 +1,5 @@
 use crate::template_parser::structs::variable::VariableChain;
+use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::multispace0;
@@ -31,6 +32,16 @@ impl Placeholder {
                 preceded(multispace0, tag("}")),
             ),
         ))(input)
+    }
+}
+
+impl ToSqlSegment for Placeholder {
+    fn gen_sql_segment(&self) -> SqlSegment {
+        match self {
+            Placeholder::Dollar(p) => SqlSegment::Dollar(p.to_string()),
+            Placeholder::Hash(p) => SqlSegment::Hash(p.to_string()),
+            Placeholder::At(p) => SqlSegment::At(p.to_string()),
+        }
     }
 }
 

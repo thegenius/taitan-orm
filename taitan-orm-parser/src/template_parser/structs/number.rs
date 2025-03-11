@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use nom::character::complete::{char, digit1};
 use nom::combinator::{map, opt, recognize};
 use nom::IResult;
@@ -17,5 +18,11 @@ impl Number {
             ))),
             |s: &str| Number(s.to_string()),
         )(input)
+    }
+}
+
+impl Display for Number {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(fmt, "{}", self.0)
     }
 }
