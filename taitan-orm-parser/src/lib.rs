@@ -42,6 +42,7 @@ pub use template_parser::Expr;
 pub use template_parser::Sign;
 pub use template_parser::SqlTemplate;
 pub use template_parser::ToSqlSegment;
+pub use template_parser::Number;
 
 // pub use field_mapper::KeywordsEscaper;
 // pub use field_mapper::MySqlKeywordEscaper;

@@ -12,3 +12,4 @@ pub use structs::expr::Expr;
 pub use structs::sign::Sign;
 pub use structs::sql_template::SqlTemplate;
 pub use to_sql::ToSqlSegment;
+pub use structs::number::Number;

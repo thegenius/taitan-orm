@@ -32,5 +32,5 @@ fn template_parser_spec_001() {
         .map(|f| f.to_string())
         .collect::<Vec<_>>()
         .join(" ");
-    assert_eq!(streams_str, "s . push_str (\"select\") ; s . push_str (\"*\") ; s . push_str (\"from\") ; s . push_str (\"users\") ;");
+    assert_eq!(streams_str, "s . push_str (\"select \") ; s . push_str (\"* \") ; s . push_str (\"from \") ; s . push_str (\"users \") ;");
 }
