@@ -1,6 +1,6 @@
 mod structs;
 mod to_sql;
-
+mod syntax_parser;
 
 pub use structs::simple_expr::SimpleExpr;
 pub use structs::sql_part::SqlPart;

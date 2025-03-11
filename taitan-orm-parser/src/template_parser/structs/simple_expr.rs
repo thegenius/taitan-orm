@@ -53,7 +53,7 @@ fn parse_binary_expr(input: &str) -> IResult<&str, SimpleExpr> {
 
 #[cfg(test)]
 mod simple_expr_test {
-
+    use crate::template_parser::structs::binary_op::ComparisonOp;
     use super::*;
     use crate::template_parser::structs::variable::{Variable, VariableChain};
     #[test]
@@ -64,7 +64,7 @@ mod simple_expr_test {
             left: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
                 "a".to_string(),
             )])),
-            op: BinaryOp::Equal,
+            op: BinaryOp::Compare(ComparisonOp::Equal),
             right: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
                 "b".to_string(),
             )])),
@@ -81,7 +81,7 @@ mod simple_expr_test {
             left: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
                 "a".to_string(),
             )])),
-            op: BinaryOp::Equal,
+            op: BinaryOp::Compare(ComparisonOp::Equal),
             right: Atomic::VariableChain(VariableChain::new(vec![Variable::Simple(
                 "b".to_string(),
             )])),

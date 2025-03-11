@@ -58,6 +58,34 @@ impl ToSqlSegment for Atomic {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct AtomicStream {
+    atomics: Vec<Atomic>,
+}
+
+impl AtomicStream {
+    pub fn parse(input: &str) -> Result<Self, String> {
+        debug!("SqlTemplate::parse({})", input);
+        let mut atomics = Vec::new();
+        let mut remainder = input;
+        loop {
+            let parse_result = Atomic::parse(remainder);
+            if let Ok((remaining, part)) = parse_result {
+                atomics.push(part);
+                remainder = remaining;
+            } else {
+                let err_msg = format!("failed to parse atomic: {}", input);
+                return Err(err_msg);
+            }
+
+            if remainder.is_empty() {
+                break;
+            }
+        }
+        Ok(AtomicStream { atomics })
+    }
+}
+
 #[cfg(test)]
 mod atomic_tests {
     use super::*;
