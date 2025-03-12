@@ -8,9 +8,10 @@ use crate::template_parser::structs::text::Text;
 use crate::template_parser::structs::variable::VariableChain;
 use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
-use nom::combinator::map;
+use nom::combinator::{map, not};
 use nom::IResult;
 use std::fmt::{Display, Formatter};
+use nom::bytes::complete::tag_no_case;
 use tracing::debug;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,9 +21,10 @@ pub enum Atomic {
     Text(Text),
     VariableChain(VariableChain),
     Placeholder(Placeholder),
+    Template(TemplatePart),
     BinaryOp(BinaryOp),
     Sign(Sign),
-    Template(TemplatePart),
+    Not,
 }
 
 impl Atomic {
@@ -37,15 +39,34 @@ impl Atomic {
             map(VariableChain::parse, Atomic::VariableChain),
             map(TemplatePart::parse, Atomic::Template),
             map(Sign::parse, Atomic::Sign),
+            map(tag_no_case("not"), Atomic::Not),
         ))(input)?;
         debug!("Atomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))
+    }
+
+    pub fn extract_left_bracket(&self)-> Option<Sign> {
+        if let Atomic::Sign(Sign::Bracket(c)) = self {
+            if c == &'(' {
+                return Some(Sign::Bracket('('))
+            }
+        }
+        None
+    }
+    pub fn extract_right_bracket(&self)-> Option<Sign> {
+        if let Atomic::Sign(Sign::Bracket(c)) = self {
+            if c == &')' {
+                return Some(Sign::Bracket(')'))
+            }
+        }
+        None
     }
 }
 
 impl ToSqlSegment for Atomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
+            Atomic::Not=>SqlSegment::Simple("NOT".to_string()),
             Atomic::Sign(s) => SqlSegment::Simple(s.to_string()),
             Atomic::Text(t) => SqlSegment::Simple(t.to_string()),
             Atomic::Bool(b) => SqlSegment::Simple(b.to_string()),

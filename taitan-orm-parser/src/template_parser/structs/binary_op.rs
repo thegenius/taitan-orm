@@ -185,6 +185,28 @@ impl BinaryOp {
             }),
         ))(input)
     }
+    pub fn extract_and(&self) -> Option<BinaryOp> {
+        if let BinaryOp::Logic(logic_op) = self {
+            if logic_op.to_string() == "AND" {
+                return Some(BinaryOp::Logic(LogicOp::And));
+            }
+        }
+        None
+    }
+    pub fn extract_or(&self) -> Option<BinaryOp> {
+        if let BinaryOp::Logic(logic_op) = self {
+            if logic_op.to_string() == "OR" {
+                return Some(BinaryOp::Logic(LogicOp::And));
+            }
+        }
+        None
+    }
+    pub fn extract_comma(&self) -> Option<BinaryOp> {
+        if let BinaryOp::Comma = self {
+            return Some(BinaryOp::Comma);
+        }
+        None
+    }
 }
 
 impl Display for BinaryOp {

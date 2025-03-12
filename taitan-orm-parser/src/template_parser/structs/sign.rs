@@ -15,7 +15,7 @@ use std::fmt::Display;
 pub enum Sign {
     Star,
     Semicolon,
-    // Bracket(char),
+    Bracket(char),
     Unknown(char),
 }
 impl Sign {
@@ -23,6 +23,12 @@ impl Sign {
         alt((
             map(tag("*"), |_| Sign::Star),
             map(tag(";"), |_| Sign::Semicolon),
+            map(tag("("), |_| Sign::Bracket('(')),
+            map(tag(")"), |_| Sign::Bracket(')')),
+            map(tag("["), |_| Sign::Bracket('[')),
+            map(tag("]"), |_| Sign::Bracket(']')),
+            map(tag("{"), |_| Sign::Bracket('{')),
+            map(tag("{"), |_| Sign::Bracket('}')),
             parse_unknown,
         ))(input)
     }
@@ -33,7 +39,7 @@ impl Display for Sign {
         match self {
             Sign::Star => write!(fmt, "*"),
             Sign::Semicolon => write!(fmt, ";"),
-            // Sign::Bracket(c) => write!(fmt, "{}", c),
+            Sign::Bracket(c) => write!(fmt, "{}", c),
             Sign::Unknown(c) => write!(fmt, "{}", c),
         }
     }
