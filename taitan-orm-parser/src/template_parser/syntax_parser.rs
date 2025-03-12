@@ -31,7 +31,7 @@ pub enum Expr {
     FunctionCall {
         // VariableChain(Expr)
         name: VariableChain,
-        args: Option<Expr>,
+        args: Option<Box<Expr>>,
     },
     Nested(Box<Expr>), // ()嵌套表达式
     Not(Box<Expr>),    // NOT 表达式
@@ -132,6 +132,11 @@ impl Parser {
 
         self.position += 2;
         let args = self.parse_expr_comma();
+        let boxed_args = if let Some(args) = args {
+            Some(Box::new(args))
+        } else {
+            None
+        };
 
         let right_sign = self.tokens.get(self.position)?;
         let right_bracket = right_sign.extract_right_bracket();
@@ -141,7 +146,7 @@ impl Parser {
 
         let expr = Expr::FunctionCall {
             name: variable_chain,
-            args,
+            args: boxed_args,
         };
         Some(expr)
     }

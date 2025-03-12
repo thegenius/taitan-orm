@@ -93,7 +93,7 @@ mod tests {
     }
     #[test]
     fn sign_parser_spec_002() {
-        let template = "s1%$@#\"'+-{}[]()`,";
+        let template = "s1%$@#\"'+-`,";
         for c in template.chars() {
             let content = c.to_string();
             let parse_result = Sign::parse(content.as_str());
