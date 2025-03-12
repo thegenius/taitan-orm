@@ -9,7 +9,9 @@ use crate::template_parser::structs::variable::VariableChain;
 use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
 use nom::bytes::complete::tag_no_case;
+use nom::character::complete::multispace0;
 use nom::combinator::{map, not};
+use nom::sequence::preceded;
 use nom::IResult;
 use std::fmt::{Display, Formatter};
 use tracing::debug;
@@ -43,6 +45,26 @@ impl Atomic {
         ))(input)?;
         debug!("Atomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))
+    }
+
+    pub fn is_binary_op(&self) -> bool {
+        match self {
+            Atomic::BinaryOp(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_operand(&self) -> bool {
+        match self {
+            Atomic::BinaryOp(_) | Atomic::Sign(_) | Atomic::Not => false,
+            _ => true,
+        }
+    }
+
+    pub fn extract_binary_op(&self) -> Option<BinaryOp> {
+        if let Atomic::BinaryOp(o) = self {
+            return Some(o.clone());
+        }
+        None
     }
 
     pub fn extract_left_bracket(&self) -> Option<Sign> {
@@ -81,7 +103,7 @@ impl ToSqlSegment for Atomic {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AtomicStream {
-    atomics: Vec<Atomic>,
+    pub atomics: Vec<Atomic>,
 }
 
 impl AtomicStream {
@@ -90,13 +112,18 @@ impl AtomicStream {
         let mut atomics = Vec::new();
         let mut remainder = input;
         loop {
-            let parse_result = Atomic::parse(remainder);
-            if let Ok((remaining, part)) = parse_result {
-                atomics.push(part);
-                remainder = remaining;
-            } else {
-                let err_msg = format!("failed to parse atomic: {}", input);
-                return Err(err_msg);
+            let parse_result = preceded(multispace0, Atomic::parse)(remainder);
+            match parse_result {
+                Ok((remaining, parsed)) => {
+                    debug!("SqlTemplate::parse({})->{:?}", remaining, parsed);
+                    atomics.push(parsed);
+                    remainder = remaining;
+                }
+                Err(err_msg) => {
+                    debug!("SqlTemplate::parse error: {}", err_msg);
+                    let err_msg = format!("failed to parse atomic: {}", input);
+                    return Err(err_msg);
+                }
             }
 
             if remainder.is_empty() {

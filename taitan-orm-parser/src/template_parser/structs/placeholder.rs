@@ -1,14 +1,48 @@
+use std::str::FromStr;
 use crate::template_parser::structs::variable::VariableChain;
 use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::multispace0;
+use nom::character::complete::{digit1, multispace0};
 use nom::combinator::map;
-use nom::sequence::{delimited, preceded};
+use nom::sequence::{delimited, preceded, tuple};
 use nom::IResult;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub enum RawPlaceholder {
+    QuestionMark,
+    Indexed(usize),
+    Named(String),
+}
+
+impl RawPlaceholder {
+    pub fn parse(input: &str) -> IResult<&str, RawPlaceholder> {
+        alt((
+            map(tag("?"), |_| RawPlaceholder::QuestionMark),
+            map(preceded(tag("$"), digit1), |d| {
+                RawPlaceholder::Indexed(usize::from_str(d).unwrap())
+            }),
+            map(
+                preceded(tag(":"), preceded(multispace0, VariableChain::parse)),
+                |v| RawPlaceholder::Named(v.to_string()),
+            ),
+        ))(input)
+    }
+}
+
+impl ToSqlSegment for RawPlaceholder {
+    fn gen_sql_segment(&self) -> SqlSegment {
+        match self {
+            RawPlaceholder::QuestionMark => SqlSegment::Simple("?".to_string()),
+            RawPlaceholder::Indexed(i) => SqlSegment::Simple(format!("${}", i)),
+            RawPlaceholder::Named(i) => SqlSegment::Simple(i.to_string()),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Placeholder {
+    Raw(RawPlaceholder),
     Dollar(VariableChain),
     Hash(VariableChain),
     At(VariableChain),
@@ -16,6 +50,7 @@ pub enum Placeholder {
 impl Placeholder {
     pub fn parse(input: &str) -> IResult<&str, Placeholder> {
         alt((
+            map(RawPlaceholder::parse, Placeholder::Raw),
             delimited(
                 preceded(tag("$"), preceded(multispace0, tag("{"))),
                 preceded(multispace0, map(VariableChain::parse, Placeholder::Dollar)),
@@ -41,6 +76,7 @@ impl ToSqlSegment for Placeholder {
             Placeholder::Dollar(p) => SqlSegment::Dollar(p.to_string()),
             Placeholder::Hash(p) => SqlSegment::Hash(p.to_string()),
             Placeholder::At(p) => SqlSegment::At(p.to_string()),
+            Placeholder::Raw(p)=>p.gen_sql_segment(),
         }
     }
 }
