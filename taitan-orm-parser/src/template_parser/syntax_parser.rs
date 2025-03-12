@@ -18,7 +18,10 @@ use tracing::debug;
 //
 // <not-expr> ::= "NOT" <expr>
 #[derive(Debug, PartialEq, Clone)]
-pub enum Expr {
+pub enum
+
+
+Expr {
     Simple {
         left: Atomic,
         op: BinaryOp,

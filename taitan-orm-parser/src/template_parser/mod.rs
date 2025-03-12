@@ -19,5 +19,7 @@ pub use structs::binary_op::ComparisonOp;
 pub use structs::binary_op::LogicOp;
 pub use structs::binary_op::MatchOp;
 pub use structs::binary_op::ArithmeticOp;
+pub use structs::placeholder::Placeholder;
+pub use structs::placeholder::RawPlaceholder;
 pub use syntax_parser::Expr;
 pub use syntax_parser::Parser;

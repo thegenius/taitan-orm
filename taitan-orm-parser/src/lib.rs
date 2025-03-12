@@ -39,6 +39,8 @@ pub use template_parser::BinaryOp;
 pub use template_parser::ComparisonOp;
 pub use template_parser::LogicOp;
 pub use template_parser::VariableChain;
+pub use template_parser::Placeholder;
+pub use template_parser::RawPlaceholder;
 pub use template_parser::Variable;
 pub use template_parser::SimpleExpr;
 pub use template_parser::Expr;
