@@ -6,29 +6,9 @@ use nom::sequence::{preceded, tuple};
 use nom::IResult;
 use std::fmt::Display;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LogicOp {
-    And,
-    Or,
-}
 
-impl LogicOp {
-    pub fn parse(input: &str) -> IResult<&str, LogicOp> {
-        alt((
-            map(preceded(multispace0, tag_no_case("and")), |_| LogicOp::And),
-            map(preceded(multispace0, tag_no_case("or")), |_| LogicOp::Or),
-        ))(input)
-    }
-}
 
-impl Display for LogicOp {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            LogicOp::And => f.write_str("AND"),
-            LogicOp::Or => f.write_str("OR"),
-        }
-    }
-}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ArithmeticOp {
@@ -169,9 +149,10 @@ pub enum BinaryOp {
     Compare(ComparisonOp),
     Arithmetic(ArithmeticOp),
     Match(MatchOp),
-    Logic(LogicOp),
-    Comma,
 }
+
+
+
 
 impl BinaryOp {
     pub fn parse(input: &str) -> IResult<&str, BinaryOp> {
@@ -179,10 +160,10 @@ impl BinaryOp {
             map(ComparisonOp::parse, BinaryOp::Compare),
             map(ArithmeticOp::parse, BinaryOp::Arithmetic),
             map(MatchOp::parse, BinaryOp::Match),
-            map(LogicOp::parse, BinaryOp::Logic),
-            map(preceded(multispace0, tag_no_case(",")), |s: &str| {
-                BinaryOp::Comma
-            }),
+            // map(LogicOp::parse, BinaryOp::Logic),
+            // map(preceded(multispace0, tag_no_case(",")), |s: &str| {
+            //     BinaryOp::Comma
+            // }),
         ))(input)
     }
     pub fn extract_and(&self) -> Option<BinaryOp> {

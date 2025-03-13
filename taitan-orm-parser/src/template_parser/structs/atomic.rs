@@ -15,6 +15,7 @@ use nom::sequence::preceded;
 use nom::IResult;
 use std::fmt::{Display, Formatter};
 use tracing::debug;
+use crate::template_parser::structs::connect_op::ConnectOp;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Atomic {
@@ -25,6 +26,7 @@ pub enum Atomic {
     Placeholder(Placeholder),
     Template(TemplatePart),
     BinaryOp(BinaryOp),
+    ConnectOp(ConnectOp),
     Sign(Sign),
     Not,
 }
@@ -37,6 +39,7 @@ impl Atomic {
             map(Text::parse, Atomic::Text),
             map(Number::parse, Atomic::Number),
             map(BinaryOp::parse, Atomic::BinaryOp),
+            map(ConnectOp::parse, Atomic::ConnectOp),
             map(Placeholder::parse, Atomic::Placeholder),
             map(VariableChain::parse, Atomic::VariableChain),
             map(TemplatePart::parse, Atomic::Template),
@@ -94,6 +97,7 @@ impl ToSqlSegment for Atomic {
             Atomic::Bool(b) => SqlSegment::Simple(b.to_string()),
             Atomic::Number(n) => SqlSegment::Simple(n.to_string()),
             Atomic::BinaryOp(b) => SqlSegment::Simple(b.to_string()),
+            Atomic::ConnectOp(c) => SqlSegment::Simple(c.to_string()),
             Atomic::Template(t) => SqlSegment::Simple(t.to_string()),
             Atomic::VariableChain(v) => SqlSegment::Simple(v.to_string()),
             Atomic::Placeholder(p) => p.gen_sql_segment(),

@@ -1,3 +1,33 @@
+# 关于Template的语法解析器
+## 字符流转化为Atomics
+(1)
+Bool
+Text
+Number: digit, not include +/-
+Template: {% if %} {% endif %}
+Placeholder: #{} @{} ${}
+VariableChain: a.b.c
+Bracket: () [] {}
+
+Operator
+   Arithmetic: Add Sub Mul Div Mod
+   Logic: And Or Not
+   Compare: = >= <= > < <> !=
+   Match: Like In
+Connector
+   Comma
+
+
+
+## basic expr
+(1) 数学表达式 a + b - c / d
+(2) 比较表达式 a > c
+(3) 赋值表达式 a = 12
+(4) 简单修饰 not a >= c
+
+## complicate expr
+(1) logic and/or/()/not
+(2) comma
 
 
 

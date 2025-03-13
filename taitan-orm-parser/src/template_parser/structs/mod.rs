@@ -12,4 +12,5 @@ pub mod simple_expr;
 pub mod sql_part;
 
 pub mod sql_template;
+mod connect_op;
 
