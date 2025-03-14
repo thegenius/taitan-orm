@@ -1,21 +1,24 @@
 # 关于Template的语法解析器
 ## 字符流转化为Atomics
-(1)
+(1)AtomicValue
 Bool
 Text
 Number: digit, not include +/-
 Template: {% if %} {% endif %}
 Placeholder: #{} @{} ${}
 VariableChain: a.b.c
-Bracket: () [] {}
 
-Operator
+(2)Sign
+Bracket: () [] {}
+Comma
+
+(3)Operator
    Arithmetic: Add Sub Mul Div Mod
    Logic: And Or Not
    Compare: = >= <= > < <> !=
    Match: Like In
-Connector
-   Comma
+
+
 
 
 

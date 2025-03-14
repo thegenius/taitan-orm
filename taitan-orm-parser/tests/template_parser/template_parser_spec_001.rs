@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use taitan_orm_parser::ToSqlSegment;
-use taitan_orm_parser::{Atomic, Expr, Sign};
+use taitan_orm_parser::{Atomic, Sign};
 use taitan_orm_parser::{SimpleExpr, SqlPart, SqlTemplate, Variable, VariableChain};
 
 use crate::setups::logger::setup_logger;

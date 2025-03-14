@@ -1,5 +1,4 @@
 pub mod number;
-pub mod binary_op;
 pub mod text;
 pub mod variable;
 pub mod placeholder;
@@ -13,4 +12,6 @@ pub mod sql_part;
 
 pub mod sql_template;
 mod connect_op;
+pub(crate) mod operators;
+mod value;
 

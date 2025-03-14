@@ -1,4 +1,4 @@
-use crate::template_parser::structs::binary_op::BinaryOp;
+use crate::template_parser::structs::operators::Operator;
 use crate::template_parser::structs::bool_value::BoolValue;
 use crate::template_parser::structs::number::Number;
 use crate::template_parser::structs::placeholder::Placeholder;
@@ -16,35 +16,27 @@ use nom::IResult;
 use std::fmt::{Display, Formatter};
 use tracing::debug;
 use crate::template_parser::structs::connect_op::ConnectOp;
+use crate::template_parser::structs::value::Value;
+use crate::template_parser::to_sql::SqlSegment::Simple;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Atomic {
-    Bool(BoolValue),
-    Number(Number),
-    Text(Text),
-    VariableChain(VariableChain),
+    Value(Value),
     Placeholder(Placeholder),
-    Template(TemplatePart),
-    BinaryOp(BinaryOp),
+    Operator(Operator),
     ConnectOp(ConnectOp),
     Sign(Sign),
-    Not,
 }
 
 impl Atomic {
     pub fn parse(input: &str) -> IResult<&str, Atomic> {
         debug!("Atomic parse({})", &input);
         let (remaining, parsed) = alt((
-            map(BoolValue::parse, Atomic::Bool),
-            map(Text::parse, Atomic::Text),
-            map(Number::parse, Atomic::Number),
-            map(BinaryOp::parse, Atomic::BinaryOp),
+            map(Value::parse, Atomic::Value),
+            map(Operator::parse, Atomic::Operator),
             map(ConnectOp::parse, Atomic::ConnectOp),
             map(Placeholder::parse, Atomic::Placeholder),
-            map(VariableChain::parse, Atomic::VariableChain),
-            map(TemplatePart::parse, Atomic::Template),
             map(Sign::parse, Atomic::Sign),
-            map(tag_no_case("not"), |f| Atomic::Not),
         ))(input)?;
         debug!("Atomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))
@@ -52,19 +44,19 @@ impl Atomic {
 
     pub fn is_binary_op(&self) -> bool {
         match self {
-            Atomic::BinaryOp(_) => true,
+            Atomic::Operator(_) => true,
             _ => false,
         }
     }
     pub fn is_operand(&self) -> bool {
         match self {
-            Atomic::BinaryOp(_) | Atomic::Sign(_) | Atomic::Not => false,
+            Atomic::Operator(_) | Atomic::Sign(_)  => false,
             _ => true,
         }
     }
 
-    pub fn extract_binary_op(&self) -> Option<BinaryOp> {
-        if let Atomic::BinaryOp(o) = self {
+    pub fn extract_binary_op(&self) -> Option<Operator> {
+        if let Atomic::Operator(o) = self {
             return Some(o.clone());
         }
         None
@@ -91,15 +83,10 @@ impl Atomic {
 impl ToSqlSegment for Atomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
-            Atomic::Not => SqlSegment::Simple("NOT".to_string()),
             Atomic::Sign(s) => SqlSegment::Simple(s.to_string()),
-            Atomic::Text(t) => SqlSegment::Simple(t.to_string()),
-            Atomic::Bool(b) => SqlSegment::Simple(b.to_string()),
-            Atomic::Number(n) => SqlSegment::Simple(n.to_string()),
-            Atomic::BinaryOp(b) => SqlSegment::Simple(b.to_string()),
+            Atomic::Value(v) => SqlSegment::Simple(v.to_string()),
+            Atomic::Operator(b) => SqlSegment::Simple(b.to_string()),
             Atomic::ConnectOp(c) => SqlSegment::Simple(c.to_string()),
-            Atomic::Template(t) => SqlSegment::Simple(t.to_string()),
-            Atomic::VariableChain(v) => SqlSegment::Simple(v.to_string()),
             Atomic::Placeholder(p) => p.gen_sql_segment(),
         }
     }
@@ -162,7 +149,7 @@ mod atomic_tests {
         let (_, parsed) = Atomic::parse(template).unwrap();
         assert_eq!(
             parsed,
-            Atomic::Text(Text::SingleQuote("'hello.`test`'".to_string()))
+            Atomic::Value(Value::Text(Text::SingleQuote("'hello.`test`'".to_string())))
         );
 
         let template = "\"hello\"";
@@ -170,7 +157,7 @@ mod atomic_tests {
         let variable_chain = vec![Variable::DoubleQuote("hello".to_string())];
         assert_eq!(
             parsed,
-            Atomic::VariableChain(VariableChain::new(variable_chain.clone()))
+            Atomic::Value( Value::VariableChain(VariableChain::new(variable_chain.clone())))
         );
 
         let template = r#"
@@ -192,7 +179,7 @@ mod atomic_tests {
                 end_modifier: None,
             },
         };
-        assert_eq!(parsed, Atomic::Template(expected));
+        assert_eq!(parsed, Atomic::Value(Value::Template(expected)));
     }
 
     #[test]
@@ -206,6 +193,6 @@ mod atomic_tests {
     fn atomic_parser_spec_003() {
         let template = "1234";
         let (_, parsed) = Atomic::parse(template).unwrap();
-        assert_eq!(parsed, Atomic::Number(Number("1234".to_string())));
+        assert_eq!(parsed, Atomic::Value(Value::Number(Number("1234".to_string()))));
     }
 }

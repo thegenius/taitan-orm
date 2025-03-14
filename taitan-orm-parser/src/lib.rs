@@ -35,21 +35,20 @@ pub use info_parser::ConditionParser;
 
 pub use template_parser::SqlPart;
 pub use template_parser::Atomic;
-pub use template_parser::BinaryOp;
-pub use template_parser::ComparisonOp;
-pub use template_parser::LogicOp;
+pub use template_parser::Operator;
+// pub use template_parser::LogicOp;
 pub use template_parser::VariableChain;
 pub use template_parser::Placeholder;
 pub use template_parser::RawPlaceholder;
 pub use template_parser::Variable;
 pub use template_parser::SimpleExpr;
-pub use template_parser::Expr;
+// pub use template_parser::Expr;
 pub use template_parser::Sign;
 pub use template_parser::SqlTemplate;
 pub use template_parser::ToSqlSegment;
 pub use template_parser::Number;
 pub use template_parser::AtomicStream;
-pub use template_parser::Parser;
+// pub use template_parser::Parser;
 
 // pub use field_mapper::KeywordsEscaper;
 // pub use field_mapper::MySqlKeywordEscaper;
