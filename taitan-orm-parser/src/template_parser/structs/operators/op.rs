@@ -1,4 +1,4 @@
-use crate::template_parser::structs::operators::arithmetic::ArithmeticOp;
+use crate::template_parser::structs::operators::arithmetic::{ArithmeticOp, ArithmeticUnaryOp};
 use crate::template_parser::structs::operators::comparison_op::CompareOp;
 use crate::template_parser::structs::operators::connect::ConnectOp;
 use crate::template_parser::structs::operators::list_op::ListInOp;
@@ -10,10 +10,12 @@ use nom::IResult;
 use std::fmt::Display;
 use crate::VariableChain;
 
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operator {
     Compare(CompareOp),
     Arithmetic(ArithmeticOp),
+    ArithmeticUnary(ArithmeticUnaryOp), // 不主动解析，只从Sign在规约过程中转为而来
     Logic(LogicOp),
     ListInOp(ListInOp),
     Paren(Paren),
@@ -60,6 +62,7 @@ impl Display for Operator {
             Operator::Paren(p) => p.fmt(fmt),
             Operator::Connect(c) => c.fmt(fmt),
             Operator::FnCall(f) => f.fmt(fmt),
+            Operator::ArithmeticUnary(a) => a.fmt(fmt),
         }
     }
 }

@@ -1,11 +1,12 @@
 use crate::template::{BoolValue, MatchOp, TextValue};
-use crate::template_parser::structs::operators::{CompareOp, ListInOp, LogicOp, Paren};
+use crate::template_parser::structs::operators::{ArithmeticUnaryOp, CompareOp, ListInOp, LogicOp, Paren};
 use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, MaybeValue, TextExpr};
 use crate::{Atomic, AtomicStream, Operator, Sign, VariableChain};
 use proc_macro2::fallback::unforce;
 
 use crate::template_parser::structs::operators::ConnectOp;
 use tracing::{debug, error};
+
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenericExpr {
@@ -14,6 +15,10 @@ pub enum GenericExpr {
         left: Box<GenericExpr>,
         op: ArithmeticOp,
         right: Box<GenericExpr>,
+    },
+    AnnotatedArithmeticExpr {
+        unary_op: ArithmeticUnaryOp,
+        expr: Box<GenericExpr>,
     },
     CompareExpr {
         left: Box<GenericExpr>,
@@ -64,10 +69,30 @@ impl GenericExpr {
         }
     }
 
+    fn is_unary_op(arithmetic_op: ArithmeticOp, prev: &Option<Atomic>) -> bool {
+        // 如果 + 或 - 出现在以下位置，则是一元操作符：
+        // 1. 表达式的开头
+        // 2. 在另一个操作符之后
+        // 3. 在左括号之后
+        match arithmetic_op {
+            ArithmeticOp::Add | ArithmeticOp::Sub => {}
+            _ => return false,
+        }
+
+        match prev {
+            None => true,
+            Some(atomic) => match atomic {
+                Atomic::Operator(_) => true,
+                _ => false,
+            }
+        }
+    }
+
     pub fn parse(atomics: Vec<Atomic>) -> Result<GenericExpr, String> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
         let mut operators: Vec<Operator> = Vec::new(); // 操作符栈
+        let mut prev: Option<Atomic> = None;
 
         for token in atomics {
             match token {
@@ -115,6 +140,39 @@ impl GenericExpr {
                             } else {
                                 return Err("Mismatched parentheses".to_string());
                             }
+                        },
+                        Operator::Arithmetic(arithmetic_op) => {
+                            // 检查是否是二元操作符或一元操作符
+                            let is_unary = Self::is_unary_op(arithmetic_op, &prev);
+
+                            if is_unary {
+                                // 压入一元操作符
+                                match arithmetic_op {
+                                    ArithmeticOp::Add => operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Add)),
+                                    ArithmeticOp::Sub => operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Sub)),
+                                    _ => unreachable!(),
+                                }
+                            } else {
+                                // 处理二元操作符
+                                while let Some(top) = operators.last() {
+                                    if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top {
+                                        break; // 遇到左括号或 FnCallOp，停止弹出
+                                    }
+                                    if precedence(top) >= precedence(&operator) {
+                                        // 栈顶优先级更高，弹出并构建表达式
+                                        Self::reduce(&mut operands, &mut operators)?;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                // 当前操作符入栈
+                                operators.push(operator.clone());
+                            }
+                            debug!(
+                            "GenericExpr::parse() operators len[{}]: {:?}",
+                            operators.len(),
+                            operators
+                        );
                         }
                         _ => {
                             // 处理其他操作符
@@ -173,6 +231,22 @@ impl GenericExpr {
                 operators.len()
             );
             match op {
+                Operator::ArithmeticUnary(unary_op) => match unary_op {
+                    ArithmeticUnaryOp::Add => {
+                        let operand = operands.pop().ok_or("Missing operand for UnaryPlus".to_string())?;
+                        operands.push(GenericExpr::AnnotatedArithmeticExpr {
+                            unary_op: ArithmeticUnaryOp::Add,
+                            expr: Box::new(operand),
+                        });
+                    }
+                    ArithmeticUnaryOp::Sub => {
+                        let operand = operands.pop().ok_or("Missing operand for UnaryMinus".to_string())?;
+                        operands.push(GenericExpr::AnnotatedArithmeticExpr {
+                            unary_op: ArithmeticUnaryOp::Sub,
+                            expr: Box::new(operand),
+                        });
+                    }
+                }
                 Operator::Arithmetic(arithmetic_op) => {
                     let right = operands.pop().ok_or("Missing right operand".to_string())?;
                     let left = operands.pop().ok_or("Missing left operand".to_string())?;
@@ -230,7 +304,6 @@ impl GenericExpr {
                     });
                 }
                 Operator::FnCall(variable_chain) => {
-
                     // 弹出参数列表
                     let args = operands.pop().ok_or("Missing fn call args".to_string())?;
                     if !args.is_inner_comma_expr() {
@@ -249,9 +322,7 @@ impl GenericExpr {
                         let inner = operands.pop().ok_or("Missing right operand".to_string())?;
                         operands.push(GenericExpr::NestedExpr(Box::new(inner)));
                     }
-                    Paren::Right => {
-                        return Err("Unexpected parenthesis in reduce".to_string())
-                    }
+                    Paren::Right => return Err("Unexpected parenthesis in reduce".to_string()),
                 },
             }
         }
@@ -264,6 +335,7 @@ impl GenericExpr {
 // 操作符优先级
 fn precedence(op: &Operator) -> u8 {
     match op {
+        Operator::ArithmeticUnary(_) => 8, // 一元操作符的优先级高于二元操作符
         Operator::Arithmetic(arithmetic_op) => match arithmetic_op {
             ArithmeticOp::Mul | ArithmeticOp::Div | ArithmeticOp::Mod => 7,
             ArithmeticOp::Add | ArithmeticOp::Sub => 6,

@@ -11,6 +11,7 @@ pub use comparison_op::CompareOp;
 pub use logic_op::LogicOp;
 pub use match_op::MatchOp;
 pub use arithmetic::ArithmeticOp;
+pub use arithmetic::ArithmeticUnaryOp;
 pub use list_op::ListInOp;
 pub use op::Operator;
 pub use paren::Paren;

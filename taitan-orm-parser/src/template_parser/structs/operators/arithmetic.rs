@@ -6,7 +6,25 @@ use nom::combinator::map;
 use nom::IResult;
 use nom::sequence::preceded;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub enum ArithmeticUnaryOp {
+    Add,
+    Sub,
+}
+
+impl Display for ArithmeticUnaryOp {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Add => write!(_f, "+"),
+            Self::Sub => write!(_f, "-"),
+        }
+    }
+}
+
+
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum ArithmeticOp {
     Add,
     Sub,
@@ -18,8 +36,8 @@ pub enum ArithmeticOp {
 impl ArithmeticOp {
     pub fn parse(input: &str) -> IResult<&str, ArithmeticOp> {
         alt((
-            map(preceded(multispace0, tag("+")), |s: &str| ArithmeticOp::Add),
-            map(preceded(multispace0, tag("-")), |s: &str| ArithmeticOp::Sub),
+            // map(preceded(multispace0, tag("+")), |s: &str| ArithmeticOp::Add),
+            // map(preceded(multispace0, tag("-")), |s: &str| ArithmeticOp::Sub),
             map(preceded(multispace0, tag("*")), |s: &str| ArithmeticOp::Mul),
             map(preceded(multispace0, tag("/")), |s: &str| ArithmeticOp::Div),
             map(preceded(multispace0, tag("%")), |s: &str| ArithmeticOp::Mod),
