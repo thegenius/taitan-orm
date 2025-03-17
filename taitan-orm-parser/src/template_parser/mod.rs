@@ -1,6 +1,7 @@
 mod structs;
 mod to_sql;
 mod syntax_parser;
+mod parser2;
 
 pub use structs::simple_expr::SimpleExpr;
 pub use structs::sql_part::SqlPart;
@@ -21,5 +22,6 @@ pub use structs::operators::MatchOp;
 pub use structs::operators::ArithmeticOp;
 pub use structs::placeholder::Placeholder;
 pub use structs::placeholder::RawPlaceholder;
+pub use structs::values::GenericValue;
 // pub use syntax_parser::Expr;
 // pub use syntax_parser::Parser;

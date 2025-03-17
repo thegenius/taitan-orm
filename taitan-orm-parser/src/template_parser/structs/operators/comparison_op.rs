@@ -1,6 +1,6 @@
 use std::fmt::Display;
 use nom::branch::alt;
-use nom::bytes::complete::tag;
+use nom::bytes::complete::{tag, tag_no_case};
 use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::IResult;
@@ -14,6 +14,7 @@ pub enum ComparisonOp {
     GreaterThanOrEqual,
     LessThan,
     LessThanOrEqual,
+    Like
 }
 
 impl ComparisonOp {
@@ -62,6 +63,9 @@ impl ComparisonOp {
             map(preceded(multispace0, tag(">")), |s: &str| {
                 ComparisonOp::GreaterThan
             }),
+            map(preceded(multispace0, tag_no_case("like")), |_| {
+                ComparisonOp::Like
+            }),
         ))(input)?;
 
         Ok((remaining, parsed))
@@ -77,6 +81,7 @@ impl Display for ComparisonOp {
             ComparisonOp::GreaterThanOrEqual => write!(fmt, ">="),
             ComparisonOp::Equal => write!(fmt, "="),
             ComparisonOp::NotEqual => write!(fmt, "<>"),
+            ComparisonOp::Like => write!(fmt, "LIKE"),
         }
     }
 }

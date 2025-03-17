@@ -5,24 +5,24 @@ use nom::IResult;
 use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum BoolValue {
+pub enum Bool {
     True,
     False,
 }
-impl BoolValue {
-    pub fn parse(input: &str) -> IResult<&str, BoolValue> {
+impl Bool {
+    pub fn parse(input: &str) -> IResult<&str, Bool> {
         alt((
-            map(tag_no_case("TRUE"), |_| BoolValue::True),
-            map(tag_no_case("FALSE"), |_| BoolValue::False),
+            map(tag_no_case("TRUE"), |_| Bool::True),
+            map(tag_no_case("FALSE"), |_| Bool::False),
         ))(input)
     }
 }
 
-impl Display for BoolValue {
+impl Display for Bool {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            BoolValue::True => write!(fmt, "TRUE"),
-            BoolValue::False => write!(fmt, "FALSE"),
+            Bool::True => write!(fmt, "TRUE"),
+            Bool::False => write!(fmt, "FALSE"),
         }
     }
 }
