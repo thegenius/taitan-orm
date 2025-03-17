@@ -1,52 +1,46 @@
 use taitan_orm_parser::{Atomic, AtomicStream, Number,  Variable, VariableChain, Placeholder, RawPlaceholder};
-use taitan_orm_parser::template::GenericExpr;
+
+use taitan_orm_parser::template::{CompareOp, GenericExpr, MaybeValue, LogicOp};
 use crate::setups::logger::setup_logger;
 
 #[test]
 fn test_syntax_parser() {
     setup_logger();
-    let template = "a>=b and c=d or e!=null and f<>6 or test>?";
+    let template = "a>=b";
     let atomics = AtomicStream::parse(template).unwrap();
-    assert_eq!(atomics.atomics.len(), 19);
+    let expr1 = GenericExpr::parse(atomics.atomics).unwrap();
+    let expected = GenericExpr::CompareExpr {
+        left: Box::new(GenericExpr::Atomic(Atomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("a".to_string())]))))),
+        op: CompareOp::GreaterThanOrEqual,
+        right: Box::new(GenericExpr::Atomic(Atomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("b".to_string())])))))
+    };
+    assert_eq!(expected, expr1);
 
-    let expr = GenericExpr::parse(atomics.atomics).unwrap();
-    // let expected = Expr::BinaryExpr {
-    //     left: Box::new(Expr::Simple {
-    //         left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("a".to_string())] }),
-    //         op: Operator::Compare(ComparisonOp::GreaterThanOrEqual),
-    //         right: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("b".to_string())] }),
-    //     }),
-    //     op: Operator::Logic(LogicOp::And),
-    //     right: Box::new(Expr::BinaryExpr {
-    //         left: Box::new(Expr::Simple {
-    //             left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("c".to_string())] }),
-    //             op: Operator::Compare(ComparisonOp::Equal),
-    //             right: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("d".to_string())] }),
-    //         }),
-    //         op: Operator::Logic(LogicOp::Or),
-    //         right: Box::new(Expr::BinaryExpr {
-    //             left: Box::new(Expr::Simple {
-    //                 left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("e".to_string())] }),
-    //                 op: Operator::Compare(ComparisonOp::NotEqual),
-    //                 right: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("null".to_string())] }),
-    //             }),
-    //             op: Operator::Logic(LogicOp::And),
-    //             right: Box::new(Expr::BinaryExpr {
-    //                 left: Box::new(Expr::Simple {
-    //                     left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("f".to_string())] }),
-    //                     op: Operator::Compare(ComparisonOp::NotEqual),
-    //                     right: Atomic::Number(Number("6".to_string())),
-    //                 }),
-    //                 op: Operator::Comma,
-    //                 right: Box::new(Expr::Simple {
-    //                     left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("test".to_string())] }),
-    //                     op: Operator::Compare(ComparisonOp::GreaterThan),
-    //                     right: Atomic::Placeholder(Placeholder::Raw(RawPlaceholder::QuestionMark)),
-    //                 }),
-    //             }),
-    //         }),
-    //     }),
-    // };
+    let expr2 = GenericExpr::parse_str("c=d").unwrap();
+    let expr3 = GenericExpr::parse_str("e!=null").unwrap();
+    let expr4 = GenericExpr::parse_str("f<>6").unwrap();
+    let expr5 = GenericExpr::parse_str("test>?").unwrap();
 
-    // assert_eq!(expr, expected);
+
+    let template = "a>=b and c=d or e!=null and f<>6 or test>?";
+    let expr = GenericExpr::parse_str(template).unwrap();
+    let expected = GenericExpr::LogicExpr {
+        left: Box::new(GenericExpr::LogicExpr {
+            left: Box::new(GenericExpr::LogicExpr {
+                left: Box::new(expr1),
+                op: LogicOp::And,
+                right: Box::new(expr2),
+            }),
+            op: LogicOp::Or,
+            right: Box::new(GenericExpr::LogicExpr {
+                left: Box::new(expr3),
+                op: LogicOp::And,
+                right: Box::new(expr4),
+            }),
+        }),
+        op: LogicOp::Or,
+        right: Box::new(expr5),
+    };
+
+    assert_eq!(expr, expected);
 }

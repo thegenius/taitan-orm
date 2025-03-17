@@ -1,7 +1,7 @@
 use crate::template::{BoolValue, MatchOp, TextValue};
 use crate::template_parser::structs::operators::{CompareOp, ListInOp, LogicOp, Paren};
 use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, TextExpr};
-use crate::{Atomic, Operator, Sign};
+use crate::{Atomic, AtomicStream, Operator, Sign};
 use proc_macro2::fallback::unforce;
 use tracing::{debug, error};
 
@@ -34,6 +34,11 @@ pub enum GenericExpr {
 }
 
 impl GenericExpr {
+
+    pub fn parse_str(input: &str) -> Result<GenericExpr, String> {
+        let stream = AtomicStream::parse(input)?;
+        Self::parse(stream.atomics)
+    }
     pub fn parse(atomics: Vec<Atomic>) -> Result<GenericExpr, String> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
@@ -61,6 +66,7 @@ impl GenericExpr {
                                 Self::reduce(&mut operands, &mut operators)?;
                             }
                             // 弹出左括号
+                            debug!("GenericExpr::parse() pop left paren");
                             if operators.pop() != Some(Operator::Paren(Paren::Left)) {
                                 return Err("Mismatched parentheses".to_string());
                             }
@@ -72,7 +78,7 @@ impl GenericExpr {
                                     break; // 遇到左括号，停止弹出
                                 }
                                 if precedence(top) >= precedence(&operator) {
-                                    debug!("GenericExpr::parse() reduce current: {:?}, top: {:?}", &operator, &top);
+                                    // debug!("GenericExpr::parse() reduce current: {:?}, top: {:?}", &operator, &top);
                                     // 栈顶优先级更高，弹出并构建表达式
                                     Self::reduce(&mut operands, &mut operators)?;
                                 } else {
@@ -80,8 +86,9 @@ impl GenericExpr {
                                 }
                             }
                             // 当前操作符入栈
+                            // debug!("GenericExpr::parse() push operator: {:?}", &operator);
                             operators.push(operator);
-                            debug!("GenericExpr::parse() push operator: {:?}", &operators);
+                            debug!("GenericExpr::parse() operators len[{}]: {:?}", operators.len(), operators);
                         }
                     }
                 }
@@ -89,10 +96,11 @@ impl GenericExpr {
         }
 
         // 处理剩余的操作符
-        while let Some(op) = operators.pop() {
+        while let Some(op) = operators.last() {
             if let Operator::Paren(Paren::Left) = op {
                 return Err("Mismatched parentheses".to_string());
             }
+            debug!("GenericExpr::parse remaining operator: {:?}", &operators);
             Self::reduce(&mut operands, &mut operators)?;
         }
 
@@ -110,8 +118,9 @@ impl GenericExpr {
         operands: &mut Vec<GenericExpr>,
         operators: &mut Vec<Operator>,
     ) -> Result<(), String> {
-        debug!("GenericExpr::reduce({:?}, {:?})", operands, &operators);
+        // debug!("GenericExpr::reduce({:?}, {:?})", operands, &operators);
         if let Some(op) = operators.pop() {
+            debug!("GenericExpr::reduce op: ({:?}) remaining len[{:?}]", op, operators.len());
             match op {
                 Operator::Arithmetic(arithmetic_op) => {
                     let right = operands.pop().ok_or("Missing right operand".to_string())?;

@@ -76,6 +76,7 @@ fn sign_condition(c: char) -> bool {
         && c != '@'
         && c != '#'
         && c != '$'
+        && c != '?'
         && c != '*'
         && c != '='
         && c != '+'

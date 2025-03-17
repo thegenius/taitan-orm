@@ -15,13 +15,18 @@ pub use structs::sql_template::SqlTemplate;
 pub use to_sql::ToSqlSegment;
 pub use structs::number::Number;
 pub use structs::atomic::AtomicStream;
-pub use structs::operators::Operator;
-pub use structs::operators::CompareOp;
-// pub use structs::binary_op::LogicOp;
-pub use structs::operators::MatchOp;
-pub use structs::operators::ArithmeticOp;
+
+
+
 pub use structs::placeholder::Placeholder;
 pub use structs::placeholder::RawPlaceholder;
+
+pub use structs::operators::Operator;
+pub use structs::operators::CompareOp;
+pub use structs::operators::LogicOp;
+pub use structs::operators::MatchOp;
+pub use structs::operators::ArithmeticOp;
+pub use structs::operators::ListInOp;
 
 
 pub use structs::exprs::ArithmeticExpr;
