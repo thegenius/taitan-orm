@@ -1,15 +1,15 @@
 use crate::template::{BoolValue, MatchOp, TextValue};
 use crate::template_parser::structs::operators::{CompareOp, ListInOp, LogicOp, Paren};
-use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, TextExpr};
-use crate::{Atomic, AtomicStream, Operator, Sign};
+use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, MaybeValue, TextExpr};
+use crate::{Atomic, AtomicStream, Operator, Sign, VariableChain};
 use proc_macro2::fallback::unforce;
-use tracing::{debug, error};
 
+use crate::template_parser::structs::operators::ConnectOp;
+use tracing::{debug, error};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenericExpr {
     Atomic(Atomic),
-    TextExpr(TextValue),
     ArithmeticExpr {
         left: Box<GenericExpr>,
         op: ArithmeticOp,
@@ -20,12 +20,22 @@ pub enum GenericExpr {
         op: CompareOp,
         right: Box<GenericExpr>,
     },
+    Not(Box<GenericExpr>),
     LogicExpr {
         left: Box<GenericExpr>,
         op: LogicOp,
         right: Box<GenericExpr>,
     },
+    CommaExpr {
+        left: Box<GenericExpr>,
+        op: ConnectOp,
+        right: Box<GenericExpr>,
+    },
     NestedExpr(Box<GenericExpr>),
+    FnCallExpr {
+        name: VariableChain,
+        args: Box<GenericExpr>, // must be CommaExpr
+    },
     ListInExpr {
         left: Box<GenericExpr>,
         op: ListInOp,
@@ -34,11 +44,26 @@ pub enum GenericExpr {
 }
 
 impl GenericExpr {
-
     pub fn parse_str(input: &str) -> Result<GenericExpr, String> {
         let stream = AtomicStream::parse(input)?;
         Self::parse(stream.atomics)
     }
+
+    fn is_inner_comma_expr(&self) -> bool {
+        match self {
+            GenericExpr::CommaExpr { .. } => true,
+            GenericExpr::Atomic(_) => true,
+            GenericExpr::NestedExpr(inner) => inner.is_inner_comma_expr(),
+            _ => false,
+        }
+    }
+    fn is_nested_comma_expr(&self) -> bool {
+        match self {
+            GenericExpr::NestedExpr(inner) => inner.is_inner_comma_expr(),
+            _ => false,
+        }
+    }
+
     pub fn parse(atomics: Vec<Atomic>) -> Result<GenericExpr, String> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
@@ -46,39 +71,58 @@ impl GenericExpr {
 
         for token in atomics {
             match token {
-                Atomic::Number(_) | Atomic::Text(_) | Atomic::Bool(_) | Atomic::Maybe(_) | Atomic::Sign(_) => {
+                Atomic::Number(_) | Atomic::Text(_) | Atomic::Bool(_) | Atomic::Maybe(_) => {
                     // 操作数直接压入操作数栈
                     debug!("GenericExpr::parse() push atomic: {:?}", &token);
                     operands.push(GenericExpr::Atomic(token));
                 }
+                Atomic::Sign(sign) => {
+                    operands.push(GenericExpr::Atomic(Atomic::Sign(sign)));
+                }
                 Atomic::Operator(operator) => {
                     match operator {
                         Operator::Paren(Paren::Left) => {
-                            // 左括号直接入栈
-                            operators.push(operator);
+                            // 检查是否是函数调用
+                            if let Some(GenericExpr::Atomic(Atomic::Maybe(
+                                MaybeValue::VariableChain(v),
+                            ))) = operands.last()
+                            {
+                                // 如果是 VariableChain，压入 FnCallOp
+                                operators.push(Operator::FnCall(v.clone()));
+                            } else {
+                                // 否则，压入普通左括号
+                                operators.push(Operator::Paren(Paren::Left));
+                            }
                         }
                         Operator::Paren(Paren::Right) => {
-                            // 右括号：弹出操作符并构建表达式，直到遇到左括号
+                            // 右括号：弹出操作符并构建表达式，直到遇到左括号或 FnCallOp
                             while let Some(top) = operators.last() {
-                                if let Operator::Paren(Paren::Left) = top {
-                                    break;
+                                match top {
+                                    Operator::Paren(Paren::Left) | Operator::FnCall(_) => break,
+                                    _ => Self::reduce(&mut operands, &mut operators)?,
                                 }
-                                Self::reduce(&mut operands, &mut operators)?;
                             }
-                            // 弹出左括号
-                            debug!("GenericExpr::parse() pop left paren");
-                            if operators.pop() != Some(Operator::Paren(Paren::Left)) {
+                            // 弹出左括号或 FnCallOp
+                            debug!("GenericExpr::parse() pop left paren or FnCallOp");
+                            if let Some(op) = operators.pop() {
+                                match op {
+                                    Operator::Paren(Paren::Left) | Operator::FnCall(_) => {
+                                        // 处理函数调用
+                                        Self::reduce(&mut operands, &mut operators)?
+                                    }
+                                    _ => return Err("Mismatched parentheses".to_string()),
+                                }
+                            } else {
                                 return Err("Mismatched parentheses".to_string());
                             }
                         }
                         _ => {
                             // 处理其他操作符
                             while let Some(top) = operators.last() {
-                                if let Operator::Paren(Paren::Left) = top {
-                                    break; // 遇到左括号，停止弹出
+                                if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top {
+                                    break; // 遇到左括号或 FnCallOp，停止弹出，直接入栈
                                 }
                                 if precedence(top) >= precedence(&operator) {
-                                    // debug!("GenericExpr::parse() reduce current: {:?}, top: {:?}", &operator, &top);
                                     // 栈顶优先级更高，弹出并构建表达式
                                     Self::reduce(&mut operands, &mut operators)?;
                                 } else {
@@ -86,9 +130,12 @@ impl GenericExpr {
                                 }
                             }
                             // 当前操作符入栈
-                            // debug!("GenericExpr::parse() push operator: {:?}", &operator);
                             operators.push(operator);
-                            debug!("GenericExpr::parse() operators len[{}]: {:?}", operators.len(), operators);
+                            debug!(
+                                "GenericExpr::parse() operators len[{}]: {:?}",
+                                operators.len(),
+                                operators
+                            );
                         }
                     }
                 }
@@ -97,7 +144,7 @@ impl GenericExpr {
 
         // 处理剩余的操作符
         while let Some(op) = operators.last() {
-            if let Operator::Paren(Paren::Left) = op {
+            if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = op {
                 return Err("Mismatched parentheses".to_string());
             }
             debug!("GenericExpr::parse remaining operator: {:?}", &operators);
@@ -114,13 +161,17 @@ impl GenericExpr {
 
         operands.pop().ok_or("Empty operands".to_string())
     }
+
     fn reduce(
         operands: &mut Vec<GenericExpr>,
         operators: &mut Vec<Operator>,
     ) -> Result<(), String> {
-        // debug!("GenericExpr::reduce({:?}, {:?})", operands, &operators);
         if let Some(op) = operators.pop() {
-            debug!("GenericExpr::reduce op: ({:?}) remaining len[{:?}]", op, operators.len());
+            debug!(
+                "GenericExpr::reduce op: ({:?}) remaining len[{:?}]",
+                op,
+                operators.len()
+            );
             match op {
                 Operator::Arithmetic(arithmetic_op) => {
                     let right = operands.pop().ok_or("Missing right operand".to_string())?;
@@ -140,17 +191,28 @@ impl GenericExpr {
                         right: Box::new(right),
                     });
                 }
-                Operator::Logic(logic_op) => {
-                    let right = operands.pop().ok_or("Missing right operand".to_string())?;
-                    let left = operands.pop().ok_or("Missing left operand".to_string())?;
-                    operands.push(GenericExpr::LogicExpr {
-                        left: Box::new(left),
-                        op: logic_op,
-                        right: Box::new(right),
-                    });
-                }
+                Operator::Logic(logic_op) => match logic_op {
+                    LogicOp::Not => {
+                        let operand = operands
+                            .pop()
+                            .ok_or("Missing operand for Not".to_string())?;
+                        operands.push(GenericExpr::Not(Box::new(operand)));
+                    }
+                    _ => {
+                        let right = operands.pop().ok_or("Missing right operand".to_string())?;
+                        let left = operands.pop().ok_or("Missing left operand".to_string())?;
+                        operands.push(GenericExpr::LogicExpr {
+                            left: Box::new(left),
+                            op: logic_op,
+                            right: Box::new(right),
+                        });
+                    }
+                },
                 Operator::ListInOp(list_in_op) => {
                     let right = operands.pop().ok_or("Missing right operand".to_string())?;
+                    if !right.is_inner_comma_expr() {
+                        return Err("right operand must be comma expr".to_string());
+                    }
                     let left = operands.pop().ok_or("Missing left operand".to_string())?;
                     operands.push(GenericExpr::ListInExpr {
                         left: Box::new(left),
@@ -158,7 +220,39 @@ impl GenericExpr {
                         right: Box::new(right),
                     });
                 }
-                Operator::Paren(_) => return Err("Unexpected parenthesis in reduce".to_string()),
+                Operator::Connect(connect_op) => {
+                    let right = operands.pop().ok_or("Missing right operand".to_string())?;
+                    let left = operands.pop().ok_or("Missing left operand".to_string())?;
+                    operands.push(GenericExpr::CommaExpr {
+                        left: Box::new(left),
+                        op: connect_op,
+                        right: Box::new(right),
+                    });
+                }
+                Operator::FnCall(variable_chain) => {
+
+                    // 弹出参数列表
+                    let args = operands.pop().ok_or("Missing fn call args".to_string())?;
+                    if !args.is_inner_comma_expr() {
+                        return Err("Function arguments must be a comma expression".to_string());
+                    }
+
+                    // 构建 FnCallExpr
+                    let fn_call = GenericExpr::FnCallExpr {
+                        name: variable_chain,
+                        args: Box::new(args),
+                    };
+                    operands.push(fn_call);
+                }
+                Operator::Paren(p) => match p {
+                    Paren::Left => {
+                        let inner = operands.pop().ok_or("Missing right operand".to_string())?;
+                        operands.push(GenericExpr::NestedExpr(Box::new(inner)));
+                    }
+                    Paren::Right => {
+                        return Err("Unexpected parenthesis in reduce".to_string())
+                    }
+                },
             }
         }
         Ok(())
@@ -171,16 +265,17 @@ impl GenericExpr {
 fn precedence(op: &Operator) -> u8 {
     match op {
         Operator::Arithmetic(arithmetic_op) => match arithmetic_op {
-            ArithmeticOp::Mul | ArithmeticOp::Div | ArithmeticOp::Mod => 6,
-            ArithmeticOp::Add | ArithmeticOp::Sub => 5,
+            ArithmeticOp::Mul | ArithmeticOp::Div | ArithmeticOp::Mod => 7,
+            ArithmeticOp::Add | ArithmeticOp::Sub => 6,
         },
-        Operator::Compare(_) => 4,
-        Operator::ListInOp(_) => 4,
+        Operator::Compare(_) => 5,
+        Operator::ListInOp(_) => 5,
         Operator::Logic(logic_op) => match logic_op {
-            LogicOp::Not => 3,
-            LogicOp::And => 2,
-            LogicOp::Or => 1,
+            LogicOp::Not => 4,
+            LogicOp::And => 3,
+            LogicOp::Or => 2,
         },
-        Operator::Paren(_) => 0, // 括号优先级最低
+        Operator::Connect(_) => 1,
+        Operator::Paren(_) | Operator::FnCall(_) => 0, // 括号优先级最低
     }
 }

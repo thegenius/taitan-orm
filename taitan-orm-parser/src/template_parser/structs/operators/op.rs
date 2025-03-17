@@ -1,5 +1,6 @@
 use crate::template_parser::structs::operators::arithmetic::ArithmeticOp;
 use crate::template_parser::structs::operators::comparison_op::CompareOp;
+use crate::template_parser::structs::operators::connect::ConnectOp;
 use crate::template_parser::structs::operators::list_op::ListInOp;
 use crate::template_parser::structs::operators::logic_op::LogicOp;
 use crate::template_parser::structs::operators::paren::Paren;
@@ -7,6 +8,7 @@ use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
 use std::fmt::Display;
+use crate::VariableChain;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operator {
@@ -15,6 +17,8 @@ pub enum Operator {
     Logic(LogicOp),
     ListInOp(ListInOp),
     Paren(Paren),
+    Connect(ConnectOp),
+    FnCall(VariableChain)
 }
 
 impl Operator {
@@ -25,6 +29,7 @@ impl Operator {
             map(LogicOp::parse, Operator::Logic),
             map(ListInOp::parse, Operator::ListInOp),
             map(Paren::parse, Operator::Paren),
+            map(ConnectOp::parse, Operator::Connect),
         ))(input)
     }
     pub fn extract_and(&self) -> Option<Operator> {
@@ -53,6 +58,8 @@ impl Display for Operator {
             Operator::Compare(c) => c.fmt(fmt),
             Operator::ListInOp(l) => l.fmt(fmt),
             Operator::Paren(p) => p.fmt(fmt),
+            Operator::Connect(c) => c.fmt(fmt),
+            Operator::FnCall(f) => f.fmt(fmt),
         }
     }
 }
