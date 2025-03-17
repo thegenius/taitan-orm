@@ -25,9 +25,9 @@ pub enum Atomic {
     Number(Number),
     Text(Text),
     Bool(Bool),
-    Operator(Operator), // 各类操作符
+    Operator(Operator), // 各类操作符+-*/% like in = > < <> !=
     Maybe(MaybeValue),  // 可能是Number/Text/Bool/Operator
-    Sign(Sign),
+    Sign(Sign),         // 各种特殊符号，例如括号()[]{}等
 }
 
 impl Atomic {
@@ -37,9 +37,9 @@ impl Atomic {
             map(Number::parse, Atomic::Number),
             map(Text::parse, Atomic::Text),
             map(Bool::parse, Atomic::Bool),
-            map(MaybeValue::parse, Atomic::Maybe),
             map(Sign::parse, Atomic::Sign), // 需要保证+ - * 先被解析为Sign, + - 可能是number修饰符，也可能是算术操作符，*可能是算术操作符，也可能是星号
             map(Operator::parse, Atomic::Operator),
+            map(MaybeValue::parse, Atomic::Maybe),
         ))(input)?;
         debug!("Atomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))

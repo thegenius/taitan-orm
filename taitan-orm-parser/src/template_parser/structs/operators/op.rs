@@ -1,7 +1,8 @@
 use crate::template_parser::structs::operators::arithmetic::ArithmeticOp;
-use crate::template_parser::structs::operators::comparison_op::ComparisonOp;
-use crate::template_parser::structs::operators::list_op::ListOp;
+use crate::template_parser::structs::operators::comparison_op::CompareOp;
+use crate::template_parser::structs::operators::list_op::ListInOp;
 use crate::template_parser::structs::operators::logic_op::LogicOp;
+use crate::template_parser::structs::operators::paren::Paren;
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
@@ -9,19 +10,21 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operator {
-    Compare(ComparisonOp),
+    Compare(CompareOp),
     Arithmetic(ArithmeticOp),
     Logic(LogicOp),
-    ListOp(ListOp),
+    ListInOp(ListInOp),
+    Paren(Paren),
 }
 
 impl Operator {
     pub fn parse(input: &str) -> IResult<&str, Operator> {
         alt((
-            map(ComparisonOp::parse, Operator::Compare),
+            map(CompareOp::parse, Operator::Compare),
             map(ArithmeticOp::parse, Operator::Arithmetic),
             map(LogicOp::parse, Operator::Logic),
-            map(ListOp::parse, Operator::ListOp),
+            map(ListInOp::parse, Operator::ListInOp),
+            map(Paren::parse, Operator::Paren),
         ))(input)
     }
     pub fn extract_and(&self) -> Option<Operator> {
@@ -48,7 +51,8 @@ impl Display for Operator {
             Operator::Arithmetic(a) => a.fmt(fmt),
             Operator::Logic(l) => l.fmt(fmt),
             Operator::Compare(c) => c.fmt(fmt),
-            Operator::ListOp(l) => l.fmt(fmt),
+            Operator::ListInOp(l) => l.fmt(fmt),
+            Operator::Paren(p) => p.fmt(fmt),
         }
     }
 }

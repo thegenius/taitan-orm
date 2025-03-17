@@ -18,6 +18,8 @@ pub enum Sign {
     Minus,
     Semicolon,
     Comma,
+    // LeftParen,
+    // RightParen,
     Bracket(char),
     Unknown(char),
 }
@@ -29,8 +31,8 @@ impl Sign {
             map(tag("-"), |_| Sign::Minus),
             map(tag(","), |_| Sign::Comma),
             map(tag(";"), |_| Sign::Semicolon),
-            map(tag("("), |_| Sign::Bracket('(')),
-            map(tag(")"), |_| Sign::Bracket(')')),
+            // map(tag("("), |_| Sign::LeftParen),
+            // map(tag(")"), |_| Sign::RightParen),
             map(tag("["), |_| Sign::Bracket('[')),
             map(tag("]"), |_| Sign::Bracket(']')),
             map(tag("{"), |_| Sign::Bracket('{')),
@@ -48,6 +50,8 @@ impl Display for Sign {
             Sign::Minus => write!(fmt, "-"),
             Sign::Comma => write!(fmt, ","),
             Sign::Semicolon => write!(fmt, ";"),
+            // Sign::LeftParen => write!(fmt, "("),
+            // Sign::RightParen => write!(fmt, ")"),
             Sign::Bracket(c) => write!(fmt, "{}", c),
             Sign::Unknown(c) => write!(fmt, "{}", c),
         }
@@ -73,8 +77,12 @@ fn sign_condition(c: char) -> bool {
         && c != '#'
         && c != '$'
         && c != '*'
+        && c != '='
         && c != '+'
         && c != '-'
+        && c != '>'
+        && c != '<'
+        && c != '!'
         && c != '`'
         && c != '"'
         && c != '\''

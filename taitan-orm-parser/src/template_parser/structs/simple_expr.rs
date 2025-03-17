@@ -53,7 +53,7 @@ fn parse_binary_expr(input: &str) -> IResult<&str, SimpleExpr> {
 
 #[cfg(test)]
 mod simple_expr_test {
-    use crate::template_parser::structs::operators::ComparisonOp;
+    use crate::template_parser::structs::operators::CompareOp;
     use super::*;
     use crate::template_parser::structs::variable::{Variable, VariableChain};
     #[test]

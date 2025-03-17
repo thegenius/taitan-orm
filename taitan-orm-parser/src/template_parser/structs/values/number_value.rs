@@ -20,6 +20,18 @@ impl NumberValue {
     }
 }
 
+impl From<Number> for NumberValue {
+    fn from(num: Number) -> Self {
+        Self::Value(num)
+    }
+}
+
+impl From<MaybeValue> for NumberValue {
+    fn from(maybe: MaybeValue) -> Self {
+        Self::Maybe(maybe)
+    }
+}
+
 impl ToSqlSegment for NumberValue {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {

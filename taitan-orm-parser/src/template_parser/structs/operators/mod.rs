@@ -4,10 +4,12 @@ mod comparison_op;
 mod match_op;
 mod logic_op;
 mod list_op;
+mod paren;
 
-pub use comparison_op::ComparisonOp;
+pub use comparison_op::CompareOp;
 pub use logic_op::LogicOp;
 pub use match_op::MatchOp;
 pub use arithmetic::ArithmeticOp;
-pub use list_op::ListOp;
+pub use list_op::ListInOp;
 pub use op::Operator;
+pub use paren::Paren;

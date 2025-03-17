@@ -21,6 +21,20 @@ impl BoolValue {
         ))(input)
     }
 }
+
+impl From<Bool> for BoolValue {
+    fn from(val: Bool) -> Self {
+        BoolValue::Value(val)
+    }
+}
+
+impl From<MaybeValue> for BoolValue {
+    fn from(val: MaybeValue) -> Self {
+        BoolValue::Maybe(val)
+    }
+}
+
+
 impl ToSqlSegment for BoolValue {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {

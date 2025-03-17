@@ -7,7 +7,7 @@ use nom::IResult;
 use nom::sequence::{preceded, tuple};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ComparisonOp {
+pub enum CompareOp {
     Equal,
     NotEqual,
     GreaterThan,
@@ -17,8 +17,8 @@ pub enum ComparisonOp {
     Like
 }
 
-impl ComparisonOp {
-    pub fn parse(input: &str) -> IResult<&str, ComparisonOp> {
+impl CompareOp {
+    pub fn parse(input: &str) -> IResult<&str, CompareOp> {
         let (remaining, parsed) = alt((
             // 多字符操作符优先匹配，允许中间有空格
             map(
@@ -27,7 +27,7 @@ impl ComparisonOp {
                     multispace0,
                     preceded(multispace0, tag("=")),
                 )),
-                |_| ComparisonOp::GreaterThanOrEqual,
+                |_| CompareOp::GreaterThanOrEqual,
             ),
             map(
                 tuple((
@@ -35,7 +35,7 @@ impl ComparisonOp {
                     multispace0,
                     preceded(multispace0, tag("=")),
                 )),
-                |_| ComparisonOp::LessThanOrEqual,
+                |_| CompareOp::LessThanOrEqual,
             ),
             map(
                 tuple((
@@ -43,7 +43,7 @@ impl ComparisonOp {
                     multispace0,
                     preceded(multispace0, tag(">")),
                 )),
-                |_| ComparisonOp::NotEqual,
+                |_| CompareOp::NotEqual,
             ),
             map(
                 tuple((
@@ -51,20 +51,20 @@ impl ComparisonOp {
                     multispace0,
                     preceded(multispace0, tag("=")),
                 )),
-                |_| ComparisonOp::NotEqual,
+                |_| CompareOp::NotEqual,
             ),
             // 单字符操作符
             map(preceded(multispace0, tag("=")), |s: &str| {
-                ComparisonOp::Equal
+                CompareOp::Equal
             }),
             map(preceded(multispace0, tag("<")), |s: &str| {
-                ComparisonOp::LessThan
+                CompareOp::LessThan
             }),
             map(preceded(multispace0, tag(">")), |s: &str| {
-                ComparisonOp::GreaterThan
+                CompareOp::GreaterThan
             }),
             map(preceded(multispace0, tag_no_case("like")), |_| {
-                ComparisonOp::Like
+                CompareOp::Like
             }),
         ))(input)?;
 
@@ -72,16 +72,16 @@ impl ComparisonOp {
     }
 }
 
-impl Display for ComparisonOp {
+impl Display for CompareOp {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ComparisonOp::LessThan => write!(fmt, "<"),
-            ComparisonOp::LessThanOrEqual => write!(fmt, "<="),
-            ComparisonOp::GreaterThan => write!(fmt, ">"),
-            ComparisonOp::GreaterThanOrEqual => write!(fmt, ">="),
-            ComparisonOp::Equal => write!(fmt, "="),
-            ComparisonOp::NotEqual => write!(fmt, "<>"),
-            ComparisonOp::Like => write!(fmt, "LIKE"),
+            CompareOp::LessThan => write!(fmt, "<"),
+            CompareOp::LessThanOrEqual => write!(fmt, "<="),
+            CompareOp::GreaterThan => write!(fmt, ">"),
+            CompareOp::GreaterThanOrEqual => write!(fmt, ">="),
+            CompareOp::Equal => write!(fmt, "="),
+            CompareOp::NotEqual => write!(fmt, "<>"),
+            CompareOp::Like => write!(fmt, "LIKE"),
         }
     }
 }

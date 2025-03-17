@@ -8,8 +8,7 @@ use nom::sequence::preceded;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MatchOp {
-    Like,
-    // In,
+    Like
 }
 
 impl MatchOp {
@@ -18,7 +17,6 @@ impl MatchOp {
             map(preceded(multispace0, tag_no_case("like")), |_| {
                 MatchOp::Like
             }),
-            // map(preceded(multispace0, tag_no_case("in")), |_| MatchOp::In),
         ))(input)
     }
 }
@@ -27,7 +25,6 @@ impl Display for MatchOp {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             MatchOp::Like => write!(fmt, "LIKE"),
-            // MatchOp::In => write!(fmt, "IN"),
         }
     }
 }

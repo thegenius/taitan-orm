@@ -1,15 +1,15 @@
 use taitan_orm_parser::{Atomic, AtomicStream, Number,  Variable, VariableChain, Placeholder, RawPlaceholder};
-use taitan_orm_parser::Operator;
+use taitan_orm_parser::template::GenericExpr;
 use crate::setups::logger::setup_logger;
 
 #[test]
 fn test_syntax_parser() {
     setup_logger();
-    let template = "a>=b and c=d or e!=null and f<>6, test>?";
+    let template = "a>=b and c=d or e!=null and f<>6 or test>?";
     let atomics = AtomicStream::parse(template).unwrap();
-    assert_eq!(atomics.atomics.len(), 22);
+    assert_eq!(atomics.atomics.len(), 19);
 
-    // let expr = Parser::parse(atomics.atomics).unwrap();
+    let expr = GenericExpr::parse(atomics.atomics).unwrap();
     // let expected = Expr::BinaryExpr {
     //     left: Box::new(Expr::Simple {
     //         left: Atomic::VariableChain(VariableChain { variables: vec![Variable::Simple("a".to_string())] }),
@@ -47,6 +47,6 @@ fn test_syntax_parser() {
     //         }),
     //     }),
     // };
-    //
+
     // assert_eq!(expr, expected);
 }
