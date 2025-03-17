@@ -50,6 +50,11 @@ pub use template_parser::Number;
 pub use template_parser::AtomicStream;
 // pub use template_parser::Parser;
 
+pub mod template {
+    pub use crate::template_parser::*;
+}
+
+
 // pub use field_mapper::KeywordsEscaper;
 // pub use field_mapper::MySqlKeywordEscaper;
 // pub use field_mapper::PostgresKeywordEscaper;

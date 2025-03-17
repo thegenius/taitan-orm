@@ -14,7 +14,10 @@ use std::fmt::Display;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Sign {
     Star,
+    Plus,
+    Minus,
     Semicolon,
+    Comma,
     Bracket(char),
     Unknown(char),
 }
@@ -22,6 +25,9 @@ impl Sign {
     pub fn parse(input: &str) -> IResult<&str, Sign> {
         alt((
             map(tag("*"), |_| Sign::Star),
+            map(tag("+"), |_| Sign::Plus),
+            map(tag("-"), |_| Sign::Minus),
+            map(tag(","), |_| Sign::Comma),
             map(tag(";"), |_| Sign::Semicolon),
             map(tag("("), |_| Sign::Bracket('(')),
             map(tag(")"), |_| Sign::Bracket(')')),
@@ -38,6 +44,9 @@ impl Display for Sign {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Sign::Star => write!(fmt, "*"),
+            Sign::Plus => write!(fmt, "+"),
+            Sign::Minus => write!(fmt, "-"),
+            Sign::Comma => write!(fmt, ","),
             Sign::Semicolon => write!(fmt, ";"),
             Sign::Bracket(c) => write!(fmt, "{}", c),
             Sign::Unknown(c) => write!(fmt, "{}", c),
@@ -63,13 +72,14 @@ fn sign_condition(c: char) -> bool {
         && c != '@'
         && c != '#'
         && c != '$'
+        && c != '*'
         && c != '+'
         && c != '-'
         && c != '`'
-        && c != '%'
         && c != '"'
         && c != '\''
         && c != ','
+        && c != ';'
 }
 
 fn parse_unknown(input: &str) -> IResult<&str, Sign> {
@@ -93,7 +103,7 @@ mod tests {
     }
     #[test]
     fn sign_parser_spec_002() {
-        let template = "s1%$@#\"'+-`,";
+        let template = "s1$@#\"'`";
         for c in template.chars() {
             let content = c.to_string();
             let parse_result = Sign::parse(content.as_str());

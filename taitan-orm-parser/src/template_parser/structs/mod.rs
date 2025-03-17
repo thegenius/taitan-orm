@@ -15,6 +15,6 @@ mod connect_op;
 pub(crate) mod operators;
 pub(crate) mod value;
 pub(crate) mod values;
-mod exprs;
+pub mod exprs;
 
 

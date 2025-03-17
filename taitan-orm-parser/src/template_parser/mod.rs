@@ -22,6 +22,14 @@ pub use structs::operators::MatchOp;
 pub use structs::operators::ArithmeticOp;
 pub use structs::placeholder::Placeholder;
 pub use structs::placeholder::RawPlaceholder;
+
+
+pub use structs::exprs::ArithmeticExpr;
+pub use structs::exprs::LogicExpr;
+pub use structs::exprs::TextExpr;
+
+pub use structs::values::NumberValue;
+pub use structs::values::BoolValue;
+pub use structs::values::TextValue;
 pub use structs::values::GenericValue;
-// pub use syntax_parser::Expr;
-// pub use syntax_parser::Parser;
+pub use structs::values::MaybeValue;

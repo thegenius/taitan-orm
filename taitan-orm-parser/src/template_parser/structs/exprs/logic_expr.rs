@@ -2,6 +2,7 @@
 use crate::template_parser::structs::operators::{ListOp, LogicOp};
 use crate::template_parser::structs::values::{BoolValue, TextValue};
 use crate::Operator;
+use crate::template_parser::MatchOp;
 use crate::template_parser::structs::exprs::text_expr::TextExpr;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,7 +14,7 @@ pub enum LogicExpr {
     // 'aaa' = 'bbb'
     TextMatchExpr {
         left: Box<TextExpr>,
-        op: Operator,
+        op: MatchOp,
         right: Box<TextExpr>,
     },
     ListMatchExpr {

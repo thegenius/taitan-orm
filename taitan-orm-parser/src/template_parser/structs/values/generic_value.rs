@@ -7,6 +7,7 @@ use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
 use std::fmt::Display;
+use crate::template::{BoolValue, NumberValue, TextValue};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenericValue {
@@ -25,7 +26,32 @@ impl GenericValue {
             map(MaybeValue::parse, GenericValue::Maybe),
         ))(input)
     }
+    pub fn to_number(&self) -> Option<NumberValue> {
+        match self {
+            GenericValue::Number(n) => Some(NumberValue::Value(n.clone())),
+            GenericValue::Maybe(m) => Some(NumberValue::Maybe(m.clone())),
+            _ => None,
+        }
+    }
+    pub fn to_text(&self) -> Option<TextValue> {
+        match self {
+            GenericValue::Text(t) => Some(TextValue::Value(t.clone())),
+            GenericValue::Maybe(m) => Some(TextValue::Maybe(m.clone())),
+            _ => None,
+        }
+    }
+
+    pub fn to_bool(&self) -> Option<BoolValue> {
+        match self {
+            GenericValue::Bool(b) => Some(BoolValue::Value(b.clone())),
+            GenericValue::Maybe(m) => Some(BoolValue::Maybe(m.clone())),
+            _ => None,
+        }
+    }
 }
+
+
+
 
 impl ToSqlSegment for GenericValue {
     fn gen_sql_segment(&self) -> SqlSegment {

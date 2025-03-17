@@ -7,7 +7,7 @@ fn test_syntax_parser() {
     setup_logger();
     let template = "a>=b and c=d or e!=null and f<>6, test>?";
     let atomics = AtomicStream::parse(template).unwrap();
-    assert_eq!(atomics.atomics.len(), 19);
+    assert_eq!(atomics.atomics.len(), 22);
 
     // let expr = Parser::parse(atomics.atomics).unwrap();
     // let expected = Expr::BinaryExpr {
