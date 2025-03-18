@@ -5,11 +5,14 @@ use crate::template_parser::structs::operators::{
 use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, MaybeValue, TextExpr};
 use crate::{Atomic, AtomicStream, Operator, Sign, VariableChain};
 use proc_macro2::fallback::unforce;
+use std::fmt::Debug;
 
 use crate::template_parser::error::TemplateParseError;
+use crate::template_parser::structs::atomics::{
+    AtomicTrait, GenericAtomic, GenericAtomicStream, MySqlAtomic,
+};
 use crate::template_parser::structs::operators::ConnectOp;
 use tracing::{debug, error};
-use crate::template_parser::structs::atomics::{GenericAtomic, GenericAtomicStream, MySqlAtomic};
 
 pub type ParseResult<T> = std::result::Result<T, TemplateParseError>;
 
@@ -54,7 +57,10 @@ pub enum GenericExpr {
 }
 
 impl GenericExpr {
-    pub fn parse_str<T>(input: &str) -> ParseResult<GenericExpr> where T: Into<GenericAtomic> {
+    pub fn parse_str<T>(input: &str) -> ParseResult<GenericExpr>
+    where
+        T: AtomicTrait + Clone + PartialEq + Debug + Into<GenericAtomic>,
+    {
         let stream = GenericAtomicStream::parse::<T>(input)?;
         let (remaining, parsed) = Self::parse(stream.atomics)?;
         Ok(parsed)
@@ -94,7 +100,9 @@ impl GenericExpr {
         }
     }
 
-    pub fn parse(mut atomics: Vec<GenericAtomic>) -> ParseResult<(Vec<GenericAtomic>, GenericExpr)> {
+    pub fn parse(
+        mut atomics: Vec<GenericAtomic>,
+    ) -> ParseResult<(Vec<GenericAtomic>, GenericExpr)> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
         let mut operators: Vec<Operator> = Vec::new(); // 操作符栈
@@ -106,10 +114,13 @@ impl GenericExpr {
                 GenericAtomic::Keyword(_) => {
                     return Ok((atomics, GenericExpr::Atomic(token.clone())));
                 }
-                GenericAtomic::Null=> {
+                GenericAtomic::Null => {
                     operands.push(GenericExpr::Atomic(token.clone()));
                 }
-                GenericAtomic::Number(_) | GenericAtomic::Text(_) | GenericAtomic::Bool(_) | GenericAtomic::Maybe(_) => {
+                GenericAtomic::Number(_)
+                | GenericAtomic::Text(_)
+                | GenericAtomic::Bool(_)
+                | GenericAtomic::Maybe(_) => {
                     // 操作数直接压入操作数栈
                     debug!("GenericExpr::parse() push atomic: {:?}", &token);
                     operands.push(GenericExpr::Atomic(token.clone()));

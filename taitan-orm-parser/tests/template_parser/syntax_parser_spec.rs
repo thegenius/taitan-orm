@@ -16,14 +16,14 @@ fn test_syntax_parser() {
     };
     assert_eq!(expected, expr1);
 
-    let expr2 = GenericExpr::parse_str("c=d").unwrap();
-    let expr3 = GenericExpr::parse_str("e!=null").unwrap();
-    let expr4 = GenericExpr::parse_str("f<>6").unwrap();
-    let expr5 = GenericExpr::parse_str("test>?").unwrap();
+    let expr2 = GenericExpr::parse_str::<MySqlAtomic>("c=d").unwrap();
+    let expr3 = GenericExpr::parse_str::<MySqlAtomic>("e!=null").unwrap();
+    let expr4 = GenericExpr::parse_str::<MySqlAtomic>("f<>6").unwrap();
+    let expr5 = GenericExpr::parse_str::<MySqlAtomic>("test>?").unwrap();
 
 
     let template = "a>=b and c=d or e!=null and f<>6 or test>?";
-    let expr = GenericExpr::parse_str(template).unwrap();
+    let expr = GenericExpr::parse_str::<MySqlAtomic>(template).unwrap();
     let expected = GenericExpr::LogicExpr {
         left: Box::new(GenericExpr::LogicExpr {
             left: Box::new(GenericExpr::LogicExpr {

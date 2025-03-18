@@ -10,3 +10,4 @@ pub use atomic_stream::GenericAtomicStream;
 pub use mysql_atomic::MySqlAtomic;
 pub use sqlite_atomic::SqliteAtomic;
 pub use postgres_atomic::PostgresAtomic;
+pub use atomic_trait::AtomicTrait;
