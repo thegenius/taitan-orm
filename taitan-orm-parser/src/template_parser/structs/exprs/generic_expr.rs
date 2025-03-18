@@ -95,6 +95,7 @@ impl GenericExpr {
         let mut prev: Option<Atomic> = None;
 
         for token in atomics {
+            let current = token.clone();
             match token {
                 Atomic::Number(_) | Atomic::Text(_) | Atomic::Bool(_) | Atomic::Maybe(_) => {
                     // 操作数直接压入操作数栈
@@ -102,6 +103,9 @@ impl GenericExpr {
                     operands.push(GenericExpr::Atomic(token));
                 }
                 Atomic::Sign(sign) => {
+                    if let Sign::Star = sign {
+
+                    }
                     operands.push(GenericExpr::Atomic(Atomic::Sign(sign)));
                 }
                 Atomic::Operator(operator) => {
@@ -198,6 +202,7 @@ impl GenericExpr {
                     }
                 }
             }
+            prev = Some(current);
         }
 
         // 处理剩余的操作符

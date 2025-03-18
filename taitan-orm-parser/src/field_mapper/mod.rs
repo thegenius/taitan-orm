@@ -20,3 +20,6 @@ mod field_mapper;
 
 pub use field_mapper::FieldMapper;
 pub use base::KeywordsEscaper;
+pub use base::POSTGRES_KEYWORDS;
+pub use base::MYSQL_KEYWORDS;
+pub use base::SQLITE_KEYWORDS;
