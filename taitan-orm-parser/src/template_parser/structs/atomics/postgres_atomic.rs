@@ -5,6 +5,7 @@ use crate::template_parser::structs::text::Text;
 use crate::template_parser::to_sql::SqlSegment;
 use crate::{Atomic, Number, Operator, Sign, ToSqlSegment};
 use nom::branch::alt;
+use nom::bytes::complete::tag_no_case;
 use nom::combinator::map;
 use nom::IResult;
 use tracing::debug;
@@ -12,6 +13,7 @@ use crate::template_parser::structs::atomics::atomic_trait::AtomicTrait;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PostgresAtomic {
+    Null,
     Number(Number),
     Text(Text),
     Bool(Bool),
@@ -24,6 +26,7 @@ impl AtomicTrait for PostgresAtomic {
     fn parse(input: &str) -> IResult<&str, PostgresAtomic> {
         debug!("PostgresAtomic parse({})", &input);
         let (remaining, parsed) = alt((
+            map(tag_no_case("null"), |_| PostgresAtomic::Null),
             map(Number::parse, PostgresAtomic::Number),
             map(Text::parse, PostgresAtomic::Text),
             map(Bool::parse, PostgresAtomic::Bool),
@@ -40,6 +43,7 @@ impl AtomicTrait for PostgresAtomic {
 impl ToSqlSegment for PostgresAtomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
+            PostgresAtomic::Null => SqlSegment::Simple("NULL".to_string()),
             PostgresAtomic::Sign(s) => SqlSegment::Simple(s.to_string()),
             PostgresAtomic::Maybe(m) => {
                 SqlSegment::Simple(m.gen_sql_segment().to_sql(false).to_string())

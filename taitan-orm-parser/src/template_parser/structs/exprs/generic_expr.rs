@@ -94,16 +94,21 @@ impl GenericExpr {
         }
     }
 
-    pub fn parse(mut atomics: Vec<GenericAtomic>) -> ParseResult<(Vec<Atomic>, GenericExpr)> {
+    pub fn parse(mut atomics: Vec<GenericAtomic>) -> ParseResult<(Vec<GenericAtomic>, GenericExpr)> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
         let mut operators: Vec<Operator> = Vec::new(); // 操作符栈
         let mut prev: Option<GenericAtomic> = None;
 
-        for token in atomics {
+        for token in atomics.clone() {
             let current = token.clone();
             match token {
-                GenericAtomic::Keyword(keyword)=> {}
+                GenericAtomic::Keyword(_) => {
+                    return Ok((atomics, GenericExpr::Atomic(token.clone())));
+                }
+                GenericAtomic::Null=> {
+                    operands.push(GenericExpr::Atomic(token.clone()));
+                }
                 GenericAtomic::Number(_) | GenericAtomic::Text(_) | GenericAtomic::Bool(_) | GenericAtomic::Maybe(_) => {
                     // 操作数直接压入操作数栈
                     debug!("GenericExpr::parse() push atomic: {:?}", &token);

@@ -1,10 +1,11 @@
-use crate::template::MaybeValue;
+use crate::template::{MaybeValue, PostgresAtomic};
 use crate::template_parser::structs::bool_value::Bool;
 use crate::template_parser::structs::keyword::SqliteKeyword;
 use crate::template_parser::structs::text::Text;
 use crate::template_parser::to_sql::SqlSegment;
 use crate::{Atomic, Number, Operator, Sign, ToSqlSegment};
 use nom::branch::alt;
+use nom::bytes::complete::tag_no_case;
 use nom::combinator::map;
 use nom::IResult;
 use tracing::debug;
@@ -12,6 +13,7 @@ use crate::template_parser::structs::atomics::atomic_trait::AtomicTrait;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SqliteAtomic {
+    Null,
     Number(Number),
     Text(Text),
     Bool(Bool),
@@ -24,6 +26,7 @@ impl AtomicTrait for  SqliteAtomic {
     fn parse(input: &str) -> IResult<&str, SqliteAtomic> {
         debug!("SqliteAtomic parse({})", &input);
         let (remaining, parsed) = alt((
+            map(tag_no_case("null"), |_| SqliteAtomic::Null),
             map(Number::parse, SqliteAtomic::Number),
             map(Text::parse, SqliteAtomic::Text),
             map(Bool::parse, SqliteAtomic::Bool),
@@ -40,6 +43,7 @@ impl AtomicTrait for  SqliteAtomic {
 impl ToSqlSegment for SqliteAtomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
+            SqliteAtomic::Null=>SqlSegment::Simple("NULL".to_string()),
             SqliteAtomic::Sign(s) => SqlSegment::Simple(s.to_string()),
             SqliteAtomic::Maybe(m) => {
                 SqlSegment::Simple(m.gen_sql_segment().to_sql(false).to_string())

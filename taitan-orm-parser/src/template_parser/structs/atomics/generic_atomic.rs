@@ -9,6 +9,7 @@ use crate::template_parser::structs::atomics::sqlite_atomic::SqliteAtomic;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenericAtomic {
+    Null,
     Number(Number),
     Text(Text),
     Bool(Bool),
@@ -21,6 +22,7 @@ pub enum GenericAtomic {
 impl From<PostgresAtomic> for GenericAtomic {
     fn from(pg_atomic: PostgresAtomic) -> Self {
         match pg_atomic {
+            PostgresAtomic::Null => GenericAtomic::Null,
             PostgresAtomic::Number(n) => Self::Number(n),
             PostgresAtomic::Text(t) => Self::Text(t),
             PostgresAtomic::Bool(b) => Self::Bool(b),
@@ -35,6 +37,7 @@ impl From<PostgresAtomic> for GenericAtomic {
 impl From<MySqlAtomic> for GenericAtomic  {
     fn from(pg_atomic: MySqlAtomic) -> Self {
         match pg_atomic.into() {
+            MySqlAtomic::Null => GenericAtomic::Null,
             MySqlAtomic::Number(n) => Self::Number(n),
             MySqlAtomic::Text(t) => Self::Text(t),
             MySqlAtomic::Bool(b) => Self::Bool(b),
@@ -49,6 +52,7 @@ impl From<MySqlAtomic> for GenericAtomic  {
 impl From<SqliteAtomic> for GenericAtomic {
     fn from(pg_atomic: SqliteAtomic) -> Self {
         match pg_atomic.into() {
+            SqliteAtomic::Null => GenericAtomic::Null,
             SqliteAtomic::Number(n) => Self::Number(n),
             SqliteAtomic::Text(t) => Self::Text(t),
             SqliteAtomic::Bool(b) => Self::Bool(b),
@@ -62,6 +66,7 @@ impl From<SqliteAtomic> for GenericAtomic {
 impl ToSqlSegment for GenericAtomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
+            GenericAtomic::Null=>SqlSegment::Simple("NULL".to_string()),
             GenericAtomic::Sign(s) => SqlSegment::Simple(s.to_string()),
             GenericAtomic::Maybe(m) => SqlSegment::Simple(m.gen_sql_segment().to_sql(false).to_string()),
             GenericAtomic::Operator(b) => SqlSegment::Simple(b.to_string()),

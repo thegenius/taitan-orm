@@ -5,6 +5,7 @@ use crate::template_parser::structs::text::Text;
 use crate::template_parser::to_sql::SqlSegment;
 use crate::{Atomic, Number, Operator, Sign, ToSqlSegment};
 use nom::branch::alt;
+use nom::bytes::complete::tag_no_case;
 use nom::combinator::map;
 use nom::IResult;
 use tracing::debug;
@@ -12,6 +13,7 @@ use crate::template_parser::structs::atomics::atomic_trait::AtomicTrait;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum MySqlAtomic {
+    Null,
     Number(Number),
     Text(Text),
     Bool(Bool),
@@ -24,6 +26,7 @@ impl AtomicTrait for MySqlAtomic {
     fn parse(input: &str) -> IResult<&str, MySqlAtomic> {
         debug!("MySqlAtomic parse({})", &input);
         let (remaining, parsed) = alt((
+            map(tag_no_case("null"), |_| MySqlAtomic::Null),
             map(Number::parse, MySqlAtomic::Number),
             map(Text::parse, MySqlAtomic::Text),
             map(Bool::parse, MySqlAtomic::Bool),
@@ -40,6 +43,7 @@ impl AtomicTrait for MySqlAtomic {
 impl ToSqlSegment for MySqlAtomic {
     fn gen_sql_segment(&self) -> SqlSegment {
         match self {
+            MySqlAtomic::Null=>SqlSegment::Simple("NULL".to_string()),
             MySqlAtomic::Sign(s) => SqlSegment::Simple(s.to_string()),
             MySqlAtomic::Maybe(m) => {
                 SqlSegment::Simple(m.gen_sql_segment().to_sql(false).to_string())
