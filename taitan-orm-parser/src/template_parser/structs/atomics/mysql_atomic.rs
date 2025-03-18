@@ -22,7 +22,7 @@ pub enum MySqlAtomic {
 }
 impl AtomicTrait for MySqlAtomic {
     fn parse(input: &str) -> IResult<&str, MySqlAtomic> {
-        debug!("PostgresAtomic parse({})", &input);
+        debug!("MySqlAtomic parse({})", &input);
         let (remaining, parsed) = alt((
             map(Number::parse, MySqlAtomic::Number),
             map(Text::parse, MySqlAtomic::Text),
@@ -32,7 +32,7 @@ impl AtomicTrait for MySqlAtomic {
             map(MySqlKeyword::parse, MySqlAtomic::Keyword),
             map(MaybeValue::parse, MySqlAtomic::Maybe),
         ))(input)?;
-        debug!("PostgresAtomic parse -> {:?}", &parsed);
+        debug!("MySqlAtomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))
     }
 }

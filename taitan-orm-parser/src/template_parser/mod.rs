@@ -2,6 +2,7 @@ mod structs;
 mod to_sql;
 mod syntax_parser;
 mod parser2;
+mod error;
 
 pub use structs::simple_expr::SimpleExpr;
 pub use structs::sql_part::SqlPart;
@@ -14,7 +15,13 @@ pub use structs::sign::Sign;
 pub use structs::sql_template::SqlTemplate;
 pub use to_sql::ToSqlSegment;
 pub use structs::number::Number;
+
 pub use structs::atomic::AtomicStream;
+pub use structs::atomics::GenericAtomicStream;
+pub use structs::atomics::GenericAtomic;
+pub use structs::atomics::MySqlAtomic;
+pub use structs::atomics::PostgresAtomic;
+pub use structs::atomics::SqliteAtomic;
 
 
 

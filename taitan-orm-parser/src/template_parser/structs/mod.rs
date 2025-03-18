@@ -17,6 +17,6 @@ pub(crate) mod value;
 pub(crate) mod values;
 pub mod exprs;
 mod keyword;
-mod atomics;
+pub mod atomics;
 
 

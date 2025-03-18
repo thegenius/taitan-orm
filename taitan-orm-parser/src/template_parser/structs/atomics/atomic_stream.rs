@@ -1,9 +1,29 @@
-use std::fmt::Debug;
+use crate::template_parser::structs::atomics::generic_atomic::GenericAtomic;
 use crate::template_parser::structs::atomics::atomic_trait::AtomicTrait;
 use crate::Atomic;
 use nom::character::complete::multispace0;
 use nom::sequence::preceded;
+use std::fmt::Debug;
 use tracing::debug;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct GenericAtomicStream {
+    pub atomics: Vec<GenericAtomic>,
+}
+
+impl GenericAtomicStream {
+    pub fn parse<T>(input: &str) -> Result<Self, String>
+    where
+        T: AtomicTrait + Clone + PartialEq + Debug + Into<GenericAtomic>,
+    {
+        let atomics = AtomicStream::<T>::parse(input)?;
+        let generic_atomics: Vec<GenericAtomic> =
+            atomics.atomics.into_iter().map(Into::into).collect();
+        Ok(GenericAtomicStream {
+            atomics: generic_atomics,
+        })
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AtomicStream<T: AtomicTrait + Clone + PartialEq + Debug> {

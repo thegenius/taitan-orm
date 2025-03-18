@@ -1,16 +1,21 @@
 use crate::template::{BoolValue, MatchOp, TextValue};
-use crate::template_parser::structs::operators::{ArithmeticUnaryOp, CompareOp, ListInOp, LogicOp, Paren};
+use crate::template_parser::structs::operators::{
+    ArithmeticUnaryOp, CompareOp, ListInOp, LogicOp, Paren,
+};
 use crate::template_parser::{ArithmeticExpr, ArithmeticOp, LogicExpr, MaybeValue, TextExpr};
 use crate::{Atomic, AtomicStream, Operator, Sign, VariableChain};
 use proc_macro2::fallback::unforce;
 
+use crate::template_parser::error::TemplateParseError;
 use crate::template_parser::structs::operators::ConnectOp;
 use tracing::{debug, error};
+use crate::template_parser::structs::atomics::{GenericAtomic, GenericAtomicStream, MySqlAtomic};
 
+pub type ParseResult<T> = std::result::Result<T, TemplateParseError>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenericExpr {
-    Atomic(Atomic),
+    Atomic(GenericAtomic),
     ArithmeticExpr {
         left: Box<GenericExpr>,
         op: ArithmeticOp,
@@ -49,9 +54,10 @@ pub enum GenericExpr {
 }
 
 impl GenericExpr {
-    pub fn parse_str(input: &str) -> Result<GenericExpr, String> {
-        let stream = AtomicStream::parse(input)?;
-        Self::parse(stream.atomics)
+    pub fn parse_str(input: &str) -> ParseResult<GenericExpr> {
+        let stream = GenericAtomicStream::parse::<MySqlAtomic>(input)?;
+        let (remaining, parsed) = Self::parse(stream.atomics)?;
+        Ok(parsed)
     }
 
     fn is_inner_comma_expr(&self) -> bool {
@@ -69,7 +75,7 @@ impl GenericExpr {
         }
     }
 
-    fn is_unary_op(arithmetic_op: ArithmeticOp, prev: &Option<Atomic>) -> bool {
+    fn is_unary_op(arithmetic_op: ArithmeticOp, prev: &Option<GenericAtomic>) -> bool {
         // 如果 + 或 - 出现在以下位置，则是一元操作符：
         // 1. 表达式的开头
         // 2. 在另一个操作符之后
@@ -82,37 +88,36 @@ impl GenericExpr {
         match prev {
             None => true,
             Some(atomic) => match atomic {
-                Atomic::Operator(_) => true,
+                GenericAtomic::Operator(_) => true,
                 _ => false,
-            }
+            },
         }
     }
 
-    pub fn parse(atomics: Vec<Atomic>) -> Result<GenericExpr, String> {
+    pub fn parse(mut atomics: Vec<GenericAtomic>) -> ParseResult<(Vec<Atomic>, GenericExpr)> {
         debug!("GenericExpr::parse({:?})", atomics);
         let mut operands: Vec<GenericExpr> = Vec::new(); // 操作数栈
         let mut operators: Vec<Operator> = Vec::new(); // 操作符栈
-        let mut prev: Option<Atomic> = None;
+        let mut prev: Option<GenericAtomic> = None;
 
         for token in atomics {
             let current = token.clone();
             match token {
-                Atomic::Number(_) | Atomic::Text(_) | Atomic::Bool(_) | Atomic::Maybe(_) => {
+                GenericAtomic::Keyword(keyword)=> {}
+                GenericAtomic::Number(_) | GenericAtomic::Text(_) | GenericAtomic::Bool(_) | GenericAtomic::Maybe(_) => {
                     // 操作数直接压入操作数栈
                     debug!("GenericExpr::parse() push atomic: {:?}", &token);
-                    operands.push(GenericExpr::Atomic(token));
+                    operands.push(GenericExpr::Atomic(token.clone()));
                 }
-                Atomic::Sign(sign) => {
-                    if let Sign::Star = sign {
-
-                    }
-                    operands.push(GenericExpr::Atomic(Atomic::Sign(sign)));
+                GenericAtomic::Sign(sign) => {
+                    if let Sign::Star = sign {}
+                    operands.push(GenericExpr::Atomic(GenericAtomic::Sign(sign.clone())));
                 }
-                Atomic::Operator(operator) => {
+                GenericAtomic::Operator(operator) => {
                     match operator {
                         Operator::Paren(Paren::Left) => {
                             // 检查是否是函数调用
-                            if let Some(GenericExpr::Atomic(Atomic::Maybe(
+                            if let Some(GenericExpr::Atomic(GenericAtomic::Maybe(
                                 MaybeValue::VariableChain(v),
                             ))) = operands.last()
                             {
@@ -139,27 +144,30 @@ impl GenericExpr {
                                         // 处理函数调用
                                         Self::reduce(&mut operands, &mut operators)?
                                     }
-                                    _ => return Err("Mismatched parentheses".to_string()),
+                                    _ => return Err("Mismatched parentheses".into()),
                                 }
                             } else {
-                                return Err("Mismatched parentheses".to_string());
+                                return Err("Mismatched parentheses".into());
                             }
-                        },
+                        }
                         Operator::Arithmetic(arithmetic_op) => {
                             // 检查是否是二元操作符或一元操作符
-                            let is_unary = Self::is_unary_op(arithmetic_op, &prev);
+                            let is_unary = Self::is_unary_op(arithmetic_op.clone(), &prev);
 
                             if is_unary {
                                 // 压入一元操作符
                                 match arithmetic_op {
-                                    ArithmeticOp::Add => operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Add)),
-                                    ArithmeticOp::Sub => operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Sub)),
+                                    ArithmeticOp::Add => operators
+                                        .push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Add)),
+                                    ArithmeticOp::Sub => operators
+                                        .push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Sub)),
                                     _ => unreachable!(),
                                 }
                             } else {
                                 // 处理二元操作符
                                 while let Some(top) = operators.last() {
-                                    if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top {
+                                    if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top
+                                    {
                                         break; // 遇到左括号或 FnCallOp，停止弹出
                                     }
                                     if precedence(top) >= precedence(&operator) {
@@ -173,10 +181,10 @@ impl GenericExpr {
                                 operators.push(operator.clone());
                             }
                             debug!(
-                            "GenericExpr::parse() operators len[{}]: {:?}",
-                            operators.len(),
-                            operators
-                        );
+                                "GenericExpr::parse() operators len[{}]: {:?}",
+                                operators.len(),
+                                operators
+                            );
                         }
                         _ => {
                             // 处理其他操作符
@@ -192,7 +200,7 @@ impl GenericExpr {
                                 }
                             }
                             // 当前操作符入栈
-                            operators.push(operator);
+                            operators.push(operator.clone());
                             debug!(
                                 "GenericExpr::parse() operators len[{}]: {:?}",
                                 operators.len(),
@@ -208,7 +216,7 @@ impl GenericExpr {
         // 处理剩余的操作符
         while let Some(op) = operators.last() {
             if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = op {
-                return Err("Mismatched parentheses".to_string());
+                return Err("Mismatched parentheses".into());
             }
             debug!("GenericExpr::parse remaining operator: {:?}", &operators);
             Self::reduce(&mut operands, &mut operators)?;
@@ -216,13 +224,14 @@ impl GenericExpr {
 
         // 最终操作数栈中应只有一个表达式
         if operands.len() != 1 {
-            error!("GenericExpr::parse() operands len: {:?}", &operands.len());
-            error!("GenericExpr::parse() operands {:?}", &operands);
-            error!("GenericExpr::parse() operators {:?}", &operators);
-            return Err("Invalid expression".to_string());
+            // error!("GenericExpr::parse() operands len: {:?}", &operands.len());
+            // error!("GenericExpr::parse() operands {:?}", &operands);
+            // error!("GenericExpr::parse() operators {:?}", &operators);
+            return Err("Invalid expression".into());
         }
 
-        operands.pop().ok_or("Empty operands".to_string())
+        let expr = operands.pop().unwrap();
+        Ok((Vec::new(), expr))
     }
 
     fn reduce(
@@ -238,20 +247,24 @@ impl GenericExpr {
             match op {
                 Operator::ArithmeticUnary(unary_op) => match unary_op {
                     ArithmeticUnaryOp::Add => {
-                        let operand = operands.pop().ok_or("Missing operand for UnaryPlus".to_string())?;
+                        let operand = operands
+                            .pop()
+                            .ok_or("Missing operand for UnaryPlus".to_string())?;
                         operands.push(GenericExpr::AnnotatedArithmeticExpr {
                             unary_op: ArithmeticUnaryOp::Add,
                             expr: Box::new(operand),
                         });
                     }
                     ArithmeticUnaryOp::Sub => {
-                        let operand = operands.pop().ok_or("Missing operand for UnaryMinus".to_string())?;
+                        let operand = operands
+                            .pop()
+                            .ok_or("Missing operand for UnaryMinus".to_string())?;
                         operands.push(GenericExpr::AnnotatedArithmeticExpr {
                             unary_op: ArithmeticUnaryOp::Sub,
                             expr: Box::new(operand),
                         });
                     }
-                }
+                },
                 Operator::Arithmetic(arithmetic_op) => {
                     let right = operands.pop().ok_or("Missing right operand".to_string())?;
                     let left = operands.pop().ok_or("Missing left operand".to_string())?;

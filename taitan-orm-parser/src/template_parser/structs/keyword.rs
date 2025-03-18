@@ -6,8 +6,6 @@ use nom::IResult;
 use std::fmt::Display;
 use std::str::FromStr;
 
-
-
 fn parse_keywords<'a, T>(input: &'a str, keywords: &'static [&'static str]) -> IResult<&'a str, T>
 where
     T: From<&'static str>,
@@ -31,7 +29,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PostgresKeyword(&'static str);
+pub struct PostgresKeyword(pub(crate) &'static str);
 
 impl From<&'static str> for PostgresKeyword {
     fn from(s: &'static str) -> Self {
@@ -52,7 +50,7 @@ impl Display for PostgresKeyword {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SqliteKeyword(&'static str);
+pub struct SqliteKeyword(pub(crate) &'static str);
 
 impl From<&'static str> for SqliteKeyword {
     fn from(s: &'static str) -> Self {
@@ -73,7 +71,7 @@ impl Display for SqliteKeyword {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct MySqlKeyword(&'static str);
+pub struct MySqlKeyword(pub(crate) &'static str);
 
 impl From<&'static str> for MySqlKeyword {
     fn from(s: &'static str) -> Self {

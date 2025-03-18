@@ -1,18 +1,18 @@
-use taitan_orm_parser::{Atomic, AtomicStream, Number,  Variable, VariableChain, Placeholder, RawPlaceholder};
+use taitan_orm_parser::{Atomic, AtomicStream, Number, Variable, VariableChain, Placeholder, RawPlaceholder};
 
-use taitan_orm_parser::template::{CompareOp, GenericExpr, MaybeValue, LogicOp};
+use taitan_orm_parser::template::{CompareOp, GenericExpr, MaybeValue, LogicOp, GenericAtomicStream, GenericAtomic, MySqlAtomic};
 use crate::setups::logger::setup_logger;
 
 #[test]
 fn test_syntax_parser() {
     setup_logger();
     let template = "a>=b";
-    let atomics = AtomicStream::parse(template).unwrap();
-    let expr1 = GenericExpr::parse(atomics.atomics).unwrap();
+    let atomics = GenericAtomicStream::parse::<MySqlAtomic>(template).unwrap();
+    let (_,expr1) = GenericExpr::parse(atomics.atomics).unwrap();
     let expected = GenericExpr::CompareExpr {
-        left: Box::new(GenericExpr::Atomic(Atomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("a".to_string())]))))),
+        left: Box::new(GenericExpr::Atomic(GenericAtomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("a".to_string())]))))),
         op: CompareOp::GreaterThanOrEqual,
-        right: Box::new(GenericExpr::Atomic(Atomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("b".to_string())])))))
+        right: Box::new(GenericExpr::Atomic(GenericAtomic::Maybe(MaybeValue::VariableChain(VariableChain::new(vec![Variable::Simple("b".to_string())])))))
     };
     assert_eq!(expected, expr1);
 

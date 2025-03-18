@@ -22,7 +22,7 @@ pub enum SqliteAtomic {
 }
 impl AtomicTrait for  SqliteAtomic {
     fn parse(input: &str) -> IResult<&str, SqliteAtomic> {
-        debug!("PostgresAtomic parse({})", &input);
+        debug!("SqliteAtomic parse({})", &input);
         let (remaining, parsed) = alt((
             map(Number::parse, SqliteAtomic::Number),
             map(Text::parse, SqliteAtomic::Text),
@@ -32,7 +32,7 @@ impl AtomicTrait for  SqliteAtomic {
             map(SqliteKeyword::parse, SqliteAtomic::Keyword),
             map(MaybeValue::parse, SqliteAtomic::Maybe),
         ))(input)?;
-        debug!("PostgresAtomic parse -> {:?}", &parsed);
+        debug!("SqliteAtomic parse -> {:?}", &parsed);
         Ok((remaining, parsed))
     }
 }
