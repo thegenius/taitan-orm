@@ -54,8 +54,8 @@ pub enum GenericExpr {
 }
 
 impl GenericExpr {
-    pub fn parse_str(input: &str) -> ParseResult<GenericExpr> {
-        let stream = GenericAtomicStream::parse::<MySqlAtomic>(input)?;
+    pub fn parse_str<T>(input: &str) -> ParseResult<GenericExpr> where T: Into<GenericAtomic> {
+        let stream = GenericAtomicStream::parse::<T>(input)?;
         let (remaining, parsed) = Self::parse(stream.atomics)?;
         Ok(parsed)
     }
