@@ -100,6 +100,166 @@ impl GenericExpr {
         }
     }
 
+    fn is_unary_op_sign(sign: &Sign, prev: &Option<GenericAtomic>) -> bool {
+        // 如果 + 或 - 出现在以下位置，则是一元操作符：
+        // 1. 表达式的开头
+        // 2. 在另一个操作符之后
+        // 3. 在左括号之后
+        match sign {
+            Sign::Plus | Sign::Minus => {}
+            _ => return false,
+        }
+
+        match prev {
+            None => true,
+            Some(atomic) => match atomic {
+                GenericAtomic::Operator(_) => true,
+                _ => false,
+            },
+        }
+    }
+
+    fn reduce_recursive(
+        operator: &Operator,
+        operands: &mut Vec<GenericExpr>,
+        operators: &mut Vec<Operator>,
+    ) -> ParseResult<()> {
+        while let Some(top) = operators.last() {
+            // 遇到左括号( 或 FnCallOp，停止规约
+            if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top {
+                return Ok(());
+            }
+            // 栈顶优先级更低，停止规约
+            if precedence(top) < precedence(&operator) {
+                return Ok(());
+            }
+            // 栈顶优先级更高，弹出并构建表达式
+            Self::reduce(operands, operators)?;
+        }
+        Ok(())
+    }
+    fn consume_token(
+        token: GenericAtomic,
+        index: usize,
+        prev: &Option<GenericAtomic>,
+        operands: &mut Vec<GenericExpr>,
+        operators: &mut Vec<Operator>,
+    ) -> ParseResult<Option<GenericExpr>> {
+        match token {
+            GenericAtomic::Keyword(_) => Ok(Some(GenericExpr::Atomic(token.clone()))),
+
+            GenericAtomic::Null
+            | GenericAtomic::Number(_)
+            | GenericAtomic::Text(_)
+            | GenericAtomic::Bool(_)
+            | GenericAtomic::Maybe(_) => {
+                // 操作数直接压入操作数栈
+                debug!("GenericExpr::parse() push operands: {:?}", &token);
+                operands.push(GenericExpr::Atomic(token.clone()));
+                Ok(None)
+            }
+
+            GenericAtomic::Sign(sign) => {
+                // 如果处于开头位置，或者上一个token是select，识别为sign，而不识别为乘法符号
+                if let Sign::Star = sign {
+                    if index == 0  || &Some(GenericAtomic::Keyword("SELECT")) == prev {
+                        return Ok(Some(GenericExpr::Atomic(GenericAtomic::Sign(sign))));
+                    }
+                    operators.push(Operator::Arithmetic(ArithmeticOp::Add));
+                }
+                if let Sign::Plus = sign {
+                    if index == 0 || Self::is_unary_op_sign(&sign, &prev) {
+                        operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Add));
+                    }
+                } else if let Sign::Minus = sign {
+                    if index == 0 || Self::is_unary_op_sign(&sign, &prev) {
+                        operators.push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Sub));
+                    }
+                } else {
+                    operands.push(GenericExpr::Atomic(GenericAtomic::Sign(sign.clone())));
+                }
+                Ok(None)
+            }
+            GenericAtomic::Operator(operator) => {
+                match operator {
+                    Operator::Paren(Paren::Left) => {
+                        // 检查是否是函数调用
+                        if let Some(GenericExpr::Atomic(GenericAtomic::Maybe(
+                            MaybeValue::VariableChain(v),
+                        ))) = operands.last()
+                        {
+                            // 如果是 VariableChain，压入 FnCallOp
+                            operators.push(Operator::FnCall(v.clone()));
+                        } else {
+                            // 否则，压入普通左括号
+                            operators.push(Operator::Paren(Paren::Left));
+                        }
+                        Ok(None)
+                    }
+                    Operator::Paren(Paren::Right) => {
+                        // 右括号：弹出操作符并构建表达式，直到遇到左括号或 FnCallOp
+                        while let Some(top) = operators.last() {
+                            match top {
+                                Operator::Paren(Paren::Left) | Operator::FnCall(_) => break,
+                                _ => Self::reduce(operands, operators)?,
+                            }
+                        }
+                        // 弹出左括号或 FnCallOp
+                        debug!("GenericExpr::parse() pop left paren or FnCallOp");
+                        if let Some(op) = operators.pop() {
+                            match op {
+                                Operator::Paren(Paren::Left) | Operator::FnCall(_) => {
+                                    // 处理函数调用
+                                    Self::reduce(operands, operators)?;
+                                    Ok(None)
+                                }
+                                _ => return Err("Mismatched parentheses".into()),
+                            }
+                        } else {
+                            return Err("Mismatched parentheses".into());
+                        }
+                    }
+                    Operator::Arithmetic(arithmetic_op) => {
+                        // 检查是否是二元操作符或一元操作符
+                        let is_unary = Self::is_unary_op(arithmetic_op.clone(), &prev);
+
+                        if is_unary {
+                            // 压入一元操作符
+                            match arithmetic_op {
+                                ArithmeticOp::Add => operators
+                                    .push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Add)),
+                                ArithmeticOp::Sub => operators
+                                    .push(Operator::ArithmeticUnary(ArithmeticUnaryOp::Sub)),
+                                _ => unreachable!(),
+                            }
+                        } else {
+                            Self::reduce_recursive(&operator, operands, operators)?;
+                            // 当前操作符入栈
+                            operators.push(operator.clone());
+                        }
+                        debug!(
+                            "GenericExpr::parse() operators len[{}]: {:?}",
+                            operators.len(),
+                            operators
+                        );
+                        Ok(None)
+                    }
+                    _ => {
+                        // 处理其他操作符
+                        Self::reduce_recursive(&operator, operands, operators)?;
+                        // 当前操作符入栈
+                        operators.push(operator.clone());
+                        debug!(
+                            "GenericExpr::parse() operators len[{}]: {:?}",
+                            operators.len(),
+                            operators
+                        );
+                        Ok(None)
+                    }
+                }
+            }
+        }
+    }
     pub fn parse(
         mut atomics: Vec<GenericAtomic>,
     ) -> ParseResult<(Vec<GenericAtomic>, GenericExpr)> {
@@ -114,10 +274,8 @@ impl GenericExpr {
                 GenericAtomic::Keyword(_) => {
                     return Ok((atomics, GenericExpr::Atomic(token.clone())));
                 }
-                GenericAtomic::Null => {
-                    operands.push(GenericExpr::Atomic(token.clone()));
-                }
-                GenericAtomic::Number(_)
+                GenericAtomic::Null
+                | GenericAtomic::Number(_)
                 | GenericAtomic::Text(_)
                 | GenericAtomic::Bool(_)
                 | GenericAtomic::Maybe(_) => {
@@ -180,19 +338,7 @@ impl GenericExpr {
                                     _ => unreachable!(),
                                 }
                             } else {
-                                // 处理二元操作符
-                                while let Some(top) = operators.last() {
-                                    if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top
-                                    {
-                                        break; // 遇到左括号或 FnCallOp，停止弹出
-                                    }
-                                    if precedence(top) >= precedence(&operator) {
-                                        // 栈顶优先级更高，弹出并构建表达式
-                                        Self::reduce(&mut operands, &mut operators)?;
-                                    } else {
-                                        break;
-                                    }
-                                }
+                                Self::reduce_recursive(&operator, &mut operands, &mut operators)?;
                                 // 当前操作符入栈
                                 operators.push(operator.clone());
                             }
@@ -204,17 +350,7 @@ impl GenericExpr {
                         }
                         _ => {
                             // 处理其他操作符
-                            while let Some(top) = operators.last() {
-                                if let Operator::Paren(Paren::Left) | Operator::FnCall(_) = top {
-                                    break; // 遇到左括号或 FnCallOp，停止弹出，直接入栈
-                                }
-                                if precedence(top) >= precedence(&operator) {
-                                    // 栈顶优先级更高，弹出并构建表达式
-                                    Self::reduce(&mut operands, &mut operators)?;
-                                } else {
-                                    break;
-                                }
-                            }
+                            Self::reduce_recursive(&operator, &mut operands, &mut operators)?;
                             // 当前操作符入栈
                             operators.push(operator.clone());
                             debug!(
