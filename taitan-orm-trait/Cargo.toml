@@ -16,6 +16,7 @@ serde_json = {workspace = true}
 typetag = {workspace = true}
 thiserror = {workspace = true}
 nom = {workspace = true}
+tracing = {workspace = true}
 rinja = "0.3.5"
 bit-vec ="0.8"
 log = "0.4.22"

@@ -1,4 +1,69 @@
 # 关于Template的语法解析器
+```
+${}的支持合并到rinja template
+____________________________     ______________________
+| rinja template render    |     |   @{} placeholder  |    
+----------------------------     ----------------------
+       |                                      |
+       |    ______________________________    |
+       |->  |      #{} placeholder       |  <-|   
+            --------------_---------------
+        __________________|
+       |
+       |    ______________________________
+       |->  |           ?/$1             |     
+            ------------------------------           
+
+
+pub struct StaticRenderedSql {
+    sql: &'static str,
+}
+
+pub struct DynamicRenderedSql {
+    sql: String,
+    variables: Vec<String>
+}
+
+           
+#[derive(Template)]
+#[sql=""]
+pub struct UserTemplate {
+   a: &str,               // 视为required 字段
+   b: Option<&str>,       // None视为NULL，Some(T)视为正常值
+   b: Option<Option<&str> // None视为忽略，Some(None)视为NULL，Some(T)视为正常值
+}         
+
+impl UserTemplate {
+   pub fn get_template_sql(&self)->String {
+       // {% %} 和 {{ }} 模板参数原样保持
+       // @{} 且类型为Option<Option<T>> 替换为 {% if xxx.is_some() %} #{} {% endif %}
+   }
+   pub fn get_rendered_sql(&self) -> RenderedSql {
+       let mut rendered_sql = self.render();
+       rendered_sql = 替换所有#{} 为?/$n
+   }
+   pub fn get_rendered(&self) -> (String, Arguments) {
+       let rendered_sql = self.get_rendered_sql();
+       let mut args = Arguments::default();
+       for variable in rendered_sql.variables {
+           mat
+       }
+   }
+}
+
+  
+```
+
+解析过程
+```
+lexer:
+        __________________
+&str -> ｜ Generic Token |
+        ------------------
+
+```
+
+
 ## 字符流转化为Atomics
 (1)AtomicValue
 Bool

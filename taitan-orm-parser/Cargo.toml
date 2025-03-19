@@ -18,3 +18,5 @@ tracing = { workspace = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }
+sqlx = {workspace = true}
+taitan-orm-trait = { path = "../taitan-orm-trait" }
