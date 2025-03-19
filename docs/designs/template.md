@@ -60,7 +60,39 @@ lexer:
         __________________
 &str -> ｜ Generic Token |
         ------------------
+pub enum ValueToken {
+    Null,
+    Number(Number),
+    Text(Text),
+    Bool(Bool),
+}
+        
+pub enum ExprToken {
+    Value(ValueToken),
+    Operator(Operator),           // 各类操作符+-*/% like in = > < <> !=
+    VariableChain(Chain),
+    Placeholder(Placeholder),
+    AmbiguousSign(AmbiguousSign), // * + - 现在这个3个符号有二义性
+    Sign(Sign),                   // 各种特殊符号，例如括号()[]{}等
+}   
 
+enum GenericToken {
+   Keyword(&'static str),
+   TemplatePart(TemplatePart),
+   ExprToken(ExprToken)
+}        
+        
+根据Token的类型，可以分为几个大类
+（1）只包含#{name}，这类可以直接静态编译
+（2）包含{% %} {{}}的模板，直接动态编译
+（3）包含@{name}的动态可选参数类型，需要解析为表达式
+（4）同时包含{% %}和@{name}报错，不允许        
+```
+```
+syntax parser
+将Token List解析成
+（1）Keyword, Expr, Keyword, Expr
+（2）Keyword, TemplatePart, Keyword, TemplatePart
 ```
 
 
