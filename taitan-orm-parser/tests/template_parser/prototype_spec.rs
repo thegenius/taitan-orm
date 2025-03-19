@@ -1,6 +1,8 @@
 use rinja::Template;
 use sqlx::mysql::MySqlArguments;
 use sqlx::Arguments;
+use taitan_orm_trait::brave_new::PlaceholderParser;
+
 pub struct StaticRenderedSql {
     sql: &'static str,
 }
@@ -25,10 +27,10 @@ impl<'a> Query<'a> {
 
     pub fn get_rendered_sql(&self) -> DynamicRenderedSql {
         let rendered = self.render().unwrap();
-        let variables = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        let (sql, vars) = PlaceholderParser::parse(&rendered);
         DynamicRenderedSql {
-            sql: rendered,
-            variables,
+            sql,
+            variables: vars,
         }
     }
 
@@ -55,5 +57,6 @@ impl<'a> Query<'a> {
 pub fn test() {
     let query = Query {a: "a", b: Some(1), c: None};
     let (sql, args) = query.get_rendered();
-    assert_eq!(sql, "SELECT * FROM users WHERE a=#{a} AND b=#{b} AND c=#{c}");
+    assert_eq!(sql, "SELECT * FROM users WHERE a=? AND b=? AND c=?");
+    assert_eq!(args.len(), 2);
 }
