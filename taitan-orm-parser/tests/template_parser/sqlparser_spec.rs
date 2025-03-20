@@ -94,9 +94,15 @@ mod test {
 
 
     fn test_parser_dialect<'a>(dialect: &'a dyn Dialect) {
-        let sql = "SELECT name FROM users WHERE id=:{id}";
+        let sql = "SELECT name FROM users WHERE id=:{id} AND name=:{name} OR age=:{age}";
         let statements = parse_sql(sql, dialect).unwrap();
         assert_eq!(statements.len(), 1);
+        let expected: Vec<Statement> = vec![];
+        // assert_eq!(expected, statements);
+        let parsed_sql = statements.first().unwrap().to_string();
+        assert_eq!(parsed_sql, "SELECT name FROM users WHERE id = :{id} AND name = :{name} OR age = :{age}");
+
+
     }
 
     #[test]
