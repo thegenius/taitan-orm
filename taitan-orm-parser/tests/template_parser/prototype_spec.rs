@@ -34,20 +34,24 @@ impl<'a> Query<'a> {
         }
     }
 
+    pub fn add_to_args(&self, name: &str, args: &mut MySqlArguments) {
+        match name {
+            "a" => args.add(&self.a).unwrap(),
+            "b" => args.add(self.b).unwrap(),
+            "c" => {
+                if let Some(c) = &self.c {
+                    args.add(c).unwrap()
+                }
+            }
+            _ => {}
+        }
+    }
+
     pub fn get_rendered(&self) -> (String, MySqlArguments) {
         let DynamicRenderedSql { sql, variables } = self.get_rendered_sql();
         let mut args = MySqlArguments::default();
-        for variable in variables {
-            match variable.as_ref() {
-                "a" => args.add(&self.a).unwrap(),
-                "b" => args.add(self.b).unwrap(),
-                "c" => {
-                    if let Some(c) = &self.c {
-                        args.add(c).unwrap()
-                    }
-                }
-                _ => {}
-            }
+        for variable in &variables {
+            self.add_to_args(variable, &mut args);
         }
         (sql, args)
     }
