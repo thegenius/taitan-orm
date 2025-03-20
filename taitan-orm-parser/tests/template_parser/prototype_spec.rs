@@ -20,6 +20,29 @@ pub struct Query<'a> {
     c: Option<Option<&'a str>>,
 }
 
+pub trait TemplateTrait {
+    fn get_template_sql(&self) -> String;
+
+    fn get_rendered_sql(&self) -> DynamicRenderedSql {
+        let rendered = self.render().unwrap();
+        let (sql, vars) = PlaceholderParser::parse(&rendered);
+        DynamicRenderedSql {
+            sql,
+            variables: vars,
+        }
+    }
+    fn add_to_args<T>(&self, name: &str, args: &mut T) where T: Arguments;
+
+    fn get_rendered<T>(&self) -> (String, T) where T: Arguments {
+        let DynamicRenderedSql { sql, variables } = self.get_rendered_sql();
+        let mut args = T::default();
+        for variable in &variables {
+            self.add_to_args(variable, &mut args);
+        }
+        (sql, args)
+    }
+}
+
 impl<'a> Query<'a> {
     pub fn get_template_sql(&self) -> String {
         "SELECT * FROM users WHERE a=#{a} AND b=#{b} AND c=#{c}".to_string()
