@@ -55,7 +55,7 @@ pub trait SqlGenerator {
         let where_sql = location.gen_where_sql();
         let table_name = location.table_name();
         let order_sql = order_by.get_fields().join(",");
-        let limit_sql = pagination.gen_limit_sql();
+        let limit_sql = Pagination::gen_limit_sql();
         format!(
             "SELECT {} FROM {} WHERE {} ORDER BY {} LIMIT {}",
             selected_sql, table_name, where_sql, order_sql, limit_sql

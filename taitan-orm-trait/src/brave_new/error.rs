@@ -50,6 +50,9 @@ pub enum TaitanOrmError {
     NotImplementTrait(#[from] NotImplementError),
     // #[error(transparent)]
     // BoxDynError(#[from] Box<dyn std::error::Error + 'static + Send + Sync>),
+    #[error(transparent)]
+    TemplateRenderError(#[from] TemplateRenderError)
+
 }
 
 #[inline(always)]
@@ -156,5 +159,14 @@ impl std::error::Error for NotValidCmpError {}
 impl std::fmt::Display for NotValidCmpError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "condition: {} is not valid", self.0)
+    }
+}
+
+#[derive(Debug)]
+pub struct TemplateRenderError(pub String);
+impl std::error::Error for TemplateRenderError {}
+impl std::fmt::Display for TemplateRenderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "template render error: {}", self.0)
     }
 }

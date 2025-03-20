@@ -14,6 +14,7 @@ mod paged_info;
 mod paged_list;
 pub mod param;
 mod placeholder;
+mod count_sql_parser;
 
 pub use location::LogicOp;
 pub use entity::Entity;
@@ -29,3 +30,4 @@ pub use paged_list::PagedList;
 pub use paged_list::build_paged_list;
 pub use selected::selected;
 pub use placeholder::PlaceholderParser;
+pub use count_sql_parser::CountSqlParser;

@@ -64,15 +64,15 @@ pub trait ArgsExtractor: SqlGenericExecutor {
         location.add_to_args(&mut args)?;
         Ok(args)
     }
-    fn extract_template_arguments(
-        template: &dyn Template<Self::DB>,
-    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        let mut args = <Self::DB as Database>::Arguments::default();
-        template.gen_arguments()
-    }
-    fn extract_template_count_arguments(
-        template: &dyn Template<Self::DB>,
-    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        template.gen_count_arguments()
-    }
+    // fn extract_template_arguments(
+    //     template: &dyn Template<Self::DB>,
+    // ) -> Result<(String, <Self::DB as Database>::Arguments<'_>)> {
+    //     // let mut args = <Self::DB as Database>::Arguments::default();
+    //     template.get_sql()
+    // }
+    // fn extract_template_count_arguments(
+    //     template: &dyn Template<Self::DB>,
+    // ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+    //     template.gen_count_arguments()
+    // }
 }
