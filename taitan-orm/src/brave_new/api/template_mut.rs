@@ -8,7 +8,7 @@ use taitan_orm_trait::brave_new::error::TaitanOrmError;
 
 impl<T> TemplateMutApi for T where T: SqlExecutorMut + SqlGenerator + ArgsExtractor {}
 
-pub trait TemplateMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor {
+pub trait TemplateMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor  {
     async fn execute_by_template(
         &mut self,
         template: &dyn Template<Self::DB>,

@@ -15,6 +15,7 @@ mod paged_list;
 pub mod param;
 mod placeholder;
 mod count_sql_parser;
+mod template_render;
 
 pub use location::LogicOp;
 pub use entity::Entity;
