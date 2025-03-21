@@ -9,7 +9,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::borrow::Cow;
 use case::CaseExt;
-use crate::FieldTokenType::InnerMostType;
+use crate::FieldTokenType::{InnerMostType, InnerVariantExpr};
 
 #[derive(Clone, Debug, Default)]
 pub struct FieldMapper {
@@ -146,7 +146,7 @@ impl FieldMapper {
             let variant_name = format_ident!("{}", name);
             let stream = group
                 .iter()
-                .map(|def| def.struct_field.to_token_stream(InnerMostType))
+                .map(|def| def.struct_field.to_token_stream(InnerVariantExpr))
                 .collect::<Vec<_>>();
             streams.extend(quote! {
                  #variant_name{  #( #stream, )* },

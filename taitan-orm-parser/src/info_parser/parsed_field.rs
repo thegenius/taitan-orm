@@ -19,7 +19,8 @@ pub struct ParsedField<'a> {
 
 #[derive(Debug, Clone, Copy)]
 pub enum FieldTokenType {
-    InnerMostType,    // primary/unique/index使用
+    InnerMostType,    // primary/unique
+    InnerVariantExpr, // index使用
     NestedOptionType, // mutation/selected使用, Option<Option<T>>
     VariantExpr,      // Location使用
 }
@@ -81,6 +82,12 @@ impl<'a> ParsedField<'a> {
                 quote! {
                     #(#attrs)*
                     #vis #field_ident :std::option::Option<std::option::Option<#inner_type>>
+                }
+            }
+            FieldTokenType::InnerVariantExpr => {
+                quote! {
+                    #(#attrs)*
+                    #field_ident : taitan_orm::op::Expr<#inner_type>
                 }
             }
             FieldTokenType::VariantExpr => {

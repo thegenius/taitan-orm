@@ -61,7 +61,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
     }
 
 
-    async fn search<SE, M>(
+    async fn search<SE>(
         &self,
         selection: &SE,
         location: &dyn Location<Self::DB>,
@@ -81,7 +81,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         Ok(result)
     }
 
-    async fn search_all<SE, M>(
+    async fn search_all<SE>(
         &self,
         selection: &SE,
         location: &dyn Location<Self::DB>,
@@ -173,7 +173,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         Ok(result)
     }
 
-    async fn search_full<SE, M>(
+    async fn search_full<SE>(
         &self,
         location: &dyn Location<Self::DB>,
         order_by: &dyn OrderBy,
@@ -193,7 +193,7 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         Ok(result)
     }
 
-    async fn search_full_all<SE, M>(
+    async fn search_full_all<SE>(
         &self,
         location: &dyn Location<Self::DB>,
         order_by: &dyn OrderBy
