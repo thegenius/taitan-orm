@@ -10,7 +10,7 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
-🎆**0.1.10 will be a big version**
+🎆**0.1.10 will be a big version**  
 After two months of hard work, the codebase of this library has grown from 26K to 37K, and version 0.1.10 is finally almost ready. The code is located in the following directories: taitan-orm/brave_new, taitan-orm-macro, taitan-orm-parser, and taitan-orm-trait/brave_new. The core functionality has been developed, and the current task is to clean up the old code by moving it to an old directory and relocating the code from the brave_new directory to the main default directory. Once this final task is completed, version 0.1.10 will be released.
 ```
 1. api will have minor adjust, error will be re-designed
