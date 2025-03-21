@@ -1,9 +1,11 @@
 #![allow(dead_code)]
 #![forbid(unsafe_code)]
 use proc_macro::TokenStream;
+use std::borrow::Cow;
+use std::error::Error;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, OrderByStructGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
 
 // mod attrs;
 // mod db_type;
@@ -107,9 +109,20 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     let selected_struct_stream: TokenStream = selected_generator.generate(&table_def).into();
     stream.extend(selected_struct_stream);
 
+    let order_by_generator = OrderByStructGenerator::default();
+    let order_by_struct_stream: TokenStream = order_by_generator.generate(&table_def).into();
+    stream.extend(order_by_struct_stream);
+
     // panic!("{}", stream);
     stream.into()
 }
+
+
+
+fn generate_order_by(stream: &mut TokenStream, table_def: &TableDef) {
+
+}
+
 
 fn generate_param_impl(stream: &mut TokenStream, table_def: &TableDef) {
     let generator = ParameterTraitImplGenerator::default();

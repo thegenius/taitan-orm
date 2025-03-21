@@ -82,6 +82,7 @@ pub use impl_generator::SelectedDefaultImplGenerator;
 pub use impl_generator::TemplateArgTraitImplGenerator;
 pub use impl_generator::TemplateTraitImplGenerator;
 
+pub use struct_generator::OrderByStructGenerator;
 pub use struct_generator::IndexStructGenerator;
 pub use struct_generator::MutationStructGenerator;
 pub use struct_generator::LocationEnumGenerator;

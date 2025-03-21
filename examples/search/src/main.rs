@@ -3,12 +3,12 @@ use taitan_orm::prelude::*;
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 
 #[derive(Schema, Clone, Debug)]
-#[table_name = "user"]
+#[table(user)]
 pub struct User {
     #[primary_key]
     id: i32,
     name: String,
-    age: Optional<i32>,
+    age: Option<i32>,
 }
 
 

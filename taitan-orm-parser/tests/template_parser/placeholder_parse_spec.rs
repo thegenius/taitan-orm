@@ -1,4 +1,4 @@
-use taitan_orm_trait::brave_new::PlaceholderParser;
+use taitan_orm_trait::parsers::PlaceholderParser;
 #[test]
 fn test_dynamic_placeholder() {
     let template = "SELECT * FROM users WHERE a=:{a} AND b=:{b} AND c=:{c}";

@@ -52,7 +52,7 @@ mod test {
     fn test_parse_001() {
         let input = parse_quote! {
             enum LocationSpec001 {
-                A{name: LocationExpr<String>},
+                A{name: Expr<String>},
             }
         };
 
@@ -75,7 +75,7 @@ mod test {
             fields: vec![FieldDef {
                 struct_field: ParsedField {
                     name: FieldName::named("name"),
-                    rust_type: Cow::Borrowed("LocationExpr < String >"),
+                    rust_type: Cow::Borrowed("Expr < String >"),
                     option_nest_level: 0,
                     is_location_expr: true,
                     is_enum_variant: true,
@@ -104,7 +104,7 @@ mod test {
     fn test_parse_002() {
         let input = parse_quote! {
             enum LocationSpec002 {
-                A(LocationExpr<String>, LocationExpr<String>),
+                A(Expr<String>, Expr<String>),
             }
         };
         let cond_def = ConditionParser::parse(&input);
@@ -140,7 +140,7 @@ mod test {
                 FieldDef {
                     struct_field: ParsedField {
                         name: FieldName::unnamed(0),
-                        rust_type: Cow::Borrowed("LocationExpr < String >"),
+                        rust_type: Cow::Borrowed("Expr < String >"),
                         option_nest_level: 0,
                         is_location_expr: true,
                         is_enum_variant: true,
@@ -159,7 +159,7 @@ mod test {
                 FieldDef {
                     struct_field: ParsedField {
                         name: FieldName::unnamed(1),
-                        rust_type: Cow::Borrowed("LocationExpr < String >"),
+                        rust_type: Cow::Borrowed("Expr < String >"),
                         option_nest_level: 0,
                         is_location_expr: true,
                         is_enum_variant: true,

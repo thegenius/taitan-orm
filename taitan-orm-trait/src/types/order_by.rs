@@ -7,14 +7,14 @@ pub fn validate_order_by<'a, I, S>(
     fields: I,
     all_fields: &[&str],
     unique_fields_vec: &[&[&str]],
-) -> Result<(), Box<dyn Error + 'static>>
+) -> Result<(), NotValidOrderByError>
 where
     I: IntoIterator<Item = S> + Clone,
     S: AsRef<str>, // 确保每个元素可以转换为 &str
 {
     let field_valid = fields.clone().into_iter().all(|field| {all_fields.contains(&field.as_ref())});
     if !field_valid {
-        return Err(Box::new(NotValidOrderByError("contains invalid field".to_owned())));
+        return Err(NotValidOrderByError("contains invalid field".to_owned()));
     }
 
     let valid = unique_fields_vec.iter().any(|unique_fields| {
@@ -28,9 +28,9 @@ where
     if valid {
         Ok(())
     } else {
-        Err(Box::new(NotValidOrderByError(
+        Err(NotValidOrderByError(
             "order by fields must include unique key".to_string(),
-        )))
+        ))
     }
 }
 

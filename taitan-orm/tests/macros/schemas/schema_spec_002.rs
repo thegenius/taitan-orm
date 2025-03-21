@@ -1,8 +1,8 @@
 use taitan_orm_macro::Schema;
 use time::PrimitiveDateTime;
 
-#[derive(Debug, Clone)]
-#[derive(Schema)]
+// #[derive(Debug, Clone)]
+#[derive(Debug, Clone, Schema)]
 #[table(user)]
 #[unique(uk_name=(name))]
 #[index(idx_arg_birthday=(age, birthday))]
