@@ -150,14 +150,14 @@ async fn main() -> taitan_orm::result::Result<()> {
     let order_by = TestOrderBy::build(vec!["id"]).unwrap();
     let index_entities: Vec<UserSelected> = db.search::<UserSelected>(&selection, &index, &order_by, &pagination).await?;
     assert_eq!(index_entities.len(), 1);
-    //
+
     // 6. search
-    // let selection = UserSelected::default();
-    // let location = UserLocation::Id Expr::id(">=", 1)?;
-    // let entities: Vec<UserSelected> = db.search(&selection, &location, &None, &None).await?;
-    // assert_eq!(entities.len(), 1);
-    //
-    // 5. delete
+    let selection = UserSelected::default();
+    let location = UserLocation::Id(Expr{val: Some(12), cmp: Cmp::Eq});
+    let entities: Vec<UserSelected> = db.search(&selection, &location, &order_by, &pagination).await?;
+    assert_eq!(entities.len(), 1);
+
+    // 7. delete
     let result = db.delete(&primary).await?;
     assert_eq!(result, true);
 

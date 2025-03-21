@@ -7,9 +7,9 @@ use crate::types::cmp::Cmp;
 // if val == None, sqlx will treat it as null
 // Option<LocationExpr<T>>
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub struct Expr<T> { // todo: rename to Expr
+pub struct Expr<T> {
     pub val: Option<T>,
-    pub cmp: Cmp,    // todo: rename to Cmp
+    pub cmp: Cmp,
 }
 
 // #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
