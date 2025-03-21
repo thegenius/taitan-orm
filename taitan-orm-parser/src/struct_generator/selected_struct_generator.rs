@@ -3,6 +3,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::fmt::Debug;
 
+
 #[derive(Debug, Default)]
 pub struct SelectedStructGenerator;
 
@@ -15,7 +16,7 @@ impl SelectedStructGenerator {
         let fields = &table_def.fields;
         let fields_stream = field_mapper.gen_struct_fields(fields, true);
         quote! {
-            #[derive(Clone, Debug, taitan_orm_macro::Selected)]
+            #[derive(Clone, Debug, taitan_orm::macros::Selected, serde::Serialize, serde::Deserialize)]
             pub struct #struct_ident {
                 #fields_stream
             }

@@ -370,7 +370,7 @@
 //     use sqlx::sqlite::{SqliteArguments, SqliteTypeInfo};
 //     use sqlx::types::Uuid;
 //     use sqlx::{Arguments, Encode, MySql, Sqlite, Type};
-//     use time::macros::format_description;
+//     use time::impl_macros::format_description;
 //     use time::PrimitiveDateTime;
 //
 //     #[derive(Debug, Clone)]

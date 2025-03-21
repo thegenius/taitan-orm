@@ -28,7 +28,7 @@ impl MutationTraitImplGenerator {
         let stream = sql_generator.gen_update_set_sql(table_def, db_type);
         let db_ident = db_type.gen_ident();
         quote! {
-            impl taitan_orm_trait::traits::Mutation<sqlx::#db_ident> for #struct_ident {
+            impl taitan_orm::traits::Mutation<sqlx::#db_ident> for #struct_ident {
                 fn gen_update_set_sql<'a>(&self) -> std::borrow::Cow<'a, str> {
                     let s = #stream;
                     std::borrow::Cow::Owned(s)

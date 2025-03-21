@@ -59,7 +59,7 @@ async fn main() {
         age: Some(23),
     };
     let result = shared_state.insert(&entity).await;
-    assert_eq!(result, Ok(()));
+    assert!(result.is_ok());
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))

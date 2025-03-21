@@ -88,7 +88,7 @@ impl<'a> ParsedField<'a> {
                 quote! {
                     #enum_variant_name(
                         #(#attrs)*
-                        taitan_orm_trait::op::Expr<#inner_type>
+                        taitan_orm::op::Expr<#inner_type>
                     )
                 }
             }

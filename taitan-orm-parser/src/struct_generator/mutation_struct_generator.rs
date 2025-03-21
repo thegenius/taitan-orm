@@ -17,7 +17,7 @@ impl MutationStructGenerator {
         let fields = table_def.get_not_primary_fields();
         let fields_stream = field_mapper.gen_struct_fields(fields, true);
         quote! {
-            #[derive(Clone, Debug, taitan_orm_macro::Parameter, taitan_orm_macro::Mutation)]
+            #[derive(Clone, Debug, taitan_orm::macros::Parameter, taitan_orm::macros::Mutation, serde::Serialize, serde::Deserialize)]
             pub struct #struct_ident {
                 #fields_stream
             }

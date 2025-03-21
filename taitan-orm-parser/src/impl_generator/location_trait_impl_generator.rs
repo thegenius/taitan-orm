@@ -43,7 +43,7 @@ impl LocationTraitImplGenerator {
         let stream = sql_generator.gen_where_sql(condition_def, db_type);
         let db_ident = db_type.gen_ident();
         quote! {
-            impl taitan_orm_trait::traits::Location<sqlx::#db_ident> for #struct_ident {
+            impl taitan_orm::traits::Location<sqlx::#db_ident> for #struct_ident {
                 fn table_name(&self) -> std::borrow::Cow<'static, str> {
                     std::borrow::Cow::Borrowed(#table_name)
                 }

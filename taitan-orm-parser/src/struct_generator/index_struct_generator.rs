@@ -26,7 +26,7 @@ impl IndexStructGenerator {
             let mutation_ident = format_ident!("{}Mutation", struct_name);
             let db_ident = db_type.gen_ident();
             stream.extend(quote! {
-                impl taitan_orm_trait::traits::Unique<sqlx::#db_ident> for #struct_ident {
+                impl taitan_orm::traits::Unique<sqlx::#db_ident> for #struct_ident {
                     type Mutation = #mutation_ident;
                 }
             });
@@ -59,7 +59,7 @@ impl IndexStructGenerator {
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
-                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::Location)]
+                    #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -71,7 +71,7 @@ impl IndexStructGenerator {
                 let fields_stream = field_mapper.gen_struct_fields(fields, false);
                 let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
-                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::Location)]
+                    #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -82,7 +82,7 @@ impl IndexStructGenerator {
                 let fields = table_def.get_index_fields(name);
                 let fields_stream = field_mapper.gen_enum_variants( fields);
                 quote! {
-                    #[derive(Debug, taitan_orm_macro::Parameter, taitan_orm_macro::Location)]
+                    #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
                     pub enum #struct_ident {
                         #fields_stream
                     }

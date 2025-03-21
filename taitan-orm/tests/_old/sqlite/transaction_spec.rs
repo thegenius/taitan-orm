@@ -6,7 +6,7 @@
 // use taitan_orm::prelude::WriterMutApi;
 // use taitan_orm::prelude::ReaderApi;
 // use taitan_orm::prelude::WriterApi;
-// use time::macros::datetime;
+// use time::impl_macros::datetime;
 // use uuid::Uuid;
 //
 // use crate::entities::user::*;

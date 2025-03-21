@@ -48,14 +48,14 @@ impl SelectedTraitImplGenerator {
 
         let db_ident = db_type.gen_ident();
         quote! {
-            impl taitan_orm_trait::traits::Selected<sqlx::#db_ident> for #struct_ident {
+            impl taitan_orm::traits::Selected<sqlx::#db_ident> for #struct_ident {
                 fn gen_select_sql<'a>(&self) -> std::borrow::Cow<'a, str> {
                     let s = #select_stream;
                     std::borrow::Cow::Owned(s)
                 }
 
                 fn from_row(selection: &Self, row: <sqlx::#db_ident as sqlx::Database>::Row)
-                    -> taitan_orm_trait::result::Result<Self> {
+                    -> taitan_orm::result::Result<Self> {
                     let mut selected = Self::default();
                     let mut i = 0;
                     #row_get_stream

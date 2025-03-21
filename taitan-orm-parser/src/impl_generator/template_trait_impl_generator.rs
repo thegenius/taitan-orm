@@ -11,78 +11,78 @@ impl TemplateTraitImplGenerator {
         let db_ident = db_type.gen_ident();
         match db_type {
             DatabaseType::Postgres => quote! {
-                impl taitan_orm_trait::traits::Template<sqlx::#db_ident> for #struct_ident {
+                impl taitan_orm::traits::Template<sqlx::#db_ident> for #struct_ident {
                     fn get_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_sql(self)
                     }
 
                     fn get_paged_sql(
                         &self,
                         pagination: &taitan_orm_trait::page::Pagination,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_paged_sql(self, pagination)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_paged_sql(self, pagination)
                     }
 
                     fn get_count_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_count_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_count_sql(self)
                     }
                 }
             },
             DatabaseType::MySql => quote! {
-                impl taitan_orm_trait::traits::Template<sqlx::#db_ident> for #struct_ident {
+                impl taitan_orm::traits::Template<sqlx::#db_ident> for #struct_ident {
                     fn get_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_sql(self)
                     }
 
                     fn get_paged_sql(
                         &self,
                         pagination: &taitan_orm_trait::page::Pagination,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)
                     }
 
                     fn get_count_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_count_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_count_sql(self)
                     }
                 }
             },
             // Sqlite的ge_paged_sql的生命周期需要特殊处理
             DatabaseType::Sqlite => quote! {
-                impl taitan_orm_trait::traits::Template<sqlx::#db_ident> for #struct_ident {
+                impl taitan_orm::traits::Template<sqlx::#db_ident> for #struct_ident {
                     fn get_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_sql(self)
                     }
 
                     fn get_paged_sql<'a>(
                         &'a self,
                         pagination: &'a taitan_orm_trait::page::Pagination,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'a>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'a>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)
                     }
 
                     fn get_count_sql(
                         &self,
-                    ) -> taitan_orm_trait::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
+                    ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
-                        taitan_orm_trait::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_count_sql(self)
+                        taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_count_sql(self)
                     }
                 }
             },

@@ -21,7 +21,7 @@ mod api;
 pub mod database;
 #[doc(hidden)]
 #[macro_use]
-mod macros;
+mod impl_macros;
 
 pub (crate) mod args_extractor;
 
@@ -71,7 +71,16 @@ pub mod prelude {
     pub use crate::error::*;
 }
 
-
+pub mod macros {
+    pub use taitan_orm_macro::Parameter;
+    pub use taitan_orm_macro::TemplateArg;
+    pub use taitan_orm_macro::Template;
+    pub use taitan_orm_macro::Mutation;
+    pub use taitan_orm_macro::Location;
+    pub use taitan_orm_macro::Entity;
+    pub use taitan_orm_macro::Schema;
+    pub use taitan_orm_macro::Selected;
+}
 
 pub mod traits {
     pub use taitan_orm_trait::traits::*;

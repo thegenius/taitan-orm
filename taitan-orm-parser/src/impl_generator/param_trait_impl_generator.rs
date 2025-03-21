@@ -17,8 +17,8 @@ impl ParameterTraitImplGenerator {
         let stream = field_mapper.gen_add_to_args(&table_def.fields);
         let db_ident = db_type.gen_ident();
         quote! {
-            impl taitan_orm_trait::traits::Parameter<sqlx::#db_ident> for #struct_ident {
-                fn add_to_args<'a, 'b>(&'a self, args: &'b mut <sqlx::#db_ident as sqlx::Database>::Arguments<'a>) -> taitan_orm_trait::result::Result<()> {
+            impl taitan_orm::traits::Parameter<sqlx::#db_ident> for #struct_ident {
+                fn add_to_args<'a, 'b>(&'a self, args: &'b mut <sqlx::#db_ident as sqlx::Database>::Arguments<'a>) -> taitan_orm::result::Result<()> {
                     #stream
                     Ok(())
                 }

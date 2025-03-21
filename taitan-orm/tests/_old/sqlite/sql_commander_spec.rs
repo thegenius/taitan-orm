@@ -3,7 +3,7 @@
 // use sqlx::sqlx_macros;
 // use taitan_orm::database::sqlite::{ SqliteDatabase, SqliteLocalConfig};
 // use taitan_orm::prelude:: { WriterApi, ReaderApi};
-// use time::macros::datetime;
+// use time::impl_macros::datetime;
 // use uuid::Uuid;
 //
 // // use entities::user::*;
