@@ -17,10 +17,10 @@ use std::fmt::Debug;
 // 如果配合indexed，其实有6套
 
 pub trait Template<DB: Database>: Debug {
-    fn get_sql<'a>(&self) -> Result<(String, DB::Arguments<'a>)>;
+    fn get_sql(&self) -> Result<(String, DB::Arguments<'_>)>;
 
-    fn get_paged_sql<'a>(&self, pagination: &Pagination) -> Result<(String, DB::Arguments<'a>)>;
-    fn get_count_sql<'a>(&self) -> Result<(String, DB::Arguments<'a>)>;
+    fn get_paged_sql<'a>(&'a self, pagination: &'a Pagination) -> Result<(String, DB::Arguments<'a>)>;
+    fn get_count_sql(&self) -> Result<(String, DB::Arguments<'_>)>;
 }
 
 pub trait MysqlTemplate: Template<MySql> {}

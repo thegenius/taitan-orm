@@ -4,6 +4,8 @@ mod location_trait_impl_generator;
 mod mutation_trait_impl_generator;
 mod selected_trait_impl_generator;
 mod selected_default_impl_generator;
+mod template_arg_trait_impl_generator;
+mod template_trait_impl_generator;
 
 pub use param_trait_impl_generator::ParameterTraitImplGenerator;
 pub use entity_trait_impl_generator::EntityTraitImplGenerator;
@@ -11,3 +13,5 @@ pub use location_trait_impl_generator::LocationTraitImplGenerator;
 pub use mutation_trait_impl_generator::MutationTraitImplGenerator;
 pub use selected_trait_impl_generator::SelectedTraitImplGenerator;
 pub use selected_default_impl_generator::SelectedDefaultImplGenerator;
+pub use template_arg_trait_impl_generator::TemplateArgTraitImplGenerator;
+pub use template_trait_impl_generator::TemplateTraitImplGenerator;

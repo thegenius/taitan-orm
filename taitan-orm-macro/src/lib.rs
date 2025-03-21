@@ -4,9 +4,16 @@ use crate::schema::impl_schema_macro;
 use crate::selected::impl_selected_macro;
 use crate::template::impl_template_macro;
 use proc_macro::TokenStream;
+use quote::{format_ident, quote};
 use std::io::Write;
 use syn::{parse_macro_input, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedTraitImplGenerator, TableDef};
+use taitan_orm_parser::{
+    ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator,
+    LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator,
+    MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator,
+    SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator,
+    TemplateTraitImplGenerator,
+};
 // use crate::brave_new::extract_table_def;
 use crate::location::impl_condition_macro;
 
@@ -86,14 +93,18 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
         let index_type = IndexEnum::Unique {
             name: unique.name.to_string(),
         };
-        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type, &supported_database_types).into();
+        let index_stream: TokenStream = index_generator
+            .generate(&table_def, &index_type, &supported_database_types)
+            .into();
         stream.extend(index_stream);
     }
     for index in &table_def.indexes {
         let index_type = IndexEnum::Index {
             name: index.name.to_string(),
         };
-        let index_stream: TokenStream = index_generator.generate(&table_def, &index_type, &supported_database_types).into();
+        let index_stream: TokenStream = index_generator
+            .generate(&table_def, &index_type, &supported_database_types)
+            .into();
         stream.extend(index_stream);
     }
     let mutation_generator = MutationStructGenerator::default();
@@ -123,6 +134,53 @@ pub fn expand_param_macro(input: TokenStream) -> TokenStream {
     let table_def = TableDef::parse(&derive_input);
     let mut stream = TokenStream::new();
     generate_param_impl(&mut stream, &table_def);
+    // panic!("{}", stream);
+    stream.into()
+}
+
+fn generate_template_arg_impl(stream: &mut TokenStream, table_def: &TableDef) {
+    let generator = TemplateArgTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.gen_add_to_args(&database_type, &table_def).into();
+        stream.extend(s);
+    }
+}
+
+#[proc_macro_derive(TemplateArg, attributes(field))]
+pub fn expand_template_arg_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def = TableDef::parse(&derive_input);
+    let mut stream = TokenStream::new();
+    generate_template_arg_impl(&mut stream, &table_def);
+    // panic!("{}", stream);
+    stream.into()
+}
+
+fn generate_template_new_impl(stream: &mut TokenStream, table_def: &TableDef) {
+    let generator = TemplateTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.generate(&database_type, &table_def).into();
+        stream.extend(s);
+    }
+
+    // add impl TemplateSqlTrait
+    let struct_name = &table_def.struct_name;
+    let struct_ident = format_ident!("{}", &struct_name);
+    let s: TokenStream = quote! {
+        impl taitan_orm_trait::brave_new::TemplateSqlTrait for #struct_ident {}
+    }.into();
+    stream.extend(s);
+}
+
+#[proc_macro_derive(Template, attributes(sql))]
+pub fn expand_template_new_macro(input: TokenStream) -> TokenStream {
+    let derive_input = parse_macro_input!(input as DeriveInput);
+    let table_def = TableDef::parse(&derive_input);
+    let mut stream = TokenStream::new();
+    generate_template_new_impl(&mut stream, &table_def);
+    generate_template_arg_impl(&mut stream, &table_def);
     // panic!("{}", stream);
     stream.into()
 }

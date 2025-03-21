@@ -13,24 +13,24 @@ impl ArgsMapper {
             if field.struct_field.is_location_expr {
                 quote! {
                     if let Some(f) =  &self.#field_ident {
-                        sqlx::Arguments::add(args, &f.val)?;
+                        sqlx::Arguments::add(args, &f.val)?
                     }
                 }
             } else {
                 quote! {
                     if let Some(f) =  &self.#field_ident {
-                        sqlx::Arguments::add(args, f)?;
+                        sqlx::Arguments::add(args, f)?
                     }
                 }
             }
         } else {
             if field.struct_field.is_location_expr {
                 quote! {
-                    sqlx::Arguments::add(args, &self.#field_ident.val)?;
+                    sqlx::Arguments::add(args, &self.#field_ident.val)?
                 }
             } else {
                 quote! {
-                    sqlx::Arguments::add(args, &self.#field_ident)?;
+                    sqlx::Arguments::add(args, &self.#field_ident)?
                 }
             }
         }

@@ -58,7 +58,31 @@ impl FieldMapper {
             .map(|def| self.args_mapper.map_add_to_args(def))
             .collect::<Vec<_>>();
         quote! {
-            #( #streams )*
+            #( #streams; )*
+        }
+    }
+
+    pub fn gen_template_add_to_args<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def|
+                {
+                    let field_name = def.struct_field.name.get_name();
+                    let s = self.args_mapper.map_add_to_args(def);
+                    quote! {
+                        #field_name => #s,
+                    }
+                }
+            )
+            .collect::<Vec<_>>();
+        quote! {
+            match name {
+                #( #streams )*
+                _=> unreachable!(),
+            }
         }
     }
 
