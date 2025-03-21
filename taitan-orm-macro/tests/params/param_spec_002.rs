@@ -1,7 +1,7 @@
 use sqlx::Arguments;
 use taitan_orm_macro::Parameter;
-use taitan_orm_trait::brave_new::param::Parameter;
-use taitan_orm_trait::Optional;
+use taitan_orm_trait::traits::Parameter;
+
 
 #[derive(taitan_orm_macro::Parameter)]
 struct ParamSpec002 {

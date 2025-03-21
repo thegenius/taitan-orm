@@ -43,8 +43,9 @@ impl TypeParser {
         Self::has_one_of_names(
             ty,
             &[
-                "LocationExpr",
-                "taitan_orm::traits::LocationExpr",
+                "Expr",
+                "taitan_orm::op::Expr",
+                "taitan_orm_trait::op::Expr",
             ],
         )
     }

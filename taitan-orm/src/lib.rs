@@ -39,11 +39,11 @@ pub mod prelude {
     pub use taitan_orm_macro::Parameter;
     pub use taitan_orm_macro::TemplateArg;
     pub use taitan_orm_macro::Template;
-    pub use taitan_orm_macro::MutationNew;
-    pub use taitan_orm_macro::LocationNew;
-    pub use taitan_orm_macro::EntityNew;
-    pub use taitan_orm_macro::SchemaNew;
-    pub use taitan_orm_macro::SelectedNew;
+    pub use taitan_orm_macro::Mutation;
+    pub use taitan_orm_macro::Location;
+    pub use taitan_orm_macro::Entity;
+    pub use taitan_orm_macro::Schema;
+    pub use taitan_orm_macro::Selected;
 
 
     pub use crate::sql_executor::SqlExecutor;

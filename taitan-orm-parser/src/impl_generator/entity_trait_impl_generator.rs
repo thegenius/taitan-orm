@@ -28,7 +28,7 @@ impl EntityTraitImplGenerator {
         let upsert_sql = generator.gen_upsert_sql(&table_def, &db_type);
 
         quote! {
-            impl taitan_orm_trait::brave_new::Entity<sqlx::#db_ident> for #struct_ident {
+            impl taitan_orm_trait::traits::Entity<sqlx::#db_ident> for #struct_ident {
                 fn gen_insert_sql<'a>(&self) -> std::borrow::Cow<'a, str> {
                     #insert_sql
                 }

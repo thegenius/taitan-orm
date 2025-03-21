@@ -1,7 +1,7 @@
-use taitan_orm_macro::{MutationNew, Parameter};
-use taitan_orm_trait::brave_new::{Entity, Mutation};
+use taitan_orm_macro::{Mutation, Parameter};
+use taitan_orm_trait::traits::{Entity, Mutation};
 // use taitan_orm_trait::Optional;
-#[derive(Debug, Parameter, MutationNew)]
+#[derive(Debug, Parameter, Mutation)]
 struct ParamSpec001 {
     a: String,
     b: i64,

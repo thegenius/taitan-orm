@@ -53,7 +53,7 @@ fn get_supported_database_types() -> Vec<DatabaseType> {
 // }
 
 #[proc_macro_derive(
-    SchemaNew,
+    Schema,
     attributes(
         debug,
         table,
@@ -188,7 +188,7 @@ fn generate_entity_impl(stream: &mut TokenStream, table_def: &TableDef) {
     }
 }
 
-#[proc_macro_derive(EntityNew, attributes(field))]
+#[proc_macro_derive(Entity, attributes(field))]
 pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);
@@ -198,7 +198,7 @@ pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
     stream.into()
 }
 
-#[proc_macro_derive(LocationNew, attributes(field))]
+#[proc_macro_derive(Location, attributes(field))]
 pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let condition_def = ConditionDef::parse(&derive_input);
@@ -213,7 +213,7 @@ pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     stream.into()
 }
 
-#[proc_macro_derive(MutationNew, attributes(field))]
+#[proc_macro_derive(Mutation, attributes(field))]
 pub fn expand_mutation_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);
@@ -228,7 +228,7 @@ pub fn expand_mutation_new_macro(input: TokenStream) -> TokenStream {
     stream.into()
 }
 
-#[proc_macro_derive(SelectedNew, attributes(field))]
+#[proc_macro_derive(Selected, attributes(field))]
 pub fn expand_selected_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);

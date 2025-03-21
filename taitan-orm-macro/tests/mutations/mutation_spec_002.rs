@@ -1,9 +1,9 @@
 use std::borrow::Cow;
-use taitan_orm_macro::{MutationNew, Parameter};
-use taitan_orm_trait::brave_new::{Entity, Mutation};
-use taitan_orm_trait::Optional;
+use taitan_orm_macro::{Mutation, Parameter};
+use taitan_orm_trait::traits::{Entity, Mutation};
 
-#[derive(Debug, Parameter, MutationNew)]
+
+#[derive(Debug, Parameter, Mutation)]
 struct MutationSpec002 {
     f1: String,
     f2: Option<i64>,

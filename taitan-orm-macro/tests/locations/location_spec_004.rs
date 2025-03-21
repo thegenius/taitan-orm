@@ -1,9 +1,9 @@
 use std::borrow::Cow;
-use taitan_orm_macro::{LocationNew, Parameter};
-use taitan_orm_trait::brave_new::Location;
-use taitan_orm_trait::{CmpOperator, LocationExpr};
+use taitan_orm_macro::{Location, Parameter};
+use taitan_orm_trait::traits::Location;
+use taitan_orm_trait::op::{Cmp, Expr};
 
-#[derive(Debug, Parameter, LocationNew)]
+#[derive(Debug, Parameter, Location)]
 struct LocationSpec004 {
     a: String,
     # [field(name = c_name, db_type = BIGINT, nullable = true, auto_inc = true)]

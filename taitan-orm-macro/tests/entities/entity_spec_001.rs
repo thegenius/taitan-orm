@@ -1,7 +1,7 @@
-use taitan_orm_macro::{EntityNew, Parameter};
-use taitan_orm_trait::brave_new::Entity;
+use taitan_orm_macro::{Entity, Parameter};
+use taitan_orm_trait::traits::Entity;
 
-#[derive(Debug, Parameter, EntityNew)]
+#[derive(Debug, Parameter, Entity)]
 struct EntitySpec001 {
     a: String,
     b: i64,

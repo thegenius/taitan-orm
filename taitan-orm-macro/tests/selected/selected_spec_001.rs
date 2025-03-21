@@ -1,8 +1,8 @@
 use serde::Serialize;
-use taitan_orm_macro::{Parameter, SelectedNew};
-use taitan_orm_trait::brave_new::{taitan_orm_trait::src::selected, Entity, Selected};
+use taitan_orm_macro::{Parameter, Selected};
+use taitan_orm_trait::traits::Selected;
 
-#[derive(Debug, SelectedNew)]
+#[derive(Debug, Selected)]
 struct SelectedSpec001 {
     a: Option<Option<String>>,
     b: Option<Option<i64>>,
@@ -12,15 +12,15 @@ struct SelectedSpec001 {
 #[test]
 fn test_selected_spec_001() {
     let entity = SelectedSpec001 {
-        a: selected(),
-        b: selected(),
+        a: Some(None),
+        b: Some(None),
     };
     let selected_sql = Selected::<sqlx::Postgres>::gen_select_sql(&entity);
     assert_eq!(selected_sql, "a,b".to_string());
 
     let entity = SelectedSpec001 {
         a: None,
-        b: selected(),
+        b: Some(None),
     };
     let selected_sql = Selected::<sqlx::Postgres>::gen_select_sql(&entity);
     assert_eq!(selected_sql, "b".to_string());

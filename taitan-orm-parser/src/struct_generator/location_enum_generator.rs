@@ -17,7 +17,7 @@ impl LocationEnumGenerator {
         let fields = table_def.get_not_primary_fields();
         let fields_stream = field_mapper.gen_enum_expr_variants(fields);
         quote! {
-            #[derive(Clone, Debug, taitan_orm_macro::Parameter, taitan_orm_macro::LocationNew)]
+            #[derive(Clone, Debug, taitan_orm_macro::Parameter, taitan_orm_macro::Location)]
             pub enum #struct_ident {
                 #fields_stream
             }
