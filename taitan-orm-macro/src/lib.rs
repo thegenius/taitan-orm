@@ -3,13 +3,7 @@
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
-use taitan_orm_parser::{
-    ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator,
-    LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator,
-    MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator,
-    SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator,
-    TemplateTraitImplGenerator,
-};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
 
 // mod attrs;
 // mod db_type;
@@ -108,6 +102,10 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
     let location_generator = LocationEnumGenerator::default();
     let location_stream: TokenStream = location_generator.generate(&table_def).into();
     stream.extend(location_stream);
+
+    let selected_generator = SelectedStructGenerator::default();
+    let selected_struct_stream: TokenStream = selected_generator.generate(&table_def).into();
+    stream.extend(selected_struct_stream);
 
     // panic!("{}", stream);
     stream.into()

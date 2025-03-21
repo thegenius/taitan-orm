@@ -13,8 +13,9 @@ use std::sync::Arc;
 use taitan_orm::prelude::*;
 use tracing::info;
 
+
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
-#[table_name = "user"]
+#[table = "user"]
 #[serde_struct = "selected"]
 #[serde_struct = "mutation"]
 #[serde_struct = "unique"]
@@ -22,7 +23,7 @@ pub struct User {
     #[primary_key]
     id: i32,
     name: String,
-    age: Optional<i32>,
+    age: Option<i32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -55,10 +56,10 @@ async fn main() {
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
-        age: Optional::Some(23),
+        age: Some(23),
     };
-    let result = shared_state.insert(&entity).await.unwrap();
-    assert_eq!(result, true);
+    let result = shared_state.insert(&entity).await;
+    assert_eq!(result, Ok(()));
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
@@ -80,7 +81,7 @@ async fn create_user(
     Json(entity): Json<User>,
 ) -> impl IntoResponse {
     let success = state.insert(&entity).await.unwrap();
-    format!("insert {}", success)
+    format!("insert success")
 }
 
 // #[axum::debug_handler]
@@ -124,8 +125,8 @@ async fn query_user_by_id(
     match params.get("id") {
         Some(id) => {
             let id_index = id.parse::<i32>().unwrap();
-            let selection = UserSelectedEntity::full_fields();
-            let entity: Option<UserSelectedEntity> = state
+            let selection = UserSelected::default();
+            let entity: Option<UserSelected> = state
                 .select(&selection, &UserPrimary { id: id_index })
                 .await
                 .unwrap();

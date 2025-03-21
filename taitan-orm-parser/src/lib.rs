@@ -85,3 +85,4 @@ pub use impl_generator::TemplateTraitImplGenerator;
 pub use struct_generator::IndexStructGenerator;
 pub use struct_generator::MutationStructGenerator;
 pub use struct_generator::LocationEnumGenerator;
+pub use struct_generator::SelectedStructGenerator;

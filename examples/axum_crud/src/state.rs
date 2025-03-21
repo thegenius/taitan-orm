@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
-use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
+use taitan_orm::database::sqlite::{SqliteDatabase, SqliteBuilder, SqliteLocalConfig};
 
 pub struct AppState {
     executor: SqliteDatabase,
@@ -15,7 +15,7 @@ impl AppState {
             work_dir: dir.into(),
             db_file: file.into(),
         };
-        let db = SqliteDatabase::build(config).await?;
+        let db = SqliteBuilder::build(config).await?;
         Ok(AppState { executor: db })
     }
 }
