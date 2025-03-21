@@ -18,7 +18,7 @@ fn parse_placeholder_name(input: &str) -> IResult<&str, &str> {
         alt((tag("_"), alpha1)),               // 以下划线或字母开头
         many0(alt((alphanumeric1, tag("_")))), // 后接字母、数字或下划线
     ));
-    delimited(tag("#{"), name_parser, char('}'))(input)
+    delimited(tag(":{"), name_parser, char('}'))(input)
 }
 fn parse_string(input: &str) -> IResult<&str, &str> {
     // 匹配单引号包裹的字符串
@@ -32,7 +32,7 @@ fn parse_string(input: &str) -> IResult<&str, &str> {
 }
 
 fn take_until_terminator(input: &str) -> IResult<&str, &str> {
-    take_while(|c| !&['#', '\''].contains(&c))(input)
+    take_while(|c| !&[':', '\''].contains(&c))(input)
 }
 pub struct PlaceholderParser;
 
@@ -57,7 +57,7 @@ impl PlaceholderParser {
                 output.push_str(placeholder.as_ref());
                 remaining = rest;
             } else {
-                match take_while::<_, _, nom::error::Error<_>>(|c| !['#','\''].contains(&c))(remaining) {
+                match take_while::<_, _, nom::error::Error<_>>(|c| ![':','\''].contains(&c))(remaining) {
                     Ok((rest, text)) => {
                         // 如果找到 #，将 # 之前的内容添加到 output
                         output.push_str(text);
@@ -91,7 +91,7 @@ impl PlaceholderParser {
                 output.push('?');
                 remaining = rest;
             } else {
-                match take_while::<_, _, nom::error::Error<_>>(|c| !['#','\''].contains(&c))(remaining) {
+                match take_while::<_, _, nom::error::Error<_>>(|c| ![':','\''].contains(&c))(remaining) {
                     Ok((rest, text)) => {
                         // 如果找到 #，将 # 之前的内容添加到 output
                         output.push_str(text);
@@ -115,14 +115,14 @@ mod tests {
     use super::*;
     #[test]
     fn test_parse_string() {
-        let content = "'hello #{}' test";
+        let content = "'hello :{}' test";
         let (remaining, string) = parse_string(content).unwrap();
         assert_eq!(remaining, " test");
-        assert_eq!(string, "hello #{}");
+        assert_eq!(string, "hello :{}");
 
-        let content = "'#{name}' test";
+        let content = "':{name}' test";
         let (remaining, string) = parse_string(content).unwrap();
         assert_eq!(remaining, " test");
-        assert_eq!(string, "#{name}");
+        assert_eq!(string, ":{name}");
     }
 }

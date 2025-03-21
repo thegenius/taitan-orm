@@ -32,3 +32,7 @@ pub use paged_list::build_paged_list;
 pub use selected::selected;
 pub use placeholder::PlaceholderParser;
 pub use count_sql_parser::CountSqlParser;
+pub use template_render::DynamicRenderedSql;
+pub use template_render::TemplateSqlTrait;
+pub use template_render::TemplateArgTrait;
+pub use template_render::TemplateRenderTrait;

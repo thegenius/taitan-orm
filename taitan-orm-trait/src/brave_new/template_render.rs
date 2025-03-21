@@ -10,7 +10,7 @@ pub struct DynamicRenderedSql {
 }
 
 pub trait TemplateSqlTrait: askama::Template {
-    fn get_template_sql(&self) -> String;
+    fn get_template_sql() -> String;
     fn get_rendered_sql(&self) -> Result<String> {
         Ok(self.render().map_err(|err| {
             TaitanOrmError::TemplateRenderError(TemplateRenderError(err.to_string()))
