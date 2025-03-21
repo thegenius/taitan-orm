@@ -2,7 +2,7 @@
 
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
 [![Version](https://img.shields.io/badge/crates-0.1.9-green)](https://crates.io/crates/taitan-orm)
-[![Version](https://img.shields.io/badge/Lines-26k-yellow)](https://crates.io/crates/taitan-orm)
+[![Version](https://img.shields.io/badge/Lines-37k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
@@ -11,6 +11,7 @@
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
 🎆**0.1.10 will be a big version**
+After two months of hard work, the codebase of this library has grown from 26K to 37K, and version 0.1.10 is finally almost ready. The code is located in the following directories: taitan-orm/brave_new, taitan-orm-macro, taitan-orm-parser, and taitan-orm-trait/brave_new. The core functionality has been developed, and the current task is to clean up the old code by moving it to an old directory and relocating the code from the brave_new directory to the main default directory. Once this final task is completed, version 0.1.10 will be released.
 ```
 1. api will have minor adjust, error will be re-designed
 2. sqlite/mysql/postgres support will be feature, so there is no extra code generation that you do not need
