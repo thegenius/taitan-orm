@@ -1,6 +1,6 @@
 use serde::Serialize;
 use taitan_orm_macro::{Parameter, SelectedNew};
-use taitan_orm_trait::brave_new::{selected, Entity, Selected};
+use taitan_orm_trait::brave_new::{taitan_orm_trait::src::selected, Entity, Selected};
 
 #[derive(Debug, SelectedNew)]
 struct SelectedSpec001 {

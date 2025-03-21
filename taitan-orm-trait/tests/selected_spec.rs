@@ -2,11 +2,11 @@ use std::borrow::Cow;
 use sqlx::Arguments;
 use sqlx::{Database, Sqlite};
 use sqlx::sqlite::SqliteRow;
-use taitan_orm_trait::brave_new::error::wrap_encode;
-use taitan_orm_trait::brave_new::param::Parameter;
-use taitan_orm_trait::brave_new::result::Result;
+
+use taitan_orm_trait::traits::Parameter;
+use taitan_orm_trait::result::Result;
 use time::PrimitiveDateTime;
-use taitan_orm_trait::brave_new::Selected;
+use taitan_orm_trait::traits::Selected;
 
 
 type Optional<T> = Option<Option<T>>;

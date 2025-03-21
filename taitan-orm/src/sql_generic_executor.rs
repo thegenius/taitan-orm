@@ -1,10 +1,10 @@
-use crate::result::Result;
-use crate::error::TaitanOrmError;
 use sqlx::query::Query;
-use sqlx::{Database, Executor, IntoArguments};
+use sqlx::{Database, Executor, IntoArguments, Type};
 use std::marker::PhantomData;
-use taitan_orm_trait::SelectedEntity;
 
+use taitan_orm_trait::error::TaitanOrmError;
+use taitan_orm_trait::result::Result;
+use taitan_orm_trait::traits::Selected;
 /**
 本模块提供2个维度的封装
 1. 结果的转化，上层抽象不再感知Row和QueryResult的存在
@@ -49,9 +49,12 @@ generic_fetch_option_full      (ex, stmt, args) -> Result<Option<SE>>
 generic_fetch_option_full_plain(ex, stmt, _   ) -> Result<Option<SE>>
 **/
 
-pub trait SqlGenericExecutor {
+
+
+pub trait SqlGenericExecutor
+{
     type DB: Database;
-    type CountType: SelectedEntity<Self::DB>;
+    type CountType: Selected<Self::DB>;
 
     fn get_affected_rows(query_result: &<Self::DB as Database>::QueryResult) -> u64;
 
@@ -99,7 +102,7 @@ pub trait SqlGenericExecutor {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
         let result_opt: Option<<Self::DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(row) = result_opt {
-            Ok(Self::CountType::from_row_full(row)?)
+            Ok(Self::CountType::from_row(&Self::CountType::default(), row)?)
         } else {
             Ok(Default::default())
         }
@@ -159,7 +162,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -170,7 +173,7 @@ pub trait SqlGenericExecutor {
             if let Ok(selected_entity) = selected_result {
                 result.push(selected_entity);
             } else {
-                return Err(TaitanOrmError::FromRowToEntityError);
+                return Err(TaitanOrmError::DecodeError("".to_string()));
             }
         }
         Ok(result)
@@ -184,7 +187,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -195,7 +198,7 @@ pub trait SqlGenericExecutor {
             if let Ok(selected_entity) = selected_result {
                 result.push(selected_entity);
             } else {
-                return Err(TaitanOrmError::FromRowToEntityError);
+                return Err(TaitanOrmError::DecodeError("".to_string()));
             }
         }
         Ok(result)
@@ -210,7 +213,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -221,7 +224,7 @@ pub trait SqlGenericExecutor {
             if let Ok(selected_entity) = selected_result {
                 result.push(selected_entity);
             } else {
-                return Err(TaitanOrmError::FromRowToEntityError);
+                return Err(TaitanOrmError::DecodeError("".to_string()));
             }
         }
         Ok(result)
@@ -235,7 +238,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -246,7 +249,7 @@ pub trait SqlGenericExecutor {
             if let Ok(selected_entity) = selected_result {
                 result.push(selected_entity);
             } else {
-                return Err(TaitanOrmError::FromRowToEntityError);
+                return Err(TaitanOrmError::DecodeError("".to_string()));
             }
         }
         Ok(result)
@@ -261,7 +264,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -277,7 +280,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -294,7 +297,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -310,7 +313,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -327,7 +330,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -347,7 +350,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -368,7 +371,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -388,7 +391,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -408,14 +411,14 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
         let result_vec: Vec<<Self::DB as Database>::Row> = query.fetch_all(ex).await?;
         let mut result: Vec<SE> = Vec::new();
         for row in result_vec {
-            result.push(SE::from_row_full(row)?);
+            result.push(SE::from_row(&SE::default(), row)?);
         }
         Ok(result)
     }
@@ -428,7 +431,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Vec<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -444,7 +447,7 @@ pub trait SqlGenericExecutor {
     async fn generic_fetch_one_full<'a, EX, SE, A>(ex: EX, stmt: &'a str, args: A) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -464,7 +467,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<SE>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
@@ -484,7 +487,7 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, args);
@@ -504,13 +507,13 @@ pub trait SqlGenericExecutor {
     ) -> Result<Option<SE>>
     where
         EX: Executor<'a, Database = Self::DB>,
-        SE: SelectedEntity<Self::DB> + Send + Unpin,
+        SE: Selected<Self::DB> + Send + Unpin,
         A: IntoArguments<'a, Self::DB> + 'a + Default,
     {
         let query: Query<'a, Self::DB, A> = sqlx::query_with(stmt, Default::default());
         let result_opt: Option<<Self::DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(result) = result_opt {
-            Ok(Some(SE::from_row_full(result)?))
+            Ok(Some(SE::from_row(&SE::default(), result)?))
         } else {
             Ok(None)
         }

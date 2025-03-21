@@ -1,11 +1,7 @@
 #![allow(dead_code)]
 #![forbid(unsafe_code)]
-use crate::schema::impl_schema_macro;
-use crate::selected::impl_selected_macro;
-use crate::template::impl_template_macro;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
-use std::io::Write;
 use syn::{parse_macro_input, DeriveInput};
 use taitan_orm_parser::{
     ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator,
@@ -14,19 +10,17 @@ use taitan_orm_parser::{
     SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator,
     TemplateTraitImplGenerator,
 };
-// use crate::brave_new::extract_table_def;
-use crate::location::impl_condition_macro;
 
-mod attrs;
-mod db_type;
-mod expands;
-mod fields;
-mod location;
-mod schema;
-mod selected;
-mod template;
-mod types;
-mod util;
+// mod attrs;
+// mod db_type;
+// mod expands;
+// mod fields;
+// mod location;
+// mod schema;
+// mod selected;
+// mod template;
+// mod types;
+// mod util;
 
 fn get_supported_database_types() -> Vec<DatabaseType> {
     let mut supported_database_types: Vec<DatabaseType> = Vec::new();
@@ -44,19 +38,19 @@ fn get_supported_database_types() -> Vec<DatabaseType> {
     supported_database_types
 }
 
-fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> {
-    // match env::current_dir() {
-    //     Ok(current_dir) => {
-    //         println!("当前工作目录: {:?}", current_dir);
-    //         panic!("{:?}", current_dir);
-    //     },
-    //     Err(e) => eprintln!("无法获取当前工作目录: {}", e),
-    // }
-    let mut file = std::fs::File::create(file_path)?;
-    file.write_all(content.as_bytes())?;
-    file.sync_all()?;
-    Ok(())
-}
+// fn write_content_to_file(content: &str, file_path: &str) -> std::io::Result<()> {
+//     // match env::current_dir() {
+//     //     Ok(current_dir) => {
+//     //         println!("当前工作目录: {:?}", current_dir);
+//     //         panic!("{:?}", current_dir);
+//     //     },
+//     //     Err(e) => eprintln!("无法获取当前工作目录: {}", e),
+//     // }
+//     let mut file = std::fs::File::create(file_path)?;
+//     file.write_all(content.as_bytes())?;
+//     file.sync_all()?;
+//     Ok(())
+// }
 
 #[proc_macro_derive(
     SchemaNew,
@@ -169,7 +163,7 @@ fn generate_template_new_impl(stream: &mut TokenStream, table_def: &TableDef) {
     let struct_name = &table_def.struct_name;
     let struct_ident = format_ident!("{}", &struct_name);
     let s: TokenStream = quote! {
-        impl taitan_orm_trait::brave_new::TemplateSqlTrait for #struct_ident {}
+        impl taitan_orm_trait::traits::TemplateSqlTrait for #struct_ident {}
     }.into();
     stream.extend(s);
 }
@@ -253,34 +247,34 @@ pub fn expand_selected_new_macro(input: TokenStream) -> TokenStream {
     stream.into()
 }
 
-#[proc_macro_derive(
-    Schema,
-    attributes(
-        table_name,
-        primary_key,
-        unique_key,
-        auto_increment,
-        generated,
-        field_name,
-        serde_struct,
-        index
-    )
-)]
-pub fn expand_schema_macro(input: TokenStream) -> TokenStream {
-    impl_schema_macro(input)
-}
-
-#[proc_macro_derive(Selected, attributes(table_name))]
-pub fn expand_selected(input: TokenStream) -> TokenStream {
-    impl_selected_macro(input)
-}
-
-#[proc_macro_derive(Condition, attributes(table_name))]
-pub fn expand_location(input: TokenStream) -> TokenStream {
-    impl_condition_macro(input)
-}
-
-#[proc_macro_derive(TemplateRecord, attributes(sql, count_sql, limit_field))]
-pub fn expand_template_record(input: TokenStream) -> TokenStream {
-    impl_template_macro(input)
-}
+// #[proc_macro_derive(
+//     Schema,
+//     attributes(
+//         table_name,
+//         primary_key,
+//         unique_key,
+//         auto_increment,
+//         generated,
+//         field_name,
+//         serde_struct,
+//         index
+//     )
+// )]
+// pub fn expand_schema_macro(input: TokenStream) -> TokenStream {
+//     impl_schema_macro(input)
+// }
+//
+// #[proc_macro_derive(Selected, attributes(table_name))]
+// pub fn expand_selected(input: TokenStream) -> TokenStream {
+//     impl_selected_macro(input)
+// }
+//
+// #[proc_macro_derive(Condition, attributes(table_name))]
+// pub fn expand_location(input: TokenStream) -> TokenStream {
+//     impl_condition_macro(input)
+// }
+//
+// #[proc_macro_derive(TemplateRecord, attributes(sql, count_sql, limit_field))]
+// pub fn expand_template_record(input: TokenStream) -> TokenStream {
+//     impl_template_macro(input)
+// }

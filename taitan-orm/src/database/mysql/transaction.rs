@@ -1,31 +1,38 @@
-use sqlx::MySql;
-use crate::{transaction_impl};
-use crate::sql_generator::MySqlGenerator;
-use crate::result::CountResult;
-use crate::prelude::{SqlExecutorMut, SqlGenericExecutor, SqlGeneratorContainer};
+use crate::args_extractor::ArgsExtractor;
+use crate::count::CountResult;
+use crate::new_transaction_impl;
+use crate::sql_executor_mut::SqlExecutorMut;
+use crate::sql_generic_executor::SqlGenericExecutor;
+use sqlx::{Database, MySql};
+use taitan_orm_trait::page::Pagination;
+use taitan_orm_trait::result::Result;
+use taitan_orm_trait::traits::Parameter;
 
 #[derive(Debug)]
 pub struct MySqlTransaction<'a> {
     transaction: sqlx::Transaction<'a, MySql>,
-    generator: &'a MySqlGenerator,
 }
 
 impl<'a> MySqlTransaction<'a> {
-    pub fn new(trx: sqlx::Transaction<'a, MySql>, generator: &'a MySqlGenerator) -> Self {
-        Self {
-            transaction: trx,
-            generator,
-        }
+    pub fn new(trx: sqlx::Transaction<'a, MySql>) -> Self {
+        Self { transaction: trx }
     }
-
     #[inline]
-    pub async fn commit(self) -> crate::result::Result<()> {
+    pub async fn commit(self) -> Result<()> {
         Ok(self.transaction.commit().await?)
     }
 
     #[inline]
-    pub async fn rollback(self) -> crate::result::Result<()> {
+    pub async fn rollback(self) -> Result<()> {
         Ok(self.transaction.rollback().await?)
+    }
+}
+
+impl<'t> ArgsExtractor for MySqlTransaction<'t> {
+    fn extract_pagination_arguments(
+        page: &Pagination,
+    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+        Ok(<Pagination as Parameter<MySql>>::gen_args(page)?)
     }
 }
 
@@ -39,12 +46,5 @@ impl<'t> SqlGenericExecutor for MySqlTransaction<'t> {
 }
 
 impl<'t> SqlExecutorMut for MySqlTransaction<'t> {
-    transaction_impl!(MySqlConnection);
-}
-impl<'a> SqlGeneratorContainer for MySqlTransaction<'a> {
-    type G = MySqlGenerator;
-
-    fn get_generator(&self) -> &Self::G {
-        &self.generator
-    }
+    new_transaction_impl! {}
 }

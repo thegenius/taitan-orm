@@ -1,33 +1,41 @@
-use sqlx::{MySql, MySqlPool};
-use sqlx::mysql::MySqlConnectOptions;
-use crate::sql_generator::MySqlGenerator;
-use crate::{executor_impl};
-use crate::result::CountResult;
-use crate::prelude::SqlExecutor;
-use crate::prelude::SqlGenericExecutor;
-use crate::prelude::SqlGeneratorContainer;
+use super::transaction::MySqlTransaction;
 
+use sqlx::{MySql, MySqlPool};
+use taitan_orm_trait::result::Result;
+use crate::count::CountResult;
+use crate::sql_executor::{SqlExecutor};
+use crate::args_extractor::ArgsExtractor;
+use sqlx::{Database};
+use taitan_orm_trait::page::Pagination;
+use taitan_orm_trait::traits::Parameter;
+use crate::sql_generic_executor::SqlGenericExecutor;
+use crate::new_executor_impl;
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {
-    generator: MySqlGenerator,
-    pool: MySqlPool,
+    pub(crate) pool: MySqlPool,
 }
-impl MySqlDatabase {
 
-    pub async fn build(config: MySqlConnectOptions)-> crate::result::Result<MySqlDatabase> {
-        let pool = MySqlPool::connect_with(config).await?;
-        let generator = MySqlGenerator::new();
-        let database = MySqlDatabase {
-            generator,
-            pool,
-        };
-        Ok(database)
+impl MySqlDatabase {
+    pub async fn transaction<'a>(&'a self) -> Result<MySqlTransaction<'a>> {
+        let trx = self.get_pool()?.begin().await?;
+        let transaction = MySqlTransaction::new(trx);
+        Ok(transaction)
     }
 
-    pub fn get_pool(&self) -> crate::result::Result<&MySqlPool> {
+    pub fn get_pool(&self) -> Result<&MySqlPool> {
         Ok(&self.pool)
     }
 }
+
+
+impl ArgsExtractor for MySqlDatabase {
+    fn extract_pagination_arguments(
+        page: &Pagination,
+    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+        Ok(<Pagination as Parameter<MySql>>::gen_args(page)?)
+    }
+}
+
 impl SqlGenericExecutor for MySqlDatabase {
     type DB = MySql;
     type CountType = CountResult;
@@ -35,19 +43,8 @@ impl SqlGenericExecutor for MySqlDatabase {
     fn get_affected_rows(query_result: &<Self::DB as sqlx::Database>::QueryResult) -> u64 {
         query_result.rows_affected()
     }
-
-}
-// SqlExecutor + SqlGeneratorContainer + Extractor
-impl SqlGeneratorContainer for MySqlDatabase {
-    type G = MySqlGenerator;
-
-    fn get_generator(&self) -> &Self::G {
-        &self.generator
-    }
 }
 
 impl SqlExecutor for MySqlDatabase {
-    executor_impl!(MySqlConnection);
+    new_executor_impl! {}
 }
-
-

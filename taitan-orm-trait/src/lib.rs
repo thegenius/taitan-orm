@@ -1,69 +1,36 @@
 #![allow(unused_imports, unused_mut, unused_variables)]
 #![allow(dead_code)]
-mod entity;
-mod error;
-mod join;
-mod location;
-mod mutation;
-mod order_by;
-mod page;
-mod schema;
-mod selected_entity;
-mod selection;
-mod template_record;
-mod unique;
-mod update_command;
-mod write_command;
-mod template;
-mod optional;
-mod field;
-mod selected;
-pub mod brave_new;
 
-pub use schema::Schema;
-// pub use selected::Selected;
+pub mod logic;
+pub mod parsers;
+pub mod traits;
 
-pub use optional::Optional;
+mod types;
 
-pub use error::NotImplementError;
-pub use error::NotValidOrderByError;
-pub use error::NotValidCmpError;
-pub use error::NotValidConditionError;
+pub mod op {
+    pub use crate::types::expr::Expr;
+    pub use crate::types::cmp::Cmp;
+}
+pub mod order {
+    pub use crate::types::order_by::OrderBy;
+    pub use crate::types::order_by::validate_order_by;
+}
+pub mod page {
+    pub use crate::types::paged_info::PagedInfo;
+    pub use crate::types::paged_list::PagedList;
+    pub use crate::types::pagination::Pagination;
+    pub use crate::types::paged_list::build_paged_list;
+}
 
-pub use entity::Entity;
-
-pub use mutation::Mutation;
-pub use unique::Unique;
-pub use update_command::UpdateCommand;
-
-pub use selected_entity::SelectedEntity;
-pub use selection::Selection;
-// pub use selected_entity::SelectedEntityNew;
-
-pub use join::FromClause;
-pub use location::CmpOperator;
-pub use location::Location;
-pub use location::LocationExpr;
-pub use location::AllLocation;
-
-// pub use location::LocationTrait;
-pub use order_by::validate_order_by;
-pub use order_by::OrderBy;
-
-pub use join::JoinedCondition;
-pub use join::JoinedConditions;
-
-pub use page::paged_info;
-pub use page::paged_list;
-pub use page::pagination;
-pub use page::count_sql::CountSql;
-
-pub use template_record::TemplateRecord;
-pub use template::ParsedTemplateSql;
-pub use template::TemplateSqlValue;
-pub use template::TemplateField;
-
-pub use write_command::WriteCommand;
-pub use page::paged_list::build_paged_list;
-pub use field::FieldName;
-pub use location::LocationMode;
+pub mod result {
+    pub use crate::types::result::Result;
+}
+pub mod error {
+    pub use crate::types::error::NotImplementError;
+    pub use crate::types::error::NotValidCmpError;
+    pub use crate::types::error::NotValidConditionError;
+    pub use crate::types::error::NotValidOrderByError;
+    pub use crate::types::error::TaitanOrmError;
+    pub use crate::types::error::TemplateRenderError;
+    pub use crate::types::error::DatabaseInitFail;
+}

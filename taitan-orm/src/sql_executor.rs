@@ -1,7 +1,8 @@
-use crate::result::Result;
 use sqlx::Database;
+
+use taitan_orm_trait::result::Result;
 use crate::sql_generic_executor::SqlGenericExecutor;
-use taitan_orm_trait::SelectedEntity;
+use taitan_orm_trait::traits::Selected;
 
 /**
 现在sqlx::Executor的实现还是太过简陋，导致无法把不同数据库和事务的连接抽象成一个独立的实体
@@ -62,13 +63,13 @@ pub trait SqlExecutor: SqlGenericExecutor {
         stmt: &'a str,
     ) -> Result<bool>;
 
-    async fn fetch_count(
-        &self,
-        stmt: &str,
-        args: <Self::DB as sqlx::Database>::Arguments<'_>,
-    ) -> crate::result::Result<u64>;
+    async fn fetch_count<'s, 'a>(
+        &'a self,
+        stmt: &'s str,
+        args: <Self::DB as sqlx::Database>::Arguments<'a>,
+    ) -> Result<u64> where 'a: 's;
 
-    async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> crate::result::Result<u64>;
+    async fn fetch_count_plain<'a>(&'a self, stmt: &'a str) -> Result<u64>;
 
 
     // fetch_option      (stmt, selection, args) -> Result<Option<SE>>
@@ -79,7 +80,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     async fn fetch_option_<'a, SE>(
         &'a self,
@@ -88,7 +89,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     // fetch_option_plain(stmt, selection) -> Result<Option<SE>>
     async fn fetch_option_plain<'a, SE>(
@@ -97,7 +98,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         selection: &'a SE,
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     async fn fetch_option_plain_<'a, SE>(
         &'a self,
@@ -105,7 +106,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         selection: &'a SE,
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
 
     // fetch_all         (stmt, selection, args) -> Result<Vec<SE>>
@@ -116,7 +117,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     async fn fetch_all_<'a, SE>(
         &'a self,
@@ -125,7 +126,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     // fetch_all_plain   (stmt, selection) -> Result<Vec<SE>>
     async fn fetch_all_plain<'a, SE>(
@@ -134,7 +135,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         selection: &'a SE,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     async fn fetch_all_plain_<'a, SE>(
         &'a self,
@@ -142,7 +143,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         selection: &'a SE,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
 
 
@@ -156,12 +157,12 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<SE>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     // fetch_one_full_plain   (stmt, _   ) -> Result<SE>
     async fn fetch_one_full_plain<'a, SE>(&'a self, stmt: &'a str) -> Result<SE>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
 
     // fetch_option_full      (stmt, args) -> Result<Option<SE>>
@@ -171,7 +172,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     // fetch_option_full_plain(stmt) -> Result<Option<SE>>
     async fn fetch_option_full_plain<'a, SE>(
@@ -179,7 +180,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         stmt: &'a str
     ) -> Result<Option<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
 
     // fetch_all_full         (stmt, args) -> Result<Vec<SE>>
@@ -189,7 +190,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         args: <Self::DB as Database>::Arguments<'a>,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
 
     // fetch_all_full_plain   (stmt) -> Result<Vec<SE>>
@@ -198,7 +199,7 @@ pub trait SqlExecutor: SqlGenericExecutor {
         stmt: &'a str,
     ) -> Result<Vec<SE>>
     where
-        SE: SelectedEntity<Self::DB> + Send + Unpin;
+        SE: Selected<Self::DB> + Send + Unpin;
 
     // fetch_one         (stmt, selection, args) -> Result<SE>
     // fetch_one_plain   (stmt, selection, _   ) -> Result<SE>

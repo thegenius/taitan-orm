@@ -1,29 +1,40 @@
-use sqlx::{PgPool, Postgres};
-use sqlx::postgres::PgConnectOptions;
-use crate::sql_generator::PostgresGenerator;
-use crate::{executor_impl};
-use crate::result::CountResult;
-use crate::prelude::{SqlExecutor, SqlGeneratorContainer, SqlGenericExecutor};
+use super::transaction::PostgresTransaction;
 
+use crate::args_extractor::ArgsExtractor;
+use crate::count::CountResult;
+use crate::new_executor_impl;
+use crate::sql_executor::SqlExecutor;
+use crate::sql_generic_executor::SqlGenericExecutor;
+use sqlx::PgPool;
+use sqlx::{Database, Postgres};
+use taitan_orm_trait::page::Pagination;
+use taitan_orm_trait::result::Result;
+use taitan_orm_trait::traits::Parameter;
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {
-    generator: PostgresGenerator,
-    pool: PgPool,
+    pub(crate) pool: PgPool,
 }
+
 impl PostgresDatabase {
-    pub async fn build(config: PgConnectOptions)-> crate::result::Result<PostgresDatabase> {
-        let pool = PgPool::connect_with(config).await?;
-        let generator = PostgresGenerator::new();
-        let database = PostgresDatabase {
-            generator,
-            pool,
-        };
-        Ok(database)
+    pub async fn transaction<'a>(&'a self) -> Result<PostgresTransaction<'a>> {
+        let trx = self.get_pool()?.begin().await?;
+        let transaction = PostgresTransaction::new(trx);
+        Ok(transaction)
     }
-    pub fn get_pool(&self) -> crate::result::Result<&PgPool> {
+
+    pub fn get_pool(&self) -> Result<&PgPool> {
         Ok(&self.pool)
     }
 }
+
+impl ArgsExtractor for PostgresDatabase {
+    fn extract_pagination_arguments(
+        page: &Pagination,
+    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+        Ok(<Pagination as Parameter<Postgres>>::gen_args(page)?)
+    }
+}
+
 impl SqlGenericExecutor for PostgresDatabase {
     type DB = Postgres;
     type CountType = CountResult;
@@ -31,19 +42,8 @@ impl SqlGenericExecutor for PostgresDatabase {
     fn get_affected_rows(query_result: &<Self::DB as sqlx::Database>::QueryResult) -> u64 {
         query_result.rows_affected()
     }
-
-}
-// SqlExecutor + SqlGeneratorContainer + Extractor
-impl SqlGeneratorContainer for PostgresDatabase {
-    type G = PostgresGenerator;
-
-    fn get_generator(&self) -> &Self::G {
-        &self.generator
-    }
 }
 
 impl SqlExecutor for PostgresDatabase {
-    executor_impl!(PgConnection);
+    new_executor_impl! {}
 }
-
-

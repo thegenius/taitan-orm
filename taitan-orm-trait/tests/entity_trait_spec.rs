@@ -1,11 +1,10 @@
 use std::borrow::Cow;
-use sqlx::{Arguments, Database, FromRow, Sqlite};
+use sqlx::{Arguments, Database, Sqlite};
 use time::PrimitiveDateTime;
 use time::macros::datetime;
-use taitan_orm_trait::brave_new::entity::{Entity, SqliteEntity};
-use taitan_orm_trait::brave_new::error::wrap_encode;
-use taitan_orm_trait::brave_new::param::Parameter;
-use taitan_orm_trait::brave_new::result::Result;
+use taitan_orm_trait::traits::{Entity, SqliteEntity};
+use taitan_orm_trait::traits::Parameter;
+use taitan_orm_trait::result::Result;
 use sqlx::mysql::MySqlArguments;
 use sqlx::sqlite::SqliteArguments;
 use sqlx::postgres::PgArguments;
@@ -23,8 +22,8 @@ struct User {
 
 impl Parameter<Sqlite> for User {
     fn add_to_args<'a, 'b>(&'a self, args: &'b mut <Sqlite as Database>::Arguments<'a>) -> Result<()> {
-        wrap_encode(args.add(&self.name))?;
-        wrap_encode(args.add(&self.created))?;
+        args.add(&self.name)?;
+        args.add(&self.created)?;
         Ok(())
     }
 }
