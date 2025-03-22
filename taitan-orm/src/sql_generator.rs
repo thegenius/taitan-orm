@@ -1,10 +1,16 @@
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::Database;
+use sqlx::{Database, Type};
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::traits::{Entity, Location, Mutation, Selected, Unique};
 
-impl<T> SqlGenerator for T where T: SqlGenericExecutor {}
+impl<T> SqlGenerator for T
+where
+    T: SqlGenericExecutor,
+    i64: Type<<T as SqlGenericExecutor>::DB>,
+    for<'a> i64: sqlx::Encode<'a, <T as SqlGenericExecutor>::DB>,
+{
+}
 
 pub trait SqlGenerator {
     fn gen_unique_count_sql<DB: Database, M: Mutation<DB>>(

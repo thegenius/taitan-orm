@@ -1,10 +1,15 @@
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::Database;
+use sqlx::{Database, Type};
+use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::{Entity, Location, Mutation, Unique};
+use taitan_orm_trait::traits::{Entity, Location, Mutation, Parameter, Unique};
 
-pub trait ArgsExtractor: SqlGenericExecutor {
+pub trait ArgsExtractor: SqlGenericExecutor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,i64: Type<<Self as SqlGenericExecutor>::DB>
+
+{
     fn extract_pagination_arguments(
         page: &Pagination,
     ) -> Result<<Self::DB as Database>::Arguments<'_>>;
@@ -22,6 +27,17 @@ pub trait ArgsExtractor: SqlGenericExecutor {
         location.add_to_args(&mut args)?;
         Ok(args)
     }
+
+    fn extract_location_with_page_arguments<'a>(
+        location: &'a dyn Location<Self::DB>,
+        page: &'a Pagination,
+    ) -> Result<<Self::DB as Database>::Arguments<'a>> {
+        let mut args = <Self::DB as Database>::Arguments::default();
+        location.add_to_args(&mut args)?;
+        <Pagination as Parameter<Self::DB>>::add_to_args(page, &mut args)?;
+        Ok(args)
+    }
+
     fn extract_insert_arguments(
         entity: &dyn Entity<Self::DB>,
     ) -> Result<<Self::DB as Database>::Arguments<'_>> {

@@ -45,7 +45,8 @@ impl IndexStructGenerator {
 
 
         let field_mapper = FieldMapper::new();
-        // let table_name =  field_mapper.escape(&table_def.table_name, db_type);
+        let table_name =  &table_def.table_name;
+        let table_name_ident= format_ident!("{}", table_name);
         let sql_generator = SqlGenerator::default();
         let struct_ident = match index_enum {
             IndexEnum::Primary => {format_ident!("{}Primary", struct_name)},
@@ -60,6 +61,7 @@ impl IndexStructGenerator {
                 let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
                     #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
+                    #[table(#table_name_ident)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -72,6 +74,7 @@ impl IndexStructGenerator {
                 let impl_unique = IndexStructGenerator::impl_unique(db_types, struct_name, &struct_ident);
                 quote! {
                     #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
+                    #[table(#table_name_ident)]
                     pub struct #struct_ident {
                         #fields_stream
                     }
@@ -83,6 +86,7 @@ impl IndexStructGenerator {
                 let fields_stream = field_mapper.gen_enum_variants( fields);
                 quote! {
                     #[derive(Debug, Clone, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
+                    #[table(#table_name_ident)]
                     pub enum #struct_ident {
                         #fields_stream
                     }

@@ -1,12 +1,20 @@
 use crate::args_extractor::ArgsExtractor;
-use taitan_orm_trait::result::Result;
-use crate::sql_executor::{SqlExecutor};
+use crate::sql_executor::SqlExecutor;
 use crate::sql_generator::SqlGenerator;
+use sqlx::Type;
+use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{Entity, Location, Mutation, Unique};
 
+use crate::prelude::SqlGenericExecutor;
 use tracing::debug;
 
-impl<T> WriterApi for T where T: SqlExecutor + SqlGenerator + ArgsExtractor {}
+impl<T> WriterApi for T
+where
+    T: SqlExecutor + SqlGenerator + ArgsExtractor,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+}
 
 //
 // # basic write
@@ -30,7 +38,11 @@ impl<T> WriterApi for T where T: SqlExecutor + SqlGenerator + ArgsExtractor {}
 // batch_delete([unique])                 -> u64 # return deleted rows
 // ```
 
-pub trait WriterApi: SqlExecutor + SqlGenerator + ArgsExtractor {
+pub trait WriterApi: SqlExecutor + SqlGenerator + ArgsExtractor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
     async fn insert(&self, entity: &dyn Entity<Self::DB>) -> Result<()> {
         debug!(target: "taitan_orm", command = "insert", entity = ?entity);
         let sql = self.gen_insert_sql(entity);
@@ -73,7 +85,11 @@ pub trait WriterApi: SqlExecutor + SqlGenerator + ArgsExtractor {
         debug!(target: "taitan_orm", command = "update", result = ?result);
         Ok(result > 0)
     }
-    async fn change(&self, mutation: &dyn Mutation<Self::DB>, location: &dyn Location<Self::DB>) -> Result<u64> {
+    async fn change(
+        &self,
+        mutation: &dyn Mutation<Self::DB>,
+        location: &dyn Location<Self::DB>,
+    ) -> Result<u64> {
         debug!(target: "taitan_orm", command = "change", mutation = ?mutation, location = ?location);
         let sql = self.gen_change_sql(mutation, location);
         debug!(target: "taitan_orm", command = "change", sql = ?sql);
@@ -82,7 +98,10 @@ pub trait WriterApi: SqlExecutor + SqlGenerator + ArgsExtractor {
         debug!(target: "taitan_orm", command = "change", result = ?result);
         Ok(result)
     }
-    async fn delete<M: Mutation<Self::DB>>(&self, unique: &dyn Unique<Self::DB, Mutation = M>) -> Result<bool> {
+    async fn delete<M: Mutation<Self::DB>>(
+        &self,
+        unique: &dyn Unique<Self::DB, Mutation = M>,
+    ) -> Result<bool> {
         debug!(target: "taitan_orm", command = "delete", primary = ?unique);
         let sql = self.gen_delete_sql(unique);
         debug!(target: "taitan_orm", command = "delete", sql = sql);

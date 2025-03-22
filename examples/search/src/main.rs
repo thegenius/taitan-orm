@@ -1,20 +1,18 @@
 use std::borrow::Cow;
+use taitan_orm::database::sqlite::{SqliteBuilder, SqliteDatabase, SqliteLocalConfig};
 use taitan_orm::prelude::*;
-use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 
 #[derive(Schema, Clone, Debug)]
 #[table(user)]
+#[primary(id)]
 pub struct User {
-    #[primary_key]
     id: i32,
     name: String,
     age: Option<i32>,
 }
 
-
 #[tokio::main]
 async fn main() -> taitan_orm::result::Result<()> {
-
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();
@@ -24,69 +22,73 @@ async fn main() -> taitan_orm::result::Result<()> {
         work_dir: Cow::from("./workspace"),
         db_file: Cow::from("test.db"),
     };
-    let mut db: SqliteDatabase = SqliteDatabase::build(config).await?;
-    db.execute_plain(
-        "DROP TABLE IF EXISTS `user`"
-    ).await?;
+    let mut db: SqliteDatabase = SqliteBuilder::build(config).await?;
+    db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
     db.execute_plain(
         "CREATE TABLE IF NOT EXISTS `user`(`id` INT PRIMARY KEY, `age` INT, `name` VARCHAR(64))",
-    ).await?;
+    )
+    .await?;
 
     // insert entity
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
-        age: Optional::Some(23),
+        age: Some(23),
     };
-    let result = db.insert(&entity).await?;
-    assert_eq!(result, true);
+    db.insert(&entity).await?;
 
     let entity = User {
         id: 2,
         name: "Bob".to_string(),
-        age: Optional::Some(24),
+        age: Some(24),
     };
-    let result = db.insert(&entity).await?;
-    assert_eq!(result, true);
+    db.insert(&entity).await?;
+
+    let pagination = Pagination::new(10, 0);
+    let order_by = UserOrderBy::build(vec!["id"]).unwrap();
 
     //  simple search with one condition
-    let selection = UserSelectedEntity::full_fields();
-    let location = UserLocationExpr::id(">=", 1)?;
-    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    let selection = UserSelected::default();
+    let location = UserLocation::Id(Expr {
+        cmp: Cmp::GreaterOrEq,
+        val: Some(1),
+    });
+    let entities: Vec<UserSelected> = db
+        .search(&selection, &location, &order_by, &pagination)
+        .await?;
     assert_eq!(entities.len(), 2);
-
-    //  simple search with one condition but without construct error
-    let selection = UserSelectedEntity::full_fields();
-    let location = UserLocationExpr::Id(LocationExpr::new(CmpOperator::GreaterOrEq, 1));
-    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
-    assert_eq!(entities.len(), 2);
-
 
     // search with multi-conditions
     // conditions connect with AND
-    let selection = UserSelectedEntity::full_fields();
-    let location = UserLocation {
-        id: Optional::Some(LocationExpr::new(CmpOperator::Eq, 2)),
-        name: Optional::Some(LocationExpr::new(CmpOperator::Eq, "Bob".to_string())),
-        ..Default::default()
-    };
-    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    let location = And::new(
+        UserLocation::Id(Expr {
+            cmp: Cmp::GreaterOrEq,
+            val: Some(1),
+        }),
+        UserLocation::Id(Expr {
+            cmp: Cmp::GreaterOrEq,
+            val: Some(1),
+        }),
+    );
+
+    let entities: Vec<UserSelected> = db.search(&selection, &location, &order_by, &pagination).await?;
     assert_eq!(entities.len(), 1);
 
-
     // search with multi-conditions connect with OR
-    let selection = UserSelectedEntity::full_fields();
-    let location = UserLocation {
-        mode: LocationMode::Or,
-        id: Optional::Some(LocationExpr::from(">", 3)?),
-        age: Optional::Some(LocationExpr::from("<=", 23)?),
-        ..Default::default()
-    };
-    let entities: Vec<UserSelectedEntity> = db.search(&selection, &location, &None, &None).await?;
+    let location = Or::new(
+        UserLocation::Id(Expr {
+            cmp: Cmp::GreaterOrEq,
+            val: Some(1),
+        }),
+        UserLocation::Id(Expr {
+            cmp: Cmp::GreaterOrEq,
+            val: Some(1),
+        }),
+    );
+    let entities: Vec<UserSelected> = db.search(&selection, &location,  &order_by, &pagination).await?;
     assert_eq!(entities.len(), 1);
 
     // for more complicate search, suggest to use template, which can be more maintainable
-
 
     println!("search success!");
     Ok(())

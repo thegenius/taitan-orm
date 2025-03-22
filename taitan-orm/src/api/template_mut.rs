@@ -1,15 +1,27 @@
 use crate::args_extractor::ArgsExtractor;
+use crate::prelude::SqlGenericExecutor;
 use crate::sql_executor_mut::SqlExecutorMut;
 use crate::sql_generator::SqlGenerator;
+use sqlx::Type;
 use taitan_orm_trait::error::TaitanOrmError;
 use taitan_orm_trait::page::{PagedInfo, PagedList, Pagination};
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{Selected, Template};
 use tracing::debug;
 
-impl<T> TemplateMutApi for T where T: SqlExecutorMut + SqlGenerator + ArgsExtractor {}
+impl<T> TemplateMutApi for T
+where
+    T: SqlExecutorMut + SqlGenerator + ArgsExtractor,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+}
 
-pub trait TemplateMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor {
+pub trait TemplateMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
     async fn execute_by_template(&mut self, template: &dyn Template<Self::DB>) -> Result<u64> {
         debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
         let (sql, args) = template.get_sql()?;

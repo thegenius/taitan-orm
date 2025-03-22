@@ -49,9 +49,10 @@ generic_fetch_option_full      (ex, stmt, args) -> Result<Option<SE>>
 generic_fetch_option_full_plain(ex, stmt, _   ) -> Result<Option<SE>>
 **/
 
-
-
 pub trait SqlGenericExecutor
+where
+    i64: Type<Self::DB>,
+    for<'a> i64: sqlx::Encode<'a, Self::DB>
 {
     type DB: Database;
     type CountType: Selected<Self::DB>;

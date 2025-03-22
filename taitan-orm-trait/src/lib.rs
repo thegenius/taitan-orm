@@ -1,7 +1,7 @@
 #![allow(unused_imports, unused_mut, unused_variables)]
 #![allow(dead_code)]
 
-pub mod logic;
+mod logic;
 pub mod parsers;
 pub mod traits;
 
@@ -10,6 +10,9 @@ mod types;
 pub mod op {
     pub use crate::types::expr::Expr;
     pub use crate::types::cmp::Cmp;
+    pub use crate::logic::And;
+    pub use crate::logic::Or;
+    pub use crate::logic::Not;
 }
 pub mod order {
     pub use crate::types::order_by::OrderBy;

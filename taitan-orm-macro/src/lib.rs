@@ -209,7 +209,7 @@ pub fn expand_entity_new_macro(input: TokenStream) -> TokenStream {
     stream.into()
 }
 
-#[proc_macro_derive(Location, attributes(field))]
+#[proc_macro_derive(Location, attributes(table, field))]
 pub fn expand_location_new_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
     let condition_def = ConditionDef::parse(&derive_input);

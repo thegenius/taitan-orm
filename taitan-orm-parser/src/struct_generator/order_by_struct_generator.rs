@@ -18,6 +18,13 @@ impl OrderByStructGenerator {
         let fields: Vec<&str> = table_def.fields.iter().map(|f|f.struct_field.name.get_name()).collect();
 
         let mut uk_name_stream = TokenStream::new();
+        // add primary key as unique key
+        let primary_fields = table_def.get_primary_fields();
+        let primary_fields_names = primary_fields.iter().map(|f|f.struct_field.name.get_name()).collect::<Vec<_>>();
+        uk_name_stream.extend(quote! {
+            &[#(#primary_fields_names),*],
+        });
+        // add unique keys
         let uk_names = table_def.get_unique_names();
         for uk_name in uk_names {
             let uk_fields = table_def.get_unique_fields(uk_name.as_ref());

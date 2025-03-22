@@ -1,8 +1,8 @@
 use sqlx::Database;
 
 use crate::sql_generic_executor::SqlGenericExecutor;
-use taitan_orm_trait::traits::Selected;
 use taitan_orm_trait::result::Result;
+use taitan_orm_trait::traits::Selected;
 
 /**
 现在sqlx::Executor的实现还是太过简陋，导致无法把不同数据库和事务的连接抽象成一个独立的实体
@@ -30,7 +30,11 @@ fetch_one_full_plain   (stmt,     ) -> Result<SE>
 fetch_option_full      (stmt, args) -> Result<Option<SE>>
 fetch_option_full_plain(stmt,     ) -> Result<Option<SE>>
 */
-pub trait SqlExecutorMut: SqlGenericExecutor {
+pub trait SqlExecutorMut: SqlGenericExecutor
+where
+    i64: sqlx::Type<<Self as SqlGenericExecutor>::DB>,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+{
     // type Connection: Connection;
     //
     // async fn get_connection(&mut self) -> Result<PoolConnection<Self::DB>> {

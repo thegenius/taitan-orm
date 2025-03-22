@@ -1,13 +1,25 @@
-use crate::sql_generator::SqlGenerator;
 use crate::args_extractor::ArgsExtractor;
+use crate::prelude::SqlGenericExecutor;
 use crate::sql_executor_mut::SqlExecutorMut;
+use crate::sql_generator::SqlGenerator;
+use sqlx::Type;
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{Entity, Location, Mutation, Unique};
 use tracing::debug;
 
-impl<T> WriterMutApi for T where T: SqlExecutorMut + SqlGenerator + ArgsExtractor {}
+impl<T> WriterMutApi for T
+where
+    T: SqlExecutorMut + SqlGenerator + ArgsExtractor,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+}
 
-pub trait WriterMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor {
+pub trait WriterMutApi: SqlExecutorMut + SqlGenerator + ArgsExtractor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
     async fn insert(&mut self, entity: &dyn Entity<Self::DB>) -> Result<()> {
         debug!(target: "taitan_orm", command = "insert", entity = ?entity);
         let sql = self.gen_insert_sql(entity);

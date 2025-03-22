@@ -1,20 +1,28 @@
 use crate::args_extractor::ArgsExtractor;
-use crate::sql_generator::SqlGenerator;
+use crate::prelude::SqlGenericExecutor;
 use crate::sql_executor::SqlExecutor;
-use taitan_orm_trait::page::{
-    build_paged_list, PagedInfo, PagedList, Pagination,
-};
+use crate::sql_generator::SqlGenerator;
+use sqlx::Type;
+use taitan_orm_trait::error::TaitanOrmError;
+use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
+use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{Selected, Template};
 use tracing::debug;
-use taitan_orm_trait::result::Result;
-use taitan_orm_trait::error::TaitanOrmError;
-impl<T> TemplateApi for T where T: SqlExecutor + SqlGenerator + ArgsExtractor {}
 
-pub trait TemplateApi: SqlExecutor + SqlGenerator + ArgsExtractor {
-    async fn execute_by_template(
-        &self,
-        template: &dyn Template<Self::DB>,
-    ) -> Result<u64> {
+impl<T> TemplateApi for T
+where
+    T: SqlExecutor + SqlGenerator + ArgsExtractor,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+}
+
+pub trait TemplateApi: SqlExecutor + SqlGenerator + ArgsExtractor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+    async fn execute_by_template(&self, template: &dyn Template<Self::DB>) -> Result<u64> {
         debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
         let (sql, args) = template.get_sql()?;
         debug!(target: "taitan_orm", command = "execute_by_template", sql = ?sql);
@@ -24,10 +32,7 @@ pub trait TemplateApi: SqlExecutor + SqlGenerator + ArgsExtractor {
         Ok(result)
     }
 
-    async fn fetch_one_by_template<SE>(
-        &self,
-        template: &dyn Template<Self::DB>,
-    ) -> Result<SE>
+    async fn fetch_one_by_template<SE>(&self, template: &dyn Template<Self::DB>) -> Result<SE>
     where
         SE: Selected<Self::DB> + Send + Unpin,
     {
@@ -56,10 +61,7 @@ pub trait TemplateApi: SqlExecutor + SqlGenerator + ArgsExtractor {
         Ok(result)
     }
 
-    async fn fetch_all_by_template<SE>(
-        &self,
-        template: &dyn Template<Self::DB>,
-    ) -> Result<Vec<SE>>
+    async fn fetch_all_by_template<SE>(&self, template: &dyn Template<Self::DB>) -> Result<Vec<SE>>
     where
         SE: Selected<Self::DB> + Send + Unpin,
     {
@@ -75,14 +77,13 @@ pub trait TemplateApi: SqlExecutor + SqlGenerator + ArgsExtractor {
     async fn fetch_paged_by_template<SE>(
         &self,
         template: &dyn Template<Self::DB>,
-        page: &Pagination
+        page: &Pagination,
     ) -> Result<PagedList<Self::DB, SE>>
     where
         SE: Selected<Self::DB> + Send + Unpin,
     {
         debug!(target: "taitan_orm", command = "search_paged_by_template", template = ?template);
-        let (count_sql, count_args) = template
-            .get_count_sql()?;
+        let (count_sql, count_args) = template.get_count_sql()?;
         debug!(target: "taitan_orm", command = "search_paged_by_template", count_sql = ?count_sql);
         // let page = template
         //     .get_pagination()

@@ -27,11 +27,11 @@ impl Pagination {
     }
 
     pub fn gen_limit_sql() -> String {
-        "LIMIT ?, ?".to_string()
+        " ?, ?".to_string()
     }
 
     pub fn gen_limit_sql_indexed(base_index: usize) -> String {
-        format!("LIMIT ${}, ${}", base_index, base_index + 1)
+        format!(" ${}, ${}", base_index, base_index + 1)
     }
 
     // #[inline(always)]

@@ -1,13 +1,20 @@
-use sqlx::Database;
-use taitan_orm_trait::result::Result;
-use crate::sql_executor::{SqlExecutor};
 use crate::args_extractor::ArgsExtractor;
+use crate::prelude::SqlGenericExecutor;
+use crate::sql_executor::SqlExecutor;
 use crate::sql_generator::SqlGenerator;
-use taitan_orm_trait::traits::{Location, Mutation,  Selected, Unique};
+use sqlx::{Database, Type};
 use taitan_orm_trait::order::OrderBy;
-use taitan_orm_trait::page::{Pagination, PagedInfo, PagedList, build_paged_list};
+use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
+use taitan_orm_trait::result::Result;
+use taitan_orm_trait::traits::{Location, Mutation, Selected, Unique};
 
-impl<T> ReaderApi for T where T: SqlExecutor + SqlGenerator + ArgsExtractor {}
+impl<T> ReaderApi for T
+where
+    T: SqlExecutor + SqlGenerator + ArgsExtractor,
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
+}
 
 // ### 4 Main Read API
 // Because unique only locate to 0-1 record, so order and page is not needed.
@@ -39,9 +46,11 @@ impl<T> ReaderApi for T where T: SqlExecutor + SqlGenerator + ArgsExtractor {}
 // # equals to: search_paged(selection::full, location, order, page) -> PagedList<SE>
 // search_full_paged(location, order, page) -> PagedList<SE>
 // ```
-pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
-
-
+pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor
+where
+    for<'a> i64: sqlx::Encode<'a, <Self as SqlGenericExecutor>::DB>,
+    i64: Type<<Self as SqlGenericExecutor>::DB>,
+{
     async fn select<SE, M>(
         &self,
         selection: &SE,
@@ -60,7 +69,6 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         Ok(result)
     }
 
-
     async fn search<SE>(
         &self,
         selection: &SE,
@@ -72,10 +80,9 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search", location = ?location, order_by = ?order_by, selection = ?selection);
-        let sql =
-            self.gen_search_sql(selection, location, order_by, page);
+        let sql = self.gen_search_sql(selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
+        let args = Self::extract_location_with_page_arguments(location, page)?;
         let result: Vec<SE> = self.fetch_all_(&sql, selection, args).await?;
         tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
         Ok(result)
@@ -85,14 +92,13 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
         &self,
         selection: &SE,
         location: &dyn Location<Self::DB>,
-        order_by: &dyn OrderBy
+        order_by: &dyn OrderBy,
     ) -> Result<Vec<SE>>
     where
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search", location = ?location, order_by = ?order_by, selection = ?selection);
-        let sql =
-            self.gen_search_all_sql(selection, location, order_by);
+        let sql = self.gen_search_all_sql(selection, location, order_by);
         tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
         let args = Self::extract_location_arguments(location)?;
         let result: Vec<SE> = self.fetch_all_(&sql, selection, args).await?;
@@ -118,14 +124,17 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
 
         let sql = self.gen_search_sql(selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search_paged", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
+        let args = Self::extract_location_with_page_arguments(location, page)?;
         let entity_list: Vec<SE> = self.fetch_all_(&sql, selection, args).await?;
         let result = build_paged_list(entity_list, record_count, page);
         tracing::debug!(target: "taitan_orm", command = "search_paged", result = ?result);
         Ok(result)
     }
 
-    async fn exists<M: Mutation<Self::DB>>(&self, unique: &dyn Unique<Self::DB, Mutation = M>) -> Result<bool> {
+    async fn exists<M: Mutation<Self::DB>>(
+        &self,
+        unique: &dyn Unique<Self::DB, Mutation = M>,
+    ) -> Result<bool> {
         tracing::debug!(target: "taitan_orm", command = "exists", unique = ?unique);
         let sql = self.gen_unique_count_sql(unique);
         tracing::debug!(target: "taitan_orm", command = "exists", sql = sql);
@@ -153,7 +162,6 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
     //     tracing::debug!(target: "taitan_orm", command = "count", result = ?record_count);
     //     Ok(record_count)
     // }
-
 
     async fn select_full<SE, M>(
         &self,
@@ -184,10 +192,9 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
     {
         tracing::debug!(target: "taitan_orm", command = "search_full", location = ?location, order_by = ?order_by);
         let selection = SE::default();
-        let sql =
-            self.gen_search_sql(&selection, location, order_by, page);
+        let sql = self.gen_search_sql(&selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search_full", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
+        let args = Self::extract_location_with_page_arguments(location, page)?;
         let result: Vec<SE> = self.fetch_all_(&sql, &selection, args).await?;
         tracing::debug!(target: "taitan_orm", command = "search_full", result = ?result);
         Ok(result)
@@ -196,15 +203,14 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
     async fn search_full_all<SE>(
         &self,
         location: &dyn Location<Self::DB>,
-        order_by: &dyn OrderBy
+        order_by: &dyn OrderBy,
     ) -> Result<Vec<SE>>
     where
         SE: Selected<Self::DB> + Send + Unpin,
     {
         tracing::debug!(target: "taitan_orm", command = "search_full_all", location = ?location, order_by = ?order_by);
         let selection = SE::default();
-        let sql =
-            self.gen_search_all_sql(&selection, location, order_by);
+        let sql = self.gen_search_all_sql(&selection, location, order_by);
         tracing::debug!(target: "taitan_orm", command = "search_full_all", sql = sql);
         let args = Self::extract_location_arguments(location)?;
         let result: Vec<SE> = self.fetch_all_(&sql, &selection, args).await?;
@@ -230,11 +236,10 @@ pub trait ReaderApi: SqlExecutor + SqlGenerator + ArgsExtractor  {
 
         let sql = self.gen_search_sql(&selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search_full_paged", sql = sql);
-        let args = Self::extract_location_arguments(location)?;
+        let args = Self::extract_location_with_page_arguments(location, page)?;
         let entity_list: Vec<SE> = self.fetch_all_(&sql, &selection, args).await?;
         let result = build_paged_list(entity_list, record_count, page);
         tracing::debug!(target: "taitan_orm", command = "search_full_paged", result = ?result);
         Ok(result)
     }
-
 }
