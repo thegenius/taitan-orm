@@ -65,9 +65,9 @@ async fn main() -> taitan_orm::result::Result<()> {
             cmp: Cmp::GreaterOrEq,
             val: Some(1),
         }),
-        UserLocation::Id(Expr {
+        UserLocation::Age(Expr {
             cmp: Cmp::GreaterOrEq,
-            val: Some(1),
+            val: Some(24),
         }),
     );
 
@@ -80,13 +80,13 @@ async fn main() -> taitan_orm::result::Result<()> {
             cmp: Cmp::GreaterOrEq,
             val: Some(1),
         }),
-        UserLocation::Id(Expr {
+        UserLocation::Age(Expr {
             cmp: Cmp::GreaterOrEq,
-            val: Some(1),
+            val: Some(24),
         }),
     );
     let entities: Vec<UserSelected> = db.search(&selection, &location,  &order_by, &pagination).await?;
-    assert_eq!(entities.len(), 1);
+    assert_eq!(entities.len(), 2);
 
     // for more complicate search, suggest to use template, which can be more maintainable
 
