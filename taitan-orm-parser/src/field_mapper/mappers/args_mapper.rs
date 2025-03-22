@@ -35,4 +35,19 @@ impl ArgsMapper {
             }
         }
     }
+
+    pub fn map_enum_add_to_args(&self, field: &FieldDef) -> TokenStream {
+        let field_name = &field.struct_field.get_name();
+        let field_ident = format_ident!("{}", field_name);
+        if field.struct_field.is_location_expr {
+            quote! {
+                sqlx::Arguments::add(args, &#field_ident.val)?
+            }
+        } else {
+            quote! {
+                sqlx::Arguments::add(args, #field_ident)?
+            }
+        }
+
+    }
 }

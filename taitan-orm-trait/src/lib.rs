@@ -1,7 +1,7 @@
 #![allow(unused_imports, unused_mut, unused_variables)]
 #![allow(dead_code)]
 
-mod logic;
+pub mod logic;
 pub mod parsers;
 pub mod traits;
 

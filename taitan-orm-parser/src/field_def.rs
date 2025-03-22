@@ -42,6 +42,9 @@ impl<'a> Default for FieldName<'a> {
 }
 
 impl<'a> FieldName<'a> {
+    pub fn is_named(&self) -> bool {
+        matches!(self, FieldName::Named(_))
+    }
     pub fn named<T: Into<Cow<'a, str>>>(name: T) -> Self {
         FieldName::Named(name.into())
     }

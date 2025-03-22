@@ -5,7 +5,7 @@ use std::borrow::Cow;
 use std::error::Error;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
-use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, OrderByStructGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
+use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, InputParser, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, OrderByStructGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
 
 // mod attrs;
 // mod db_type;
@@ -133,14 +133,33 @@ fn generate_param_impl(stream: &mut TokenStream, table_def: &TableDef) {
     }
 }
 
+fn generate_enum_param_impl(stream: &mut TokenStream, cond_def: &ConditionDef) {
+    let generator = ParameterTraitImplGenerator::default();
+    let supported_database_types = get_supported_database_types();
+    for database_type in supported_database_types {
+        let s: TokenStream = generator.gen_enum_add_to_args(&database_type, &cond_def).into();
+        stream.extend(s);
+    }
+}
+
 #[proc_macro_derive(Parameter, attributes(field))]
 pub fn expand_param_macro(input: TokenStream) -> TokenStream {
     let derive_input = parse_macro_input!(input as DeriveInput);
-    let table_def = TableDef::parse(&derive_input);
-    let mut stream = TokenStream::new();
-    generate_param_impl(&mut stream, &table_def);
-    // panic!("{}", stream);
-    stream.into()
+    let is_enum = InputParser::is_enum(&derive_input.data);
+    if !is_enum {
+        let table_def = TableDef::parse(&derive_input);
+        let mut stream = TokenStream::new();
+        generate_param_impl(&mut stream, &table_def);
+        // panic!("{}", stream);
+        stream.into()
+    } else {
+        let cond_def = ConditionDef::parse(&derive_input);
+        let mut stream = TokenStream::new();
+        generate_enum_param_impl(&mut stream, &cond_def);
+        // panic!("{}", stream);
+        stream.into()
+    }
+
 }
 
 fn generate_template_arg_impl(stream: &mut TokenStream, table_def: &TableDef) {

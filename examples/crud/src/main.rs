@@ -117,7 +117,7 @@ async fn main() -> taitan_orm::result::Result<()> {
     // 6. search
     let selection = UserSelected::default();
     let location = UserLocation::Id(Expr {
-        val: Some(12),
+        val: Some(1),
         cmp: Cmp::Eq,
     });
     let entities: Vec<UserSelected> = db

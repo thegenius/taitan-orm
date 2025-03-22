@@ -2,7 +2,7 @@ use crate::args_extractor::ArgsExtractor;
 use crate::prelude::SqlGenericExecutor;
 use crate::sql_executor::SqlExecutor;
 use crate::sql_generator::SqlGenerator;
-use sqlx::{Database, Type};
+use sqlx::{Arguments, Database, Type};
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
 use taitan_orm_trait::result::Result;
@@ -83,6 +83,8 @@ where
         let sql = self.gen_search_sql(selection, location, order_by, page);
         tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
         let args = Self::extract_location_with_page_arguments(location, page)?;
+        let args_len = args.len();
+        tracing::debug!(target: "taitan_orm", command = "search", len=args_len);
         let result: Vec<SE> = self.fetch_all_(&sql, selection, args).await?;
         tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
         Ok(result)

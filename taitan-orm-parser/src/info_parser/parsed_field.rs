@@ -93,7 +93,7 @@ impl<'a> ParsedField<'a> {
             FieldTokenType::VariantExpr => {
                 let enum_variant_name = format_ident!("{}", field_name.to_camel());
                 quote! {
-                    #enum_variant_name(
+                    #enum_variant_name (
                         #(#attrs)*
                         taitan_orm::op::Expr<#inner_type>
                     )

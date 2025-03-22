@@ -12,12 +12,14 @@ impl LocationEnumGenerator {
         let struct_ident = format_ident!("{}Location", struct_name);
 
         let field_mapper = FieldMapper::new();
-        // let table_name =  field_mapper.escape(&table_def.table_name, db_type);
+        let table_name =  &table_def.table_name;
+        let table_name_ident = format_ident!("{}", table_name);
         let sql_generator = SqlGenerator::default();
         let fields = &table_def.fields;
         let fields_stream = field_mapper.gen_enum_expr_variants(fields);
         quote! {
             #[derive(Clone, Debug, taitan_orm::macros::Parameter, taitan_orm::macros::Location, serde::Serialize, serde::Deserialize)]
+            #[table(#table_name_ident)]
             pub enum #struct_ident {
                 #fields_stream
             }

@@ -13,5 +13,3 @@ pub struct Spec002 {
     age: Option<i32>,
     birthday: Option<PrimitiveDateTime>,
 }
-
-

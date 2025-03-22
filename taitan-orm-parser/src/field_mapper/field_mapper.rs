@@ -62,6 +62,19 @@ impl FieldMapper {
         }
     }
 
+    pub fn gen_enum_add_to_args<'a, T>(&self, fields: T) -> TokenStream
+    where
+        T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,
+    {
+        let streams = fields
+            .into_iter()
+            .map(|def| self.args_mapper.map_enum_add_to_args(def))
+            .collect::<Vec<_>>();
+        quote! {
+            #( #streams; )*
+        }
+    }
+
     pub fn gen_template_add_to_args<'a, T>(&self, fields: T) -> TokenStream
     where
         T: IntoIterator<Item = &'a FieldDef<'a>> + Clone,

@@ -1,5 +1,5 @@
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::{Database, Type};
+use sqlx::{Arguments, Database, Type};
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::result::Result;
@@ -32,9 +32,12 @@ where
         location: &'a dyn Location<Self::DB>,
         page: &'a Pagination,
     ) -> Result<<Self::DB as Database>::Arguments<'a>> {
+        tracing::debug!("extract_location_with_page_arguments location: {:?}", location);
         let mut args = <Self::DB as Database>::Arguments::default();
         location.add_to_args(&mut args)?;
+        tracing::debug!("extract_location_with_page_arguments len of location: {}", args.len());
         <Pagination as Parameter<Self::DB>>::add_to_args(page, &mut args)?;
+        tracing::debug!("extract_location_with_page_arguments len of location + page: {}", args.len());
         Ok(args)
     }
 
