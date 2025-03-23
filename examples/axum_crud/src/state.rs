@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
 use taitan_orm::database::sqlite::{SqliteDatabase, SqliteBuilder, SqliteLocalConfig};
 
+#[derive(Clone)]
 pub struct AppState {
     executor: SqliteDatabase,
 }

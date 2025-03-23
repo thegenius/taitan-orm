@@ -2,7 +2,7 @@ mod state;
 
 use crate::state::AppState;
 use axum::extract::{Path, Query, State};
-// use axum::debug_handler;
+use axum::debug_handler;
 use axum::response::IntoResponse;
 use axum::routing::{delete, patch, post};
 use axum::{routing::get, Json, Router};
@@ -13,14 +13,13 @@ use std::sync::Arc;
 use taitan_orm::prelude::*;
 use tracing::info;
 
-
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table = "user"]
 #[serde_struct = "selected"]
 #[serde_struct = "mutation"]
 #[serde_struct = "unique"]
+#[primary(id)]
 pub struct User {
-    #[primary_key]
     id: i32,
     name: String,
     age: Option<i32>,
@@ -63,11 +62,11 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
-        .route("/user", get(query_user_by_id))
+        // .route("/user", get(query_user_by_id))
         .route("/user", post(create_user))
-        .route("/user", patch(update_user))
-        .route("/user/{id}", delete(delete_user))
-        .route("/users", post(create_users))
+        // .route("/user", patch(update_user))
+        // .route("/user/{id}", delete(delete_user))
+        // .route("/users", post(create_users))
         .with_state(shared_state.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
@@ -76,22 +75,20 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+#[debug_handler]
 async fn create_user(
     State(state): State<Arc<AppState>>,
     Json(entity): Json<User>,
-) -> impl IntoResponse {
-    let success = state.insert(&entity).await.unwrap();
+) -> String {
+   state.insert(&entity).await.unwrap();
     format!("insert success")
 }
 
-// #[axum::debug_handler]
-async fn create_users(
-    State(state): State<Arc<AppState>>,
-    Json(entity): Json<Users>,
-) -> String {
+#[debug_handler]
+async fn create_users(State(state): State<Arc<AppState>>, Json(entity): Json<Users>) -> String {
     let mut trx = state.transaction().await.unwrap();
-    // trx.insert(&entity.user_a).await.unwrap();
-    // trx.insert(&entity.user_b).await.unwrap();
+    trx.insert(&entity.user_a).await.unwrap();
+    trx.insert(&entity.user_b).await.unwrap();
     trx.commit().await.unwrap();
     "insert all users success".to_string()
 }

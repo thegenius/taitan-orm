@@ -7,7 +7,7 @@ rust-version.workspace = true
 [dependencies]
 taitan-orm = {path = "../../taitan-orm"}
 #taitan-orm = {version = "0.1.6"}
-axum = { version = "0.8.1" }
+axum = { version = "0.8.1" , features=["macros"]}
 tokio = {version = "1.42.0", features = ["full"]}
 sqlx = {version = "0.8.2", features = ["runtime-tokio", "mysql", "sqlite", "postgres", "bigdecimal", "time", "uuid"]}
 tracing = {workspace = true}

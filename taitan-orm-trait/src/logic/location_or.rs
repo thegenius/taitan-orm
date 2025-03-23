@@ -44,9 +44,9 @@ where
 
 impl<DB, L, R> Parameter<DB> for Or<DB, L, R>
 where
-    DB: Database,
-    L: Location<DB> + Debug,
-    R: Location<DB> + Debug,
+    DB: Database + Sync,
+    L: Location<DB> + Debug + Sync,
+    R: Location<DB> + Debug + Sync,
 {
     fn add_to_args<'a, 'b>(
         &'a self,
@@ -66,9 +66,9 @@ where
 
 impl<DB, L, R> Location<DB> for Or<DB, L, R>
 where
-    DB: Database,
-    L: Location<DB> + Debug,
-    R: Location<DB> + Debug,
+    DB: Database + Sync,
+    L: Location<DB> + Debug + Sync,
+    R: Location<DB> + Debug + Sync,
 {
     fn table_name(&self) -> Cow<'static, str> {
         let left_table_name = self.left.table_name();

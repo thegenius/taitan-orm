@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use sqlx::Database;
 use crate::result::Result;
 pub trait Parameter<DB: Database> {

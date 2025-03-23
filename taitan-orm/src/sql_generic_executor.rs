@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use taitan_orm_trait::error::TaitanOrmError;
 use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::Selected;
+use taitan_orm_trait::traits::{Entity, Selected};
 /**
 本模块提供2个维度的封装
 1. 结果的转化，上层抽象不再感知Row和QueryResult的存在
