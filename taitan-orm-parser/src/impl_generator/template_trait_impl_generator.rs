@@ -21,7 +21,7 @@ impl TemplateTraitImplGenerator {
 
                     fn get_paged_sql(
                         &self,
-                        pagination: &taitan_orm_trait::page::Pagination,
+                        pagination: &taitan_orm::page::Pagination,
                     ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
                         taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_indexed_paged_sql(self, pagination)
@@ -46,7 +46,7 @@ impl TemplateTraitImplGenerator {
 
                     fn get_paged_sql(
                         &self,
-                        pagination: &taitan_orm_trait::page::Pagination,
+                        pagination: &taitan_orm::page::Pagination,
                     ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'_>)>
                     {
                         taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)
@@ -72,7 +72,7 @@ impl TemplateTraitImplGenerator {
 
                     fn get_paged_sql<'a>(
                         &'a self,
-                        pagination: &'a taitan_orm_trait::page::Pagination,
+                        pagination: &'a taitan_orm::page::Pagination,
                     ) -> taitan_orm::result::Result<(String, <sqlx::#db_ident as sqlx::Database>::Arguments<'a>)>
                     {
                         taitan_orm::traits::TemplateRenderTrait::<sqlx::#db_ident>::gen_paged_sql(self, pagination)

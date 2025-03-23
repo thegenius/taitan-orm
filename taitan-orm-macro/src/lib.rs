@@ -193,7 +193,7 @@ fn generate_template_new_impl(stream: &mut TokenStream, table_def: &TableDef) {
     let struct_name = &table_def.struct_name;
     let struct_ident = format_ident!("{}", &struct_name);
     let s: TokenStream = quote! {
-        impl taitan_orm_trait::traits::TemplateSqlTrait for #struct_ident {}
+        impl taitan_orm::traits::TemplateSqlTrait for #struct_ident {}
     }.into();
     stream.extend(s);
 }

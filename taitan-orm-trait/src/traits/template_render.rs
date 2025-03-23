@@ -56,7 +56,7 @@ where
         pagination: &'a Pagination,
     ) -> Result<(String, <DB as Database>::Arguments<'a>)> {
         let rendered = self.get_rendered_sql()?;
-        let paged_sql = format!("{} {}", rendered, Pagination::gen_limit_sql());
+        let paged_sql = format!("{} LIMIT {}", rendered, Pagination::gen_limit_sql());
         let (sql, vars) = PlaceholderParser::parse(&paged_sql);
         let mut args = <DB as Database>::Arguments::default();
         for variable in &vars {
@@ -92,7 +92,7 @@ where
     ) -> Result<(String, <DB as Database>::Arguments<'a>)> {
         let rendered = self.get_rendered_sql()?;
         let (sql, vars) = PlaceholderParser::parse(&rendered);
-        let paged_sql = format!("{} {}", sql, Pagination::gen_limit_sql_indexed(vars.len()));
+        let paged_sql = format!("{} LIMIT {}", sql, Pagination::gen_limit_sql_indexed(vars.len()));
         let mut args = <DB as Database>::Arguments::default();
         for variable in &vars {
             self.add_to_args(variable, &mut args)?;

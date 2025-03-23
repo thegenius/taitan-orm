@@ -10,5 +10,7 @@ taitan-orm = { path = "../../taitan-orm" }
 sqlx = { workspace = true }
 tokio = { version = "1.35.1", features = ["full"] }
 tracing = { workspace = true }
+serde = { workspace = true }
+askama = "0.12.1"
 tracing-subscriber = { workspace = true }
 rinja = { workspace = true }
