@@ -23,13 +23,13 @@ pub trait Template<DB: Database>: Debug {
     fn get_count_sql(&self) -> Result<(String, DB::Arguments<'_>)>;
 }
 
-pub trait MysqlTemplate: Template<MySql> {}
-impl<T: Template<MySql>> MysqlTemplate for T {}
+pub trait MysqlTemplate: Template<MySql> + Sync{}
+impl<T: Template<MySql>+ Sync> MysqlTemplate for T {}
 
-pub trait PostgresTemplate: Template<Postgres> {}
-impl<T: Template<Postgres>> PostgresTemplate for T {}
+pub trait PostgresTemplate: Template<Postgres>+ Sync {}
+impl<T: Template<Postgres>+ Sync> PostgresTemplate for T {}
 
-pub trait SqliteTemplate: Template<Sqlite> {}
-impl<T: Template<Sqlite>> SqliteTemplate for T {}
+pub trait SqliteTemplate: Template<Sqlite>+ Sync {}
+impl<T: Template<Sqlite>+ Sync> SqliteTemplate for T {}
 
 

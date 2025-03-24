@@ -1,12 +1,11 @@
+use crate::result::Result;
+use sqlx::{Database, MySql, Postgres, Sqlite};
 use std::borrow::Cow;
 use std::fmt::Debug;
-use sqlx::{Database, MySql, Postgres, Sqlite};
-use crate::result::Result;
 
-pub fn selected<T>()-> Option<Option<T>> {
+pub fn selected<T>() -> Option<Option<T>> {
     Some(None)
 }
-
 
 pub trait Selected<DB: Database>: Sized + Default + Debug {
     fn gen_select_sql<'a>(&self) -> Cow<'a, str>;
@@ -18,11 +17,11 @@ pub trait Selected<DB: Database>: Sized + Default + Debug {
     }
 }
 
-pub trait MysqlSelected: Selected<MySql> {}
-impl<T: Selected<MySql>> MysqlSelected for T {}
+pub trait MysqlSelected: Selected<MySql> + Sync {}
+impl<T: Selected<MySql> + Sync> MysqlSelected for T {}
 
-pub trait PostgresSelected: Selected<Postgres> {}
-impl<T: Selected<Postgres>> PostgresSelected for T {}
+pub trait PostgresSelected: Selected<Postgres> + Sync {}
+impl<T: Selected<Postgres> + Sync> PostgresSelected for T {}
 
-pub trait SqliteSelected: Selected<Sqlite> {}
-impl<T: Selected<Sqlite>> SqliteSelected for T {}
+pub trait SqliteSelected: Selected<Sqlite> + Sync {}
+impl<T: Selected<Sqlite> + Sync> SqliteSelected for T {}

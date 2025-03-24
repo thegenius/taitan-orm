@@ -1,18 +1,17 @@
-use std::fmt::Debug;
 use crate::traits::Location;
-use sqlx::{Database, MySql, Postgres, Sqlite};
 use crate::traits::Mutation;
+use sqlx::{Database, MySql, Postgres, Sqlite};
+use std::fmt::Debug;
 
 pub trait Unique<DB: Database>: Location<DB> + Debug {
     type Mutation: Mutation<DB>;
-
 }
 
-pub trait MysqlUnique: Unique<MySql> {}
-impl<T: Unique<MySql>> MysqlUnique for T {}
+pub trait MysqlUnique: Unique<MySql> + Sync {}
+impl<T: Unique<MySql> + Sync> MysqlUnique for T {}
 
-pub trait PostgresUnique: Unique<Postgres> {}
-impl<T: Unique<Postgres>> PostgresUnique for T {}
+pub trait PostgresUnique: Unique<Postgres> + Sync {}
+impl<T: Unique<Postgres> + Sync> PostgresUnique for T {}
 
 pub trait SqliteUnique: Unique<Sqlite> + Sync {}
 impl<T: Unique<Sqlite> + Sync> SqliteUnique for T {}

@@ -10,11 +10,11 @@ pub trait Mutation<DB: Database>: Parameter<DB> + Debug {
     fn all_none(&self) -> bool;
 }
 
-pub trait MysqlMutation: Mutation<MySql> {}
-impl<T: Mutation<MySql>> MysqlMutation for T {}
+pub trait MysqlMutation: Mutation<MySql> + Sync {}
+impl<T: Mutation<MySql> + Sync> MysqlMutation for T {}
 
-pub trait PostgresMutation: Mutation<Postgres> {}
-impl<T: Mutation<Postgres>> PostgresMutation for T {}
+pub trait PostgresMutation: Mutation<Postgres> + Sync {}
+impl<T: Mutation<Postgres> + Sync> PostgresMutation for T {}
 
-pub trait SqliteMutation: Mutation<Sqlite> {}
-impl<T: Mutation<Sqlite>> SqliteMutation for T {}
+pub trait SqliteMutation: Mutation<Sqlite> + Sync {}
+impl<T: Mutation<Sqlite> + Sync> SqliteMutation for T {}
