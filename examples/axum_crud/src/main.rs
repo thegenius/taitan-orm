@@ -13,6 +13,7 @@ use std::sync::Arc;
 use taitan_orm::database::sqlite::ReaderApiNew;
 use taitan_orm::database::sqlite::SqliteDatabase;
 use taitan_orm::database::sqlite::WriterApiNew;
+use taitan_orm::database::sqlite::WriterMutApiNew;
 use taitan_orm::prelude::*;
 use tracing::info;
 
@@ -69,8 +70,8 @@ async fn main() {
         .route("/user", get(query_user_by_id))
         .route("/user", post(create_user))
         .route("/user", patch(update_user))
-        // .route("/user/{id}", delete(delete_user))
-        // .route("/users", post(create_users))
+        .route("/user/{id}", delete(delete_user))
+        .route("/users", post(create_users))
         .with_state(shared_state.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
@@ -89,8 +90,8 @@ async fn create_user(State(state): State<Arc<AppState>>, Json(entity): Json<User
 // #[debug_handler]
 async fn create_users(State(state): State<Arc<AppState>>, Json(entity): Json<Users>) -> String {
     let mut trx = state.transaction().await.unwrap();
-    trx.insert(&entity.user_a).await.unwrap();
-    trx.insert(&entity.user_b).await.unwrap();
+    WriterMutApiNew::insert(&mut trx, &entity.user_a).await.unwrap();
+    WriterMutApiNew::insert(&mut trx, &entity.user_b).await.unwrap();
     trx.commit().await.unwrap();
     "insert all users success".to_string()
 }
@@ -111,11 +112,12 @@ async fn update_user(
     format!("update {}", success)
 }
 
-// async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) -> impl IntoResponse {
-//     let primary = UserPrimary { id };
-//     let success = state.delete(&primary).await.unwrap();
-//     format!("update {}", success)
-// }
+async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) -> impl IntoResponse {
+    let primary = UserPrimary { id };
+    let db: &SqliteDatabase = &*state;
+    let success = WriterApiNew::delete(db, &primary).await.unwrap();
+    format!("update {}", success)
+}
 
 #[debug_handler]
 async fn query_user_by_id(

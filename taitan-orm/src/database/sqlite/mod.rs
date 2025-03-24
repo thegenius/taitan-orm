@@ -13,3 +13,4 @@ pub use transaction::SqliteTransaction;
 
 pub use api::reader::ReaderApiNew;
 pub use api::writer::WriterApiNew;
+pub use api::writer_mut::WriterMutApiNew;
