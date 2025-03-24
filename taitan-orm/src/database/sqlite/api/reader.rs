@@ -57,6 +57,7 @@ pub trait ReaderApiNew: SqlExecutorNew<Sqlite> {
     // where
     //     M: SqliteMutation,
     //     SE: SqliteSelected + Send + Unpin,
+
     // {
     //     tracing::debug!(target: "taitan_orm", command = "select", primary = ?unique, selection = ?selection);
     //     let sql = SqliteSqlGenerator::gen_select_sql(selection, unique);
