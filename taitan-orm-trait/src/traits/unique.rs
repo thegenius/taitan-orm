@@ -14,5 +14,5 @@ impl<T: Unique<MySql>> MysqlUnique for T {}
 pub trait PostgresUnique: Unique<Postgres> {}
 impl<T: Unique<Postgres>> PostgresUnique for T {}
 
-pub trait SqliteUnique: Unique<Sqlite> {}
-impl<T: Unique<Sqlite>> SqliteUnique for T {}
+pub trait SqliteUnique: Unique<Sqlite> + Sync {}
+impl<T: Unique<Sqlite> + Sync> SqliteUnique for T {}

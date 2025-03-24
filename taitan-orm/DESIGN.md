@@ -208,3 +208,21 @@ async fn fetch_execute<'a, SE>(
     args: <Self::DB as Database>::Arguments<'a>,
 ) -> Result<SE>;
 ```
+
+
+```
+________________     ________________    ______________
+|  mysql api   |     | postgres api |    | sqlite api |
+------^---------     --------^-------    -------^------
+      |                      |                  |
+      |                      |                  |
+      -----------------------^-------------------
+                             |    
+     ________________________________________________
+     | ArgsExtractor + SqlGenerator + ResultMapping |
+     ------------------------------------------------
+
+                    Exector + ExecutorMut
+                       GenericExecutor
+
+```

@@ -1,13 +1,10 @@
 use crate::count::CountResult;
 use crate::new_executor::sql_generic_executor::SqlGenericExecutorNew;
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::{Database, Sqlite, Type};
+use sqlx::{Database, Type};
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
-use taitan_orm_trait::traits::{
-    Entity, Location, Mutation, Selected, SqliteEntity, SqliteLocation, SqliteMutation,
-    SqliteUnique, Unique,
-};
+use taitan_orm_trait::traits::{Entity, Location, Mutation, Selected, Unique};
 
 // impl<T, DB> SqlGeneratorNew for T
 // where
@@ -18,27 +15,28 @@ use taitan_orm_trait::traits::{
 // {
 // }
 
-pub struct SqliteSqlGenerator;
+pub struct SqlGeneratorNew;
 
-impl SqliteSqlGenerator {
-    pub fn gen_unique_count_sql< M: SqliteMutation>(
-        unique: &dyn SqliteUnique<Mutation = M>,
+impl SqlGeneratorNew {
+    pub fn gen_unique_count_sql<DB: Database, M: Mutation<DB>>(
+        unique: &dyn Unique<DB, Mutation = M>,
     ) -> String {
         let where_sql = unique.gen_where_sql();
         let table_name = unique.table_name();
         format!("SELECT COUNT(1) FROM {} WHERE {}", table_name, where_sql)
     }
 
-    pub fn gen_location_count_sql(location: &dyn SqliteLocation) -> String {
+    pub fn gen_location_count_sql<DB: Database>(&self, location: &dyn Location<DB>) -> String {
         let where_sql = location.gen_where_sql();
         let table_name = location.table_name();
         format!("SELECT COUNT(1) FROM {} WHERE {}", table_name, where_sql)
     }
 
-    pub fn gen_select_sql<M, SE>(selected: &SE, unique: &dyn SqliteUnique<Mutation = M>) -> String
+    pub fn gen_select_sql<DB, M, SE>(selected: &SE, unique: &dyn Unique<DB, Mutation = M>) -> String
     where
-        M: SqliteMutation,
-        SE: Selected<Sqlite> + Send + Unpin,
+        DB: Database,
+        M: Mutation<DB>,
+        SE: Selected<DB> + Send + Unpin,
     {
         let where_sql = unique.gen_where_sql();
         let table_name = unique.table_name();
@@ -49,14 +47,15 @@ impl SqliteSqlGenerator {
         )
     }
 
-    pub fn gen_search_sql<SE>(
+    pub fn gen_search_sql<DB, SE>(
         selected: &SE,
-        location: &dyn SqliteLocation,
+        location: &dyn Location<DB>,
         order_by: &dyn OrderBy,
         pagination: &Pagination,
     ) -> String
     where
-        SE: Selected<Sqlite> + Send + Unpin,
+        DB: Database,
+        SE: Selected<DB> + Send + Unpin,
     {
         let selected_sql = selected.gen_select_sql();
         let where_sql = location.gen_where_sql();
@@ -69,13 +68,14 @@ impl SqliteSqlGenerator {
         )
     }
 
-    pub fn gen_search_all_sql<SE>(
+    pub fn gen_search_all_sql<DB, SE>(
         selected: &SE,
-        location: &dyn SqliteLocation,
+        location: &dyn Location<DB>,
         order_by: &dyn OrderBy,
     ) -> String
     where
-        SE: Selected<Sqlite> + Send + Unpin,
+        DB: Database,
+        SE: Selected<DB> + Send + Unpin,
     {
         let selected_sql = selected.gen_select_sql();
         let where_sql = location.gen_where_sql();
@@ -87,21 +87,31 @@ impl SqliteSqlGenerator {
         )
     }
 
-    pub fn gen_insert_sql(entity: &dyn SqliteEntity) -> String {
+    pub fn gen_insert_sql<DB>(&self, entity: &dyn Entity<DB>) -> String
+    where
+        DB: Database,
+    {
         entity.gen_insert_sql().into()
     }
 
-    pub fn gen_upsert_sql(entity: &dyn SqliteEntity) -> String {
+    pub fn gen_upsert_sql<DB>(&self, entity: &dyn Entity<DB>) -> String
+    where
+        DB: Database,
+    {
         entity.gen_upsert_sql().into()
     }
 
-    pub fn gen_create_sql(entity: &dyn SqliteEntity) -> String {
+    pub fn gen_create_sql<DB>(&self, entity: &dyn Entity<DB>) -> String
+    where
+        DB: Database,
+    {
         entity.gen_create_sql().into()
     }
 
-    pub fn gen_update_sql<M>(mutation: &M, unique: &dyn SqliteUnique<Mutation = M>) -> String
+    pub fn gen_update_sql<DB, M>(mutation: &M, unique: &dyn Unique<DB, Mutation = M>) -> String
     where
-        M: SqliteMutation,
+        M: Mutation<DB>,
+        DB: Database,
     {
         let set_sql = mutation.gen_update_set_sql();
         let table_name = unique.table_name();
@@ -109,20 +119,25 @@ impl SqliteSqlGenerator {
         format!("UPDATE {} SET {} WHERE {}", table_name, set_sql, where_sql)
     }
 
-    pub fn gen_change_sql(mutation: &dyn SqliteMutation, location: &dyn SqliteLocation) -> String {
+    pub fn gen_change_sql<DB>(mutation: &dyn Mutation<DB>, location: &dyn Location<DB>) -> String
+    where
+        DB: Database,
+    {
         let set_sql = mutation.gen_update_set_sql();
         let table_name = location.table_name();
         let where_sql = location.gen_where_sql();
         format!("UPDATE {} SET {} WHERE {}", table_name, set_sql, where_sql)
     }
 
-    pub fn gen_delete_sql<M: SqliteMutation>(unique: &dyn SqliteUnique<Mutation = M>) -> String {
+    pub fn gen_delete_sql<DB: Database, M: Mutation<DB>>(
+        unique: &dyn Unique<DB, Mutation = M>,
+    ) -> String {
         let where_sql = unique.gen_where_sql();
         let table_name = unique.table_name();
         format!("DELETE FROM {} WHERE {}", table_name, where_sql)
     }
 
-    pub fn gen_purify_sql(location: &dyn SqliteLocation) -> String {
+    pub fn gen_purify_sql<DB: Database>(&self, location: &dyn Location<DB>) -> String {
         let where_sql = location.gen_where_sql();
         let table_name = location.table_name();
         format!("DELETE FROM {} WHERE {}", table_name, where_sql)

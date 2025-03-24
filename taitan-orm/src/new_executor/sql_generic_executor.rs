@@ -49,18 +49,32 @@ generic_fetch_option_full      (ex, stmt, args) -> Result<Option<SE>>
 generic_fetch_option_full_plain(ex, stmt, _   ) -> Result<Option<SE>>
 **/
 
-pub trait SqlGenericExecutorNew<DB: Database, C>
+pub struct SqlGenericExecutorNew<DB>
 where
+    DB: Database,
     i64: Type<DB>,
+    for<'a> i64: sqlx::Encode<'a, DB>, {
+    _marker: PhantomData<DB>,
+}
+
+impl<DB> SqlGenericExecutorNew<DB>
+where
+    DB: Database,
     for<'a> i64: sqlx::Encode<'a, DB>,
-    C: Selected<DB>
+    i64: Type<DB>,
 {
 
+    // pub fn new() -> Self {
+    //     Self {
+    //         _marker: PhantomData,
+    //     }
+    // }
 
-    fn get_affected_rows(query_result: &<DB as Database>::QueryResult) -> u64;
+
+    // pub fn get_affected_rows(query_result: &<DB as Database>::QueryResult) -> u64;
 
     // 1. generic_exists           (ex, stmt, args) -> Result<bool>
-    async fn generic_exists<'a, EX, A>(ex: EX, stmt: &'a str, args: A) -> Result<bool>
+    pub async fn generic_exists<'a, EX, A>(ex: EX, stmt: &'a str, args: A) -> Result<bool>
     where
         EX: Executor<'a, Database = DB>,
         A: IntoArguments<'a, DB> + 'a,
@@ -75,7 +89,7 @@ where
     }
 
     // 2. generic_exists           (ex, stmt, args) -> Result<bool>
-    async fn generic_exists_plain<'a, EX, A>(
+    pub async fn generic_exists_plain<'a, EX, A>(
         ex: EX,
         stmt: &'a str,
         _args: PhantomData<A>,
@@ -94,68 +108,74 @@ where
     }
 
     // generic_count            (ex, stmt, args) -> Result<bool>
-    async fn generic_count<'s, 'a, EX, A>(ex: EX, stmt: &'s str, args: A) -> Result<C>
+    pub async fn generic_count<'s, 'a, EX, A, CNT>(ex: EX, stmt: &'s str, args: A) -> Result<CNT>
     where
         's: 'a,
         EX: Executor<'a, Database = DB>,
         A: IntoArguments<'a, DB> + 'a,
+        CNT: Selected<DB>,
     {
         let query: Query<'a, DB, A> = sqlx::query_with(stmt, args);
         let result_opt: Option<<DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(row) = result_opt {
-            Ok(C::from_row(&C::default(), row)?)
+            Ok(CNT::from_row(&CNT::default(), row)?)
         } else {
             Ok(Default::default())
         }
     }
 
     // generic_count_plain      (ex, stmt, _   ) -> Result<bool>
-    async fn generic_count_plain<'a, EX, A>(
+    pub async fn generic_count_plain<'a, EX, A, CNT>(
         ex: EX,
         stmt: &'a str,
         _args: PhantomData<A>,
-    ) -> Result<C>
+    ) -> Result<CNT>
     where
         EX: Executor<'a, Database = DB>,
         A: IntoArguments<'a, DB> + 'a + Default,
+        CNT: Selected<DB>,
     {
         let query: Query<'a, DB, A> = sqlx::query_with(stmt, Default::default());
         let result_opt: Option<<DB as Database>::Row> = query.fetch_optional(ex).await?;
         if let Some(row) = result_opt {
-            Ok(C::from_row_full(row)?)
+            Ok(CNT::from_row_full(row)?)
         } else {
             Ok(Default::default())
         }
     }
 
     // 3. generic_execute           (ex, stmt, args) -> Result<u64>
-    async fn generic_execute<'a, 'e, EX, A>(ex: EX, query: &'a str, args: A) -> Result<u64>
+    pub async fn generic_execute<'a, 'e, EX, A>(
+        ex: EX,
+        query: &'a str,
+        args: A,
+    ) -> Result<<DB as Database>::QueryResult>
     where
         EX: Executor<'e, Database = DB>,
         A: IntoArguments<'a, DB> + 'a,
     {
         let query: Query<'a, DB, A> = sqlx::query_with(query, args);
         let result: <DB as Database>::QueryResult = query.execute(ex).await?;
-        Ok(Self::get_affected_rows(&result))
+        Ok(result)
     }
 
     // 4. generic_execute_plain     (ex, stmt, _   ) -> Result<u64>
-    async fn generic_execute_plain<'a, EX, A>(
+    pub async fn generic_execute_plain<'a, EX, A>(
         ex: EX,
         query: &'a str,
         _args: PhantomData<A>,
-    ) -> Result<u64>
+    ) -> Result<<DB as Database>::QueryResult>
     where
         EX: Executor<'a, Database = DB>,
         A: IntoArguments<'a, DB> + 'a + Default,
     {
         let query: Query<'a, DB, A> = sqlx::query_with(query, Default::default());
         let result: <DB as Database>::QueryResult = query.execute(ex).await?;
-        Ok(Self::get_affected_rows(&result))
+        Ok(result)
     }
 
     // 5. generic_fetch_all         (ex, stmt, selection, args) -> Result<Vec<SE>>
-    async fn generic_fetch_all<'a, EX, SE, A>(
+    pub async fn generic_fetch_all<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -180,7 +200,7 @@ where
         Ok(result)
     }
 
-    async fn generic_fetch_all_<'a, EX, SE, A>(
+    pub async fn generic_fetch_all_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -206,7 +226,7 @@ where
     }
 
     // 6. generic_fetch_all_plain   (ex, stmt, selection, _   ) -> Result<Vec<SE>>
-    async fn generic_fetch_all_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_all_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -231,7 +251,7 @@ where
         Ok(result)
     }
 
-    async fn generic_fetch_all_plain_<'a, EX, SE, A>(
+    pub async fn generic_fetch_all_plain_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -257,7 +277,7 @@ where
     }
 
     // 7. generic_fetch_one         (ex, stmt, selection, args) -> Result<SE>
-    async fn generic_fetch_one<'a, EX, SE, A>(
+    pub async fn generic_fetch_one<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -273,7 +293,7 @@ where
         Ok(SE::from_row(selection, result)?)
     }
 
-    async fn generic_fetch_one_<'a, EX, SE, A>(
+    pub async fn generic_fetch_one_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -290,7 +310,7 @@ where
     }
 
     // 8. generic_fetch_one_plain   (ex, stmt, selection, _   ) -> Result<SE>
-    async fn generic_fetch_one_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_one_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -306,7 +326,7 @@ where
         Ok(SE::from_row(selection, result)?)
     }
 
-    async fn generic_fetch_one_plain_<'a, EX, SE, A>(
+    pub async fn generic_fetch_one_plain_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -323,7 +343,7 @@ where
     }
 
     // 9. generic_fetch_option      (ex, stmt, selection, args) -> Result<Option<SE>>
-    async fn generic_fetch_option<'a, EX, SE, A>(
+    pub async fn generic_fetch_option<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -343,7 +363,7 @@ where
         }
     }
 
-    async fn generic_fetch_option_<'a, EX, SE, A>(
+    pub async fn generic_fetch_option_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -364,7 +384,7 @@ where
     }
 
     // 10. generic_fetch_option_plain(ex, stmt, selection, _   ) -> Result<Option<SE>>
-    async fn generic_fetch_option_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_option_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -384,7 +404,7 @@ where
         }
     }
 
-    async fn generic_fetch_option_plain_<'a, EX, SE, A>(
+    pub async fn generic_fetch_option_plain_<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         selection: &SE,
@@ -405,7 +425,7 @@ where
     }
 
     // 11.  generic_fetch_all_full         (ex, stmt, args) -> Result<Vec<SE>>
-    async fn generic_fetch_all_full<'a, EX, SE, A>(
+    pub async fn generic_fetch_all_full<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         args: A,
@@ -425,7 +445,7 @@ where
     }
 
     // 12. generic_fetch_all_full_plain   (ex, stmt, _   ) -> Result<Vec<SE>>
-    async fn generic_fetch_all_full_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_all_full_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         _: PhantomData<A>,
@@ -445,7 +465,7 @@ where
     }
 
     // 13. generic_fetch_one_full         (ex, stmt, args) -> Result<SE>
-    async fn generic_fetch_one_full<'a, EX, SE, A>(ex: EX, stmt: &'a str, args: A) -> Result<SE>
+    pub async fn generic_fetch_one_full<'a, EX, SE, A>(ex: EX, stmt: &'a str, args: A) -> Result<SE>
     where
         EX: Executor<'a, Database = DB>,
         SE: Selected<DB> + Send + Unpin,
@@ -461,7 +481,7 @@ where
     }
 
     // 14. generic_fetch_one_full_plain   (ex, stmt, _   ) -> Result<SE>
-    async fn generic_fetch_one_full_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_one_full_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         _: PhantomData<A>,
@@ -481,7 +501,7 @@ where
     }
 
     // 15. generic_fetch_option_full      (ex, stmt, args) -> Result<Option<SE>>
-    async fn generic_fetch_option_full<'a, EX, SE, A>(
+    pub async fn generic_fetch_option_full<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         args: A,
@@ -501,7 +521,7 @@ where
     }
 
     // 16. generic_fetch_option_full_plain(ex, stmt, _   ) -> Result<Option<SE>>
-    async fn generic_fetch_option_full_plain<'a, EX, SE, A>(
+    pub async fn generic_fetch_option_full_plain<'a, EX, SE, A>(
         ex: EX,
         stmt: &'a str,
         _: PhantomData<A>,

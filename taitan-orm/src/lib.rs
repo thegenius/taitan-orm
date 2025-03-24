@@ -31,9 +31,7 @@ mod sql_executor_mut;
 mod sql_generator;
 
 mod sql_generic_executor;
-
-
-
+mod new_executor;
 
 pub mod prelude {
     pub use taitan_orm_macro::Parameter;
@@ -70,6 +68,7 @@ pub mod prelude {
     pub use crate::result::*;
     pub use crate::error::*;
 }
+
 
 pub mod macros {
     pub use taitan_orm_macro::Parameter;

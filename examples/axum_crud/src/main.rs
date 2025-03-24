@@ -8,10 +8,12 @@ use axum::routing::{delete, patch, post};
 use axum::{routing::get, Json, Router};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::ops::DerefMut;
+use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 use taitan_orm::prelude::*;
 use tracing::info;
+use taitan_orm::database::sqlite::ReaderApiNew;
+use taitan_orm::database::sqlite::SqliteDatabase;
 
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table = "user"]
@@ -62,8 +64,8 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
-        // .route("/user", get(query_user_by_id))
-        .route("/user", post(create_user))
+        .route("/user", get(query_user_by_id))
+        // .route("/user", post(create_user))
         // .route("/user", patch(update_user))
         // .route("/user/{id}", delete(delete_user))
         // .route("/users", post(create_users))
@@ -75,7 +77,7 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-#[debug_handler]
+// #[debug_handler]
 async fn create_user(
     State(state): State<Arc<AppState>>,
     Json(entity): Json<User>,
@@ -84,7 +86,7 @@ async fn create_user(
     format!("insert success")
 }
 
-#[debug_handler]
+// #[debug_handler]
 async fn create_users(State(state): State<Arc<AppState>>, Json(entity): Json<Users>) -> String {
     let mut trx = state.transaction().await.unwrap();
     trx.insert(&entity.user_a).await.unwrap();
@@ -115,6 +117,7 @@ async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) ->
     format!("update {}", success)
 }
 
+#[debug_handler]
 async fn query_user_by_id(
     State(state): State<Arc<AppState>>,
     Query(params): Query<HashMap<String, String>>,
@@ -123,8 +126,9 @@ async fn query_user_by_id(
         Some(id) => {
             let id_index = id.parse::<i32>().unwrap();
             let selection = UserSelected::default();
-            let entity: Option<UserSelected> = state
-                .select(&selection, &UserPrimary { id: id_index })
+            let db: &SqliteDatabase = &*state;
+            let entity: Option<UserSelected> = ReaderApiNew::
+                select(db, &selection, &UserPrimary { id: id_index })
                 .await
                 .unwrap();
             let json = serde_json::to_string(&entity).unwrap();
