@@ -12,3 +12,4 @@ pub use database::SqliteDatabase;
 pub use transaction::SqliteTransaction;
 
 pub use api::reader::ReaderApiNew;
+pub use api::writer::WriterApiNew;

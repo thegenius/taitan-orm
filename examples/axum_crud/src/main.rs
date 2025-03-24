@@ -1,8 +1,8 @@
 mod state;
 
 use crate::state::AppState;
-use axum::extract::{Path, Query, State};
 use axum::debug_handler;
+use axum::extract::{Path, Query, State};
 use axum::response::IntoResponse;
 use axum::routing::{delete, patch, post};
 use axum::{routing::get, Json, Router};
@@ -10,10 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
-use taitan_orm::prelude::*;
-use tracing::info;
 use taitan_orm::database::sqlite::ReaderApiNew;
 use taitan_orm::database::sqlite::SqliteDatabase;
+use taitan_orm::database::sqlite::WriterApiNew;
+use taitan_orm::prelude::*;
+use tracing::info;
 
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table = "user"]
@@ -59,14 +60,15 @@ async fn main() {
         name: "Allen".to_string(),
         age: Some(23),
     };
-    let result = shared_state.insert(&entity).await;
-    assert!(result.is_ok());
+
+    let db: &SqliteDatabase = &*shared_state;
+    WriterApiNew::insert(db, &entity).await.unwrap();
 
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/user", get(query_user_by_id))
-        // .route("/user", post(create_user))
-        // .route("/user", patch(update_user))
+        .route("/user", post(create_user))
+        .route("/user", patch(update_user))
         // .route("/user/{id}", delete(delete_user))
         // .route("/users", post(create_users))
         .with_state(shared_state.clone());
@@ -78,11 +80,9 @@ async fn main() {
 }
 
 // #[debug_handler]
-async fn create_user(
-    State(state): State<Arc<AppState>>,
-    Json(entity): Json<User>,
-) -> String {
-   state.insert(&entity).await.unwrap();
+async fn create_user(State(state): State<Arc<AppState>>, Json(entity): Json<User>) -> String {
+    let db: &SqliteDatabase = &*state;
+    WriterApiNew::insert(db, &entity).await.unwrap();
     format!("insert success")
 }
 
@@ -104,18 +104,18 @@ async fn update_user(
     State(state): State<Arc<AppState>>,
     Json(command): Json<UpdateCommand>,
 ) -> impl IntoResponse {
-    let success = state
-        .update(&command.user_mutation, &command.user_primary)
+    let db: &SqliteDatabase = &*state;
+    let success = WriterApiNew::update(db, &command.user_mutation, &command.user_primary)
         .await
         .unwrap();
     format!("update {}", success)
 }
 
-async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) -> impl IntoResponse {
-    let primary = UserPrimary { id };
-    let success = state.delete(&primary).await.unwrap();
-    format!("update {}", success)
-}
+// async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) -> impl IntoResponse {
+//     let primary = UserPrimary { id };
+//     let success = state.delete(&primary).await.unwrap();
+//     format!("update {}", success)
+// }
 
 #[debug_handler]
 async fn query_user_by_id(
@@ -127,10 +127,10 @@ async fn query_user_by_id(
             let id_index = id.parse::<i32>().unwrap();
             let selection = UserSelected::default();
             let db: &SqliteDatabase = &*state;
-            let entity: Option<UserSelected> = ReaderApiNew::
-                select(db, &selection, &UserPrimary { id: id_index })
-                .await
-                .unwrap();
+            let entity: Option<UserSelected> =
+                ReaderApiNew::select(db, &selection, &UserPrimary { id: id_index })
+                    .await
+                    .unwrap();
             let json = serde_json::to_string(&entity).unwrap();
             format!("Hello, {}!", json)
         }
