@@ -12,11 +12,11 @@ pub trait Entity<DB: Database>: Parameter<DB> + Debug {
 
 
 
-pub trait MysqlEntity: Entity<MySql> {}
-impl<T: Entity<MySql>> MysqlEntity for T {}
+pub trait MysqlEntity: Entity<MySql> + Sync {}
+impl<T: Entity<MySql> + Sync> MysqlEntity for T {}
 
-pub trait PostgresEntity: Entity<Postgres> {}
-impl<T: Entity<Postgres>> PostgresEntity for T {}
+pub trait PostgresEntity: Entity<Postgres> + Sync{}
+impl<T: Entity<Postgres> + Sync> PostgresEntity for T {}
 
-pub trait SqliteEntity: Entity<Sqlite> {}
-impl<T: Entity<Sqlite>> SqliteEntity for T {}
+pub trait SqliteEntity: Entity<Sqlite> + Sync {}
+impl<T: Entity<Sqlite> + Sync> SqliteEntity for T {}
