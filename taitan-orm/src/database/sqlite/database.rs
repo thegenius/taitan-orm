@@ -12,7 +12,7 @@ use tracing::debug;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{Entity, Parameter, Selected, SqliteEntity};
-use crate::database::sqlite::SqliteArgsExtractor;
+// use crate::database::sqlite::SqliteArgsExtractor;
 use crate::new_executor::SqlExecutorNew;
 use crate::sql_generator::SqlGenerator;
 

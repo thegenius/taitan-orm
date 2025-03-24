@@ -1,4 +1,4 @@
-use super::super::args_extractor::SqliteArgsExtractor;
+// use super::super::args_extractor::SqliteArgsExtractor;
 use crate::args_extractor::ArgsExtractor;
 use crate::database::sqlite::sql_generator::SqliteSqlGenerator;
 use crate::new_executor::{SqlExecutorNew, SqlGeneratorNew};

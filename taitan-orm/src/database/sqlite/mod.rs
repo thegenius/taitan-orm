@@ -5,7 +5,7 @@ mod transaction;
 mod sql_generator;
 mod api;
 
-pub use args_extractor::SqliteArgsExtractor;
+// pub use args_extractor::SqliteArgsExtractor;
 pub use builder::SqliteBuilder;
 pub use builder::SqliteLocalConfig;
 pub use database::SqliteDatabase;
