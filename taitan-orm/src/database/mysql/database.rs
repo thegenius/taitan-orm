@@ -23,15 +23,6 @@ impl MySqlDatabase {
     }
 }
 
-
-// impl ArgsExtractor for MySqlDatabase {
-//     fn extract_pagination_arguments(
-//         page: &Pagination,
-//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-//         Ok(<Pagination as Parameter<MySql>>::gen_args(page)?)
-//     }
-// }
-
 impl SqlGenericExecutor for MySqlDatabase {
     type DB = MySql;
     type CountType = CountResult;
@@ -41,9 +32,6 @@ impl SqlGenericExecutor for MySqlDatabase {
     }
 }
 
-// impl SqlExecutor for MySqlDatabase {
-//     new_executor_impl! {}
-// }
 
 impl SqlExecutor<MySql> for MySqlDatabase {
     brave_new_executor_impl!(sqlx::MySql);

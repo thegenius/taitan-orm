@@ -1,7 +1,6 @@
-// use crate::args_extractor::ArgsExtractor;
+
 use crate::count::CountResult;
 use crate::brave_new_transaction_impl;
-// use crate::sql_executor_mut::SqlExecutorMut;
 use crate::executors::SqlGenericExecutor;
 use sqlx::Postgres;
 use taitan_orm_trait::result::Result;
@@ -27,14 +26,6 @@ impl<'a> PostgresTransaction<'a> {
     }
 }
 
-// impl<'t> ArgsExtractor for PostgresTransaction<'t> {
-//     fn extract_pagination_arguments(
-//         page: &Pagination,
-//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-//         Ok(<Pagination as Parameter<Postgres>>::gen_args(page)?)
-//     }
-// }
-
 impl<'t> SqlGenericExecutor for PostgresTransaction<'t> {
     type DB = Postgres;
     type CountType = CountResult;
@@ -43,10 +34,6 @@ impl<'t> SqlGenericExecutor for PostgresTransaction<'t> {
         query_result.rows_affected()
     }
 }
-
-// impl<'t> SqlExecutorMut for PostgresTransaction<'t> {
-//     new_transaction_impl! {}
-// }
 
 impl<'t> SqlExecutorMut<sqlx::Postgres> for PostgresTransaction<'t> {
     brave_new_transaction_impl!(sqlx::Postgres);

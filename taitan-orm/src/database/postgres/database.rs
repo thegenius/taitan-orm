@@ -1,9 +1,6 @@
 use super::transaction::PostgresTransaction;
-
-// use crate::args_extractor::ArgsExtractor;
 use crate::count::CountResult;
 use crate::brave_new_executor_impl;
-// use crate::sql_executor::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
 use sqlx::PgPool;
 use sqlx::Postgres;
@@ -27,14 +24,6 @@ impl PostgresDatabase {
     }
 }
 
-// impl ArgsExtractor for PostgresDatabase {
-//     fn extract_pagination_arguments(
-//         page: &Pagination,
-//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-//         Ok(<Pagination as Parameter<Postgres>>::gen_args(page)?)
-//     }
-// }
-
 impl SqlGenericExecutor for PostgresDatabase {
     type DB = Postgres;
     type CountType = CountResult;
@@ -44,9 +33,6 @@ impl SqlGenericExecutor for PostgresDatabase {
     }
 }
 
-// impl SqlExecutor for PostgresDatabase {
-//     new_executor_impl! {}
-// }
 
 impl SqlExecutor<Postgres> for PostgresDatabase {
     brave_new_executor_impl!(sqlx::Postgres);
