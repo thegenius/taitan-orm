@@ -4,7 +4,7 @@ use crate::count::CountResult;
 use crate::new_executor::SqlExecutorNew;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use sqlx::SqlitePool;
-use sqlx::{Database, Sqlite};
+use sqlx::Sqlite;
 use taitan_orm_trait::result::Result;
 
 #[derive(Debug, Clone)]

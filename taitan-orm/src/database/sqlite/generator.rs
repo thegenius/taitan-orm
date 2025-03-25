@@ -5,7 +5,7 @@ use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::traits::{
     Entity, Location, Mutation, Selected, SqliteEntity, SqliteLocation, SqliteMutation,
-    SqliteSelected, SqliteUnique, Unique,
+    SqliteSelected, SqliteUnique,
 };
 // impl<T, DB> SqlGeneratorNew for T
 // where

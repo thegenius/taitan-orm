@@ -1,6 +1,5 @@
 use sqlx::Database;
 
-use crate::sql_generic_executor::SqlGenericExecutor;
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::Selected;
 

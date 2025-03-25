@@ -1,11 +1,10 @@
 // use crate::args_extractor::ArgsExtractor;
 // use crate::sql_executor::SqlExecutor;
 // use crate::sql_generator::SqlGenerator;
-use sqlx::{Sqlite, Type};
+use sqlx::Sqlite;
 use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::{Entity, Location, Mutation, SqliteEntity, SqliteLocation, SqliteMutation, SqliteUnique, Unique};
+use taitan_orm_trait::traits::{Entity, SqliteEntity, SqliteLocation, SqliteMutation, SqliteUnique};
 
-use crate::prelude::SqlGenericExecutor;
 use tracing::debug;
 use crate::database::sqlite::generator::SqliteSqlGenerator;
 use crate::new_executor::SqlExecutorNew;

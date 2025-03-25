@@ -1,7 +1,7 @@
 use crate::count::CountResult;
 use crate::{brave_new_transaction_impl};
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::{Database, MySql};
+use sqlx::MySql;
 use taitan_orm_trait::result::Result;
 use crate::new_executor::SqlExecutorMutNew;
 

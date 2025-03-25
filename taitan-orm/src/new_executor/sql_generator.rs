@@ -1,7 +1,7 @@
 // use crate::count::CountResult;
 // use crate::new_executor::sql_generic_executor::SqlGenericExecutorNew;
 // use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::{Database, Type};
+use sqlx::Database;
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::traits::{Entity, Location, Mutation, Selected, Unique};

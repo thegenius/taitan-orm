@@ -1,15 +1,14 @@
 // use crate::args_extractor::ArgsExtractor;
 use crate::new_executor::SqlExecutorMutNew;
-use crate::prelude::SqlGenericExecutor;
 // use crate::sql_executor_mut::SqlExecutorMut;
 // use crate::sql_generator::SqlGenerator;
-use sqlx::{Sqlite, Type};
+use sqlx::Sqlite;
 use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::{build_paged_list, PagedList, Pagination};
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{
-    Location, Mutation, Parameter, Selected, SqliteLocation, SqliteMutation, SqliteSelected,
-    SqliteUnique, Unique,
+    Parameter, Selected, SqliteLocation, SqliteMutation, SqliteSelected,
+    SqliteUnique,
 };
 use crate::database::sqlite::generator::SqliteSqlGenerator;
 use crate::reader_mut_impl;

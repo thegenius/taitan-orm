@@ -3,7 +3,6 @@ use super::transaction::MySqlTransaction;
 use sqlx::{MySql, MySqlPool};
 use taitan_orm_trait::result::Result;
 use crate::count::CountResult;
-use sqlx::{Database};
 use crate::new_executor::SqlExecutorNew;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use crate::{brave_new_executor_impl};

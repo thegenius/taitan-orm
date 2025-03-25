@@ -8,8 +8,8 @@ use taitan_orm_trait::order::OrderBy;
 use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::{
-    Location, Mutation, MySqlEntity, MySqlLocation, MySqlMutation, MySqlSelected, MySqlTemplate,
-    MySqlUnique, Parameter, Selected, Unique,
+    MySqlEntity, MySqlLocation, MySqlMutation, MySqlSelected, MySqlTemplate,
+    MySqlUnique, Parameter, Selected,
 };
 use tracing::debug;
 

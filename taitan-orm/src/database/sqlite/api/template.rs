@@ -1,12 +1,10 @@
 // use crate::args_extractor::ArgsExtractor;
-use crate::prelude::SqlGenericExecutor;
 // use crate::sql_executor::SqlExecutor;
 // use crate::sql_generator::SqlGenerator;
-use sqlx::{Sqlite, Type};
-use taitan_orm_trait::error::TaitanOrmError;
-use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
+use sqlx::Sqlite;
+use taitan_orm_trait::page::{PagedInfo, PagedList, Pagination};
 use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::{Selected, SqliteSelected, SqliteTemplate, Template};
+use taitan_orm_trait::traits::{SqliteSelected, SqliteTemplate, Template};
 use tracing::debug;
 use crate::new_executor::SqlExecutorNew;
 use crate::template_impl;
