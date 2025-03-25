@@ -3,7 +3,7 @@ use super::transaction::MySqlTransaction;
 use sqlx::{MySql, MySqlPool};
 use taitan_orm_trait::result::Result;
 use crate::count::CountResult;
-use crate::executors::SqlExecutorNew;
+use crate::executors::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
 use crate::{brave_new_executor_impl};
 #[derive(Debug, Clone)]
@@ -45,6 +45,6 @@ impl SqlGenericExecutor for MySqlDatabase {
 //     new_executor_impl! {}
 // }
 
-impl SqlExecutorNew<MySql> for MySqlDatabase {
+impl SqlExecutor<MySql> for MySqlDatabase {
     brave_new_executor_impl!(sqlx::MySql);
 }

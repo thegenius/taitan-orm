@@ -5,7 +5,7 @@ use crate::brave_new_transaction_impl;
 use crate::executors::SqlGenericExecutor;
 use sqlx::Postgres;
 use taitan_orm_trait::result::Result;
-use crate::executors::SqlExecutorMutNew;
+use crate::executors::SqlExecutorMut;
 
 #[derive(Debug)]
 pub struct PostgresTransaction<'a> {
@@ -48,6 +48,6 @@ impl<'t> SqlGenericExecutor for PostgresTransaction<'t> {
 //     new_transaction_impl! {}
 // }
 
-impl<'t> SqlExecutorMutNew<sqlx::Postgres> for PostgresTransaction<'t> {
+impl<'t> SqlExecutorMut<sqlx::Postgres> for PostgresTransaction<'t> {
     brave_new_transaction_impl!(sqlx::Postgres);
 }

@@ -1,5 +1,5 @@
 use crate::database::mysql::generator::MySqlSqlGenerator;
-use crate::executors::{SqlExecutorMutNew, SqlExecutorNew};
+use crate::executors::{SqlExecutorMut, SqlExecutor};
 use crate::{
     reader_impl, reader_mut_impl, template_impl, template_mut_impl, writer_impl, writer_mut_impl,
 };
@@ -13,7 +13,7 @@ use taitan_orm_trait::traits::{
 };
 use tracing::debug;
 
-pub trait ReaderApiNew: SqlExecutorNew<MySql> {
+pub trait ReaderApiNew: SqlExecutor<MySql> {
     reader_impl!(
         MySql,
         MySqlSqlGenerator,
@@ -23,9 +23,9 @@ pub trait ReaderApiNew: SqlExecutorNew<MySql> {
         MySqlUnique
     );
 }
-impl<T> ReaderApiNew for T where T: SqlExecutorNew<MySql> {}
+impl<T> ReaderApiNew for T where T: SqlExecutor<MySql> {}
 
-pub trait ReaderMutApiNew: SqlExecutorMutNew<MySql> {
+pub trait ReaderMutApiNew: SqlExecutorMut<MySql> {
     reader_mut_impl!(
         MySql,
         MySqlSqlGenerator,
@@ -35,9 +35,9 @@ pub trait ReaderMutApiNew: SqlExecutorMutNew<MySql> {
         MySqlUnique
     );
 }
-impl<T> ReaderMutApiNew for T where T: SqlExecutorMutNew<MySql> {}
+impl<T> ReaderMutApiNew for T where T: SqlExecutorMut<MySql> {}
 
-pub trait WriterApiNew: SqlExecutorNew<MySql> {
+pub trait WriterApiNew: SqlExecutor<MySql> {
     writer_impl!(
         MySqlSqlGenerator,
         MySqlEntity,
@@ -46,9 +46,9 @@ pub trait WriterApiNew: SqlExecutorNew<MySql> {
         MySqlUnique
     );
 }
-impl<T> WriterApiNew for T where T: SqlExecutorNew<MySql> {}
+impl<T> WriterApiNew for T where T: SqlExecutor<MySql> {}
 
-pub trait WriterMutApiNew: SqlExecutorMutNew<MySql> {
+pub trait WriterMutApiNew: SqlExecutorMut<MySql> {
     writer_mut_impl!(
         MySqlSqlGenerator,
         MySqlEntity,
@@ -57,14 +57,14 @@ pub trait WriterMutApiNew: SqlExecutorMutNew<MySql> {
         MySqlUnique
     );
 }
-impl<T> WriterMutApiNew for T where T: SqlExecutorMutNew<MySql> {}
+impl<T> WriterMutApiNew for T where T: SqlExecutorMut<MySql> {}
 
-pub trait TemplateApiNew: SqlExecutorNew<MySql> {
+pub trait TemplateApiNew: SqlExecutor<MySql> {
     template_impl!(sqlx::MySql, MySqlSelected, MySqlTemplate);
 }
-impl<T> TemplateApiNew for T where T: SqlExecutorNew<MySql> {}
+impl<T> TemplateApiNew for T where T: SqlExecutor<MySql> {}
 
-pub trait TemplateMutApiNew: SqlExecutorMutNew<MySql> {
+pub trait TemplateMutApiNew: SqlExecutorMut<MySql> {
     template_mut_impl!(sqlx::MySql, MySqlSelected, MySqlTemplate);
 }
-impl<T> TemplateMutApiNew for T where T: SqlExecutorMutNew<MySql> {}
+impl<T> TemplateMutApiNew for T where T: SqlExecutorMut<MySql> {}

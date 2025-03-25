@@ -4,7 +4,7 @@ use crate::brave_new_transaction_impl;
 // use crate::sql_executor_mut::SqlExecutorMut;
 use crate::executors::SqlGenericExecutor;
 use sqlx::Sqlite;
-use crate::executors::SqlExecutorMutNew;
+use crate::executors::SqlExecutorMut;
 
 #[derive(Debug)]
 pub struct SqliteTransaction<'a> {
@@ -47,6 +47,6 @@ impl<'t> SqlGenericExecutor for SqliteTransaction<'t> {
 //     new_transaction_impl! {}
 // }
 
-impl<'t> SqlExecutorMutNew<sqlx::Sqlite> for SqliteTransaction<'t> {
+impl<'t> SqlExecutorMut<sqlx::Sqlite> for SqliteTransaction<'t> {
     brave_new_transaction_impl!(sqlx::Sqlite);
 }

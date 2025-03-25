@@ -1,5 +1,5 @@
 use crate::database::sqlite::generator::SqliteSqlGenerator;
-use crate::executors::{SqlExecutorMutNew, SqlExecutorNew};
+use crate::executors::{SqlExecutorMut, SqlExecutor};
 use crate::{
     reader_impl, reader_mut_impl, template_impl, template_mut_impl, writer_impl, writer_mut_impl,
 };
@@ -13,7 +13,7 @@ use taitan_orm_trait::traits::{
 };
 use tracing::debug;
 
-pub trait ReaderApiNew: SqlExecutorNew<Sqlite> {
+pub trait ReaderApiNew: SqlExecutor<Sqlite> {
     reader_impl!(
         Sqlite,
         SqliteSqlGenerator,
@@ -23,9 +23,9 @@ pub trait ReaderApiNew: SqlExecutorNew<Sqlite> {
         SqliteUnique
     );
 }
-impl<T> ReaderApiNew for T where T: SqlExecutorNew<Sqlite> {}
+impl<T> ReaderApiNew for T where T: SqlExecutor<Sqlite> {}
 
-pub trait ReaderMutApiNew: SqlExecutorMutNew<Sqlite> {
+pub trait ReaderMutApiNew: SqlExecutorMut<Sqlite> {
     reader_mut_impl!(
         Sqlite,
         SqliteSqlGenerator,
@@ -35,9 +35,9 @@ pub trait ReaderMutApiNew: SqlExecutorMutNew<Sqlite> {
         SqliteUnique
     );
 }
-impl<T> ReaderMutApiNew for T where T: SqlExecutorMutNew<Sqlite> {}
+impl<T> ReaderMutApiNew for T where T: SqlExecutorMut<Sqlite> {}
 
-pub trait WriterApiNew: SqlExecutorNew<Sqlite> {
+pub trait WriterApiNew: SqlExecutor<Sqlite> {
     writer_impl!(
         SqliteSqlGenerator,
         SqliteEntity,
@@ -46,9 +46,9 @@ pub trait WriterApiNew: SqlExecutorNew<Sqlite> {
         SqliteUnique
     );
 }
-impl<T> WriterApiNew for T where T: SqlExecutorNew<Sqlite> {}
+impl<T> WriterApiNew for T where T: SqlExecutor<Sqlite> {}
 
-pub trait WriterMutApiNew: SqlExecutorMutNew<Sqlite> {
+pub trait WriterMutApiNew: SqlExecutorMut<Sqlite> {
     writer_mut_impl!(
         SqliteSqlGenerator,
         SqliteEntity,
@@ -57,14 +57,14 @@ pub trait WriterMutApiNew: SqlExecutorMutNew<Sqlite> {
         SqliteUnique
     );
 }
-impl<T> WriterMutApiNew for T where T: SqlExecutorMutNew<Sqlite> {}
+impl<T> WriterMutApiNew for T where T: SqlExecutorMut<Sqlite> {}
 
-pub trait TemplateApiNew: SqlExecutorNew<Sqlite> {
+pub trait TemplateApiNew: SqlExecutor<Sqlite> {
     template_impl!(sqlx::Sqlite, SqliteSelected, SqliteTemplate);
 }
-impl<T> TemplateApiNew for T where T: SqlExecutorNew<Sqlite> {}
+impl<T> TemplateApiNew for T where T: SqlExecutor<Sqlite> {}
 
-pub trait TemplateMutApiNew: SqlExecutorMutNew<Sqlite> {
+pub trait TemplateMutApiNew: SqlExecutorMut<Sqlite> {
     template_mut_impl!(sqlx::Sqlite, SqliteSelected, SqliteTemplate);
 }
-impl<T> TemplateMutApiNew for T where T: SqlExecutorMutNew<Sqlite> {}
+impl<T> TemplateMutApiNew for T where T: SqlExecutorMut<Sqlite> {}

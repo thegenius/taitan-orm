@@ -1,7 +1,7 @@
 use super::transaction::SqliteTransaction;
 use crate::brave_new_executor_impl;
 use crate::count::CountResult;
-use crate::executors::SqlExecutorNew;
+use crate::executors::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
 use sqlx::SqlitePool;
 use sqlx::Sqlite;
@@ -35,6 +35,6 @@ impl SqlGenericExecutor for SqliteDatabase {
 }
 
 
-impl SqlExecutorNew<Sqlite> for SqliteDatabase {
+impl SqlExecutor<Sqlite> for SqliteDatabase {
     brave_new_executor_impl!(sqlx::Sqlite);
 }

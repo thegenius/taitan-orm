@@ -3,7 +3,7 @@ use crate::{brave_new_transaction_impl};
 use crate::executors::SqlGenericExecutor;
 use sqlx::MySql;
 use taitan_orm_trait::result::Result;
-use crate::executors::SqlExecutorMutNew;
+use crate::executors::SqlExecutorMut;
 
 #[derive(Debug)]
 pub struct MySqlTransaction<'a> {
@@ -46,6 +46,6 @@ impl<'t> SqlGenericExecutor for MySqlTransaction<'t> {
 //     new_transaction_impl! {}
 // }
 
-impl<'t> SqlExecutorMutNew<sqlx::MySql> for MySqlTransaction<'t> {
+impl<'t> SqlExecutorMut<sqlx::MySql> for MySqlTransaction<'t> {
     brave_new_transaction_impl!(sqlx::MySql);
 }

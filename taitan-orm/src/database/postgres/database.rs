@@ -8,7 +8,7 @@ use crate::executors::SqlGenericExecutor;
 use sqlx::PgPool;
 use sqlx::Postgres;
 use taitan_orm_trait::result::Result;
-use crate::executors::SqlExecutorNew;
+use crate::executors::SqlExecutor;
 
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {
@@ -48,6 +48,6 @@ impl SqlGenericExecutor for PostgresDatabase {
 //     new_executor_impl! {}
 // }
 
-impl SqlExecutorNew<Postgres> for PostgresDatabase {
+impl SqlExecutor<Postgres> for PostgresDatabase {
     brave_new_executor_impl!(sqlx::Postgres);
 }

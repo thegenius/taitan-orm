@@ -16,7 +16,7 @@ macro_rules! reader_impl {
             tracing::debug!(target: "taitan_orm", command = "select", sql = sql);
             let args = unique.gen_args()?;
             let result: Option<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_option_(self, &sql, selection, args).await?;
+                self.fetch_option_(&sql, selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "select", result = ?result);
             Ok(result)
         }
@@ -37,7 +37,7 @@ macro_rules! reader_impl {
             let mut args = location.gen_args()?;
             <Pagination as Parameter<$db>>::add_to_args(page, &mut args)?;
             let result: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, selection, args).await?;
+                self.fetch_all_(&sql, selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
             Ok(result)
         }
@@ -56,7 +56,7 @@ macro_rules! reader_impl {
             tracing::debug!(target: "taitan_orm", command = "search", sql = sql);
             let args = location.gen_args()?;
             let result: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, selection, args).await?;
+                self.fetch_all_(&sql, selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "search", result = ?result);
             Ok(result)
         }
@@ -82,7 +82,7 @@ macro_rules! reader_impl {
             let mut args = location.gen_args()?;
             <Pagination as Parameter<$db>>::add_to_args(page, &mut args)?;
             let entity_list: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, selection, args).await?;
+                self.fetch_all_(&sql, selection, args).await?;
             let result = build_paged_list(entity_list, record_count, page);
             tracing::debug!(target: "taitan_orm", command = "search_paged", result = ?result);
             Ok(result)
@@ -96,7 +96,7 @@ macro_rules! reader_impl {
             let sql = $gen::gen_unique_count_sql(unique);
             tracing::debug!(target: "taitan_orm", command = "exists", sql = sql);
             let args = unique.gen_args()?;
-            let result: bool = <Self as SqlExecutorNew<$db>>::fetch_exists(self, &sql, args).await?;
+            let result: bool = self.fetch_exists(&sql, args).await?;
             tracing::debug!(target: "taitan_orm", command = "exists", result = ?result);
             Ok(result)
         }
@@ -107,7 +107,7 @@ macro_rules! reader_impl {
             let count_sql = $gen::gen_location_count_sql(location);
             tracing::debug!(target: "taitan_orm", command = "count", sql = count_sql);
             let record_count: u64 =
-                <Self as SqlExecutorNew<$db>>::fetch_count(self, &count_sql, args).await?;
+                self.fetch_count(&count_sql, args).await?;
             tracing::debug!(target: "taitan_orm", command = "count", result = ?record_count);
             Ok(record_count)
         }
@@ -135,7 +135,7 @@ macro_rules! reader_impl {
             tracing::debug!(target: "taitan_orm", command = "select_full", sql = sql);
             let args = unique.gen_args()?;
             let result: Option<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_option_(self, &sql, &selection, args).await?;
+                self.fetch_option_(&sql, &selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "select_full", result = ?result);
             Ok(result)
         }
@@ -156,7 +156,7 @@ macro_rules! reader_impl {
             let mut args = location.gen_args()?;
             <Pagination as Parameter<$db>>::add_to_args(page, &mut args)?;
             let result: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, &selection, args).await?;
+                self.fetch_all_(&sql, &selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "search_full", result = ?result);
             Ok(result)
         }
@@ -175,7 +175,7 @@ macro_rules! reader_impl {
             tracing::debug!(target: "taitan_orm", command = "search_full_all", sql = sql);
             let args = location.gen_args()?;
             let result: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, &selection, args).await?;
+                self.fetch_all_(&sql, &selection, args).await?;
             tracing::debug!(target: "taitan_orm", command = "search_full_all", result = ?result);
             Ok(result)
         }
@@ -201,7 +201,7 @@ macro_rules! reader_impl {
             let mut args = location.gen_args()?;
             <Pagination as Parameter<$db>>::add_to_args(page, &mut args)?;
             let entity_list: Vec<SE> =
-                <Self as SqlExecutorNew<$db>>::fetch_all_(self, &sql, &selection, args).await?;
+                self.fetch_all_(&sql, &selection, args).await?;
             let result = build_paged_list(entity_list, record_count, page);
             tracing::debug!(target: "taitan_orm", command = "search_full_paged", result = ?result);
             Ok(result)

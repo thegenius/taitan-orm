@@ -36,8 +36,8 @@ pub mod prelude {
     pub use taitan_orm_macro::Selected;
 
     pub use crate::executors::SqlGenericExecutor;
-    pub use crate::executors::SqlExecutorNew;
-    pub use crate::executors::SqlExecutorMutNew;
+    pub use crate::executors::SqlExecutor;
+    pub use crate::executors::SqlExecutorMut;
 
     pub use crate::result::Result as TaitanOrmResult;
     pub use crate::count::CountResult;

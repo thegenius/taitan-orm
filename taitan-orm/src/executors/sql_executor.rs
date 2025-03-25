@@ -32,7 +32,7 @@ fetch_option_full_plain(stmt,     ) -> Result<Option<SE>>
 
 
 
-pub trait SqlExecutorNew<DB>
+pub trait SqlExecutor<DB>
 where
     DB: Database,
     i64: sqlx::Type<DB>,

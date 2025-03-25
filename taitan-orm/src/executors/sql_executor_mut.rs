@@ -28,7 +28,7 @@ fetch_one_full_plain   (stmt,     ) -> Result<SE>
 fetch_option_full      (stmt, args) -> Result<Option<SE>>
 fetch_option_full_plain(stmt,     ) -> Result<Option<SE>>
 */
-pub trait SqlExecutorMutNew<DB>
+pub trait SqlExecutorMut<DB>
 where
     DB: Database,
     i64: sqlx::Type<DB>,

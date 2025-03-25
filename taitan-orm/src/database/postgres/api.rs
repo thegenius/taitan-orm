@@ -1,5 +1,5 @@
 use crate::database::postgres::generator::PostgresSqlGenerator;
-use crate::executors::{SqlExecutorMutNew, SqlExecutorNew};
+use crate::executors::{SqlExecutorMut, SqlExecutor};
 use crate::{
     reader_impl, reader_mut_impl, template_impl, template_mut_impl, writer_impl, writer_mut_impl,
 };
@@ -13,7 +13,7 @@ use taitan_orm_trait::traits::{
 };
 use tracing::debug;
 
-pub trait ReaderApiNew: SqlExecutorNew<Postgres> {
+pub trait ReaderApiNew: SqlExecutor<Postgres> {
     reader_impl!(
         Postgres,
         PostgresSqlGenerator,
@@ -23,9 +23,9 @@ pub trait ReaderApiNew: SqlExecutorNew<Postgres> {
         PostgresUnique
     );
 }
-impl<T> ReaderApiNew for T where T: SqlExecutorNew<Postgres> {}
+impl<T> ReaderApiNew for T where T: SqlExecutor<Postgres> {}
 
-pub trait ReaderMutApiNew: SqlExecutorMutNew<Postgres> {
+pub trait ReaderMutApiNew: SqlExecutorMut<Postgres> {
     reader_mut_impl!(
         Postgres,
         PostgresSqlGenerator,
@@ -35,9 +35,9 @@ pub trait ReaderMutApiNew: SqlExecutorMutNew<Postgres> {
         PostgresUnique
     );
 }
-impl<T> ReaderMutApiNew for T where T: SqlExecutorMutNew<Postgres> {}
+impl<T> ReaderMutApiNew for T where T: SqlExecutorMut<Postgres> {}
 
-pub trait WriterApiNew: SqlExecutorNew<Postgres> {
+pub trait WriterApiNew: SqlExecutor<Postgres> {
     writer_impl!(
         PostgresSqlGenerator,
         PostgresEntity,
@@ -46,9 +46,9 @@ pub trait WriterApiNew: SqlExecutorNew<Postgres> {
         PostgresUnique
     );
 }
-impl<T> WriterApiNew for T where T: SqlExecutorNew<Postgres> {}
+impl<T> WriterApiNew for T where T: SqlExecutor<Postgres> {}
 
-pub trait WriterMutApiNew: SqlExecutorMutNew<Postgres> {
+pub trait WriterMutApiNew: SqlExecutorMut<Postgres> {
     writer_mut_impl!(
         PostgresSqlGenerator,
         PostgresEntity,
@@ -57,14 +57,14 @@ pub trait WriterMutApiNew: SqlExecutorMutNew<Postgres> {
         PostgresUnique
     );
 }
-impl<T> WriterMutApiNew for T where T: SqlExecutorMutNew<Postgres> {}
+impl<T> WriterMutApiNew for T where T: SqlExecutorMut<Postgres> {}
 
-pub trait TemplateApiNew: SqlExecutorNew<Postgres> {
+pub trait TemplateApiNew: SqlExecutor<Postgres> {
     template_impl!(sqlx::Postgres, PostgresSelected, PostgresTemplate);
 }
-impl<T> TemplateApiNew for T where T: SqlExecutorNew<Postgres> {}
+impl<T> TemplateApiNew for T where T: SqlExecutor<Postgres> {}
 
-pub trait TemplateMutApiNew: SqlExecutorMutNew<Postgres> {
+pub trait TemplateMutApiNew: SqlExecutorMut<Postgres> {
     template_mut_impl!(sqlx::Postgres, PostgresSelected, PostgresTemplate);
 }
-impl<T> TemplateMutApiNew for T where T: SqlExecutorMutNew<Postgres> {}
+impl<T> TemplateMutApiNew for T where T: SqlExecutorMut<Postgres> {}
