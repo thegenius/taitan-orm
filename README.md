@@ -82,7 +82,7 @@ let location = Or::new(
 
 ```
 
-**Other read APIs are just syntactic sugar and maybe some performance optimize.**
+**Other APIs are just syntactic sugar and maybe some performance optimize.**
 
 
 # Quick Start
