@@ -3,8 +3,8 @@ use sqlx::{MySql, Postgres, Row, Sqlite};
 use sqlx::mysql::MySqlRow;
 use sqlx::postgres::PgRow;
 use sqlx::sqlite::SqliteRow;
-use taitan_orm_trait::traits::Selected;
-use taitan_orm_trait::result::Result;
+use crate::traits::Selected;
+use crate::result::Result;
 
 #[derive(Clone, Debug, Default)]
 pub struct CountResult {

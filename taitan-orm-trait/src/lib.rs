@@ -27,6 +27,7 @@ pub mod page {
 
 pub mod result {
     pub use crate::types::result::Result;
+    pub use crate::types::count::CountResult;
 }
 pub mod error {
     pub use crate::types::error::NotImplementError;

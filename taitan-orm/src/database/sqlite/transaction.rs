@@ -1,5 +1,5 @@
 // use crate::args_extractor::ArgsExtractor;
-use crate::count::CountResult;
+use taitan_orm_trait::result::CountResult;
 use crate::brave_new_transaction_impl;
 // use crate::sql_executor_mut::SqlExecutorMut;
 use crate::executors::SqlGenericExecutor;

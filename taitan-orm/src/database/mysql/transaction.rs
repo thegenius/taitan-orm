@@ -1,4 +1,4 @@
-use crate::count::CountResult;
+use taitan_orm_trait::result::CountResult;
 use crate::{brave_new_transaction_impl};
 use crate::executors::SqlGenericExecutor;
 use sqlx::MySql;

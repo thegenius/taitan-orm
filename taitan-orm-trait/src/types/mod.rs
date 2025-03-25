@@ -7,3 +7,4 @@ pub(crate) mod result;
 
 pub(crate) mod expr;
 pub(crate) mod cmp;
+pub(crate) mod count;

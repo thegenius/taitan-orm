@@ -1,6 +1,6 @@
 use super::transaction::SqliteTransaction;
 use crate::brave_new_executor_impl;
-use crate::count::CountResult;
+use taitan_orm_trait::result::CountResult;
 use crate::executors::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
 use sqlx::SqlitePool;
