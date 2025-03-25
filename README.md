@@ -59,7 +59,7 @@ search_paged (selection, location, order, page) -> PagedList<SE>
 
 Location now can be combined with Logic Operator
 ```rust
- let location = And::new(
+let location = And::new(
     UserLocation::Id(Expr {
         cmp: Cmp::GreaterOrEq,
         val: Some(1),
