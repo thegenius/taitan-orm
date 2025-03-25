@@ -6,7 +6,7 @@
 # Features
 -  **Ergonomics** : Ergonomics API design and Error design.
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
--  **Template** : Write Your Own Sql Like Mybatis.
+-  **Template** : Write Your Own Sql with Ninja Template Syntax.
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
