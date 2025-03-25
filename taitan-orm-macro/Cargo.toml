@@ -20,19 +20,8 @@ postgres = ["sqlx/postgres"]
 [dependencies]
 quote = "1.0"
 syn = { version = "2.0.90", features = ["full", "visit", "visit-mut"] }
-proc-macro2 = "1.0"
-case = "1.0"
-darling = "0.20.10"
-serde= { workspace = true, features = ["derive"] }
-serde_json = {workspace = true}
-askama = "0.12.1"
-
-#taitan-orm-trait = { path = "../taitan-orm-trait" }
 taitan-orm-parser = {path = "../taitan-orm-parser"}
-#taitan-orm-trait = { version = "0.1.9" }
-
 
 
 [dev-dependencies]
 sqlx = {workspace = true}
-taitan-orm-macro = {path = "../taitan-orm-macro", features = ["sqlite", "mysql", "postgres"]}
