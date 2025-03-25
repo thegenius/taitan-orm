@@ -38,15 +38,15 @@ pub struct UserCustomTemplate {
 #### [3] API has been polished
 There are only 7 write apis with intuitive design
 ```rust
-insert(entity) -> () # fail if conflict
-upsert(entity) -> () # update if conflict
-create(entity) -> () # fail if conflict, return generated field
+insert(entity) -> () // fail if conflict
+upsert(entity) -> () // update if conflict
+create(entity) -> () // fail if conflict, return generated field
 
-update(mutation, unique  ) -> bool # return true if update take effect
-change(mutation, location) -> u64  # return affected rows
+update(mutation, unique  ) -> bool // return true if update take effect
+change(mutation, location) -> u64  // return affected rows
 
-delete(unique  ) -> bool # return true if delete take effect
-purify(location) -> u64  # return deleted rows
+delete(unique  ) -> bool // return true if delete take effect
+purify(location) -> u64  // return deleted rows
 ```
 
 There are only 4 read apis with intuitive design
