@@ -40,7 +40,7 @@ There are only 7 write apis with intuitive design
 ```rust
 insert(entity) -> () // fail if conflict
 upsert(entity) -> () // update if conflict
-create(entity) -> () // fail if conflict, return generated field
+create(entity) -> () // fail if conflict, return generated field, still experimental!!!
 
 update(mutation, unique  ) -> bool // return true if update take effect
 change(mutation, location) -> u64  // return affected rows
