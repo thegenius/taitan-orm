@@ -38,7 +38,7 @@ pub mod prelude {
     pub use crate::executors::SqlExecutorMut;
 
     pub use crate::result::Result as TaitanOrmResult;
-    pub use taitan_orm_trait::result::CountResult;
+    pub use crate::result::CountResult;
 
     pub use crate::traits::*;
     pub use crate::op::*;
