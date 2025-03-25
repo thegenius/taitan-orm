@@ -92,12 +92,6 @@ pub fn expand_schema_new_macro(input: TokenStream) -> TokenStream {
 }
 
 
-
-fn generate_order_by(stream: &mut TokenStream, table_def: &TableDef) {
-
-}
-
-
 fn generate_param_impl(stream: &mut TokenStream, table_def: &TableDef) {
     let generator = ParameterTraitImplGenerator::default();
     let supported_database_types = get_supported_database_types();
