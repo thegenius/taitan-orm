@@ -56,6 +56,32 @@ search       (selection, location, order, page) -> Vec<SE>
 search_all   (selection, location, order      ) -> Vec<SE>
 search_paged (selection, location, order, page) -> PagedList<SE>
 ```
+
+Location now can be combined with Logic Operator
+```rust
+ let location = And::new(
+    UserLocation::Id(Expr {
+        cmp: Cmp::GreaterOrEq,
+        val: Some(1),
+    }),
+    UserLocation::Age(Expr {
+        cmp: Cmp::GreaterOrEq,
+        val: Some(24),
+    }),
+);
+let location = Or::new(
+    UserLocation::Id(Expr {
+        cmp: Cmp::GreaterOrEq,
+        val: Some(1),
+    }),
+    UserLocation::Age(Expr {
+        cmp: Cmp::GreaterOrEq,
+        val: Some(24),
+   }),
+);
+
+```
+
 **Other read APIs are just syntactic sugar and maybe some performance optimize.**
 
 
