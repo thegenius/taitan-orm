@@ -10,12 +10,12 @@ pub use database::MySqlDatabase;
 pub use transaction::MySqlTransaction;
 
 pub mod prelude {
-    pub use crate::database::mysql::api::ReaderApiNew;
-    pub use crate::database::mysql::api::ReaderMutApiNew;
-    pub use crate::database::mysql::api::TemplateApiNew;
-    pub use crate::database::mysql::api::TemplateMutApiNew;
-    pub use crate::database::mysql::api::WriterApiNew;
-    pub use crate::database::mysql::api::WriterMutApiNew;
+    pub use crate::database::mysql::api::ReaderApi;
+    pub use crate::database::mysql::api::ReaderMutApi;
+    pub use crate::database::mysql::api::TemplateApi;
+    pub use crate::database::mysql::api::TemplateMutApi;
+    pub use crate::database::mysql::api::WriterApi;
+    pub use crate::database::mysql::api::WriterMutApi;
     pub use crate::database::mysql::builder::MySqlBuilder;
     pub use crate::database::mysql::database::MySqlDatabase;
     pub use crate::database::mysql::transaction::MySqlTransaction;

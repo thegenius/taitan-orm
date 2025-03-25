@@ -13,7 +13,7 @@ use taitan_orm_trait::traits::{
 };
 use tracing::debug;
 
-pub trait ReaderApiNew: SqlExecutor<MySql> {
+pub trait ReaderApi: SqlExecutor<MySql> {
     reader_impl!(
         MySql,
         MySqlSqlGenerator,
@@ -23,9 +23,9 @@ pub trait ReaderApiNew: SqlExecutor<MySql> {
         MySqlUnique
     );
 }
-impl<T> ReaderApiNew for T where T: SqlExecutor<MySql> {}
+impl<T> ReaderApi for T where T: SqlExecutor<MySql> {}
 
-pub trait ReaderMutApiNew: SqlExecutorMut<MySql> {
+pub trait ReaderMutApi: SqlExecutorMut<MySql> {
     reader_mut_impl!(
         MySql,
         MySqlSqlGenerator,
@@ -35,9 +35,9 @@ pub trait ReaderMutApiNew: SqlExecutorMut<MySql> {
         MySqlUnique
     );
 }
-impl<T> ReaderMutApiNew for T where T: SqlExecutorMut<MySql> {}
+impl<T> ReaderMutApi for T where T: SqlExecutorMut<MySql> {}
 
-pub trait WriterApiNew: SqlExecutor<MySql> {
+pub trait WriterApi: SqlExecutor<MySql> {
     writer_impl!(
         MySqlSqlGenerator,
         MySqlEntity,
@@ -46,9 +46,9 @@ pub trait WriterApiNew: SqlExecutor<MySql> {
         MySqlUnique
     );
 }
-impl<T> WriterApiNew for T where T: SqlExecutor<MySql> {}
+impl<T> WriterApi for T where T: SqlExecutor<MySql> {}
 
-pub trait WriterMutApiNew: SqlExecutorMut<MySql> {
+pub trait WriterMutApi: SqlExecutorMut<MySql> {
     writer_mut_impl!(
         MySqlSqlGenerator,
         MySqlEntity,
@@ -57,14 +57,14 @@ pub trait WriterMutApiNew: SqlExecutorMut<MySql> {
         MySqlUnique
     );
 }
-impl<T> WriterMutApiNew for T where T: SqlExecutorMut<MySql> {}
+impl<T> WriterMutApi for T where T: SqlExecutorMut<MySql> {}
 
-pub trait TemplateApiNew: SqlExecutor<MySql> {
+pub trait TemplateApi: SqlExecutor<MySql> {
     template_impl!(sqlx::MySql, MySqlSelected, MySqlTemplate);
 }
-impl<T> TemplateApiNew for T where T: SqlExecutor<MySql> {}
+impl<T> TemplateApi for T where T: SqlExecutor<MySql> {}
 
-pub trait TemplateMutApiNew: SqlExecutorMut<MySql> {
+pub trait TemplateMutApi: SqlExecutorMut<MySql> {
     template_mut_impl!(sqlx::MySql, MySqlSelected, MySqlTemplate);
 }
-impl<T> TemplateMutApiNew for T where T: SqlExecutorMut<MySql> {}
+impl<T> TemplateMutApi for T where T: SqlExecutorMut<MySql> {}

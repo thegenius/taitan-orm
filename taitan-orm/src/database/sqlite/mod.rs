@@ -16,11 +16,11 @@ pub mod prelude {
     pub use crate::database::sqlite::builder::SqliteLocalConfig;
     pub use crate::database::sqlite::database::SqliteDatabase;
     pub use crate::database::sqlite::transaction::SqliteTransaction;
-    pub use crate::database::sqlite::api::ReaderApiNew;
-    pub use crate::database::sqlite::api::ReaderMutApiNew;
-    pub use crate::database::sqlite::api::WriterApiNew;
-    pub use crate::database::sqlite::api::WriterMutApiNew;
-    pub use crate::database::sqlite::api::TemplateApiNew;
-    pub use crate::database::sqlite::api::TemplateMutApiNew;
+    pub use crate::database::sqlite::api::ReaderApi;
+    pub use crate::database::sqlite::api::ReaderMutApi;
+    pub use crate::database::sqlite::api::WriterApi;
+    pub use crate::database::sqlite::api::WriterMutApi;
+    pub use crate::database::sqlite::api::TemplateApi;
+    pub use crate::database::sqlite::api::TemplateMutApi;
 }
 

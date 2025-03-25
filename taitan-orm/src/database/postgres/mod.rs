@@ -10,12 +10,12 @@ pub use transaction::PostgresTransaction;
 pub use builder::PostgresBuilder;
 
 pub mod prelude {
-    pub use crate::database::postgres::api::ReaderApiNew;
-    pub use crate::database::postgres::api::ReaderMutApiNew;
-    pub use crate::database::postgres::api::TemplateApiNew;
-    pub use crate::database::postgres::api::TemplateMutApiNew;
-    pub use crate::database::postgres::api::WriterApiNew;
-    pub use crate::database::postgres::api::WriterMutApiNew;
+    pub use crate::database::postgres::api::ReaderApi;
+    pub use crate::database::postgres::api::ReaderMutApi;
+    pub use crate::database::postgres::api::TemplateApi;
+    pub use crate::database::postgres::api::TemplateMutApi;
+    pub use crate::database::postgres::api::WriterApi;
+    pub use crate::database::postgres::api::WriterMutApi;
     pub use crate::database::postgres::builder::PostgresBuilder;
     pub use crate::database::postgres::database::PostgresDatabase;
     pub use crate::database::postgres::transaction::PostgresTransaction;
