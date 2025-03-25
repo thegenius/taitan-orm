@@ -1,5 +1,4 @@
-use serde::Serialize;
-use taitan_orm_macro::{Parameter, Selected};
+use taitan_orm_macro::Selected;
 use taitan_orm_trait::traits::Selected;
 
 #[derive(Debug, Selected)]

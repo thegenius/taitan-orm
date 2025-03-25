@@ -1,6 +1,5 @@
-use std::borrow::Cow;
 use taitan_orm_macro::{Mutation, Parameter};
-use taitan_orm_trait::traits::{Entity, Mutation};
+use taitan_orm_trait::traits::Mutation;
 
 
 #[derive(Debug, Parameter, Mutation)]

@@ -1,4 +1,3 @@
-use sqlx::Arguments;
 use time::PrimitiveDateTime;
 
 #[derive(

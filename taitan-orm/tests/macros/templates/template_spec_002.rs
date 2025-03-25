@@ -1,12 +1,5 @@
-use sqlx::mysql::MySqlArguments;
-use sqlx::postgres::PgArguments;
-use sqlx::{Arguments, Database, Postgres};
+use sqlx::Arguments;
 use taitan_orm_macro::Template;
-use taitan_orm_macro::TemplateArg;
-use taitan_orm::error::TemplateRenderError;
-use taitan_orm::result::Result;
-use taitan_orm::page::Pagination;
-use taitan_orm::traits::{TemplateArgTrait, TemplateRenderTrait, TemplateSqlTrait};
 #[derive(askama::Template,  Template, Debug)]
 #[template(
     source = "SELECT * FROM users WHERE a=:{a} {% if b.is_some() %} AND b=:{b} {% endif %} {% if c.is_some() %} AND c=:{c} {% endif %}",

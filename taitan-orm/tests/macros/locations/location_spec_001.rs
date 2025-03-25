@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use taitan_orm_macro::{Location, Parameter};
 use taitan_orm_trait::traits::Location;
 use taitan_orm_trait::op::{Cmp, Expr};

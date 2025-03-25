@@ -1,5 +1,4 @@
 use sqlx::Arguments;
-use taitan_orm_macro::Parameter;
 use taitan_orm_trait::traits::Parameter;
 
 

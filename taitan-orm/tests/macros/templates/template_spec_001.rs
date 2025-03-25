@@ -1,6 +1,4 @@
 use askama::Template;
-use sqlx::mysql::MySqlArguments;
-use sqlx::postgres::PgArguments;
 use sqlx::{Arguments, Database, Postgres};
 use taitan_orm::result::Result;
 use taitan_orm::page::{Pagination};
