@@ -10,6 +10,53 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
+# What's New in 0.1.10
+#### [1] Database support is more accurate: Now so if you only need mysql, there will be no sqlite/postgres code generation
+traits has been refactored to database aware 
+```rust
+pub trait Entity<DB: Database>: Parameter<DB> + Debug {
+    fn gen_insert_sql<'a>(&self) -> Cow<'a, str>;
+    fn gen_upsert_sql<'a>(&self) -> Cow<'a, str>;
+    fn gen_create_sql<'a>(&self) -> Cow<'a, str>;
+}
+```
+
+#### [2] Template engine now has the full power of Askama Engine
+Now you can write any Ninja syntax in template.
+```rust
+#[derive(Template, askama::Template, Debug)]
+#[template(
+ source = "select `id`, `name`, `age` FROM `user` where {% if age.is_some() %} age >= :{age} AND {% endif %} `name` = :{name}",
+ ext = "txt"
+)]
+pub struct UserCustomTemplate {
+ name: String,
+ age: Option<i32>,
+}
+```
+
+#### [3] Api has been polished
+There are only 7 write apis with intuitive design
+```
+insert(entity) -> () # fail if conflict
+upsert(entity) -> () # update if conflict
+create(entity) -> () # fail if conflict, return generated field
+
+update(mutation, unique  ) -> bool # return true if update take effect
+change(mutation, location) -> u64  # return affected rows
+
+delete(unique  ) -> bool # return true if delete take effect
+purify(location) -> u64  # return deleted rows
+```
+
+There are only 4 read apis with intuitive design
+```
+select       (selection, unique               ) -> Optional<SE>
+search       (selection, location, order, page) -> Vec<SE>
+search_all   (selection, location, order      ) -> Vec<SE>
+search_paged (selection, location, order, page) -> PagedList<SE>
+```
+Other read APIs are just syntactic sugar and maybe some performance optimize.
 
 
 # Quick Start
