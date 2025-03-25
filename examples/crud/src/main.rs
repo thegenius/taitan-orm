@@ -77,7 +77,6 @@ async fn main() -> taitan_orm::result::Result<()> {
         birthday: Option::Some(datetime!(2019-01-01 0:00)),
     };
     let result = db.insert(&entity).await?;
-    // assert_eq!(result, true);
 
     // 2. update
     let mutation = UserMutation {
