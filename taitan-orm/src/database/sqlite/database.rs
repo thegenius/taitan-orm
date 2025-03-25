@@ -2,7 +2,7 @@ use super::transaction::SqliteTransaction;
 use crate::brave_new_executor_impl;
 use crate::count::CountResult;
 use crate::new_executor::SqlExecutorNew;
-use crate::sql_generic_executor::SqlGenericExecutor;
+use crate::new_executor::SqlGenericExecutor;
 use sqlx::SqlitePool;
 use sqlx::Sqlite;
 use taitan_orm_trait::result::Result;
@@ -24,13 +24,6 @@ impl SqliteDatabase {
     }
 }
 
-// impl ArgsExtractor for SqliteDatabase {
-//     fn extract_pagination_arguments(
-//         page: &Pagination,
-//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-//         Ok(<Pagination as Parameter<Sqlite>>::gen_args(page)?)
-//     }
-// }
 
 impl SqlGenericExecutor for SqliteDatabase {
     type DB = Sqlite;
@@ -41,9 +34,6 @@ impl SqlGenericExecutor for SqliteDatabase {
     }
 }
 
-// impl SqlExecutor for SqliteDatabase {
-//     new_executor_impl! {}
-// }
 
 impl SqlExecutorNew<Sqlite> for SqliteDatabase {
     brave_new_executor_impl!(sqlx::Sqlite);

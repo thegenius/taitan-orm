@@ -4,6 +4,7 @@ mod database;
 mod transaction;
 mod generator;
 pub mod api;
+// mod apis;
 
 pub use builder::SqliteBuilder;
 pub use builder::SqliteLocalConfig;

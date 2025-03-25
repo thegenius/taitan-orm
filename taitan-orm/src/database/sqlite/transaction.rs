@@ -2,7 +2,7 @@
 use crate::count::CountResult;
 use crate::brave_new_transaction_impl;
 // use crate::sql_executor_mut::SqlExecutorMut;
-use crate::sql_generic_executor::SqlGenericExecutor;
+use crate::new_executor::SqlGenericExecutor;
 use sqlx::Sqlite;
 use crate::new_executor::SqlExecutorMutNew;
 
