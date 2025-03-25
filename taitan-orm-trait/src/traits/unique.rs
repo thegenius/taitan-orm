@@ -7,8 +7,8 @@ pub trait Unique<DB: Database>: Location<DB> + Debug {
     type Mutation: Mutation<DB>;
 }
 
-pub trait MysqlUnique: Unique<MySql> + Sync {}
-impl<T: Unique<MySql> + Sync> MysqlUnique for T {}
+pub trait MySqlUnique: Unique<MySql> + Sync {}
+impl<T: Unique<MySql> + Sync> MySqlUnique for T {}
 
 pub trait PostgresUnique: Unique<Postgres> + Sync {}
 impl<T: Unique<Postgres> + Sync> PostgresUnique for T {}

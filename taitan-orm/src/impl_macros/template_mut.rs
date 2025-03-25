@@ -1,8 +1,8 @@
 #[doc(hidden)]
 #[macro_export]
-macro_rules! template_impl {
+macro_rules! template_mut_impl {
     ($db: ty, $se: path, $template: ident) => {
-            async fn execute_by_template(&self, template: &dyn $template) -> Result<u64> {
+            async fn execute_by_template(&mut self, template: &dyn $template) -> Result<u64> {
                 debug!(target: "taitan_orm", command = "execute_by_template", template = ?template);
                 let (sql, args) = template.get_sql()?;
                 debug!(target: "taitan_orm", command = "execute_by_template", sql = ?sql);
@@ -12,7 +12,7 @@ macro_rules! template_impl {
                 Ok(result)
             }
 
-            async fn fetch_one_by_template<SE>(&self, template: &dyn $template) -> Result<SE>
+            async fn fetch_one_by_template<SE>(&mut self, template: &dyn $template) -> Result<SE>
             where
                 SE: $se + Send + Unpin,
             {
@@ -26,7 +26,7 @@ macro_rules! template_impl {
             }
 
             async fn fetch_option_by_template<SE>(
-                &self,
+                &mut self,
                 template: &dyn $template,
             ) -> Result<Option<SE>>
             where
@@ -41,7 +41,7 @@ macro_rules! template_impl {
                 Ok(result)
             }
 
-            async fn fetch_all_by_template<SE>(&self, template: &dyn $template) -> Result<Vec<SE>>
+            async fn fetch_all_by_template<SE>(&mut self, template: &dyn $template) -> Result<Vec<SE>>
             where
                 SE: $se + Send + Unpin,
             {
@@ -55,7 +55,7 @@ macro_rules! template_impl {
             }
 
             async fn fetch_paged_by_template<SE>(
-                &self,
+                &mut self,
                 template: &dyn $template,
                 page: &Pagination,
             ) -> Result<PagedList<$db, SE>>

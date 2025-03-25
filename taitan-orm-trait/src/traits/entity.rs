@@ -12,8 +12,8 @@ pub trait Entity<DB: Database>: Parameter<DB> + Debug {
 
 
 
-pub trait MysqlEntity: Entity<MySql> + Sync {}
-impl<T: Entity<MySql> + Sync> MysqlEntity for T {}
+pub trait MySqlEntity: Entity<MySql> + Sync {}
+impl<T: Entity<MySql> + Sync> MySqlEntity for T {}
 
 pub trait PostgresEntity: Entity<Postgres> + Sync{}
 impl<T: Entity<Postgres> + Sync> PostgresEntity for T {}

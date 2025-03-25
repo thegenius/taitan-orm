@@ -8,36 +8,36 @@ pub mod template_render;
 pub mod unique;
 
 pub use entity::Entity;
-pub use entity::MysqlEntity;
+pub use entity::MySqlEntity;
 pub use entity::PostgresEntity;
 pub use entity::SqliteEntity;
 
 pub use location::LogicOp;
 pub use location::LocationKind;
 pub use location::Location;
-pub use location::MysqlLocation;
+pub use location::MySqlLocation;
 pub use location::PostgresLocation;
 pub use location::SqliteLocation;
 
 pub use mutation::Mutation;
-pub use mutation::MysqlMutation;
+pub use mutation::MySqlMutation;
 pub use mutation::SqliteMutation;
 pub use mutation::PostgresMutation;
 
 pub use unique::Unique;
-pub use unique::MysqlUnique;
+pub use unique::MySqlUnique;
 pub use unique::PostgresUnique;
 pub use unique::SqliteUnique;
 
 pub use param::Parameter;
 
 pub use selected::Selected;
-pub use selected::MysqlSelected;
+pub use selected::MySqlSelected;
 pub use selected::SqliteSelected;
 pub use selected::PostgresSelected;
 
 pub use template::Template;
-pub use template::MysqlTemplate;
+pub use template::MySqlTemplate;
 pub use template::PostgresTemplate;
 pub use template::SqliteTemplate;
 

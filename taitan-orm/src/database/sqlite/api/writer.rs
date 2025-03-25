@@ -7,7 +7,7 @@ use taitan_orm_trait::traits::{Entity, Location, Mutation, SqliteEntity, SqliteL
 
 use crate::prelude::SqlGenericExecutor;
 use tracing::debug;
-use crate::database::sqlite::sql_generator::SqliteSqlGenerator;
+use crate::database::sqlite::generator::SqliteSqlGenerator;
 use crate::new_executor::SqlExecutorNew;
 use crate::writer_impl;
 

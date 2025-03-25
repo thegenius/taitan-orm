@@ -17,8 +17,8 @@ pub trait Selected<DB: Database>: Sized + Default + Debug {
     }
 }
 
-pub trait MysqlSelected: Selected<MySql> + Sync {}
-impl<T: Selected<MySql> + Sync> MysqlSelected for T {}
+pub trait MySqlSelected: Selected<MySql> + Sync {}
+impl<T: Selected<MySql> + Sync> MySqlSelected for T {}
 
 pub trait PostgresSelected: Selected<Postgres> + Sync {}
 impl<T: Selected<Postgres> + Sync> PostgresSelected for T {}

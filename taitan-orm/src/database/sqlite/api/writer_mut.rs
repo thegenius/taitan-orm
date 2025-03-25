@@ -1,5 +1,5 @@
 use crate::args_extractor::ArgsExtractor;
-use crate::database::sqlite::sql_generator::SqliteSqlGenerator;
+use crate::database::sqlite::generator::SqliteSqlGenerator;
 use crate::new_executor::SqlExecutorMutNew;
 use crate::prelude::SqlGenericExecutor;
 use crate::sql_executor_mut::SqlExecutorMut;

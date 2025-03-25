@@ -1,6 +1,6 @@
 use super::transaction::MySqlTransaction;
 
-use sqlx::{MySql, MySqlPool};
+use sqlx::{MySql, MySqlPool, Postgres};
 use taitan_orm_trait::result::Result;
 use crate::count::CountResult;
 use crate::sql_executor::{SqlExecutor};
@@ -8,8 +8,10 @@ use crate::args_extractor::ArgsExtractor;
 use sqlx::{Database};
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::traits::Parameter;
+use crate::database::postgres::PostgresDatabase;
+use crate::new_executor::SqlExecutorNew;
 use crate::sql_generic_executor::SqlGenericExecutor;
-use crate::new_executor_impl;
+use crate::{brave_new_executor_impl, new_executor_impl};
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {
     pub(crate) pool: MySqlPool,
@@ -47,4 +49,8 @@ impl SqlGenericExecutor for MySqlDatabase {
 
 impl SqlExecutor for MySqlDatabase {
     new_executor_impl! {}
+}
+
+impl SqlExecutorNew<MySql> for MySqlDatabase {
+    brave_new_executor_impl!(sqlx::MySql);
 }

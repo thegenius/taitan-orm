@@ -2,7 +2,7 @@ mod args_extractor;
 mod builder;
 mod database;
 mod transaction;
-mod sql_generator;
+mod generator;
 mod api;
 
 // pub use args_extractor::SqliteArgsExtractor;

@@ -2,14 +2,17 @@ use super::transaction::PostgresTransaction;
 
 use crate::args_extractor::ArgsExtractor;
 use crate::count::CountResult;
-use crate::new_executor_impl;
+use crate::{brave_new_executor_impl, new_executor_impl};
 use crate::sql_executor::SqlExecutor;
 use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::PgPool;
+use sqlx::{PgPool, Sqlite};
 use sqlx::{Database, Postgres};
 use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::traits::Parameter;
+use crate::database::sqlite::SqliteDatabase;
+use crate::new_executor::SqlExecutorNew;
+
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {
     pub(crate) pool: PgPool,
@@ -46,4 +49,8 @@ impl SqlGenericExecutor for PostgresDatabase {
 
 impl SqlExecutor for PostgresDatabase {
     new_executor_impl! {}
+}
+
+impl SqlExecutorNew<Postgres> for PostgresDatabase {
+    brave_new_executor_impl!(sqlx::Postgres);
 }

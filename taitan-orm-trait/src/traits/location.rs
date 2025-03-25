@@ -25,8 +25,8 @@ pub trait Location<DB: Database>: Parameter<DB> + Debug {
     }
 }
 
-pub trait MysqlLocation: Location<MySql>+ Sync {}
-impl<T: Location<MySql>+ Sync> MysqlLocation for T {}
+pub trait MySqlLocation: Location<MySql>+ Sync {}
+impl<T: Location<MySql>+ Sync> MySqlLocation for T {}
 
 pub trait PostgresLocation: Location<Postgres> + Sync{}
 impl<T: Location<Postgres>+ Sync> PostgresLocation for T {}

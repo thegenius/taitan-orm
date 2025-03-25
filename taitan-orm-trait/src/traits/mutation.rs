@@ -10,8 +10,8 @@ pub trait Mutation<DB: Database>: Parameter<DB> + Debug {
     fn all_none(&self) -> bool;
 }
 
-pub trait MysqlMutation: Mutation<MySql> + Sync {}
-impl<T: Mutation<MySql> + Sync> MysqlMutation for T {}
+pub trait MySqlMutation: Mutation<MySql> + Sync {}
+impl<T: Mutation<MySql> + Sync> MySqlMutation for T {}
 
 pub trait PostgresMutation: Mutation<Postgres> + Sync {}
 impl<T: Mutation<Postgres> + Sync> PostgresMutation for T {}
