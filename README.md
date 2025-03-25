@@ -35,9 +35,9 @@ pub struct UserCustomTemplate {
 }
 ```
 
-#### [3] Api has been polished
+#### [3] API has been polished
 There are only 7 write apis with intuitive design
-```
+```rust
 insert(entity) -> () # fail if conflict
 upsert(entity) -> () # update if conflict
 create(entity) -> () # fail if conflict, return generated field
@@ -50,13 +50,13 @@ purify(location) -> u64  # return deleted rows
 ```
 
 There are only 4 read apis with intuitive design
-```
+```rust
 select       (selection, unique               ) -> Optional<SE>
 search       (selection, location, order, page) -> Vec<SE>
 search_all   (selection, location, order      ) -> Vec<SE>
 search_paged (selection, location, order, page) -> PagedList<SE>
 ```
-Other read APIs are just syntactic sugar and maybe some performance optimize.
+**Other read APIs are just syntactic sugar and maybe some performance optimize.**
 
 
 # Quick Start
