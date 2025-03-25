@@ -52,7 +52,6 @@ pub mod prelude {
     pub use crate::sql_generic_executor::SqlGenericExecutor;
     pub use crate::new_executor::SqlExecutorNew;
     pub use crate::new_executor::SqlExecutorMutNew;
-    pub use crate::new_executor::SqlGeneratorNew;
 
     // pub use crate::api::reader::ReaderApi;
     // pub use crate::api::writer::WriterApi;
