@@ -1,8 +1,11 @@
 [package]
 name = "taitan-orm-parser"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Next Generation ORM based on sqlx"
 rust-version.workspace = true
 version.workspace = true
+
 
 [dependencies]
 quote = "1.0"
