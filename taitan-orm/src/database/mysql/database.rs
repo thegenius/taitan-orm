@@ -3,8 +3,8 @@ use super::transaction::MySqlTransaction;
 use sqlx::{MySql, MySqlPool};
 use taitan_orm_trait::result::Result;
 use crate::count::CountResult;
-use crate::new_executor::SqlExecutorNew;
-use crate::new_executor::SqlGenericExecutor;
+use crate::executors::SqlExecutorNew;
+use crate::executors::SqlGenericExecutor;
 use crate::{brave_new_executor_impl};
 #[derive(Debug, Clone)]
 pub struct MySqlDatabase {

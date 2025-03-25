@@ -23,7 +23,7 @@ mod impl_macros;
 
 mod count;
 
-mod new_executor;
+mod executors;
 
 pub mod prelude {
     pub use taitan_orm_macro::Parameter;
@@ -35,9 +35,9 @@ pub mod prelude {
     pub use taitan_orm_macro::Schema;
     pub use taitan_orm_macro::Selected;
 
-    pub use crate::new_executor::SqlGenericExecutor;
-    pub use crate::new_executor::SqlExecutorNew;
-    pub use crate::new_executor::SqlExecutorMutNew;
+    pub use crate::executors::SqlGenericExecutor;
+    pub use crate::executors::SqlExecutorNew;
+    pub use crate::executors::SqlExecutorMutNew;
 
     pub use crate::result::Result as TaitanOrmResult;
     pub use crate::count::CountResult;

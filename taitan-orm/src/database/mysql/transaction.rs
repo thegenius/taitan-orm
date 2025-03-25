@@ -1,9 +1,9 @@
 use crate::count::CountResult;
 use crate::{brave_new_transaction_impl};
-use crate::new_executor::SqlGenericExecutor;
+use crate::executors::SqlGenericExecutor;
 use sqlx::MySql;
 use taitan_orm_trait::result::Result;
-use crate::new_executor::SqlExecutorMutNew;
+use crate::executors::SqlExecutorMutNew;
 
 #[derive(Debug)]
 pub struct MySqlTransaction<'a> {

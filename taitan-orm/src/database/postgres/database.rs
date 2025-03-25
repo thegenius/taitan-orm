@@ -4,11 +4,11 @@ use super::transaction::PostgresTransaction;
 use crate::count::CountResult;
 use crate::brave_new_executor_impl;
 // use crate::sql_executor::SqlExecutor;
-use crate::new_executor::SqlGenericExecutor;
+use crate::executors::SqlGenericExecutor;
 use sqlx::PgPool;
 use sqlx::Postgres;
 use taitan_orm_trait::result::Result;
-use crate::new_executor::SqlExecutorNew;
+use crate::executors::SqlExecutorNew;
 
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {

@@ -1,8 +1,8 @@
 use super::transaction::SqliteTransaction;
 use crate::brave_new_executor_impl;
 use crate::count::CountResult;
-use crate::new_executor::SqlExecutorNew;
-use crate::new_executor::SqlGenericExecutor;
+use crate::executors::SqlExecutorNew;
+use crate::executors::SqlGenericExecutor;
 use sqlx::SqlitePool;
 use sqlx::Sqlite;
 use taitan_orm_trait::result::Result;

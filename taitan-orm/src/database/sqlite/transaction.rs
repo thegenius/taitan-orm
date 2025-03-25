@@ -2,9 +2,9 @@
 use crate::count::CountResult;
 use crate::brave_new_transaction_impl;
 // use crate::sql_executor_mut::SqlExecutorMut;
-use crate::new_executor::SqlGenericExecutor;
+use crate::executors::SqlGenericExecutor;
 use sqlx::Sqlite;
-use crate::new_executor::SqlExecutorMutNew;
+use crate::executors::SqlExecutorMutNew;
 
 #[derive(Debug)]
 pub struct SqliteTransaction<'a> {

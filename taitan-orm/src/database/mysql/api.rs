@@ -1,5 +1,5 @@
 use crate::database::mysql::generator::MySqlSqlGenerator;
-use crate::new_executor::{SqlExecutorMutNew, SqlExecutorNew};
+use crate::executors::{SqlExecutorMutNew, SqlExecutorNew};
 use crate::{
     reader_impl, reader_mut_impl, template_impl, template_mut_impl, writer_impl, writer_mut_impl,
 };
