@@ -16,19 +16,19 @@
 
 
 
-mod api;
+// mod api;
 
 pub mod database;
 #[doc(hidden)]
 #[macro_use]
 mod impl_macros;
 
-pub (crate) mod args_extractor;
+// pub (crate) mod args_extractor;
 
 mod count;
-mod sql_executor;
-mod sql_executor_mut;
-mod sql_generator;
+// mod sql_executor;
+// mod sql_executor_mut;
+// mod sql_generator;
 
 mod sql_generic_executor;
 mod new_executor;
@@ -44,18 +44,23 @@ pub mod prelude {
     pub use taitan_orm_macro::Selected;
 
 
-    pub use crate::sql_executor::SqlExecutor;
-    pub use crate::sql_executor_mut::SqlExecutorMut;
+    // pub use crate::sql_executor::SqlExecutor;
+    // pub use crate::sql_executor_mut::SqlExecutorMut;
+
+
+
     pub use crate::sql_generic_executor::SqlGenericExecutor;
+    pub use crate::new_executor::SqlExecutorNew;
+    pub use crate::new_executor::SqlExecutorMutNew;
+    pub use crate::new_executor::SqlGeneratorNew;
 
-
-    pub use crate::api::reader::ReaderApi;
-    pub use crate::api::writer::WriterApi;
-    pub use crate::api::template::TemplateApi;
-
-    pub use crate::api::reader_mut::ReaderMutApi;
-    pub use crate::api::writer_mut::WriterMutApi;
-    pub use crate::api::template_mut::TemplateMutApi;
+    // pub use crate::api::reader::ReaderApi;
+    // pub use crate::api::writer::WriterApi;
+    // pub use crate::api::template::TemplateApi;
+    //
+    // pub use crate::api::reader_mut::ReaderMutApi;
+    // pub use crate::api::writer_mut::WriterMutApi;
+    // pub use crate::api::template_mut::TemplateMutApi;
 
 
     pub use crate::result::Result as TaitanOrmResult;

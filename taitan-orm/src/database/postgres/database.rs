@@ -1,9 +1,9 @@
 use super::transaction::PostgresTransaction;
 
-use crate::args_extractor::ArgsExtractor;
+// use crate::args_extractor::ArgsExtractor;
 use crate::count::CountResult;
 use crate::{brave_new_executor_impl, new_executor_impl};
-use crate::sql_executor::SqlExecutor;
+// use crate::sql_executor::SqlExecutor;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use sqlx::{PgPool, Sqlite};
 use sqlx::{Database, Postgres};
@@ -30,13 +30,13 @@ impl PostgresDatabase {
     }
 }
 
-impl ArgsExtractor for PostgresDatabase {
-    fn extract_pagination_arguments(
-        page: &Pagination,
-    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        Ok(<Pagination as Parameter<Postgres>>::gen_args(page)?)
-    }
-}
+// impl ArgsExtractor for PostgresDatabase {
+//     fn extract_pagination_arguments(
+//         page: &Pagination,
+//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+//         Ok(<Pagination as Parameter<Postgres>>::gen_args(page)?)
+//     }
+// }
 
 impl SqlGenericExecutor for PostgresDatabase {
     type DB = Postgres;
@@ -47,9 +47,9 @@ impl SqlGenericExecutor for PostgresDatabase {
     }
 }
 
-impl SqlExecutor for PostgresDatabase {
-    new_executor_impl! {}
-}
+// impl SqlExecutor for PostgresDatabase {
+//     new_executor_impl! {}
+// }
 
 impl SqlExecutorNew<Postgres> for PostgresDatabase {
     brave_new_executor_impl!(sqlx::Postgres);

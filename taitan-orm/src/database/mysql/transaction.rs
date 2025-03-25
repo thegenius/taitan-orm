@@ -1,12 +1,9 @@
-use crate::args_extractor::ArgsExtractor;
 use crate::count::CountResult;
-use crate::{brave_new_transaction_impl, new_transaction_impl};
-use crate::sql_executor_mut::SqlExecutorMut;
+use crate::{brave_new_transaction_impl};
 use crate::sql_generic_executor::SqlGenericExecutor;
 use sqlx::{Database, MySql};
-use taitan_orm_trait::page::Pagination;
 use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::Parameter;
+use crate::new_executor::SqlExecutorMutNew;
 
 #[derive(Debug)]
 pub struct MySqlTransaction<'a> {
@@ -28,13 +25,13 @@ impl<'a> MySqlTransaction<'a> {
     }
 }
 
-impl<'t> ArgsExtractor for MySqlTransaction<'t> {
-    fn extract_pagination_arguments(
-        page: &Pagination,
-    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        Ok(<Pagination as Parameter<MySql>>::gen_args(page)?)
-    }
-}
+// impl<'t> ArgsExtractor for MySqlTransaction<'t> {
+//     fn extract_pagination_arguments(
+//         page: &Pagination,
+//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+//         Ok(<Pagination as Parameter<MySql>>::gen_args(page)?)
+//     }
+// }
 
 impl<'t> SqlGenericExecutor for MySqlTransaction<'t> {
     type DB = MySql;
@@ -45,6 +42,10 @@ impl<'t> SqlGenericExecutor for MySqlTransaction<'t> {
     }
 }
 
-impl<'t> SqlExecutorMut for MySqlTransaction<'t> {
-    new_transaction_impl! {}
+// impl<'t> SqlExecutorMut for MySqlTransaction<'t> {
+//     new_transaction_impl! {}
+// }
+
+impl<'t> SqlExecutorMutNew<sqlx::MySql> for MySqlTransaction<'t> {
+    brave_new_transaction_impl!(sqlx::MySql);
 }

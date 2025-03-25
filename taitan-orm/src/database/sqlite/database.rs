@@ -1,20 +1,11 @@
 use super::transaction::SqliteTransaction;
-
-use crate::args_extractor::ArgsExtractor;
+use crate::brave_new_executor_impl;
 use crate::count::CountResult;
-use crate::{brave_new_executor_impl, new_executor_impl};
-use crate::sql_executor::SqlExecutor;
-use crate::sql_generic_executor::SqlGenericExecutor;
-use sqlx::{SqlitePool, Type};
-use sqlx::{Database, Sqlite};
-use sqlx::sqlite::SqliteArguments;
-use tracing::debug;
-use taitan_orm_trait::page::Pagination;
-use taitan_orm_trait::result::Result;
-use taitan_orm_trait::traits::{Entity, Parameter, Selected, SqliteEntity};
-// use crate::database::sqlite::SqliteArgsExtractor;
 use crate::new_executor::SqlExecutorNew;
-use crate::sql_generator::SqlGenerator;
+use crate::sql_generic_executor::SqlGenericExecutor;
+use sqlx::SqlitePool;
+use sqlx::{Database, Sqlite};
+use taitan_orm_trait::result::Result;
 
 #[derive(Debug, Clone)]
 pub struct SqliteDatabase {
@@ -33,15 +24,13 @@ impl SqliteDatabase {
     }
 }
 
-impl ArgsExtractor for SqliteDatabase {
-    fn extract_pagination_arguments(
-        page: &Pagination,
-    ) -> Result<<Self::DB as Database>::Arguments<'_>> {
-        Ok(<Pagination as Parameter<Sqlite>>::gen_args(page)?)
-    }
-}
-
-
+// impl ArgsExtractor for SqliteDatabase {
+//     fn extract_pagination_arguments(
+//         page: &Pagination,
+//     ) -> Result<<Self::DB as Database>::Arguments<'_>> {
+//         Ok(<Pagination as Parameter<Sqlite>>::gen_args(page)?)
+//     }
+// }
 
 impl SqlGenericExecutor for SqliteDatabase {
     type DB = Sqlite;
@@ -52,9 +41,9 @@ impl SqlGenericExecutor for SqliteDatabase {
     }
 }
 
-impl SqlExecutor for SqliteDatabase {
-    new_executor_impl! {}
-}
+// impl SqlExecutor for SqliteDatabase {
+//     new_executor_impl! {}
+// }
 
 impl SqlExecutorNew<Sqlite> for SqliteDatabase {
     brave_new_executor_impl!(sqlx::Sqlite);

@@ -4,8 +4,7 @@ use sqlx::types::time::PrimitiveDateTime;
 use std::borrow::Cow;
 use time::macros::datetime;
 
-use taitan_orm::database::sqlite::SqliteLocalConfig;
-use taitan_orm::database::sqlite::{SqliteBuilder, SqliteDatabase};
+use taitan_orm::database::sqlite::prelude::*;
 use taitan_orm::prelude::*;
 
 #[derive(Debug, Schema, Clone)]

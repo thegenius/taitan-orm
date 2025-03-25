@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use taitan_orm::database::sqlite::{SqliteBuilder, SqliteDatabase, SqliteLocalConfig};
+use taitan_orm::database::sqlite::prelude::*;
 use taitan_orm::prelude::*;
 
 #[derive(Schema, Clone, Debug)]

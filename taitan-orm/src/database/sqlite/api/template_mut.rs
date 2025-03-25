@@ -1,7 +1,7 @@
-use crate::args_extractor::ArgsExtractor;
+
 use crate::prelude::SqlGenericExecutor;
-use crate::sql_executor::SqlExecutor;
-use crate::sql_generator::SqlGenerator;
+// use crate::sql_executor::SqlExecutor;
+// use crate::sql_generator::SqlGenerator;
 use sqlx::{Sqlite, Type};
 use taitan_orm_trait::error::TaitanOrmError;
 use taitan_orm_trait::page::{build_paged_list, PagedInfo, PagedList, Pagination};
@@ -11,13 +11,13 @@ use tracing::debug;
 use crate::new_executor::{SqlExecutorMutNew, SqlExecutorNew};
 use crate::{template_impl, template_mut_impl};
 
-impl<T> TemplateApiMutNew for T
+impl<T> TemplateMutApiNew for T
 where
     T: SqlExecutorMutNew<Sqlite>
 {
 }
 
-pub trait TemplateApiMutNew: SqlExecutorMutNew<Sqlite>
+pub trait TemplateMutApiNew: SqlExecutorMutNew<Sqlite>
 {
     template_mut_impl!(sqlx::Sqlite, SqliteSelected, SqliteTemplate);
     // async fn execute_by_template(&self, template: &dyn SqliteTemplate) -> Result<u64> {

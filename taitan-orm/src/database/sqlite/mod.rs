@@ -3,14 +3,23 @@ mod builder;
 mod database;
 mod transaction;
 mod generator;
-mod api;
+pub mod api;
 
-// pub use args_extractor::SqliteArgsExtractor;
 pub use builder::SqliteBuilder;
 pub use builder::SqliteLocalConfig;
 pub use database::SqliteDatabase;
 pub use transaction::SqliteTransaction;
 
-pub use api::reader::ReaderApiNew;
-pub use api::writer::WriterApiNew;
-pub use api::writer_mut::WriterMutApiNew;
+pub mod prelude {
+    pub use crate::database::sqlite::builder::SqliteBuilder;
+    pub use crate::database::sqlite::builder::SqliteLocalConfig;
+    pub use crate::database::sqlite::database::SqliteDatabase;
+    pub use crate::database::sqlite::transaction::SqliteTransaction;
+    pub use crate::database::sqlite::api::ReaderApiNew;
+    pub use crate::database::sqlite::api::ReaderMutApiNew;
+    pub use crate::database::sqlite::api::WriterApiNew;
+    pub use crate::database::sqlite::api::WriterMutApiNew;
+    pub use crate::database::sqlite::api::TemplateApiNew;
+    pub use crate::database::sqlite::api::TemplateMutApiNew;
+}
+

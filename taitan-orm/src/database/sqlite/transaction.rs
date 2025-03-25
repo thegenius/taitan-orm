@@ -1,7 +1,7 @@
-use crate::args_extractor::ArgsExtractor;
+// use crate::args_extractor::ArgsExtractor;
 use crate::count::CountResult;
 use crate::{brave_new_transaction_impl, new_transaction_impl};
-use crate::sql_executor_mut::SqlExecutorMut;
+// use crate::sql_executor_mut::SqlExecutorMut;
 use crate::sql_generic_executor::SqlGenericExecutor;
 use sqlx::{Database, Sqlite};
 use taitan_orm_trait::page::Pagination;
@@ -28,13 +28,13 @@ impl<'a> SqliteTransaction<'a> {
     }
 }
 
-impl<'t> ArgsExtractor for SqliteTransaction<'t> {
-    fn extract_pagination_arguments(
-        page: &Pagination,
-    ) -> taitan_orm_trait::result::Result<<Self::DB as Database>::Arguments<'_>> {
-        Ok(<Pagination as Parameter<Sqlite>>::gen_args(page)?)
-    }
-}
+// impl<'t> ArgsExtractor for SqliteTransaction<'t> {
+//     fn extract_pagination_arguments(
+//         page: &Pagination,
+//     ) -> taitan_orm_trait::result::Result<<Self::DB as Database>::Arguments<'_>> {
+//         Ok(<Pagination as Parameter<Sqlite>>::gen_args(page)?)
+//     }
+// }
 
 impl<'t> SqlGenericExecutor for SqliteTransaction<'t> {
     type DB = Sqlite;
@@ -45,9 +45,9 @@ impl<'t> SqlGenericExecutor for SqliteTransaction<'t> {
     }
 }
 
-impl<'t> SqlExecutorMut for SqliteTransaction<'t> {
-    new_transaction_impl! {}
-}
+// impl<'t> SqlExecutorMut for SqliteTransaction<'t> {
+//     new_transaction_impl! {}
+// }
 
 impl<'t> SqlExecutorMutNew<sqlx::Sqlite> for SqliteTransaction<'t> {
     brave_new_transaction_impl!(sqlx::Sqlite);
