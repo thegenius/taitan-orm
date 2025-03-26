@@ -14,6 +14,7 @@ use taitan_orm::database::sqlite::prelude::*;
 use taitan_orm::prelude::*;
 use tracing::info;
 
+
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]
 #[table = "user"]
 #[serde_struct = "selected"]
@@ -63,6 +64,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route("/user", get(query_user_by_id))
+        .route("/users_by_name", get(query_user_by_name_and_age))
         .route("/user", post(create_user))
         .route("/user", patch(update_user))
         .route("/user/{id}", delete(delete_user))
@@ -84,12 +86,8 @@ async fn create_user(State(state): State<Arc<AppState>>, Json(entity): Json<User
 // #[debug_handler]
 async fn create_users(State(state): State<Arc<AppState>>, Json(entity): Json<Users>) -> String {
     let mut trx = state.transaction().await.unwrap();
-    trx.insert(&entity.user_a)
-        .await
-        .unwrap();
-    trx.insert(&entity.user_b)
-        .await
-        .unwrap();
+    trx.insert(&entity.user_a).await.unwrap();
+    trx.insert(&entity.user_b).await.unwrap();
     trx.commit().await.unwrap();
     "insert all users success".to_string()
 }
@@ -117,7 +115,6 @@ async fn delete_user(State(state): State<Arc<AppState>>, Path(id): Path<i32>) ->
     format!("update {}", success)
 }
 
-#[debug_handler]
 async fn query_user_by_id(
     State(state): State<Arc<AppState>>,
     Query(params): Query<HashMap<String, String>>,
@@ -135,4 +132,27 @@ async fn query_user_by_id(
         }
         None => "Missing 'id' parameter".to_string(),
     }
+}
+
+async fn query_user_by_name_and_age(
+    State(state): State<Arc<AppState>>,
+    Query(params): Query<HashMap<String, String>>,
+) -> impl IntoResponse {
+    let name = params.get("name").unwrap();
+    let age = params.get("age").unwrap();
+
+    let age = age.parse::<i32>().unwrap();
+    let selection = UserSelected::default();
+    let location = And::new(
+        UserLocation::Age(Expr::new(Cmp::Eq, age)),
+        UserLocation::Name(Expr::new(Cmp::Eq, name.to_owned())),
+    );
+    let pagination = Pagination::new(10, 0);
+    let order_by = UserOrderBy::build(vec!["id"]).unwrap();
+    let entities: Vec<UserSelected> = state
+        .search(&selection, &location, &order_by, &pagination)
+        .await
+        .unwrap();
+    let json = serde_json::to_string(&entities).unwrap();
+    format!("Hello, {}!", json)
 }
