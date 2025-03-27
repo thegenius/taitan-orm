@@ -31,9 +31,9 @@ batch_delete([unique])                 -> u64 # return deleted rows
 ```text
 insert( entity{ field1, field2, field3, field4 } ) -> ()
                   |       |       |       |--> None --[ IGNORE]--> colum4
-                  |       |       |--> Null ----------[ NULL  ]--> colum3(set)
+                  |       |       |--> Some(None) ----[ NULL  ]--> colum3(set null)
                   |       |--> Some(val) -------------[ value ]--> colum2(set)
-                  |--> Not Optional: val -------------[ value ]--> colum1(key not exists)
+                  |--> Not Option: val ---------------[ value ]--> colum1(key not exists)
 ```
 
 ### upsert
