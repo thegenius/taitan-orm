@@ -198,6 +198,12 @@ async fn main() -> taitan_orm::result::Result<()> {
 ```
 * you can run the crud example in examples/crud directory.
 
+
+# Documents
+1. 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/setup.md)
+2. 🔗[Schema Definition](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/schema_defintion.md)
+3. 🔗[Write API](https://github.com/thegenius/taitan-orm/blob/main/docs/write_en.md)
+
 # Usage
 ## Compile Time Generation  
 When derive(Schema), TaiTan-ORM will generate helper struct for you.
@@ -331,8 +337,7 @@ async fn trx_insert_user(
 # Concepts
 ![](https://github.com/thegenius/taitan-orm/blob/main/docs/concept.png)
 
-# Documents
-1. [Write API](https://github.com/thegenius/taitan-orm/blob/main/docs/write_en.md)
+
 
 # Examples
 At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
@@ -349,7 +354,7 @@ At present, the documentation for this newly-born project is limited. You can re
  MySql  
  Postgres   
  Sqlite  
-Please refer to 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/setup.md) for details
+Please refer to 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/setup.md) for details
 
 
 # ROADMAP
