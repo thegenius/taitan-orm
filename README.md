@@ -201,7 +201,7 @@ async fn main() -> taitan_orm::result::Result<()> {
 
 # Documents
 1. 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/setup.md)
-2. 🔗[Schema Definition](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/schema_defintion.md)
+2. 🔗[Schema Definition](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/schema_definition.md)
 3. 🔗[Write API](https://github.com/thegenius/taitan-orm/blob/main/docs/write_en.md)
 
 # Usage
