@@ -73,16 +73,15 @@ async fn main() -> taitan_orm::result::Result<()> {
     let entity = User {
         id: 1,
         name: "Allen".to_string(),
-        age: Option::Some(23),
-        birthday: Option::Some(datetime!(2019-01-01 0:00)),
+        age: Some(23),
+        birthday: Some(datetime!(2019-01-01 0:00)),
     };
     let result = db.insert(&entity).await?;
 
     // 2. update
     let mutation = UserMutation {
-        name: None,
         age: Some(Some(24)),
-        birthday: None,
+        ..Default::default()
     };
     let primary = UserPrimary { id: 1 };
     let result = db.update(&mutation, &primary).await?;

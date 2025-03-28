@@ -10,6 +10,8 @@
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
 
+
+
 # 🎉 What's New in 0.1.10
 #### [1] Database support is more accurate: Now so if you only need mysql, there will be no sqlite/postgres code generation
 traits has been refactored to database aware 
