@@ -89,10 +89,10 @@ pub struct UserMutation {
 //     }),
 // );
 pub enum UserLocation {
-    Id(LocationExpr<i32>),
-    Name(LocationExpr<String>),
-    Age(LocationExpr<i32>),
-    Birthday(LocationExpr<PrimitiveDateTime>)
+    Id(Expr<i32>),
+    Name(Expr<String>),
+    Age(Expr<i32>),
+    Birthday(Expr<PrimitiveDateTime>)
 }
 
 // struct to select field and recv result from database 
