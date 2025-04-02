@@ -24,11 +24,16 @@ version = "0.1.10"
 # the main dependency, tokio need config to feature
 sqlx = {version = "0.8.2", features = ["runtime-tokio", "mysql", "sqlite", "postgres", "bigdecimal", "time", "uuid"]}
 tokio = {version = "1.34.0", features = ["full"]}
+axum = {version = "0.8.1", features = ["macros"]}
 
 # extend types
 time = {version = "0.3.37", features = ["macros", "serde"]}
+chrono = { version = "0.4.38", features = ["serde"]}
 bigdecimal = { version = "0.4.6", features = ["serde"] }
+rust_decimal = { version = "1.37.1", features = ["serde"] }
 uuid = { version = "1.11.0", features = ["v4", "serde"] }
+
+
 
 # tracing
 tracing = {version = "0.1", features = ["max_level_trace", "release_max_level_info"] }
@@ -43,9 +48,9 @@ serde_json = "1.0"
 serde_yaml = "0.9.27"
 regex = "1.10.3"
 
-axum = {version = "0.8.1", features = ["macros"]}
+
 http-body-util = {version = "0.1.0"}
-chrono = { version = "0.4.38", features = ["serde"]}
+
 
 tower = { version = "0.4.13", default-features = false, features = ["util"] }
 tower-layer = "0.3.2"
