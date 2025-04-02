@@ -23,7 +23,6 @@ bigdecimal = { workspace = true, optional = true }
 path-absolutize = { workspace = true }
 askama = { workspace = true }
 
-
 [features]
 tracing = ["taitan-orm-tracing/tracing"]
 sqlite = ["taitan-orm-macro/sqlite", "sqlx/sqlite"]
@@ -32,9 +31,6 @@ postgres = ["taitan-orm-macro/postgres", "sqlx/postgres"]
 time = ["dep:time", "sqlx/time"]
 uuid = ["dep:uuid", "sqlx/uuid"]
 bigdecimal = ["dep:bigdecimal", "sqlx/bigdecimal"]
-
-#[package.metadata.test]
-#features = ["time", "sqlite", "tracing"]
 
 [dev-dependencies]
 time = {workspace = true}
