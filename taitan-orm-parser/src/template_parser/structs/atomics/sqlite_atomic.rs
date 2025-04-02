@@ -8,7 +8,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag_no_case;
 use nom::combinator::map;
 use nom::IResult;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 use crate::template_parser::structs::atomics::atomic_trait::AtomicTrait;
 
 #[derive(Debug, Clone, PartialEq)]

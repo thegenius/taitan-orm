@@ -11,7 +11,7 @@ use taitan_orm_trait::traits::{
     Parameter, PostgresEntity, PostgresLocation, PostgresMutation,
     PostgresSelected, PostgresTemplate, PostgresUnique, Selected,
 };
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 pub trait ReaderApi: SqlExecutor<Postgres> {
     reader_impl!(

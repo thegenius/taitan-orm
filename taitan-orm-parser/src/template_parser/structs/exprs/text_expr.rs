@@ -6,7 +6,7 @@ use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 use crate::Atomic;
 
 #[derive(Debug, Clone, PartialEq)]

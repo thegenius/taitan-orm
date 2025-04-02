@@ -18,7 +18,7 @@ use nom::combinator::{map, not};
 use nom::sequence::preceded;
 use nom::IResult;
 use std::fmt::{Display, Formatter};
-use tracing::debug;
+use taitan_orm_tracing::debug;
 use crate::template_parser::structs::keyword::PostgresKeyword;
 
 

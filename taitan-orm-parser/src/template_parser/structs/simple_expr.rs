@@ -6,7 +6,7 @@ use nom::character::complete::multispace0;
 use nom::combinator::{map, opt};
 use nom::sequence::preceded;
 use nom::IResult;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimpleExpr {

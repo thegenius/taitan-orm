@@ -4,7 +4,7 @@ use crate::Atomic;
 use nom::character::complete::multispace0;
 use nom::sequence::preceded;
 use std::fmt::Debug;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct GenericAtomicStream {

@@ -12,7 +12,7 @@ use crate::template_parser::structs::atomics::{
     AtomicTrait, GenericAtomic, GenericAtomicStream, MySqlAtomic,
 };
 use crate::template_parser::structs::operators::ConnectOp;
-use tracing::{debug, error};
+use taitan_orm_tracing::{debug, error};
 
 pub type ParseResult<T> = std::result::Result<T, TemplateParseError>;
 

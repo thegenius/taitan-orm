@@ -5,7 +5,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 use sqlx::Arguments;
 
-
+use taitan_orm_tracing::debug;
 
 pub struct And<DB, L, R>
 where
@@ -51,17 +51,17 @@ where
     R: Location<DB> + Debug,
 {
     fn add_to_args<'a, 'b>(&'a self, args: &'b mut <DB as Database>::Arguments<'a>) -> crate::result::Result<()> {
-        tracing::debug!("and add_to_args");
+        debug!("and add_to_args");
         if self.left.all_none() {
             self.right.add_to_args(args)?;
-            tracing::debug!("and add right len: {}", args.len());
+            debug!("and add right len: {}", args.len());
         } else if self.right.all_none() {
             self.left.add_to_args(args)?;
-            tracing::debug!("and add left len: {}", args.len());
+            debug!("and add left len: {}", args.len());
         } else {
             self.left.add_to_args(args)?;
             self.right.add_to_args(args)?;
-            tracing::debug!("and add both len: {}", args.len());
+            debug!("and add both len: {}", args.len());
         }
         Ok(())
     }

@@ -12,7 +12,7 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 use taitan_orm::database::sqlite::prelude::*;
 use taitan_orm::prelude::*;
-use tracing::info;
+use taitan_orm::tracing::info;
 
 
 #[derive(Schema, Clone, Debug, Serialize, Deserialize)]

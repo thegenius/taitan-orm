@@ -50,8 +50,8 @@
 // use sqlx::Row;
 // use taitan_orm::database::sqlite::{SqliteDatabase, SqliteLocalConfig};
 // use time::impl_macros::datetime;
-// use tracing::debug;
-// use tracing::field::debug;
+// use taitan_orm_tracing::debug;
+// use crate::tracing::field::debug;
 // // use crate::entities::user::*;
 // use crate::entities::user::*;
 // use crate::setup::{get_test_mutex, setup_logger};

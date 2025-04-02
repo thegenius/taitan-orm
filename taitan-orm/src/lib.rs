@@ -48,6 +48,9 @@ pub mod prelude {
     pub use crate::error::*;
 }
 
+pub mod tracing {
+    pub use taitan_orm_tracing::*;
+}
 
 pub mod macros {
     pub use taitan_orm_macro::Parameter;

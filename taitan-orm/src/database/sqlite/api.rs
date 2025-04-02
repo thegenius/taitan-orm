@@ -11,7 +11,7 @@ use taitan_orm_trait::traits::{
     Parameter, Selected, SqliteEntity, SqliteLocation, SqliteMutation, SqliteSelected,
     SqliteTemplate, SqliteUnique,
 };
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 pub trait ReaderApi: SqlExecutor<Sqlite> {
     reader_impl!(

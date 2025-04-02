@@ -8,17 +8,21 @@ description = "Next Generation ORM based on sqlx"
 homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
-sqlx = {workspace = true}
+taitan-orm-tracing = { path="../taitan-orm-tracing" }
+sqlx = { workspace = true }
 serde = { version = "1.0.215", features = ["derive"] }
 time = "0.3.37"
-serde_with = {workspace = true}
-serde_json = {workspace = true}
-typetag = {workspace = true}
-thiserror = {workspace = true}
-nom = {workspace = true}
-tracing = {workspace = true}
+serde_with = { workspace = true }
+serde_json = { workspace = true }
+typetag = { workspace = true }
+thiserror = { workspace = true }
+nom = { workspace = true }
+
 
 askama = "0.12.1"
-rinja="0.3.5"
-bit-vec ="0.8"
+rinja = "0.3.5"
+bit-vec = "0.8"
 log = "0.4.22"
+
+[features]
+tracing = ["taitan-orm-tracing/tracing"]

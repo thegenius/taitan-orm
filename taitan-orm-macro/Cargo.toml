@@ -12,9 +12,10 @@ homepage = "https://github.com/thegenius/taitan-orm"
 proc-macro = true
 
 [features]
-sqlite = ["sqlx/sqlite"]
-mysql = ["sqlx/mysql"]
-postgres = ["sqlx/postgres"]
+tracing = ["taitan-orm-parser/tracing"]
+sqlite = []
+mysql = []
+postgres = []
 
 
 [dependencies]
@@ -24,4 +25,4 @@ taitan-orm-parser = {path = "../taitan-orm-parser"}
 #taitan-orm-parser = {version = "0.1.10"}
 
 [dev-dependencies]
-sqlx = {workspace = true}
+sqlx = {workspace = true, features = ["sqlite"]}

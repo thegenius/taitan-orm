@@ -1,6 +1,6 @@
 use crate::template_parser::structs::sql_part::SqlPart;
 use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct SqlTemplate {

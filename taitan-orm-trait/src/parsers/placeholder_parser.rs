@@ -10,7 +10,7 @@ use nom::{
     sequence::delimited,
     IResult,
 };
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 fn parse_placeholder_name(input: &str) -> IResult<&str, &str> {
     // 匹配以下划线或字母开头，后接字母、数字或下划线

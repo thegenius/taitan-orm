@@ -8,6 +8,7 @@ version.workspace = true
 
 
 [dependencies]
+taitan-orm-tracing = { path="../taitan-orm-tracing" }
 quote = "1.0"
 syn = { version = "2.0.99", features = ["full", "visit", "visit-mut", "extra-traits"] }
 proc-macro2 = "1.0"
@@ -17,11 +18,16 @@ serde_yaml = { version = "0.9.33" }
 rinja = "0.3.5"
 serde_json = { workspace = true }
 nom = { workspace = true }
-tracing = { workspace = true }
+
 sqlparser = "0.55.0"
 regex = "1.11.1"
 
+[features]
+tracing = ["taitan-orm-tracing/tracing"]
+
 [dev-dependencies]
+tracing = {workspace = true}
 tracing-subscriber = { workspace = true }
 sqlx = {workspace = true}
 taitan-orm-trait = { path = "../taitan-orm-trait" }
+taitan-orm-tracing = { path="../taitan-orm-tracing", features = ["tracing"] }

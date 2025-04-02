@@ -11,7 +11,7 @@ use taitan_orm_trait::traits::{
     MySqlEntity, MySqlLocation, MySqlMutation, MySqlSelected, MySqlTemplate,
     MySqlUnique, Parameter, Selected,
 };
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 pub trait ReaderApi: SqlExecutor<MySql> {
     reader_impl!(

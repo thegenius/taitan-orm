@@ -3,7 +3,7 @@ use crate::template_parser::structs::expr::Expr;
 use crate::template_parser::structs::template_part::TemplatePart;
 use crate::template_parser::to_sql::{SqlSegment, ToSqlSegment};
 use nom::{branch::alt, character::complete::multispace0, combinator::map, IResult};
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SqlPart {

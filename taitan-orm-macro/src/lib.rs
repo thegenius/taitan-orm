@@ -6,6 +6,7 @@ use syn::{parse_macro_input, DeriveInput};
 use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, InputParser, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, OrderByStructGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
 
 
+
 fn get_supported_database_types() -> Vec<DatabaseType> {
     let mut supported_database_types: Vec<DatabaseType> = Vec::new();
     #[cfg(feature = "sqlite")]

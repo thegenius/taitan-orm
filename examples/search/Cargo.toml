@@ -5,7 +5,7 @@ rust-version.workspace = true
 version.workspace = true
 
 [dependencies]
-taitan-orm = { path = "../../taitan-orm", features = ["sqlite", "type-time"] }
+taitan-orm = { path = "../../taitan-orm", features = ["sqlite", "time"] }
 #taitan-orm = {version = "0.1.6"}
 serde = { workspace = true }
 sqlx = { workspace = true }

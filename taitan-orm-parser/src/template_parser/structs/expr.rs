@@ -11,7 +11,7 @@ use nom::combinator::map;
 use nom::multi::{many0, separated_list0};
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 // Keyword{val: String, is_mysql: bool, is_postgres: bool, is_sqlite: bool}
 //
 //

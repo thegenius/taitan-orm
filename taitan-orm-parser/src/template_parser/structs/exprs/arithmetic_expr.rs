@@ -8,7 +8,7 @@ use nom::character::complete::multispace0;
 use nom::combinator::map;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use tracing::debug;
+use taitan_orm_tracing::debug;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ArithmeticExpr {
