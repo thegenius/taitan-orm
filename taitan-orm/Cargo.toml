@@ -9,20 +9,28 @@ homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
 taitan-orm-trait = { path = "../taitan-orm-trait" }
-taitan-orm-macro = { path = "../taitan-orm-macro", features = ["sqlite", "mysql", "postgres"] }
+taitan-orm-macro = { path = "../taitan-orm-macro" }
 #taitan-orm-trait = { version = "0.1.10" }
 #taitan-orm-macro = { version = "0.1.10", features = ["sqlite", "mysql", "postgres"] }
 
 sqlx = { workspace = true }
 serde = { workspace = true }
 
-time = { workspace = true }
-uuid = { workspace = true }
-bigdecimal = { workspace = true }
+time = { workspace = true, optional = true }
+uuid = { workspace = true, optional = true }
+bigdecimal = { workspace = true, optional = true }
 
 tracing = { workspace = true }
 path-absolutize = { workspace = true }
 askama = { workspace = true }
+
+[features]
+sqlite = ["taitan-orm-macro/sqlite", "sqlx/sqlite"]
+mysql = ["taitan-orm-macro/mysql", "sqlx/mysql"]
+postgres = ["taitan-orm-macro/postgres", "sqlx/postgres"]
+type-time = ["time", "sqlx/time"]
+type-uuid = ["uuid", "sqlx/uuid"]
+type-bigdecimal = ["bigdecimal", "sqlx/bigdecimal"]
 
 
 [dev-dependencies]
