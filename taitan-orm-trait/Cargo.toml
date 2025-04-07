@@ -8,8 +8,8 @@ description = "Next Generation ORM based on sqlx"
 homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
-taitan-orm-tracing = { path="../taitan-orm-tracing" }
-#taitan-orm-tracing = { version = "0.1.11" }
+#taitan-orm-tracing = { path="../taitan-orm-tracing" }
+taitan-orm-tracing = { version = "0.1.11" }
 sqlx = { workspace = true }
 serde = { version = "1.0.215", features = ["derive"] }
 time = "0.3.37"
