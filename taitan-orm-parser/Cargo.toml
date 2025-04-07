@@ -31,4 +31,5 @@ tracing = {workspace = true}
 tracing-subscriber = { workspace = true }
 sqlx = {workspace = true}
 taitan-orm-trait = { path = "../taitan-orm-trait" }
-taitan-orm-tracing = { path="../taitan-orm-tracing", features = ["tracing"] }
+taitan-orm-tracing = { version = "0.1.11" ,features = ["tracing"]}
+#taitan-orm-tracing = { path="../taitan-orm-tracing", features = ["tracing"] }
