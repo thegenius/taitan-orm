@@ -21,8 +21,8 @@ postgres = []
 [dependencies]
 quote = "1.0"
 syn = { version = "2.0.90", features = ["full", "visit", "visit-mut"] }
-taitan-orm-parser = {path = "../taitan-orm-parser"}
-#taitan-orm-parser = {version = "0.1.10"}
+#taitan-orm-parser = {path = "../taitan-orm-parser"}
+taitan-orm-parser = {version = "0.1.11"}
 
 [dev-dependencies]
 sqlx = {workspace = true, features = ["sqlite"]}
