@@ -20,7 +20,12 @@ tracing-subscriber = {version ="0.3.18"}
 sonyflake = "0.3"
 criterion = { version = "0.4", features = ["html_reports", "async_tokio"] }
 path-absolutize = { version = "3.1.1"}
+sea-orm = { version = "1.1.8", features = ["sqlx-sqlite", "runtime-tokio"] }
 
 [[bench]]
 name = "insert_bench"  # 必须与文件名一致（不带.rs扩展名）
 harness = false        # 关键！禁用默认测试框架
+
+[[bench]]
+name = "sea_insert_bench"
+harness = false
