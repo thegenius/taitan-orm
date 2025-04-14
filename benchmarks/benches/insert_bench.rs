@@ -61,6 +61,15 @@ async fn taitan_insert(db: &SqliteDatabase, user: User) {
     db.insert(&user).await.unwrap();
 }
 
+fn gen_user(sony_flake: &Sonyflake) -> User {
+    User {
+        id: sony_flake.next_id().unwrap() as i64,
+        name: "test_user".to_string(),
+        age: Some(23),
+        birthday: Some(datetime!(2019-01-01 0:00)),
+    }
+}
+
 fn bench_async_insert(c: &mut Criterion) {
     // 创建独立运行时
     let rt = Runtime::new().unwrap();
@@ -74,13 +83,7 @@ fn bench_async_insert(c: &mut Criterion) {
     // 单条插入基准测试
     group.bench_function("taitan_insert", |b| {
         b.to_async(&rt).iter_batched(
-            || User {
-                id: sony_flake.next_id().unwrap() as i64,
-                name: "test_user".to_string(),
-                age: Some(23),
-                birthday: Some(datetime!(2019-01-01 0:00)),
-            },
-            // |user| sqlx_insert(&db, user),
+            || gen_user(&sony_flake),
             |user| taitan_insert(&db, user),
             BatchSize::SmallInput,
         )
@@ -88,14 +91,8 @@ fn bench_async_insert(c: &mut Criterion) {
 
     group.bench_function("sqlx_insert", |b| {
         b.to_async(&rt).iter_batched(
-            || User {
-                id: sony_flake.next_id().unwrap() as i64,
-                name: "test_user".to_string(),
-                age: Some(23),
-                birthday: Some(datetime!(2019-01-01 0:00)),
-            },
+            || gen_user(&sony_flake),
             |user| sqlx_insert(&db, user),
-            // |user| taitan_insert(&db, user),
             BatchSize::SmallInput,
         )
     });
