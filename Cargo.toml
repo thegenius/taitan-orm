@@ -4,8 +4,9 @@ members = [
     "taitan-orm-macro",
     "taitan-orm-trait",
     "taitan-orm-parser",
-    "examples/*"
-, "taitan-orm-tracing"]
+    "taitan-orm-tracing",
+    "examples/*",
+    "benchmarks"]
 resolver = "2"
 
 default-members = [
