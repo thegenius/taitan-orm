@@ -1,18 +1,18 @@
 [package]
 name = "benchmarks"
-edition = "2021"
+edition = "2024"
 rust-version.workspace = true
 version.workspace = true
 
 [dependencies]
-taitan-orm = {version = "0.1.11", features = ["sqlite"]}
+taitan-orm = {path = "../taitan-orm", features = ["sqlite"]}
 sqlx = {version = "0.8.2", features = ["runtime-tokio", "mysql", "sqlite", "postgres", "bigdecimal", "time", "uuid"]}
 time = {version = "0.3.37", features = ["macros", "serde"]}
 chrono = { version = "0.4.38", features = ["serde"]}
 bigdecimal = { version = "0.4.6", features = ["serde"] }
 rust_decimal = { version = "1.37.1", features = ["serde"] }
 uuid = { version = "1.11.0", features = ["v4", "serde"] }
-tokio = { version = "1.35.1", features = ["full"] }
+tokio = { version = "1", features = ["full", "rt-multi-thread"] }
 serde = {version = "1.0", features = ["derive"]}
 tracing = {version = "0.1", features = ["max_level_trace", "release_max_level_info"] }
 tracing-test = {version = "0.2"}
@@ -22,10 +22,23 @@ criterion = { version = "0.4", features = ["html_reports", "async_tokio"] }
 path-absolutize = { version = "3.1.1"}
 sea-orm = { version = "1.1.8", features = ["sqlx-sqlite", "runtime-tokio"] }
 
-[[bench]]
-name = "insert_bench"  # 必须与文件名一致（不带.rs扩展名）
-harness = false        # 关键！禁用默认测试框架
+rbs = { version = "4.5"}
+rbatis = { version = "4.5" }
+rbdc-sqlite = { version = "4.5" }
+
 
 [[bench]]
-name = "sea_insert_bench"
+name = "insert_by_taitan"  # 必须与文件名一致（不带.rs扩展名）
+harness = false            # 关键！禁用默认测试框架
+
+[[bench]]
+name = "insert_by_seaorm"
+harness = false
+
+#[[bench]]
+#name = "insert_by_rbatis"
+#harness = false
+
+[[bench]]
+name = "insert_by_sqlx"
 harness = false

@@ -29,11 +29,11 @@ use tokio::runtime::Runtime;
 use tracing::info;
 
 async fn init_db(db_file: &str) -> taitan_orm::result::Result<SqliteDatabase> {
-    let config = SqliteLocalConfig {
-        work_dir: Cow::from("./workspace"),
-        db_file: Cow::from(db_file),
-    };
-    let mut db: SqliteDatabase = SqliteBuilder::build(config).await?;
+    // let config = SqliteLocalConfig {
+    //     work_dir: Cow::from("./workspace"),
+    //     db_file: Cow::from(db_file),
+    // };
+    let mut db: SqliteDatabase = SqliteBuilder::build_mem().await?;
     db.execute_plain("DROP TABLE IF EXISTS `user`").await?;
     db.execute_plain(
         "CREATE TABLE IF NOT EXISTS `user`(`id` BIGINT PRIMARY KEY, `age` INT, `name` VARCHAR(64), `birthday` DATETIME)",
@@ -46,16 +46,16 @@ async fn init_db(db_file: &str) -> taitan_orm::result::Result<SqliteDatabase> {
     Ok(db)
 }
 
-async fn sqlx_insert(db: &SqliteDatabase, user: User) {
-    sqlx::query("INSERT INTO user (id, age, name, birthday) VALUES (?, ?, ?, ?)")
-        .bind(user.id)
-        .bind(user.age)
-        .bind(user.name)
-        .bind(user.birthday)
-        .execute(db.get_pool().unwrap())
-        .await
-        .unwrap();
-}
+// async fn sqlx_insert(db: &SqliteDatabase, user: User) {
+//     sqlx::query("INSERT INTO user (id, age, name, birthday) VALUES (?, ?, ?, ?)")
+//         .bind(user.id)
+//         .bind(user.age)
+//         .bind(user.name)
+//         .bind(user.birthday)
+//         .execute(db.get_pool().unwrap())
+//         .await
+//         .unwrap();
+// }
 
 async fn taitan_insert(db: &SqliteDatabase, user: User) {
     db.insert(&user).await.unwrap();
@@ -84,18 +84,18 @@ fn bench_async_insert(c: &mut Criterion) {
     group.bench_function("taitan_insert", |b| {
         b.to_async(&rt).iter_batched(
             || gen_user(&sony_flake),
-            |user| taitan_insert(&db, user),
+            |user| async {  taitan_insert(&db, user).await; },
             BatchSize::SmallInput,
         )
     });
 
-    group.bench_function("sqlx_insert", |b| {
-        b.to_async(&rt).iter_batched(
-            || gen_user(&sony_flake),
-            |user| sqlx_insert(&db, user),
-            BatchSize::SmallInput,
-        )
-    });
+    // group.bench_function("sqlx_insert", |b| {
+    //     b.to_async(&rt).iter_batched(
+    //         || gen_user(&sony_flake),
+    //         |user| sqlx_insert(&db, user),
+    //         BatchSize::SmallInput,
+    //     )
+    // });
 
 
 

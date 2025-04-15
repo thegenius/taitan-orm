@@ -37,6 +37,14 @@ impl SqliteBuilder {
         let database = SqliteDatabase { sqlite_pool: pool };
         Ok(database)
     }
+    pub async fn build_mem() -> crate::result::Result<SqliteDatabase> {
+        let sqlite_pool = SqlitePool::connect("sqlite://:memory:").await.map_err(|_e| {
+            TaitanOrmError::DatabaseInitFail(DatabaseInitFail("create is missing fail".to_string()))
+        })?;
+        let database = SqliteDatabase { sqlite_pool };
+        Ok(database)
+    }
+
 }
 
 pub struct SqliteLocalConfig<'a> {

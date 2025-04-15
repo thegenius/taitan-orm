@@ -68,7 +68,7 @@ fn bench_sea_orm(c: &mut Criterion) {
         b.to_async(&rt).iter_batched(
             || {gen_user(&sony_flake)},
             |user| async {
-                insert_single_user(&db, user).await
+                insert_single_user(&db, user).await;
             },
             BatchSize::SmallInput
         )
