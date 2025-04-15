@@ -356,6 +356,26 @@ At present, the documentation for this newly-born project is limited. You can re
  Sqlite  
 Please refer to 🔗[Setup](https://github.com/thegenius/taitan-orm/blob/main/docs/usages/setup.md) for details
 
+# PERFORMANCE
+Bench Environment:
+```
+CPU: Apple M4
+MEM: 16G
+SSD: 256G
+OS : Mac Sequoia 15.1.1 
+```
+
+| ORM        | Insert        |
+|------------|---------------|
+| sqlx       | 18.676 us/ops |
+| TaiTan-ORM | 17.831 us/ops |
+| Rbatis     | 19.360 us/ops |
+| Sea-ORM    | 28.116 us/ops |
+
+Thanks to the maximum usage of compile time processing, TaiTan-ORM even faster than sqlx binding style!!
+
+**You can run benchmarks on your own machine in directory of `./benchmarks` with `cargo bench`**
+
 
 # ROADMAP
 - **0.1 API** 🔧  
