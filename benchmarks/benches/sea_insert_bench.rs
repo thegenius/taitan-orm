@@ -1,15 +1,17 @@
 use std::ptr::swap_nonoverlapping;
+use std::time::Duration;
 use criterion::{async_executor::AsyncExecutor, criterion_group, criterion_main, Criterion, BatchSize};
-use sea_orm::{Database, EntityTrait, DatabaseConnection, ActiveModelTrait, ActiveValue, ConnectionTrait, Set, ActiveModelBehavior};
+use sea_orm::{Database, EntityTrait, DatabaseConnection, ActiveModelTrait, ActiveValue, ConnectionTrait, Set, ActiveModelBehavior, EnumIter, DeriveRelation};
 use time::PrimitiveDateTime;
 use tokio::runtime::Runtime;
 use sea_orm::PrimaryKeyTrait;
 use sonyflake::Sonyflake;
 use time::macros::datetime;
+use sea_orm::DerivePrimaryKey;
 
 
 #[derive(Clone, Debug, PartialEq, Eq, sea_orm::DeriveEntityModel)]
-#[sea_orm(table_name = "users")]
+#[sea_orm(table_name = "user")]
 pub struct Model {
     #[sea_orm(primary_key)]
     id: i64,
@@ -17,6 +19,9 @@ pub struct Model {
     age: i32,
     birthday: PrimitiveDateTime
 }
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
@@ -48,12 +53,15 @@ async fn insert_single_user(db: &DatabaseConnection, model: ActiveModel) {
 }
 
 
-
 fn bench_sea_orm(c: &mut Criterion) {
     let rt = Runtime::new().unwrap();
     let db = rt.block_on(async { setup_db().await });
 
     let mut group = c.benchmark_group("SeaORM");
+    group
+        .warm_up_time(Duration::from_secs(5))
+        .measurement_time(Duration::from_secs(20))
+        .sample_size(10_000);
     let sony_flake = Sonyflake::new().unwrap();
     // 单条插入测试
     group.bench_function("single_insert", |b| {
