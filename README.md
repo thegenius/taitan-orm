@@ -363,6 +363,7 @@ CPU: Apple M4
 MEM: 16G
 SSD: 256G
 OS : Mac Sequoia 15.1.1 
+DB : Sqlite Memory Mode
 ```
 
 | ORM        | Insert        |
