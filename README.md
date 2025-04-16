@@ -4,11 +4,11 @@
 [![Version](https://img.shields.io/badge/crates-0.1.11-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
--  **SQL-First** : Sql with template syntax and extremely performance.
--  **Ergonomics** : Ergonomics api design and error design.
--  **Compile-Time** : Maximizing compile-time processing.
--  **Transactional** : Beautiful transaction, as not a transaction.
--  **Asynchronous** : Fully async from the first day.
+- **SQL-First**    : SQL with template syntax and extreme performance.
+- **Ergonomics**   : Ergonomics API design and error handling.
+- **Compile-Time** : Maximizing compile-time processing.
+- **Transactional**: Beautiful transaction, as if not a transaction.
+- **Asynchronous** : Fully async from day one.
 
 
 # Why Another ORM
