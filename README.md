@@ -4,11 +4,16 @@
 [![Version](https://img.shields.io/badge/crates-0.1.11-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
 # Features
+-  **SQL-First** : Write Your Own Sql with Ninja Template Syntax.
 -  **Ergonomics** : Ergonomics API design and Error design.
 -  **Transactional** : Beautiful Transaction Abstraction, As not a Transaction.
--  **Template** : Write Your Own Sql with Ninja Template Syntax.
 -  **Asynchronous** : Fully Async Based on Sqlx.
 -  **Compile-Time** : Maximizing Compile-Time Processing, For API and Performance.
+
+# Why Another ORM
+🔗[Why Another ORM](https://github.com/thegenius/taitan-orm/blob/main/docs/why_another_orm_en.md)
+
+
 
 
 
