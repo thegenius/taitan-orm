@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
 
 # Features
-<div style="margin-left: 20px; font-family: monospace;">
+<div style="margin-left: 20px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;">
   <div><strong>SQL-First</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: SQL with template syntax and extreme performance.</div>
   <div><strong>Ergonomics</strong>&nbsp;&nbsp;&nbsp;&nbsp;: Ergonomics API design and error handling.</div>
   <div><strong>Compile-Time</strong>&nbsp;&nbsp;: Maximizing compile-time processing.</div>
