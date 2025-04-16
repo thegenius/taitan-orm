@@ -22,6 +22,17 @@ cd taitan-orm/examples/crud
 cargo run
 ```
 
+# Examples
+At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
+
+| example     | description                 |
+|-------------|-----------------------------|
+| crud        | basic crud example          |
+| template    | template with paged example |
+| transaction | basic transaction example   |
+| search      | multi search features       |
+| axum_crud   | integrate with axum         |
+
 # Quick Start
 ```shell
 cargo add taitan-orm
@@ -274,16 +285,7 @@ async fn trx_insert_user(
 
 
 
-# Examples
-At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
 
-| example     | description                 |
-|-------------|-----------------------------|
-| crud        | basic crud example          |
-| template    | template with paged example |
-| transaction | basic transaction example   |
-| search      | multi search features       |
-| axum_crud   | integrate with axum         |
  
 # Supported Database
  MySql  
