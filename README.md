@@ -3,12 +3,15 @@
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
 [![Version](https://img.shields.io/badge/crates-0.1.11-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
+
 # Features
-- **SQL-First**    : SQL with template syntax and extreme performance.
-- **Ergonomics**   : Ergonomics API design and error handling.
-- **Compile-Time** : Maximizing compile-time processing.
-- **Transactional**: Beautiful transaction, as if not a transaction.
-- **Asynchronous** : Fully async from day one.
+<div style="margin-left: 20px; font-family: monospace;">
+  <div><strong>SQL-First</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: SQL with template syntax and extreme performance.</div>
+  <div><strong>Ergonomics</strong>&nbsp;&nbsp;&nbsp;&nbsp;: Ergonomics API design and error handling.</div>
+  <div><strong>Compile-Time</strong>&nbsp;&nbsp;: Maximizing compile-time processing.</div>
+  <div><strong>Transactional</strong>&nbsp: Beautiful transaction, as if not a transaction.</div>
+  <div><strong>Asynchronous</strong>&nbsp;&nbsp;: Fully async from day one.</div>
+</div>
 
 
 # Why Another ORM
