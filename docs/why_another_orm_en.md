@@ -18,21 +18,21 @@ Take a complicate SQL query as an example:
 ```sql
 深色版本
 WITH RankedOrders AS (
-SELECT
-id,
-customer_id,
-order_date,
-amount,
-SUM(amount) OVER (PARTITION BY customer_id) AS total_amount,
-ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS rank
-FROM orders
+    SELECT
+        id,
+        customer_id,
+        order_date,
+        amount,
+    SUM(amount) OVER (PARTITION BY customer_id) AS total_amount,
+    ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date DESC) AS rank
+    FROM orders
 )
 SELECT
-id,
-customer_id,
-order_date,
-amount,
-total_amount
+    id,
+    customer_id,
+    order_date,
+    amount,
+    total_amount
 FROM RankedOrders
 WHERE rank = 1
 ```
@@ -44,19 +44,19 @@ Neo4j’s Cypher language:
 ```sql
 // Find all people (f) that 'Alice' (p) knows in a graph database.
 MATCH (p:Person)-[:KNOWS]->(f:Person)
-WHERE p.name = 'Alice'
-RETURN f.name
-Or InfluxDB’s Flux language:
+    WHERE p.name = 'Alice'
+    RETURN f.name
+    Or InfluxDB’s Flux language:
 ```
 
 InfluxDB's Flux language:
 ```sql
 // Calculate the average value every 5 minutes.
 from(bucket: "my_bucket")
-|> range(start: -1h)
-|> filter(fn: (r) => r._measurement == "sensor_data")
-|> aggregateWindow(every: 5m, fn: mean, createEmpty: false)
-|> yield(name: "downsampled_data")
+    |> range(start: -1h)
+    |> filter(fn: (r) => r._measurement == "sensor_data")
+    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)
+    |> yield(name: "downsampled_data")
 ```
 
 From these three examples, we can draw a clear conclusion:
@@ -107,21 +107,21 @@ At this point, JPA usage is essentially equivalent to writing SQL manually in My
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
 #[sea_orm(table_name = "cake")]
 pub struct Model {
-#[sea_orm(primary_key)]
-pub id: i32,
-pub name: String,
+    #[sea_orm(primary_key)]
+    pub id: i32,
+    pub name: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-#[sea_orm(has_many = "super::fruit::Entity")]
-Fruit,
+    #[sea_orm(has_many = "super::fruit::Entity")]
+    Fruit,
 }
 
 impl Related<super::fruit::Entity> for Entity {
-fn to() -> RelationDef {
-Relation::Fruit.def()
-}
+    fn to() -> RelationDef {
+        Relation::Fruit.def()
+    }
 }
 ```
 Even emerging ORMs like Toasty follow a similar approach:
