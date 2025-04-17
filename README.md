@@ -6,7 +6,7 @@
 
 # Features
 <div style="margin-left: 20px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;">
-  <div><strong>SQL-First</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: SQL with template syntax and extreme performance.</div>
+  <div><strong>SQL-First</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: SQL with template syntax and extremely performance.</div>
   <div><strong>Ergonomics</strong>&nbsp;&nbsp;&nbsp;&nbsp;: Ergonomics API design and error handling.</div>
   <div><strong>Compile-Time</strong>&nbsp;&nbsp;: Maximizing compile-time processing.</div>
   <div><strong>Transactional</strong>&nbsp: Beautiful transaction, as if not a transaction.</div>
