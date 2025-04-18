@@ -1,14 +1,17 @@
-use std::ptr::swap_nonoverlapping;
-use std::time::Duration;
-use criterion::{async_executor::AsyncExecutor, criterion_group, criterion_main, Criterion, BatchSize};
-use sea_orm::{Database, EntityTrait, DatabaseConnection, ActiveModelTrait, ActiveValue, ConnectionTrait, Set, ActiveModelBehavior, EnumIter, DeriveRelation};
-use time::PrimitiveDateTime;
-use tokio::runtime::Runtime;
-use sea_orm::PrimaryKeyTrait;
-use sonyflake::Sonyflake;
-use time::macros::datetime;
+use criterion::{
+    BatchSize, Criterion, async_executor::AsyncExecutor, criterion_group, criterion_main,
+};
 use sea_orm::DerivePrimaryKey;
-
+use sea_orm::PrimaryKeyTrait;
+use sea_orm::{
+    ActiveModelBehavior, ActiveModelTrait, ActiveValue, ConnectionTrait, Database,
+    DatabaseConnection, DeriveRelation, EntityTrait, EnumIter, Set,
+};
+use sonyflake::Sonyflake;
+use std::time::Duration;
+use time::PrimitiveDateTime;
+use time::macros::datetime;
+use tokio::runtime::Runtime;
 
 #[derive(Clone, Debug, PartialEq, Eq, sea_orm::DeriveEntityModel)]
 #[sea_orm(table_name = "user")]
@@ -17,7 +20,7 @@ pub struct Model {
     id: i64,
     name: String,
     age: i32,
-    birthday: PrimitiveDateTime
+    birthday: PrimitiveDateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -41,17 +44,13 @@ fn gen_user(sony_flake: &Sonyflake) -> ActiveModel {
         id: Set(sony_flake.next_id().unwrap() as i64),
         name: Set("test_user".to_string()),
         age: Set(23),
-        birthday: Set(datetime!(2019-01-01 0:00))
+        birthday: Set(datetime!(2019-01-01 0:00)),
     }
 }
 
 async fn insert_single_user(db: &DatabaseConnection, model: ActiveModel) {
-    Entity::insert(model)
-        .exec(db)
-        .await
-        .unwrap();
+    Entity::insert(model).exec(db).await.unwrap();
 }
-
 
 fn bench_sea_orm(c: &mut Criterion) {
     let rt = Runtime::new().unwrap();
@@ -66,15 +65,13 @@ fn bench_sea_orm(c: &mut Criterion) {
     // 单条插入测试
     group.bench_function("single_insert", |b| {
         b.to_async(&rt).iter_batched(
-            || {gen_user(&sony_flake)},
+            || gen_user(&sony_flake),
             |user| async {
                 insert_single_user(&db, user).await;
             },
-            BatchSize::SmallInput
+            BatchSize::SmallInput,
         )
     });
-
-
 
     group.finish();
 }

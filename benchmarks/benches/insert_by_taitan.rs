@@ -1,12 +1,6 @@
-use sqlx::mysql::MySqlConnectOptions;
-use sqlx::postgres::PgConnectOptions;
-use sqlx::types::time::PrimitiveDateTime;
-use std::borrow::Cow;
-use std::fs;
-use std::path::Path;
 use std::time::Duration;
+use time::PrimitiveDateTime;
 use time::macros::datetime;
-use path_absolutize::Absolutize;
 
 use sonyflake::Sonyflake;
 use taitan_orm::database::sqlite::prelude::*;
@@ -24,7 +18,7 @@ pub struct User {
     birthday: Option<PrimitiveDateTime>,
 }
 
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use criterion::{BatchSize, Criterion, black_box, criterion_group, criterion_main};
 use tokio::runtime::Runtime;
 use tracing::info;
 
@@ -84,7 +78,9 @@ fn bench_async_insert(c: &mut Criterion) {
     group.bench_function("taitan_insert", |b| {
         b.to_async(&rt).iter_batched(
             || gen_user(&sony_flake),
-            |user| async {  taitan_insert(&db, user).await; },
+            |user| async {
+                taitan_insert(&db, user).await;
+            },
             BatchSize::SmallInput,
         )
     });
@@ -96,10 +92,6 @@ fn bench_async_insert(c: &mut Criterion) {
     //         BatchSize::SmallInput,
     //     )
     // });
-
-
-
-
 
     // // 批量插入基准测试（使用事务）
     // group.bench_function("batch_insert(100)", |b| {

@@ -1,16 +1,14 @@
-use std::ptr::swap_nonoverlapping;
-use std::time::Duration;
-use criterion::{async_executor::AsyncExecutor, criterion_group, criterion_main, Criterion, BatchSize};
-use rbatis::{crud, RBatis};
+use criterion::{
+    BatchSize, Criterion, async_executor::AsyncExecutor, criterion_group, criterion_main,
+};
+use rbatis::{RBatis, crud};
 use rbdc_sqlite::SqliteDriver;
-use time::PrimitiveDateTime;
-use tokio::runtime::Runtime;
-use sea_orm::PrimaryKeyTrait;
 use serde::{Deserialize, Serialize};
 use sonyflake::Sonyflake;
+use std::time::Duration;
+use time::PrimitiveDateTime;
 use time::macros::datetime;
-
-
+use tokio::runtime::Runtime;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -21,11 +19,11 @@ pub struct User {
     pub birthday: PrimitiveDateTime,
 }
 
-crud!(User{});
+crud!(User {});
 // 初始化数据库连接
 async fn setup_db() -> RBatis {
     let rb = RBatis::new();
-    rb.init(SqliteDriver {},"sqlite://:memory:")
+    rb.init(SqliteDriver {}, "sqlite://:memory:")
         .expect("Failed to connect to database");
 
     // 创建表
@@ -74,10 +72,7 @@ fn bench_rbatis(c: &mut Criterion) {
     group.bench_function("single_insert", |b| {
         b.to_async(&rt).iter_batched(
             || gen_user(&sf),
-            |user| async {
-                insert_user(&rb, user).await
-            }
-            ,
+            |user| async { insert_user(&rb, user).await },
             BatchSize::SmallInput,
         )
     });
