@@ -91,7 +91,7 @@ fn bench_sea_orm(c: &mut Criterion) {
     let sony_flake = Sonyflake::new().unwrap();
     let (mut db, id_list) = rt.block_on(async { setup_db(&sony_flake).await });
 
-    let mut group = c.benchmark_group("SeaORM");
+    let mut group = c.benchmark_group("Sqlx Select");
     group
         .warm_up_time(Duration::from_secs(5))
         .measurement_time(Duration::from_secs(20))
