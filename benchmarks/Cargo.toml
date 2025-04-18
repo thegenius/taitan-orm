@@ -25,7 +25,7 @@ sea-orm = { version = "1.1.8", features = ["sqlx-sqlite", "runtime-tokio"] }
 rbs = { version = "4.5"}
 rbatis = { version = "4.5" }
 rbdc-sqlite = { version = "4.5" }
-
+rand = {version = "0.9.0"}
 
 [[bench]]
 name = "insert_by_taitan"  # 必须与文件名一致（不带.rs扩展名）
@@ -41,4 +41,12 @@ harness = false
 
 [[bench]]
 name = "insert_by_sqlx"
+harness = false
+
+[[bench]]
+name = "select_by_taitan"
+harness = false
+
+[[bench]]
+name = "select_by_seaorm"
 harness = false
