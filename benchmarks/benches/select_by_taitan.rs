@@ -1,5 +1,5 @@
 
-use sqlx::types::time::PrimitiveDateTime;
+use time::PrimitiveDateTime;
 use std::time::Duration;
 use time::macros::datetime;
 
