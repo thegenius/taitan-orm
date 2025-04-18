@@ -12,11 +12,11 @@ use sonyflake::Sonyflake;
 use taitan_orm::database::sqlite::prelude::*;
 use taitan_orm::prelude::*;
 
-#[derive(Debug, Schema, Clone)]
-#[table(user)]
-#[unique(uk_name=(name))]
-#[index(idx_hello=(age, birthday))]
-#[primary(id)]
+// #[derive(Debug, Schema, Clone)]
+// #[table(user)]
+// #[unique(uk_name=(name))]
+// #[index(idx_hello=(age, birthday))]
+// #[primary(id)]
 pub struct User {
     id: i64,
     name: String,

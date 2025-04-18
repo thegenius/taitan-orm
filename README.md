@@ -306,12 +306,12 @@ OS : Mac Sequoia 15.1.1
 DB : Sqlite Memory Mode
 ```
 
-| ORM        | Insert        |
-|------------|---------------|
-| sqlx       | 18.676 us/ops |
-| TaiTan-ORM | 17.831 us/ops |
-| Rbatis     | 19.360 us/ops |
-| Sea-ORM    | 28.116 us/ops |
+| ORM        | Insert        | select        |
+|------------|---------------|---------------|
+| sqlx       | 18.676 us/ops | -             |
+| TaiTan-ORM | 17.831 us/ops | 15.942 us/ops |
+| Rbatis     | 19.360 us/ops | 18.248 us/ops |
+| Sea-ORM    | 28.116 us/ops | 25.818 us/ops |
 
 Thanks to the maximum usage of compile time processing, TaiTan-ORM even faster than sqlx binding style!!
 

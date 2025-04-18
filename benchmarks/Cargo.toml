@@ -50,3 +50,11 @@ harness = false
 [[bench]]
 name = "select_by_seaorm"
 harness = false
+
+[[bench]]
+name = "select_by_sqlx"
+harness = false
+
+#[[bench]]
+#name = "select_by_rbatis"
+#harness = false
