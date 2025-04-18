@@ -35,10 +35,6 @@ harness = false            # 关键！禁用默认测试框架
 name = "insert_by_seaorm"
 harness = false
 
-#[[bench]]
-#name = "insert_by_rbatis"
-#harness = false
-
 [[bench]]
 name = "insert_by_sqlx"
 harness = false
@@ -54,6 +50,10 @@ harness = false
 [[bench]]
 name = "select_by_sqlx"
 harness = false
+
+#[[bench]]
+#name = "insert_by_rbatis"
+#harness = false
 
 #[[bench]]
 #name = "select_by_rbatis"
