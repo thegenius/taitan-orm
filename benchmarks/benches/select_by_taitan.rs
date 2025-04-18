@@ -1,13 +1,7 @@
-use sqlx::mysql::MySqlConnectOptions;
-use sqlx::postgres::PgConnectOptions;
+
 use sqlx::types::time::PrimitiveDateTime;
-use std::borrow::Cow;
-use std::fs;
-use std::path::Path;
-use std::sync::Arc;
 use std::time::Duration;
 use time::macros::datetime;
-use path_absolutize::Absolutize;
 
 use sonyflake::Sonyflake;
 use taitan_orm::database::sqlite::prelude::*;
