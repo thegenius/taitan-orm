@@ -17,6 +17,8 @@
 # Why Another ORM
 🔗[Why Another ORM](https://github.com/thegenius/taitan-orm/blob/main/docs/why_another_orm_en.md)
 
+# Deep Wiki
+🔗[wiki](https://deepwiki.com/thegenius/taitan-orm)
 
 # Quick Taste
 ```
