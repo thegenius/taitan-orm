@@ -8,12 +8,12 @@ description = "Next Generation ORM based on sqlx"
 homepage = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
-taitan-orm-tracing = {path = "../taitan-orm-tracing"}
-taitan-orm-trait = { path = "../taitan-orm-trait" }
-taitan-orm-macro = { path = "../taitan-orm-macro" }
-#taitan-orm-tracing = { version = "0.1.11" }
-#taitan-orm-trait = { version = "0.1.11" }
-#taitan-orm-macro = { version = "0.1.11" }
+#taitan-orm-tracing = {path = "../taitan-orm-tracing"}
+#taitan-orm-trait = { path = "../taitan-orm-trait" }
+#taitan-orm-macro = { path = "../taitan-orm-macro" }
+taitan-orm-tracing = { version = "0.1.12" }
+taitan-orm-trait = { version = "0.1.12" }
+taitan-orm-macro = { version = "0.1.12" }
 
 # core dependencies
 sqlx = { workspace = true }
@@ -46,13 +46,13 @@ rust_decimal = ["dep:rust_decimal", "sqlx/rust_decimal"]
 time = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-taitan-orm-tracing = {path = "../taitan-orm-tracing", features = ["tracing"]}
-taitan-orm-trait = {path = "../taitan-orm-trait", features = ["tracing"]}
-taitan-orm-macro = { path = "../taitan-orm-macro",features = ["tracing", "sqlite", "mysql", "postgres"] }
+#taitan-orm-tracing = {path = "../taitan-orm-tracing", features = ["tracing"]}
+#taitan-orm-trait = {path = "../taitan-orm-trait", features = ["tracing"]}
+#taitan-orm-macro = { path = "../taitan-orm-macro",features = ["tracing", "sqlite", "mysql", "postgres"] }
 
-#taitan-orm-tracing = { version = "0.1.11", features = ["tracing"] }
-#taitan-orm-trait = { version = "0.1.11", features = ["tracing"] }
-#taitan-orm-macro = { version = "0.1.11", features = ["tracing", "sqlite", "mysql", "postgres"] }
+taitan-orm-tracing = { version = "0.1.12", features = ["tracing"] }
+taitan-orm-trait = { version = "0.1.12", features = ["tracing"] }
+taitan-orm-macro = { version = "0.1.12", features = ["tracing", "sqlite", "mysql", "postgres"] }
 
 
 
