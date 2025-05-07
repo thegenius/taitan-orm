@@ -19,10 +19,10 @@ postgres = []
 
 
 [dependencies]
-#taitan-orm-askama = { version = "0.14.0" }
-#taitan-orm-parser = {version = "0.1.11"}
-taitan-orm-askama = { path="../taitan-orm-askama" }
-taitan-orm-parser = {path = "../taitan-orm-parser"}
+taitan-orm-askama = { version = "0.14.0" }
+taitan-orm-parser = {version = "0.1.12"}
+#taitan-orm-askama = { path="../taitan-orm-askama" }
+#taitan-orm-parser = {path = "../taitan-orm-parser"}
 
 quote = "1.0"
 syn = { version = "2.0.90", features = ["full", "visit", "visit-mut"] }
