@@ -236,7 +236,7 @@ TaiTan-ORM: The Most Powerful ORM Template Engine You'll Ever Meet
 | <span style="color: green;">{% %}</span> | Askame template syntax     |
 
 ```rust
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
  source = "UPDATE `user` SET name = :{name} WHERE `id` = :{id}",
  ext = "txt"
@@ -246,7 +246,7 @@ pub struct UserUpdateTemplate {
  name: String,
 }
 
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
  source = "select `id`, `name`, `age` FROM `user` where `id` >= :{id}",
  ext = "txt"
@@ -255,7 +255,7 @@ pub struct UserSelectTemplate {
  id: i32,
 }
 
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
  source = "select `id`, `name`, `age` FROM `user` where {% if age.is_some() %} age >= :{age} AND {% endif %} `name` = :{name}",
  ext = "txt"
@@ -322,6 +322,19 @@ Thanks to the maximum usage of compile time processing, TaiTan-ORM even faster t
 # Release Notes
 ## 0.1.12
 include the askama template, simplify the template definition
+now you can write template without add askama::Template
+```
+#[derive(Template, Debug)]
+#[template(
+ source = "UPDATE `user` SET name = :{name} WHERE `id` = :{id}",
+ ext = "txt"
+)]
+pub struct UserUpdateTemplate {
+ id: i32,
+ name: String,
+}
+```
+
 ## 0.1.11
 compile time tracing dependency
 ## 0.1.10
