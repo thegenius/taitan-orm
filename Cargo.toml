@@ -5,6 +5,7 @@ members = [
     "taitan-orm-trait",
     "taitan-orm-parser",
     "taitan-orm-tracing",
+    "taitan-orm-askama",
     "examples/*",
     "benchmarks"]
 resolver = "2"
@@ -72,4 +73,4 @@ nom = { version = "7.0.0" }
 runtime-fmt = { version = "0.4.1"}
 
 rinja = "0.3.5"
-askama = "0.12.1"
+askama = "0.14.0"

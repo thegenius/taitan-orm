@@ -4,8 +4,7 @@ use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, DeriveInput};
 use taitan_orm_parser::{ConditionDef, DatabaseType, EntityTraitImplGenerator, IndexEnum, IndexStructGenerator, InputParser, LocationEnumGenerator, LocationTraitImplGenerator, MutationStructGenerator, MutationTraitImplGenerator, OrderByStructGenerator, ParameterTraitImplGenerator, SelectedDefaultImplGenerator, SelectedStructGenerator, SelectedTraitImplGenerator, TableDef, TemplateArgTraitImplGenerator, TemplateTraitImplGenerator};
-
-
+use taitan_orm_askama::derive_askama_template;
 
 fn get_supported_database_types() -> Vec<DatabaseType> {
     let mut supported_database_types: Vec<DatabaseType> = Vec::new();
@@ -162,16 +161,19 @@ fn generate_template_new_impl(stream: &mut TokenStream, table_def: &TableDef) {
     let struct_name = &table_def.struct_name;
     let struct_ident = format_ident!("{}", &struct_name);
     let s: TokenStream = quote! {
-        impl taitan_orm::traits::TemplateSqlTrait for #struct_ident {}
+        impl taitan_orm::traits::TemplateSqlTrait for #struct_ident {
+        }
     }.into();
     stream.extend(s);
 }
 
-#[proc_macro_derive(Template, attributes(sql))]
+#[proc_macro_derive(Template, attributes(template))]
 pub fn expand_template_new_macro(input: TokenStream) -> TokenStream {
+    let askama_template_impl: TokenStream = derive_askama_template(input.clone().into()).into();
     let derive_input = parse_macro_input!(input as DeriveInput);
     let table_def = TableDef::parse(&derive_input);
     let mut stream = TokenStream::new();
+    stream.extend(askama_template_impl);
     generate_template_new_impl(&mut stream, &table_def);
     generate_template_arg_impl(&mut stream, &table_def);
     // panic!("{}", stream);

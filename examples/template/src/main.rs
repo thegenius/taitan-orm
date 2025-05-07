@@ -11,7 +11,7 @@ pub struct User {
     age: Option<i32>,
 }
 
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
     source = "UPDATE `user` SET name = :{name} WHERE `id` = :{id}",
     ext = "txt"
@@ -21,7 +21,7 @@ pub struct UserUpdateTemplate {
     name: String,
 }
 
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
     source = "select `id`, `name`, `age` FROM `user` where `id` >= :{id}",
     ext = "txt"
@@ -30,7 +30,7 @@ pub struct UserSelectTemplate {
     id: i32,
 }
 
-#[derive(Template, askama::Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
     source = "select `id`, `name`, `age` FROM `user` where {% if age.is_some() %} age >= :{age} AND {% endif %} `name` = :{name}",
     ext = "txt"

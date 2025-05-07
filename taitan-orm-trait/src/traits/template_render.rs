@@ -16,6 +16,9 @@ pub trait TemplateSqlTrait: askama::Template {
             TaitanOrmError::TemplateRenderError(TemplateRenderError(err.to_string()))
         })?)
     }
+    // fn get_rendered_sql(&self) -> Result<String> {
+    //     Err(TaitanOrmError::TemplateRenderError(TemplateRenderError("not implement".to_string())))
+    // }
 }
 
 pub trait TemplateArgTrait<DB: Database> {

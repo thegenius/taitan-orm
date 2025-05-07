@@ -1,6 +1,6 @@
 use sqlx::Arguments;
 use taitan_orm_macro::Template;
-#[derive(askama::Template,  Template, Debug)]
+#[derive(Template, Debug)]
 #[template(
     source = "SELECT * FROM users WHERE a=:{a} {% if b.is_some() %} AND b=:{b} {% endif %} {% if c.is_some() %} AND c=:{c} {% endif %}",
     ext = "txt"
