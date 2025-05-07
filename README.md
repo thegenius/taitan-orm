@@ -1,7 +1,7 @@
 <h1 align="center"> Great Art Stretches Taste. </h1>  
 
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
-[![Version](https://img.shields.io/badge/crates-0.1.11-green)](https://crates.io/crates/taitan-orm)
+[![Version](https://img.shields.io/badge/crates-0.1.12-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
 
 # Features
@@ -319,80 +319,18 @@ Thanks to the maximum usage of compile time processing, TaiTan-ORM even faster t
 
 **You can run benchmarks on your own machine in directory of `./benchmarks` with `cargo bench`**
 
+# Release Notes
+## 0.1.12
+include the askama template, simplify the template definition
+## 0.1.11
+compile time tracing dependency
+## 0.1.10
+[1] Database support is more accurate: Now so if you only need mysql, there will be no sqlite/postgres code generation  
+[2] Template engine has the full power of Askama Engine  
+[3] API has been polished  
+[4] Location now can be combined with Logic Operator  
 
-# 🎉 What's New in 0.1.10
-#### [1] Database support is more accurate: Now so if you only need mysql, there will be no sqlite/postgres code generation
-traits has been refactored to database aware
-```rust
-pub trait Entity<DB: Database>: Parameter<DB> + Debug {
-    fn gen_insert_sql<'a>(&self) -> Cow<'a, str>;
-    fn gen_upsert_sql<'a>(&self) -> Cow<'a, str>;
-    fn gen_create_sql<'a>(&self) -> Cow<'a, str>;
-}
-```
 
-#### [2] Template engine now has the full power of Askama Engine
-Now you can write any Ninja syntax in template.
-```rust
-#[derive(Template, askama::Template, Debug)]
-#[template(
- source = "select `id`, `name`, `age` FROM `user` where {% if age.is_some() %} age >= :{age} AND {% endif %} `name` = :{name}",
- ext = "txt"
-)]
-pub struct UserCustomTemplate {
- name: String,
- age: Option<i32>,
-}
-```
-
-#### [3] API has been polished
-There are only 7 write apis with intuitive design
-```rust
-insert(entity) -> () // fail if conflict
-upsert(entity) -> () // update if conflict
-create(entity) -> () // fail if conflict, return generated field, still experimental!!!
-
-update(mutation, unique  ) -> bool // return true if update take effect
-change(mutation, location) -> u64  // return affected rows
-
-delete(unique  ) -> bool // return true if delete take effect
-purify(location) -> u64  // return deleted rows
-```
-
-There are only 4 read apis with intuitive design
-```rust
-select       (selection, unique               ) -> Optional<SE>
-search       (selection, location, order, page) -> Vec<SE>
-search_all   (selection, location, order      ) -> Vec<SE>
-search_paged (selection, location, order, page) -> PagedList<SE>
-```
-
-Location now can be combined with Logic Operator
-```rust
-let location = And::new(
-    UserLocation::Id(Expr {
-        cmp: Cmp::GreaterOrEq,
-        val: Some(1),
-    }),
-    UserLocation::Age(Expr {
-        cmp: Cmp::GreaterOrEq,
-        val: Some(24),
-    }),
-);
-let location = Or::new(
-    UserLocation::Id(Expr {
-        cmp: Cmp::GreaterOrEq,
-        val: Some(1),
-    }),
-    UserLocation::Age(Expr {
-        cmp: Cmp::GreaterOrEq,
-        val: Some(24),
-   }),
-);
-
-```
-
-**Other APIs are just syntactic sugar and maybe some performance optimize.**
 
 # ROADMAP
 - **0.1 API** 🔧  
