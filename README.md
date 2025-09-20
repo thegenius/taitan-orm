@@ -3,6 +3,7 @@
 ![Building](https://github.com/thegenius/taitan-orm/actions/workflows/rust-ci.yml/badge.svg)
 [![Version](https://img.shields.io/badge/crates-0.1.12-green)](https://crates.io/crates/taitan-orm)
 [![Version](https://img.shields.io/badge/Lines-32k-yellow)](https://crates.io/crates/taitan-orm)
+# I'm back
 
 # Features
 <div style="margin-left: 20px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;">
@@ -338,7 +339,7 @@ pub struct UserUpdateTemplate {
 ## 0.1.11
 compile time tracing dependency
 ## 0.1.10
-[1] Database support is more accurate: Now so if you only need mysql, there will be no sqlite/postgres code generation  
+[1] Database support is more accurate: if you only need mysql, there will be no sqlite/postgres code generation  
 [2] Template engine has the full power of Askama Engine  
 [3] API has been polished  
 [4] Location now can be combined with Logic Operator  
