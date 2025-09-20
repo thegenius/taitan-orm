@@ -5,7 +5,7 @@ version.workspace = true
 rust-version.workspace = true
 license = "MIT OR Apache-2.0"
 description = "Next Generation ORM based on sqlx"
-homepage = "https://github.com/thegenius/taitan-orm"
+repository = "https://github.com/thegenius/taitan-orm"
 
 [dependencies]
 #taitan-orm-tracing = {path = "../taitan-orm-tracing"}
