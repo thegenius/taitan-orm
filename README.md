@@ -27,6 +27,9 @@ git clone https://github.com/thegenius/taitan-orm.git
 cd taitan-orm/examples/crud
 cargo run
 ```
+# API Doc
+🔗[API Doc](https://github.com/thegenius/taitan-orm/blob/main/docs/API.md)
+
 
 # Examples
 At present, the documentation for this newly-born project is limited. You can refer to the examples project for more details.
