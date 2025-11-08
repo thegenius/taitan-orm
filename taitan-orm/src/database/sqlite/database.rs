@@ -1,10 +1,10 @@
 use super::transaction::SqliteTransaction;
 use crate::brave_new_executor_impl;
-use taitan_orm_trait::result::CountResult;
 use crate::executors::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
-use sqlx::SqlitePool;
 use sqlx::Sqlite;
+use sqlx::SqlitePool;
+use taitan_orm_trait::result::CountResult;
 use taitan_orm_trait::result::Result;
 
 #[derive(Debug, Clone)]
@@ -22,8 +22,11 @@ impl SqliteDatabase {
     pub fn get_pool(&self) -> Result<&SqlitePool> {
         Ok(&self.sqlite_pool)
     }
-}
 
+    pub fn from_pool(pool: SqlitePool) -> Self {
+        Self { sqlite_pool: pool }
+    }
+}
 
 impl SqlGenericExecutor for SqliteDatabase {
     type DB = Sqlite;
@@ -33,7 +36,6 @@ impl SqlGenericExecutor for SqliteDatabase {
         query_result.rows_affected()
     }
 }
-
 
 impl SqlExecutor<Sqlite> for SqliteDatabase {
     brave_new_executor_impl!(sqlx::Sqlite);

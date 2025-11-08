@@ -1,11 +1,11 @@
 use super::transaction::PostgresTransaction;
-use taitan_orm_trait::result::CountResult;
 use crate::brave_new_executor_impl;
+use crate::executors::SqlExecutor;
 use crate::executors::SqlGenericExecutor;
 use sqlx::PgPool;
 use sqlx::Postgres;
+use taitan_orm_trait::result::CountResult;
 use taitan_orm_trait::result::Result;
-use crate::executors::SqlExecutor;
 
 #[derive(Debug, Clone)]
 pub struct PostgresDatabase {
@@ -22,6 +22,10 @@ impl PostgresDatabase {
     pub fn get_pool(&self) -> Result<&PgPool> {
         Ok(&self.pool)
     }
+
+    pub fn from_pool(pool: PgPool) -> Self {
+        Self { pool }
+    }
 }
 
 impl SqlGenericExecutor for PostgresDatabase {
@@ -32,7 +36,6 @@ impl SqlGenericExecutor for PostgresDatabase {
         query_result.rows_affected()
     }
 }
-
 
 impl SqlExecutor<Postgres> for PostgresDatabase {
     brave_new_executor_impl!(sqlx::Postgres);

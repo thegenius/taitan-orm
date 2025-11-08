@@ -1,6 +1,6 @@
 use super::transaction::MySqlTransaction;
 
-use sqlx::{MySql, MySqlPool};
+use sqlx::{MySql, MySqlPool, PgPool};
 use taitan_orm_trait::result::Result;
 use taitan_orm_trait::result::CountResult;
 use crate::executors::SqlExecutor;
@@ -20,6 +20,10 @@ impl MySqlDatabase {
 
     pub fn get_pool(&self) -> Result<&MySqlPool> {
         Ok(&self.pool)
+    }
+
+    pub fn from_pool(pool: MySqlPool) -> Self {
+        Self { pool }
     }
 }
 
